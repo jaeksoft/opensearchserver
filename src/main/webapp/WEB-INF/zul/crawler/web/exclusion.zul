@@ -1,0 +1,76 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('exclusion') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ExclusionController')">
+	<vbox width="99%"
+		visible="@load(exclusion.webCrawlerEditPatternsRights)">
+		<checkbox label="Enabled"
+			checked="@bind(exclusion.enabled.value)" />
+		<separator />
+		<label>For example:</label>
+		<label>
+			Enter http://www.opensearchserver.com if you only want to
+			exclude the home page
+		</label>
+		<label>
+			Enter http://www.opensearchserver.com/* if you want to
+			exclude all the content
+		</label>
+		<label>
+			Enter http://www.open-search-server.com/*support* if you
+			only wish to exlude URLs containing the word "support"
+			within the opensearchserver.com domain.
+		</label>
+		<textbox multiline="true" rows="10" width="100%"
+			value="@bind(exclusion.pattern)" />
+		<button label="Add" onClick="@command('onAdd')" />
+	</vbox>
+	<separator />
+	<hbox>
+		<label>Filter:</label>
+		<textbox cols="20" value="@load(exclusion.like)" />
+		<space />
+		<button label="Search" onClick="@command('onSearch')" />
+	</hbox>
+	<separator />
+	<listbox selectedItems="@bind(exclusion.selectedItems)"
+		checkmark="@load(exclusion.webCrawlerEditPatternsRights)"
+		multiple="@load(exclusion.webCrawlerEditPatternsRights)"
+		model="@load(exclusion.patternList)">
+		<template name="model">
+			<listitem>
+				<listcell>
+					<textbox inplace="true" value="@load(each)"
+						width="95%" readonly="true" />
+				</listcell>
+			</listitem>
+		</template>
+		<listfoot>
+			<listfooter>
+				<paging detailed="true"
+					totalSize="@load(exclusion.totalSize)"
+					pageSize="@load(exclusion.pageSize)"
+					activePage="@bind(exclusion.activePage)" />
+			</listfooter>
+		</listfoot>
+	</listbox>
+	<button label="delete" visible="@load(exclusion.selectionRemovable)"
+		onClick="@command('onDelete')" />
+	<button label="delete all"
+		visible="@load(exclusion.selectionRemovable)"
+		onClick="@command('onDeleteAll')" />
+</window>

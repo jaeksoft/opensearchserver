@@ -1,0 +1,57 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('crawler') @init('com.jaeksoft.searchlib.web.controller.crawler.CrawlerController')">
+	<tabbox>
+		<tabs>
+			<tab id="tabWebCrawler" label="Web" selected="true"
+				visible="@load(crawler.webCrawlerRights)" />
+			<tab id="tabDatabaseCrawler" label="Database"
+				visible="@load(crawler.databaseCrawlerRights)" />
+			<tab id="tabFileCrawler" label="Files"
+				visible="@load(crawler.fileCrawlerRights)" />
+			<tab id="tabMailboxCrawler" label="Mailboxes"
+				visible="@load(crawler.mailboxCrawlerRights)" />
+			<tab id="tabRestCrawler" label="REST"
+				visible="@load(crawler.restCrawlerRights)" />
+		</tabs>
+
+		<tabpanels>
+
+			<tabpanel>
+				<include src="WEB-INF/zul/crawler/web/index.zul" />
+			</tabpanel>
+
+			<tabpanel fulfill="tabDatabaseCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/database/index.zul" />
+			</tabpanel>
+
+			<tabpanel fulfill="tabFileCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/file/index.zul" />
+			</tabpanel>
+
+			<tabpanel fulfill="tabMailboxCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/mailbox/index.zul" />
+			</tabpanel>
+
+			<tabpanel fulfill="tabRestCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/rest/index.zul" />
+			</tabpanel>
+
+		</tabpanels>
+	</tabbox>
+</window>

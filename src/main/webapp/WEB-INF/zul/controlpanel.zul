@@ -1,0 +1,96 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('index') @init('com.jaeksoft.searchlib.web.controller.IndexController')">
+	<tabbox>
+		<tabs>
+			<tab id="tabHome" label="@bind(index.indexTitle)"
+				tooltiptext="Index" selected="true" />
+			<tab id="tabSchema" visible="@bind(index.schemaRights)"
+				label="Schema" />
+			<tab id="tabQuery" visible="@bind(index.queryRights)"
+				label="Query" />
+			<tab id="tabRenderer" visible="@bind(index.queryRights)"
+				label="Renderer" />
+			<tab id="tabUpdate" visible="@bind(index.updateRights)"
+				label="Update" />
+			<tab id="tabDelete" visible="@bind(index.updateRights)"
+				label="Delete" />
+			<tab id="tabCrawler" visible="@bind(index.crawlerRights)"
+				label="Crawler" />
+			<tab id="tabScheduler"
+				visible="@bind(index.schedulerRights)" label="Scheduler" />
+			<tab id="tabRuntime" visible="@bind(index.runtimeRights)"
+				label="Runtime" />
+			<tab id="tabReports" visible="@bind(index.queryRights)"
+				label="Reports" />
+			<tab id="tabReplication"
+				visible="@bind(index.replicationRights)" label="Replication" />
+			<tab id="tabScript" visible="@bind(index.schemaRights)"
+				label="Scripts" />
+			<tab id="tabPrivileges"
+				visible="@bind(index.privilegeRights)" label="Privileges" />
+		</tabs>
+		<toolbar>
+			<toolbarbutton label="Inline help"
+				onClick="@command('onHelp', target=self)" />
+			<toolbarbutton label="Refresh"
+				onClick="@global-command('refresh')" />
+		</toolbar>
+		<tabpanels>
+			<tabpanel>
+				<include src="WEB-INF/zul/home.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabSchema.onSelect">
+				<include src="WEB-INF/zul/schema/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabQuery.onSelect">
+				<include src="WEB-INF/zul/query/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRenderer.onSelect">
+				<include src="WEB-INF/zul/renderer/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabUpdate.onSelect">
+				<include src="WEB-INF/zul/update/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabDelete.onSelect">
+				<include src="WEB-INF/zul/delete/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabCrawler.onSelect">
+				<include src="WEB-INF/zul/crawler/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabScheduler.onSelect">
+				<include src="WEB-INF/zul/scheduler/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabRuntime.onSelect">
+				<include src="WEB-INF/zul/runtime/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabReports.onSelect">
+				<include src="WEB-INF/zul/reports/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabReplication.onSelect">
+				<include src="WEB-INF/zul/replication/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabScript.onSelect">
+				<include src="WEB-INF/zul/script/index.zul" />
+			</tabpanel>
+			<tabpanel fulfill="tabPrivileges.onSelect">
+				<include src="WEB-INF/zul/privileges/index.zul" />
+			</tabpanel>
+		</tabpanels>
+	</tabbox>
+</window>

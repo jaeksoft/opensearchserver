@@ -1,0 +1,52 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('mapping') @init('com.jaeksoft.searchlib.web.controller.crawler.file.MappingFileController')">
+	<hbox align="center">
+		<listbox mold="select" model="@load(mapping.urlFieldList)"
+			selectedItem="@bind(mapping.selectedUrlField)">
+			<template name="model">
+				<listitem label="@load(each.name)" />
+			</template>
+		</listbox>
+		<label>linked in</label>
+		<listbox mold="select" model="@load(mapping.indexFieldList)"
+			selectedItem="@bind(mapping.selectedIndexField)">
+			<template name="model">
+				<listitem label="@load(each.name)" />
+			</template>
+		</listbox>
+		<button label="add" onClick="@command('onAdd')" />
+	</hbox>
+	<listbox model="@load(mapping.fieldMap.list)">
+		<listhead>
+			<listheader label="File field" />
+			<listheader label="Index field" />
+			<listheader label="Action" />
+		</listhead>
+		<template name="model" var="link">
+			<listitem>
+				<listcell label="@load(link.source.uniqueName)" />
+				<listcell label="@load(link.target.name)" />
+				<listcell>
+					<image src="/images/action_delete.png"
+						onClick="@command('onLinkRemove', link=link)" />
+				</listcell>
+			</listitem>
+		</template>
+	</listbox>
+</window>

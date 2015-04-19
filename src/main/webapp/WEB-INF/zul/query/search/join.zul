@@ -1,0 +1,131 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('joins') @init('com.jaeksoft.searchlib.web.controller.query.JoinController')">
+	<listbox model="@load(joins.request.joinList.array)"
+		selectedItem="@bind(joins.selected)">
+		<listhead sizable="true">
+			<listheader label="#" hflex="min" />
+			<listheader label="Index" hflex="min">
+				<vbox>
+					<listbox
+						selectedItem="@bind(joins.currentIndexName)" mold="select"
+						model="@load(joins.indexList)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Query template" hflex="min">
+				<vbox>
+					<listbox
+						selectedItem="@bind(joins.current.queryTemplate)" mold="select"
+						model="@load(joins.queryList)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Query string" hflex="min">
+				<vbox>
+					<textbox value="@bind(joins.current.queryString)"
+						cols="20" />
+				</vbox>
+			</listheader>
+			<listheader label="Local field" hflex="min">
+				<vbox>
+					<listbox
+						selectedItem="@bind(joins.current.localField)" mold="select"
+						model="@load(joins.localFieldList)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Foreign field" hflex="min">
+				<vbox>
+					<listbox
+						selectedItem="@bind(joins.current.foreignField)" mold="select"
+						model="@load(joins.foreignFieldList)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Type" hflex="min">
+				<vbox>
+					<listbox selectedItem="@bind(joins.current.type)"
+						mold="select" model="@load	(joins.typeList)">
+						<template name="model">
+							<listitem label="@load(each.label)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Return fields" hflex="min">
+				<vbox>
+					<checkbox
+						checked="@bind(joins.current.returnFields)" />
+				</vbox>
+			</listheader>
+			<listheader label="Return scores" hflex="min">
+				<vbox>
+					<checkbox
+						checked="@bind(joins.current.returnScores)" />
+				</vbox>
+			</listheader>
+			<listheader label="Return facets" hflex="min">
+				<vbox>
+					<checkbox
+						checked="@bind(joins.current.returnFacets)" />
+				</vbox>
+			</listheader>
+			<listheader label="Action">
+				<hbox>
+					<button label="Add" onClick="@command('onSave')"
+						visible="@load(joins.notSelection)" />
+					<button label="Save" onClick="@command('onSave')"
+						visible="@load(joins.selection)" />
+					<button label="Cancel"
+						onClick="@command('onCancel')" visible="@load(joins.selection)" />
+				</hbox>
+			</listheader>
+		</listhead>
+		<template name="model" var="join">
+			<listitem>
+				<listcell label="@load(join.paramPosition)" />
+				<listcell label="@load(join.indexName)" />
+				<listcell label="@load(join.queryTemplate)" />
+				<listcell label="@load(join.queryString)" />
+				<listcell label="@load(join.localField)" />
+				<listcell label="@load(join.foreignField)" />
+				<listcell label="@load(join.type.label)" />
+				<listcell label="@load(join.returnFields)" />
+				<listcell label="@load(join.returnScores)" />
+				<listcell label="@load(join.returnFacets)" />
+				<listcell>
+					<button label="Remove"
+						onClick="@command('onRemove', joinItem=join)" />
+				</listcell>
+			</listitem>
+		</template>
+	</listbox>
+</window>

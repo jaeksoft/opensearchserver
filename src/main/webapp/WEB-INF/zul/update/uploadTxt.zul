@@ -1,0 +1,116 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('upload') @init('com.jaeksoft.searchlib.web.controller.update.UploadTxtController')">
+	<grid>
+		<columns>
+			<column align="right" hflex="min" />
+			<column />
+		</columns>
+		<rows>
+			<row>
+				<label value="Regular expression" />
+				<cell>
+					<textbox value="@bind(upload.pattern)" width="95%" />
+					<button label="check"
+						onClick="@command('onCheckPattern')" />
+				</cell>
+			</row>
+			<row>
+				<label value="Capture map" />
+				<listbox model="@load(upload.fieldList)">
+					<listhead>
+						<listheader>
+							<listbox selectedItem="@bind(upload.field)"
+								model="@load(upload.client.schema.fieldList.arrayName)"
+								mold="select">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
+							<button label="Add"
+								onClick="@command('onAddField')" />
+						</listheader>
+						<listheader hflex="min" label="Remove" />
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell>
+								<label value="@load(each)" />
+							</listcell>
+							<listcell>
+								<image src="/images/action_delete.png"
+									onClick="@command('onRemoveField', field=each)" />
+							</listcell>
+						</listitem>
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label value="Lang capture number:" />
+				<intbox value="@bind(upload.langPosition)" cols="3" />
+			</row>
+			<row>
+				<label value="Buffer size:" />
+				<intbox value="@bind(upload.bufferSize)" cols="5" />
+			</row>
+			<row>
+				<label value="Charset:" />
+				<textbox value="@bind(upload.charset)" cols="8" />
+			</row>
+			<row>
+				<label value="Upload file" />
+				<button label="Upload" upload="true,maxsize=-1"
+					onUpload="@command('onUpload')" />
+			</row>
+		</rows>
+	</grid>
+	<listbox id="threadList" model="@load(upload.updateList)"
+		mold="paging" visible="@load(upload.updateListNotEmpty)">
+		<auxhead>
+			<auxheader colspan="6">
+				<button label="Remove non-running"
+					onClick="@command('onPurge')" />
+			</auxheader>
+		</auxhead>
+		<listhead>
+			<listheader label="Start time" hflex="min" />
+			<listheader label="End time" hflex="min" />
+			<listheader label="Duration" hflex="min" />
+			<listheader label="Media name" hflex="min" />
+			<listheader label="Status" hflex="min" />
+			<listheader />
+		</listhead>
+		<template name="model" var="thread">
+			<listitem>
+				<listcell
+					label="@load(thread.startTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell
+					label="@load(thread.endTime) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell
+					label="@load(thread.duration) @converter('com.jaeksoft.searchlib.web.converter.DurationConverter')" />
+				<listcell label="@load(thread.mediaName)" />
+				<listcell label="@load(thread.info)" />
+				<listcell />
+			</listitem>
+		</template>
+	</listbox>
+
+	<timer id="updateTimer" delay="5000" repeats="true"
+		onTimer="@command('onTimerRefresh')" running="@load(upload.refresh)" />
+
+</window>

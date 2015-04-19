@@ -1,0 +1,167 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox model="@load(renderer.currentRenderer.fields)"
+	selectedItem="@bind(renderer.selectedRendererField)">
+	<listhead>
+		<listheader label="Field / Snippet" hflex="min" valign="top">
+			<vlayout>
+				<hlayout>
+					<label value="join: " />
+					<listbox model="@load(renderer.fieldSourceList)"
+						onSelect="@command('reload')"
+						selectedItem="@bind(renderer.currentRendererField.fieldSource)"
+						mold="select">
+						<template name="model">
+							<listitem label="@load(each)"
+								value="@load(each)" />
+						</template>
+					</listbox>
+				</hlayout>
+				<listbox model="@load(renderer.fieldTypeList)"
+					onSelect="@command('reload')"
+					selectedItem="@bind(renderer.currentRendererField.fieldType)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+				<listbox model="@load(renderer.fieldOrSnippetList)"
+					selectedItem="@bind(renderer.currentRendererField.fieldName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
+		</listheader>
+		<listheader label="Replace previous" hflex="min" valign="top"
+			tooltiptext="Replace previous field if it is empty">
+			<vlayout>
+				<checkbox
+					checked="@bind(renderer.currentRendererField.replacePrevious)" />
+			</vlayout>
+		</listheader>
+		<listheader label="URL Field" hflex="min" valign="top">
+			<vlayout>
+				<listbox model="@load(renderer.fieldList)"
+					selectedItem="@bind(renderer.currentRendererField.urlFieldName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
+		</listheader>
+		<listheader label="URL Decode"
+			tooltiptext="Apply an UTF-8 URL decoder" hflex="min" valign="top">
+			<vlayout>
+				<checkbox
+					checked="@bind(renderer.currentRendererField.urlDecode)" />
+			</vlayout>
+		</listheader>
+		<listheader label="URL Pattern" valign="top"
+			tooltiptext="Regular expression pattern" hflex="min">
+			<vlayout>
+				<textbox
+					value="@bind(renderer.currentRendererField.pattern)" cols="20" />
+			</vlayout>
+		</listheader>
+		<listheader label="URL Replace"
+			tooltiptext="Regular expression replacement" hflex="min"
+			valign="top">
+			<vlayout>
+				<textbox
+					value="@bind(renderer.currentRendererField.replacement)" cols="20" />
+			</vlayout>
+		</listheader>
+		<listheader label="Css Class"
+			tooltiptext="Enter any css classes" hflex="min" valign="top">
+			<vlayout>
+				<textbox
+					value="@bind(renderer.currentRendererField.cssClass)" cols="20" />
+			</vlayout>
+		</listheader>
+		<listheader label="Widget type" hflex="min" valign="top">
+			<vlayout>
+				<listbox model="@load(renderer.widgetList)"
+					selectedItem="@bind(renderer.currentRendererField.widgetName)"
+					mold="select">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+			</vlayout>
+		</listheader>
+		<listheader label="Widget properties" hflex="min"
+			valign="top">
+			<vlayout>
+				<textbox multiline="true"
+					value="@bind(renderer.currentRendererField.widgetProperties)"
+					cols="50" rows="5" />
+				<button label="Default properties"
+					onClick="@command('onRendererFieldDefaultProperties')" />
+			</vlayout>
+		</listheader>
+		<listheader label="Action" align="center" valign="top">
+			<vlayout>
+				<button tooltiptext="Add a field"
+					visible="@load(renderer.notFieldSelected)"
+					image="/images/action_add.png"
+					onClick="@command('onRendererFieldSave')" />
+				<hbox visible="@load(renderer.fieldSelected)">
+					<button tooltiptext="Save a field" label="Save"
+						onClick="@command('onRendererFieldSave')" />
+					<button tooltiptext="Save a field" label="Cancel"
+						onClick="@command('onRendererFieldCancel')" />
+				</hbox>
+			</vlayout>
+		</listheader>
+	</listhead>
+	<template name="model" var="rendererFieldItem">
+		<listitem>
+			<listcell>
+				<label value="@load(rendererFieldItem.fieldSource)" />
+				<label value="@load(rendererFieldItem.fieldType)" />
+				<label value=": " />
+				<label value="@load(rendererFieldItem.fieldName)" />
+			</listcell>
+			<listcell label="@load(rendererFieldItem.replacePrevious)" />
+			<listcell label="@load(rendererFieldItem.urlFieldName)" />
+			<listcell label="@load(rendererFieldItem.urlDecode)" />
+			<listcell label="@load(rendererFieldItem.pattern)" />
+			<listcell label="@load(rendererFieldItem.replacement)" />
+			<listcell label="@load(rendererFieldItem.cssClass)" />
+			<listcell label="@load(rendererFieldItem.widgetName)" />
+			<listcell>
+				<label value="@load(rendererFieldItem.widgetProperties)"
+					multiline="true" />
+			</listcell>
+			<listcell>
+				<button tooltiptext="Move the field up"
+					image="/images/arrow_top.png"
+					onClick="@command('onRendererFieldUp', rendererFieldItem=rendererFieldItem)" />
+				<button tooltiptext="Move the field down"
+					image="/images/arrow_down.png"
+					onClick="@command('onRendererFieldDown', rendererFieldItem=rendererFieldItem)" />
+				<space />
+				<button tooltiptext="Remove a field"
+					image="/images/action_delete.png"
+					onClick="@command('onRendererFieldRemove', rendererFieldItem=rendererFieldItem)" />
+			</listcell>
+		</listitem>
+	</template>
+</listbox>

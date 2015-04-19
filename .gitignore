@@ -1,12 +1,12 @@
+/target
 /dist
 /.settings
 /.classpath
+/.DS_Store
 /.project
 /temp
 /bin
-/target
 .DS_Store
 /src/cc/*.o
 /src/cc/release
 /src/cc/*.bak
-/target/

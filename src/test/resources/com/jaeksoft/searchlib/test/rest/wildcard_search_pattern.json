@@ -1,0 +1,16 @@
+{
+    "query": "*:*",
+    "start": 0,
+    "rows": 10,
+    "lang": "ENGLISH",
+    "operator": "AND",
+    "collapsing": {
+        "max": 0,
+        "mode": "OFF",
+        "type": "OPTIMIZED"
+    },
+    "returnedFields": [
+        "id",
+        "content"
+    ]
+}

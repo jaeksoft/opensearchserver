@@ -1,0 +1,34 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid visible="@load(filters.current.requestTemplateFilter)">
+	<columns>
+		<column label="Search Request template" hflex="min" />
+		<column label="Query string" hflex="min" />
+	</columns>
+	<rows>
+		<row>
+			<combobox cols="40" model="@load(filters.requestList)"
+				value="@bind(filters.current.requestName)">
+				<template name="model">
+					<comboitem label="@load(each)" />
+				</template>
+			</combobox>
+			<textbox value="@bind(filters.current.queryString)"
+				cols="40" />
+		</row>
+	</rows>
+</grid>

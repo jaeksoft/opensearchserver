@@ -1,0 +1,4 @@
+<window id="explanation" title="Explanation" border="normal" width="70%"
+	minwidth="400" closable="true" sizable="true">
+	<html sclass="z-label" id="htmlExplain" />
+</window>

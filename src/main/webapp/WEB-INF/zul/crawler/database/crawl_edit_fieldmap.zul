@@ -1,0 +1,135 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox width="99%" selectedItem="@bind(dbCrawlList.selectedField)"
+	model="@load(dbCrawlList.currentCrawl.fieldMap.list)">
+	<listhead>
+		<listheader
+			label="@load(dbCrawlList.currentCrawl.type.fieldMapColumnName)"
+			align="center" width="180px" />
+		<listheader label="Index field" align="center" width="180px" />
+		<listheader width="50px" label="Tags" tooltiptext="Remove tag"
+			align="center" />
+		<listheader width="150px" label="Find Reg.Exp."
+			tooltiptext="Regular expression to find" align="center" />
+		<listheader width="120px" label="Replace Reg.Exp."
+			tooltiptext="Replace pattern" align="center" />
+		<listheader width="50px" label="Entities"
+			tooltiptext="Convert HTML entities" align="center" />
+		<listheader width="50px" label="File"
+			tooltiptext="Contains a file path" align="center" />
+		<listheader label="File path prefix" align="center" />
+		<listheader width="50px" label="File crawl"
+			tooltiptext="Use a file crawler" align="center" />
+		<listheader width="50px" label="URL"
+			tooltiptext="Crawl the given URL" align="center" />
+		<listheader width="130px" label="Action" align="center" />
+	</listhead>
+	<auxhead>
+		<auxheader align="center">
+			<textbox width="95%"
+				value="@bind(dbCrawlList.sourceFieldName)" />
+		</auxheader>
+		<auxheader align="center">
+			<listbox mold="select"
+				model="@load(dbCrawlList.indexFieldList)"
+				selectedItem="@bind(dbCrawlList.selectedIndexField)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+		</auxheader>
+		<auxheader align="center">
+			<checkbox tooltiptext="remove tags"
+				checked="@bind(dbCrawlList.currentFieldTarget.removeTag)" />
+		</auxheader>
+		<auxheader align="center">
+			<textbox width="95%"
+				tooltiptext="Regular expression find pattern"
+				value="@bind(dbCrawlList.currentFieldTarget.findRegexpTag)" />
+		</auxheader>
+		<auxheader align="center">
+			<textbox width="95%"
+				tooltiptext="Regular expression replace pattern"
+				value="@bind(dbCrawlList.currentFieldTarget.replaceRegexpTag)" />
+		</auxheader>
+		<auxheader align="center">
+			<checkbox tooltiptext="convert HTML entities"
+				checked="@bind(dbCrawlList.currentFieldTarget.convertHtmlEntities)" />
+		</auxheader>
+		<auxheader align="center">
+			<checkbox tooltiptext="File path"
+				checked="@bind(dbCrawlList.currentFieldTarget.filePath)" />
+		</auxheader>
+		<auxheader align="center">
+			<textbox width="95%"
+				disabled="@load(dbCrawlList.currentFieldTarget.notFilePathPrefixEditable)"
+				value="@bind(dbCrawlList.currentFieldTarget.filePathPrefix)" />
+		</auxheader>
+		<auxheader align="center">
+			<checkbox tooltiptext="Crawl the given FILE"
+				checked="@bind(dbCrawlList.currentFieldTarget.crawlFile)" />
+		</auxheader>
+		<auxheader align="center">
+			<checkbox tooltiptext="Crawl the given URL"
+				checked="@bind(dbCrawlList.currentFieldTarget.crawlUrl)" />
+		</auxheader>
+		<auxheader align="center">
+			<hbox visible="@load(dbCrawlList.fieldSelected)">
+				<button label="Cancel"
+					onClick="@command('onCancelField')" />
+				<button label="Save" onClick="@command('onSaveField')" />
+			</hbox>
+			<hbox visible="@load(dbCrawlList.noFieldSelected)">
+				<button label="add" onClick="@command('onSaveField')" />
+			</hbox>
+		</auxheader>
+	</auxhead>
+	<template name="model" var="fieldlink">
+		<listitem>
+			<listcell label="@load(fieldlink.source.uniqueName)" />
+			<listcell label="@load(fieldlink.target)" />
+			<listcell>
+				<checkbox disabled="true"
+					checked="@bind(fieldlink.target.removeTag)" />
+			</listcell>
+			<listcell label="@load(fieldlink.target.findRegexpTag)" />
+			<listcell label="@load(fieldlink.target.replaceRegexpTag)" />
+			<listcell>
+				<checkbox disabled="true"
+					checked="@load(fieldlink.target.convertHtmlEntities)" />
+			</listcell>
+			<listcell>
+				<checkbox disabled="true"
+					checked="@load(fieldlink.target.filePath)" />
+			</listcell>
+			<listcell label="@load(fieldlink.target.filePathPrefix)" />
+			<listcell>
+				<checkbox disabled="true"
+					checked="@load(fieldlink.target.crawlFile)" />
+			</listcell>
+			<listcell>
+				<checkbox disabled="true"
+					checked="@load(fieldlink.target.crawlUrl)" />
+			</listcell>
+			<listcell>
+				<button tooltiptext="Remove"
+					image="/images/action_delete.png"
+					onClick="@command('removeLink', fieldlink=fieldlink)" />
+			</listcell>
+		</listitem>
+	</template>
+</listbox>

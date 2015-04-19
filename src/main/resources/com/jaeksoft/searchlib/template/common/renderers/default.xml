@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer -->
+<!-- -->
+<!-- Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft -->
+<!-- -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- http://www.open-search-server.com -->
+<!-- -->
+<!-- OpenSearchServer is free software: you can -->
+<!-- redistribute it and/or modify it under the terms of -->
+<!-- the GNU General Public License as published by the -->
+<!-- Free Software Foundation, either version 3 of the -->
+<!-- License, or (at your option) any later version. -->
+<!-- -->
+<!-- OpenSearchServer is distributed in the -->
+<!-- hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of -->
+<!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
+<!-- -->
+<renderer name="default" request="search" searchButtonLabel="Search"
+	noResultFoundText="No result found" oneResultFoundText="1 result found"
+	resultsFoundText="results found" contentTypeField="contentBaseType"
+	autoCompletionName="autocomplete">
+<css>.osscmnrdr { font-family: arial,sans-serif;
+font-size: 14px;
+ }
+.ossinputrdr { font-size:inherit;
+ }
+.ossbuttonrdr { font-size:inherit;
+ }
+#oss-login { float:right;}
+#ossautocomplete { margin: 0;
+cursor: pointer;
+padding-left:3px;
+padding-right:3px;
+ }
+#ossautocompletelist { background-color: #FFFFFF;
+text-align: left;
+border-left: 1px solid #D3D3D3;
+border-bottom: 1px solid #D3D3D3;
+border-right: 1px solid #D3D3D3;
+ }
+.ossautocomplete_link { color:#222222;
+background-color: #FFFFFF;
+padding: 2px 6px 2px 6px;
+ }
+.ossautocomplete_link_over { color:#222222;
+background-color: #F5F5F5;
+padding: 2px 6px 2px 6px;
+ }
+.ossnumfound { padding-bottom:10px;
+padding-top:10px;
+ }
+.oss-paging { text-align: center;
+ }
+.oss-facet { padding: 1em;
+ }
+.ossfieldrdr1 { font-size:120%;
+ }
+.ossfieldrdr3 { color: #0E774A;
+ }
+</css>
+	<field fieldName="title" fieldType="SNIPPET" urlFieldName="url" widgetName="TEXT"/>
+	<field fieldName="content" fieldType="SNIPPET" urlFieldName="" widgetName="TEXT"/>
+	<field fieldName="url" fieldType="FIELD" urlFieldName="" widgetName="TEXT"/>
+	<field fieldName="url" fieldType="FIELD" urlFieldName="" widgetName="TOOLS" />
+</renderer>

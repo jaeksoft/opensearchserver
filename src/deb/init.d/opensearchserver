@@ -11,20 +11,22 @@
 # Description:       Enable service provided by OpenSearchServer.
 ### END INIT INFO
 
-OSS_NAME=opensearchserver
-
-CONFIGFILE=/etc/opensearchserver.conf
+CONFIGFILE=/etc/opensearchserver
 if [ -f "$CONFIGFILE" ]; then
     . "$CONFIGFILE"
 fi
 
-OSS_SHARE=/usr/share/opensearchserver
-OSS_JAR=$OSS_SHARE/$OSS_NAME.jar
-JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:$OPENSEARCHSERVER_DATA/log4j.properties"
-OSS_OPTS="$JAVA_OPTS -jar $OSS_JAR -n $SERVER_ADDR -p $SERVER_PORT -d $OPENSEARCHSERVER_DATA"
-OSS_LOG=/var/log/opensearchserver/server.out
-OSS_PID="/var/run/$OSS_NAME.pid"
-OSS_USER=opensearchserver
+export OPENSEARCHSERVER_DATA
+export OPENSEARCHSERVER_MULTIDATA
+
+OPENSEARCHSERVER_DIR=/var/lib/opensearchserver
+OPENSEARCHSERVER_SHARE=/usr/share/opensearchserver
+OPENSEARCHSERVER_JAR=$OPENSEARCHSERVER_SHARE/opensearchserver.jar
+SERVER_DIR=$OPENSEARCHSERVER_DIR/server
+SERVER_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8 -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8"
+SERVER_LOG=/var/log/opensearchserver/server.out
+SERVER_PID="/var/run/opensearchserver.pid"
+export SERVER_USER=opensearchserver
 
 usage ()
 {
@@ -39,36 +41,28 @@ fi
 
 case $1 in
 start)
-        if [ -f $OSS_PID ]; then
-            echo "$OSS_NAME is already running ..."
+        if [ -f $SERVER_PID ]; then
+            echo "OpenSearchServer is already running ..."
         else
-            echo "Starting $OSS_NAME ..."
-            PID=`su -c "/usr/bin/java $OSS_OPTS" $OSS_USER >> $OSS_LOG 2>&1 & echo $!`
+            echo "Starting OpenSearchServer ..."
+            PID=`su -c "/usr/bin/java $SERVER_OPTS" $SERVER_USER >> $SERVER_LOG 2>&1 & echo $!`
             if [ -z $PID ]; then
-               echo "$OSS_NAME starting failed"
+               echo "OpenSearchServer starting failed"
             else
-               echo $PID > $OSS_PID
-               echo "$OSS_NAME started ..."
+               echo $PID > $SERVER_PID
+               echo "OpenSearchServer started ..."
             fi
         fi
         ;;
 stop)
-        if [ -f $OSS_PID ]; then
-            echo "Stopping $OSS_NAME ..."
-            PID=`cat $OSS_PID`
+        if [ -f $SERVER_PID ]; then
+            echo "Stopping OpenSearchServer ..."
+            PID=`cat $SERVER_PID`
             kill $PID
-            echo "$OSS_NAME stopped ..."
-            rm $OSS_PID
+            echo "OpenSearchServer stopped ..."
+            rm $SERVER_PID
         else
-            echo "$OSS_NAME is not running ..."
-        fi
-        ;;
-status)
-        if [ -f $OSS_PID ]; then
-            PID=`cat $OSS_PID`
-            echo "$OSS_NAME pid: $PID"
-        else
-            echo "$OSS_NAME is not running ..."
+            echo "OpenSearchServer is not running ..."
         fi
         ;;
 restart|force-reload)

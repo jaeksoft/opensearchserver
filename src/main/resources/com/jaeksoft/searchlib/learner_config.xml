@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer -->
+<!-- Copyright (C) 2013 Emmanuel Keller / Jaeksoft -->
+<!-- http://www.open-search-server.com -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- OpenSearchServer is free software: you can redistribute it and/or modify 
+	it under the terms of the GNU General Public License as published by the 
+	Free Software Foundation, either version 3 of the License, or (at your option) 
+	any later version. OpenSearchServer is distributed in the hope that it will 
+	be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+	Public License for more details. You should have received a copy of the GNU 
+	General Public License along with Jaeksoft Open Search Server. If not, see 
+	<http://www.gnu.org/licenses/>. -->
+<configuration>
+	<indices>
+		<index name="name" searchCache="0" filterCache="0" fieldCache="0"
+			similarityClass="com.jaeksoft.searchlib.schema.FairSimilarity" />
+	</indices>
+	<schema>
+		<fields default="data" unique="name">
+			<field name="name" indexed="yes" stored="no" termVector="no" />
+			<field name="data" indexed="yes" stored="no" termVector="yes"
+				analyzer="StandardAnalyzer" />
+			<field name="target" indexed="yes" stored="no" termVector="yes" />
+			<field name="custom" indexed="yes" stored="no" termVector="yes" />
+		</fields>
+		<analyzers>
+			<analyzer name="StandardAnalyzer">
+				<tokenizer class="StandardTokenizer" />
+				<filter class="DeduplicateTokenFilter" scope="QUERY_INDEX" />
+			</analyzer>
+		</analyzers>
+	</schema>
+	<requests>
+		<request name="search" defaultOperator="OR" start="0" rows="0"
+			allowLeadingWildcard="no">
+			<query></query>
+			<returnFields>
+				name,target
+			</returnFields>
+		</request>
+		<request name="custom" type="SearchFieldRequest"
+			defaultOperator="AND" start="0" rows="1" allowLeadingWildcard="no">
+			<query>
+				<searchField field="name" phrase="false" />
+			</query>
+			<returnFields>
+				custom
+			</returnFields>
+		</request>
+	</requests>
+</configuration>

@@ -1,0 +1,41 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid visible="@load(filters.current.geoFilter)">
+	<columns>
+		<column label="Type" hflex="min" />
+		<column label="Distance unit" hflex="min" />
+		<column label="Distance" hflex="min" />
+	</columns>
+	<rows>
+		<row>
+			<listbox mold="select" model="@load(filters.geoTypes)"
+				selectedItem="@bind(filters.current.type)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<listbox mold="select" model="@load(filters.geoUnits)"
+				selectedItem="@bind(filters.current.unit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<textbox constraint="/[0-9,.]*/"
+				value="@bind(filters.current.maxDistance)" />
+		</row>
+	</rows>
+</grid>

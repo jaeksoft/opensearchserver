@@ -1,0 +1,106 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2015 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid>
+	<columns sizable="false">
+		<column align="right" hflex="min" />
+		<column align="left" />
+		<column align="left" width="300px" />
+	</columns>
+	<rows>
+		<row>
+			<label value="Name: " />
+			<textbox value="@bind(dbCrawlList.currentCrawl.name)"
+				readonly="@load(dbCrawlList.selected)" width="80%" />
+			<label value="Choose a name" />
+		</row>
+		<row>
+			<label value="MongoDB url: " />
+			<textbox value="@bind(dbCrawlList.currentCrawl.url)"
+				width="95%" />
+			<label
+				value="Enter the URL used to connect to the database. Ex.: localhost" />
+		</row>
+		<row>
+			<label value="User: " />
+			<textbox value="@bind(dbCrawlList.currentCrawl.user)"
+				width="50%" />
+			<label
+				value="Enter the user name for the database connection" />
+		</row>
+		<row>
+			<label value="Password: " />
+			<textbox type="password"
+				value="@bind(dbCrawlList.currentCrawl.password)" width="50%" />
+			<label
+				value="Enter the password for the database connection" />
+		</row>
+		<row>
+			<label value="Database: " />
+			<textbox
+				value="@bind(dbCrawlList.currentCrawl.databaseName)" width="75%" />
+			<label value="Enter the name of the database" />
+		</row>
+		<row>
+			<label value="Collection: " />
+			<textbox
+				value="@bind(dbCrawlList.currentCrawl.collectionName)" width="75%" />
+			<label value="Enter the name of the collection" />
+		</row>
+		<row>
+			<label value="Criteria (json format): " />
+			<textbox rows="10"
+				value="@bind(dbCrawlList.currentCrawl.criteria)" width="95%" />
+			<label value="Specifies selection criteria using query operators" />
+		</row>
+		<row>
+			<label value="Projection (json format): " />
+			<textbox rows="10"
+				value="@bind(dbCrawlList.currentCrawl.projection)" width="95%" />
+			<label value="Specifies the fields to return using projection operators" />
+		</row>
+		<row>
+			<cell />
+			<button label="Check query"
+				onClick="@command('onCheckSqlSelect')" />
+			<cell />
+		</row>
+		<row>
+			<label value="Language: " />
+			<listbox mold="select"
+				selectedItem="@bind(dbCrawlList.currentCrawl.lang)"
+				model="@load(dbCrawlList.languageEnum)">
+				<template name="model" var="langEnum">
+					<listitem label="@load(langEnum.name)" />
+				</template>
+			</listbox>
+			<label value="Enter the language of the indexed documents" />
+		</row>
+		<row>
+			<label value="Buffer size: " />
+			<intbox cols="5"
+				value="@bind(dbCrawlList.currentCrawl.bufferSize)" />
+			<label value="Enter the size of the buffer" />
+		</row>
+		<row>
+			<label value="Sleep (ms): " />
+			<intbox cols="5"
+				value="@bind(dbCrawlList.currentCrawl.msSleep)" />
+			<label
+				value="Sleep pause after each buffered documents indexation or deletion" />
+		</row>
+	</rows>
+</grid>

@@ -1,0 +1,23 @@
+{
+  "rows": 0,
+    "collapsing": {
+      "field": "category",
+        "max": 1,
+        "mode": "CLUSTER",
+        "type": "FULL"
+    },
+    "facets": [
+        {
+            "field": "category",
+            "minCount": 1,
+            "multivalued": false,
+            "postCollapsing": false
+        }
+    ],
+   "sorts": [
+      {
+        "field": "id",
+        "direction": "ASC"
+      }
+    ]
+}

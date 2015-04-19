@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Agreement for OpenSearchServer -->
+<!-- Copyright (C) 2012 Emmanuel Keller / Jaeksoft -->
+<!-- http://www.open-search-server.com -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- OpenSearchServer is free software: you can redistribute it and/or modify 
+	it under the terms of the GNU General Public License as published by the 
+	Free Software Foundation, either version 3 of the License, or (at your option) 
+	any later version. OpenSearchServer is distributed in the hope that it will 
+	be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of 
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+	Public License for more details. You should have received a copy of the GNU 
+	General Public License along with Jaeksoft Open Search Server. If not, see 
+	<http://www.gnu.org/licenses/>. -->
+<configuration>
+	<indices>
+		<index searchCache="0" filterCache="0" fieldCache="0" />
+	</indices>
+	<schema>
+		<fields default="keywords" unique="reportId">
+			<field name="reportId" indexed="yes" stored="no" termVector="no" />
+			<field name="datetime" indexed="yes" stored="no" termVector="no" />
+			<field name="keywordsExact" analyzer="StandardAnalyzer"
+				indexed="yes" stored="no" termVector="no" />
+			<field name="keywords" indexed="yes" stored="no" termVector="no" />
+			<field name="responseTime" indexed="yes" stored="no"
+				termVector="no" />
+			<field name="documentsFound" indexed="yes" stored="no"
+				termVector="no" />
+			<field name="custom1" indexed="yes" stored="no" />
+			<field name="custom2" indexed="yes" stored="no" />
+			<field name="custom3" indexed="yes" stored="no" />
+			<field name="custom4" indexed="yes" stored="no" />
+			<field name="custom5" indexed="yes" stored="no" />
+			<field name="custom6" indexed="yes" stored="no" />
+			<field name="custom7" indexed="yes" stored="no" />
+			<field name="custom8" indexed="yes" stored="no" />
+			<field name="custom9" indexed="yes" stored="no" />
+		</fields>
+	</schema>
+</configuration>

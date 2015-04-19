@@ -1,0 +1,63 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('searchfields') @init('com.jaeksoft.searchlib.web.controller.query.SearchFieldsController')">
+	<grid model="@load(searchfields.request.searchFields)">
+		<columns>
+			<column label="Field" />
+			<column label="Mode" />
+			<column label="Term boost" />
+			<column label="Phrase Boost" />
+			<column label="Phrase Slop" />
+			<column label="Boolean group" />
+			<column label="Action" />
+		</columns>
+		<rows>
+			<template name="model">
+				<row>
+					<label value="@load(each.field)" />
+					<listbox mold="select"
+						selectedItem="@bind(each.mode)"
+						model="@load(searchfields.searchFieldModes)">
+						<template name="model">
+							<listitem label="@load(each.label)" />
+						</template>
+					</listbox>
+					<doublebox value="@bind(each.termBoost)" />
+					<doublebox value="@bind(each.phraseBoost)" />
+					<intbox value="@bind(each.phraseSlop)" />
+					<intbox value="@bind(each.booleanGroup)" />
+					<button image="images/action_delete.png"
+						onClick="@command('onSearchFieldRemove', searchfield=each)" />
+				</row>
+			</template>
+		</rows>
+		<foot>
+			<footer span="7">
+				<listbox mold="select"
+					selectedItem="@bind(searchfields.selectedSearchField)"
+					model="@load(searchfields.searchableFields)">
+					<template name="model">
+						<listitem label="@load(each)" />
+					</template>
+				</listbox>
+				<button image="images/action_add.png"
+					onClick="@command('onSearchFieldAdd')" />
+			</footer>
+		</foot>
+	</grid>
+</window>

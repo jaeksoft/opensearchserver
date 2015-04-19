@@ -1,0 +1,58 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window border="none" apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('proxy') @init('com.jaeksoft.searchlib.web.controller.crawler.web.ProxyController')">
+	<grid hflex="true">
+		<columns>
+			<column align="right" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<checkbox label="Enabled"
+					checked="@bind(proxy.properties.proxyEnabled.value)" />
+				<space />
+			</row>
+			<row>
+				<label value="Proxy Host :" />
+				<textbox id="proxyHost" cols="50" rows="5"
+					multiline="true" value="@bind(proxy.properties.proxyHost.value)" />
+			</row>
+			<row>
+				<label value="Proxy Port :" />
+				<intbox id="proxyPort" cols="10"
+					value="@bind(proxy.properties.proxyPort.value)" />
+			</row>
+			<row>
+				<label value="Proxy username :" />
+				<textbox id="proxyUsername" cols="30"
+					value="@bind(proxy.properties.proxyUsername.value)" />
+			</row>
+			<row>
+				<label value="Proxy password :" />
+				<textbox id="proxyPassword" cols="30" type="password"
+					value="@bind(proxy.properties.proxyPassword.value)" />
+			</row>
+			<row>
+				<label value="Proxy exclusion :" />
+				<textbox id="proxyExclusion" cols="80" rows="10"
+					multiline="true"
+					value="@bind(proxy.properties.proxyExclusion.value)" />
+			</row>
+		</rows>
+	</grid>
+</window>

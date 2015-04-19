@@ -1,0 +1,91 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<zk>
+	<listbox model="@load(parser.currentParser.fieldMap.list)"
+		selectedItem="@bind(parser.selectedFieldMapItem)">
+		<auxhead>
+			<auxheader colspan="6">
+				<hbox align="center">
+					<combobox cols="40"
+						model="@load(parser.parserFieldList)"
+						value="@bind(parser.selectedParserField)">
+						<template name="model">
+							<comboitem label="@load(each)" />
+						</template>
+					</combobox>
+					<space />
+					<label>linked in</label>
+					<space />
+					<listbox mold="select"
+						model="@load(parser.indexFieldList)"
+						selectedItem="@bind(parser.selectedIndexField)">
+						<template name="model" var="indexField">
+							<listitem label="@load(indexField.name)"
+								value="@load(indexField)" />
+						</template>
+					</listbox>
+					<label>captured by (reg.exp.):</label>
+					<textbox cols="60"
+						value="@bind(parser.captureRegexp)" />
+					<space />
+					<checkbox label="remove tags"
+						checked="@bind(parser.removeTag)" />
+					<space />
+					<label>Analyzer:</label>
+					<listbox model="@load(parser.analyzerNameList)"
+						mold="select" selectedItem="@bind(parser.analyzer)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+					<space />
+					<button label="Add"
+						onClick="@command('onSaveFieldMapItem')"
+						visible="@load(parser.fieldMapItemNotSelected)" />
+					<hlayout valign="middle"
+						visible="@load(parser.fieldMapItemSelected)">
+						<button label="Cancel"
+							onClick="@command('onCancelFieldMapItem')" />
+						<space />
+						<button label="Save"
+							onClick="@command('onSaveFieldMapItem')" />
+						<space />
+						<image src="/images/action_delete.png"
+							onClick="@command('onFieldMapItemRemove')" />
+					</hlayout>
+				</hbox>
+			</auxheader>
+		</auxhead>
+		<listhead sizable="true">
+			<listheader label="Parser field" hflex="min" />
+			<listheader label="Index field" hflex="min" />
+			<listheader label="Capture Reg.Exp." />
+			<listheader label="Analyzer" hflex="min" />
+			<listheader label="Remove tags" hflex="min" />
+		</listhead>
+		<template name="model" var="fieldmapitem">
+			<listitem>
+				<listcell label="@load(fieldmapitem.source.uniqueName)" />
+				<listcell label="@load(fieldmapitem.target.name)" />
+				<listcell
+					label="@load(fieldmapitem.target.captureRegexp)" />
+				<listcell label="@load(fieldmapitem.target.analyzer)" />
+				<listcell label="@load(fieldmapitem.target.removeTag)" />
+			</listitem>
+		</template>
+	</listbox>
+</zk>

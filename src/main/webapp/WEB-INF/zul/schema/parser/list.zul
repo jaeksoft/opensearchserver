@@ -1,0 +1,96 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<zk>
+	<vbox width="100%">
+		<hbox width="100%">
+			<panel title="Select default web crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@bind(parser.webDefaultParser)"
+						model="@load(parser.parserSet)" />
+				</panelchildren>
+			</panel>
+			<panel title="Select failover web crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@bind(parser.webFailOverParser)"
+						model="@load(parser.parserSet)" />
+				</panelchildren>
+			</panel>
+			<panel title="Select default file crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@bind(parser.fileDefaultParser)"
+						model="@load(parser.parserSet)" />
+				</panelchildren>
+			</panel>
+			<panel title="Select failover file crawler parser"
+				border="normal">
+				<panelchildren>
+					<combobox value="@bind(parser.fileFailOverParser)"
+						model="@load(parser.parserSet)" />
+				</panelchildren>
+			</panel>
+		</hbox>
+	</vbox>
+
+	<separator height="5" />
+
+	<panel title="List of existing parser" border="normal">
+		<panelchildren>
+			<listbox model="@load(parser.parsers)" mold="paging"
+				selectedItem="@bind(parser.selectedParser)" pageSize="15">
+				<auxhead>
+					<auxheader colspan="3">
+						<listbox mold="select"
+							selectedItem="@bind(parser.selectedParserType)"
+							model="@load(parser.parserTypeList)">
+							<template name="model" var="parserType">
+								<listitem
+									label="@load(parserType.name)" />
+							</template>
+						</listbox>
+						<button label="New parser"
+							onClick="@command('onNew')" />
+					</auxheader>
+				</auxhead>
+				<listhead>
+					<listheader label="Name" />
+					<listheader label="Type" />
+					<listheader label="Action" width="200px" />
+				</listhead>
+				<template name="model" var="item">
+					<listitem>
+						<listcell label="@load(item.parserName)"
+							onDoubleClick="@command('doEdit', item=item)" />
+						<listcell label="@load(item.parserType.name)"
+							onDoubleClick="@command('doEdit', item=item)" />
+						<listcell>
+							<hbox align="center">
+								<button label="Edit"
+									onClick="@command('doEdit', item=item)" />
+								<space width="10px" />
+								<button label="Delete"
+									onClick="@command('doDelete', item=item)" />
+							</hbox>
+						</listcell>
+					</listitem>
+				</template>
+			</listbox>
+		</panelchildren>
+	</panel>
+</zk>

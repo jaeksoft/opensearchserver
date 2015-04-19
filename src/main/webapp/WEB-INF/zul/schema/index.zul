@@ -1,0 +1,58 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<tabbox>
+	<tabs>
+		<tab id="tabFields" label="Fields" selected="true" />
+		<tab id="tabAnalyzers" label="Analyzers" />
+		<tab id="tabParser" label="Parser list" />
+		<tab id="tabStopWords" label="Stop words" />
+		<tab id="tabSynonyms" label="Synonyms" />
+		<tab id="tabAutoCompletion" label="Auto-completion" />
+		<tab id="tabClassifier" label="Classifier" />
+		<tab id="tabLearner" label="Learner" />
+		<tab id="tabAuth" label="Authentication" />
+	</tabs>
+	<tabpanels>
+		<tabpanel>
+			<include src="WEB-INF/zul/schema/fields.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabAnalyzers.onSelect">
+			<include src="WEB-INF/zul/schema/analyzers.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabParser.onSelect">
+			<include src="WEB-INF/zul/schema/parser/index.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabStopWords.onSelect">
+			<include src="WEB-INF/zul/schema/stopWords.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabSynonyms.onSelect">
+			<include src="WEB-INF/zul/schema/synonyms.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabAutoCompletion.onSelect">
+			<include src="WEB-INF/zul/schema/autocompletion.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabClassifier.onSelect">
+			<include src="WEB-INF/zul/classifier/index.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabLearner.onSelect">
+			<include src="WEB-INF/zul/learner/index.zul" />
+		</tabpanel>
+		<tabpanel fulfill="tabAuth.onSelect">
+			<include src="/WEB-INF/zul/schema/auth.zul" />
+		</tabpanel>
+	</tabpanels>
+</tabbox>

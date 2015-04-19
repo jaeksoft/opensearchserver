@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- License Agreement for OpenSearchServer -->
+<!-- -->
+<!-- Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft -->
+<!-- -->
+<!-- This file is part of OpenSearchServer. -->
+<!-- http://www.open-search-server.com -->
+<!-- -->
+<!-- OpenSearchServer is free software: you can -->
+<!-- redistribute it and/or modify it under the terms of -->
+<!-- the GNU General Public License as published by the -->
+<!-- Free Software Foundation, either version 3 of the -->
+<!-- License, or (at your option) any later version. -->
+<!-- -->
+<!-- OpenSearchServer is distributed in the -->
+<!-- hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of -->
+<!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. -->
+<!-- -->
+<!-- See the GNU General Public License for more details. -->
+
+<requests>
+
+	<request name="search" type="SearchFieldRequest" phraseSlop="2"
+		defaultOperator="AND" start="0" rows="10" lang="en">
+
+		<query>
+			<searchField field="title" phrase="true" boost="10.0" />
+			<searchField field="titleExact" phrase="true" boost="10.0" />
+			<searchField field="titlePhonetic" phrase="true" boost="10.0" />
+			<searchField field="content" phrase="true" boost="1.0" />
+			<searchField field="contentExact" phrase="true" boost="1.0" />
+			<searchField field="contentPhonetic" phrase="true" boost="1.0" />
+			<searchField field="urlSplit" phrase="true" boost="5.0" />
+			<searchField field="urlExact" phrase="true" boost="5.0" />
+			<searchField field="urlPhonetic" phrase="true" boost="5.0" />
+			<searchField field="fileName" phrase="true" boost="10.0" />
+			<searchField field="fileNameExact" phrase="true" boost="10.0" />
+			<searchField field="fileNamePhonetic" phrase="true"
+				boost="10.0" />
+			<searchField field="full" phrase="true" boost="0.1" />
+			<searchField field="fullExact" phrase="true" boost="0.1" />
+			<searchField field="fullPhonetic" phrase="true" boost="0.1" />
+		</query>
+
+		<returnFields>
+			<field name="url" />
+			<field name="fileSystemDate" />
+			<field name="fileType" />
+			<field name="fileSize" />
+		</returnFields>
+
+		<snippet>
+			<field name="title" tag="b" maxDocChar="2147483647" separator="..."
+				maxSnippetSize="200" maxSnippetNumber="1" fragmenterClass="NoFragmenter" />
+			<field name="fileName" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="NoFragmenter" />
+			<field name="content" tag="b" maxDocChar="2147483647"
+				separator="..." maxSnippetSize="200" maxSnippetNumber="1"
+				fragmenterClass="SentenceFragmenter" />
+		</snippet>
+
+		<facetFields>
+			<facetField name="fileExtension" minCount="1" multivalued="no"
+				postCollapsing="no" />
+			<facetField name="fileType" minCount="1" multivalued="no"
+				postCollapsing="no" />
+		</facetFields>
+
+	</request>
+
+</requests>

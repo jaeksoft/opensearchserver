@@ -1,0 +1,209 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<panel title="@load(learning.currentEditMode)" border="normal">
+	<panelchildren>
+		<grid>
+			<columns sizable="false">
+				<column align="right" width="200px" />
+				<column align="left" />
+			</columns>
+			<rows>
+				<row>
+					<label value="Learner name: " />
+					<textbox value="@bind(learning.currentLearner.name)"
+						readonly="@load(learning.selected)" cols="50" />
+				</row>
+				<row>
+					<label value="Query template" />
+					<combobox cols="20"
+						model="@load(learning.requestList)"
+						value="@bind(learning.currentLearner.searchRequest)">
+						<template name="model">
+							<comboitem label="@load(each)" />
+						</template>
+					</combobox>
+				</row>
+				<row>
+					<label value="Source Field map" />
+					<cell>
+						<hbox align="center">
+							<combobox cols="30"
+								model="@load(learning.indexFieldList)"
+								value="@bind(learning.selectedSourceIndexField)">
+								<template name="model">
+									<comboitem label="@load(each.name)" />
+								</template>
+							</combobox>
+							<label value="linked in" />
+							<listbox mold="select"
+								model="@load(learning.currentLearner.instance.sourceFieldList)"
+								selectedItem="@bind(learning.selectedSourceLearnerField)">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
+							<label value="boost " />
+							<doublebox
+								value="@bind(learning.selectedSourceLearnerFieldBoost)" />
+							<button label="add"
+								onClick="@command('onSourceLinkAdd')" />
+						</hbox>
+						<listbox
+							model="@load(learning.currentLearner.sourceFieldMap.list)">
+							<listhead>
+								<listheader label="Index field" />
+								<listheader label="Learner field" />
+								<listheader label="Boost" />
+								<listheader label="Action" />
+							</listhead>
+							<template name="model" var="link">
+								<listitem>
+									<listcell
+										label="@load(link.source.uniqueName)" />
+									<listcell
+										label="@load(link.target.name)" />
+									<listcell
+										label="@load(link.target.boost)" />
+									<listcell>
+										<image
+											src="/images/action_delete.png"
+											onClick="@command('onSourceLinkRemove', link=link)" />
+									</listcell>
+								</listitem>
+							</template>
+						</listbox>
+					</cell>
+				</row>
+				<row visible="false">
+					<label value="Target Field map" />
+					<cell>
+						<hbox align="center">
+							<listbox mold="select"
+								model="@load(learning.currentLearner.instance.targetFieldList)"
+								selectedItem="@bind(learning.selectedTargetLearnerField)">
+								<template name="model">
+									<listitem label="@load(each)" />
+								</template>
+							</listbox>
+							<label value="linked in" />
+							<listbox mold="select"
+								model="@load(learning.indexFieldList)"
+								selectedItem="@bind(learning.selectedTargetIndexField)">
+								<template name="model">
+									<listitem label="@load(each.name)" />
+								</template>
+							</listbox>
+							<button label="add"
+								onClick="@command('onTargetLinkAdd')" />
+						</hbox>
+						<listbox
+							model="@load(learning.currentLearner.targetFieldMap.list)">
+							<listhead>
+								<listheader label="Learner field" />
+								<listheader label="Index field" />
+								<listheader label="Action" />
+							</listhead>
+							<template name="model" var="link">
+								<listitem>
+									<listcell
+										label="@load(link.source.uniqueName)" />
+									<listcell
+										label="@load(link.target.name)" />
+									<listcell>
+										<image
+											src="/images/action_delete.png"
+											onClick="@command('onTargetLinkRemove', link=link)" />
+									</listcell>
+								</listitem>
+							</template>
+						</listbox>
+					</cell>
+				</row>
+				<row>
+					<label value="Enable automatic learn: " />
+					<checkbox label="enabled"
+						checked="@bind(learning.currentLearner.active)" />
+				</row>
+				<row>
+					<label value="Max rank: " />
+					<intbox
+						value="@bind(learning.currentLearner.maxRank)" />
+				</row>
+				<row>
+					<label value="Min score: " />
+					<doublebox
+						value="@bind(learning.currentLearner.minScore)" />
+				</row>
+				<row>
+					<label value="Buffer: " />
+					<intbox
+						value="@bind(learning.currentLearner.buffer)" />
+				</row>
+				<row>
+					<label value="Classify" />
+					<vlayout>
+						<textbox width="95%" rows="5"
+							value="@bind(learning.testText)" />
+						<button label="Test"
+							onClick="@command('onClassify')" />
+					</vlayout>
+				</row>
+				<row>
+					<label value="Test result" />
+					<listbox
+						model="@load(learning.learnerResultItems)">
+						<listhead>
+							<listheader label="Label" />
+							<listheader label="Rank" hflex="min" />
+							<listheader label="Score" hflex="min" />
+						</listhead>
+						<template name="model">
+							<listitem>
+								<listcell label="@load(each.target)" />
+								<listcell label="@load(each.rank)" />
+								<listcell label="@load(each.score)" />
+							</listitem>
+						</template>
+					</listbox>
+				</row>
+			</rows>
+			<foot>
+				<footer span="2">
+					<vbox width="100%" align="center">
+						<hbox visible="@load(learning.selected)">
+							<button label="Cancel"
+								onClick="@command('onCancel')" />
+							<space width="10px" />
+							<button label="Save"
+								onClick="@command('onSave')" />
+							<space width="30px" />
+							<button label="Delete"
+								onClick="@command('onDelete')" />
+						</hbox>
+						<hbox visible="@load(learning.notSelected)">
+							<button label="Cancel"
+								onClick="@command('onCancel')" />
+							<space width="10px" />
+							<button label="Create"
+								onClick="@command('onSave')" />
+						</hbox>
+					</vbox>
+				</footer>
+			</foot>
+		</grid>
+	</panelchildren>
+</panel>

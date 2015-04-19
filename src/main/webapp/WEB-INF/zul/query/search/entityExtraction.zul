@@ -1,0 +1,127 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('named') @init('com.jaeksoft.searchlib.web.controller.query.NamedEntityExtractionController')">
+	<grid>
+		<columns>
+			<column align="right" hflex="min" />
+			<column align="left" />
+		</columns>
+		<rows>
+			<row>
+				<label>Search request:</label>
+				<combobox model="@load(named.searchRequests)" cols="25"
+					value="@bind(named.request.searchRequest)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
+				<label>Named entity field:</label>
+				<combobox model="@load(named.indexedFieldList)"
+					onChange="@command('reload')" cols="25"
+					value="@bind(named.request.namedEntityField)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
+				<label>Max number of words:</label>
+				<intbox value="@bind(named.request.maxNumberOfWords)"
+					constraint="no negative, no empty" />
+			</row>
+			<row>
+				<label>Tokenizer:</label>
+				<combobox model="@load(named.tokenizerList)"
+					onChange="@command('reload')" cols="40"
+					value="@bind(named.request.tokenizer)">
+					<template name="model">
+						<comboitem label="@load(each)" />
+					</template>
+				</combobox>
+			</row>
+			<row>
+				<label value="Stop words: " />
+				<listbox model="@load(named.request.stopWordsMap)">
+					<listhead>
+						<listheader hflex="min">
+							<label value="List name: " />
+							<textbox id="stopWordsListName" />
+						</listheader>
+						<listheader hflex="min">
+							<checkbox id="stopWordsIgnoreCase"
+								label="Ignore case" checked="false" />
+						</listheader>
+						<listheader hflex="min">
+							<image src="/images/action_add.png"
+								onClick="@command('onStopWordsAdd', listName=stopWordsListName.value, ignoreCase=stopWordsIgnoreCase.checked)" />
+						</listheader>
+						<listheader />
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell>
+								<label value="@load(each.key)" />
+							</listcell>
+							<listcell>
+								<label value="@load(each.value)" />
+							</listcell>
+							<listcell>
+								<image src="/images/action_delete.png"
+									onClick="@command('onStopWordsDelete', listName=each.key)" />
+							</listcell>
+							<listcell />
+						</listitem>
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label>Returned fields:</label>
+				<listbox model="@load(named.request.returnedFields)">
+					<listhead>
+						<listheader hflex="min">
+							<label value="Field name: " />
+							<textbox id="returnedField" cols="25" />
+						</listheader>
+						<listheader hflex="min">
+							<image src="/images/action_add.png"
+								onClick="@command('onReturnedFieldAdd', field=returnedField.value)" />
+						</listheader>
+						<listheader />
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell label="@load(each)" />
+							<listcell>
+								<image src="/images/action_delete.png"
+									onClick="@command('onReturnedFieldDelete', field=each)" />
+							</listcell>
+							<listcell />
+						</listitem>
+					</template>
+				</listbox>
+			</row>
+			<row>
+				<label>Enter the text:</label>
+				<textbox value="@bind(named.request.text)" rows="15"
+					multiline="true" width="90%" />
+			</row>
+		</rows>
+	</grid>
+</window>

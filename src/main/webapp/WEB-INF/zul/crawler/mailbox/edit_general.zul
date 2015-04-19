@@ -1,0 +1,85 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid>
+	<columns sizable="false">
+		<column align="right" hflex="min" />
+		<column align="left" />
+		<column align="left" width="300px" />
+	</columns>
+	<rows>
+		<row>
+			<label value="Name: " />
+			<textbox value="@bind(mbctrl.currentCrawl.name)"
+				readonly="@load(mbctrl.selected)" cols="30" />
+			<label value="Choose a name" />
+		</row>
+		<row>
+			<label value="Server name: " />
+			<textbox value="@bind(mbctrl.currentCrawl.serverName)"
+				cols="50" />
+			<label value="Enter hostname of the mail server" />
+		</row>
+		<row>
+			<label value="Protocol: " />
+			<listbox mold="select"
+				selectedItem="@bind(mbctrl.currentCrawl.serverProtocol)"
+				model="@load(mbctrl.serverProtocols)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<label value="Select the mail protocol" />
+		</row>
+		<row>
+			<label value="Server port: " />
+			<intbox value="@bind(mbctrl.currentCrawl.serverPort)"
+				cols="5" />
+			<label value="Enter TCP port" />
+		</row>
+		<row>
+			<label value="User: " />
+			<textbox value="@bind(mbctrl.currentCrawl.user)" cols="20" />
+			<label
+				value="Enter the user name for the mailbox connection" />
+		</row>
+		<row>
+			<label value="Password: " />
+			<textbox type="password"
+				value="@bind(mbctrl.currentCrawl.password)" cols="15" />
+			<label
+				value="Enter the password for the mailbox connection" />
+		</row>
+		<row>
+			<label value="Language: " />
+			<listbox mold="select"
+				selectedItem="@bind(mbctrl.currentCrawl.lang)"
+				model="@load(mbctrl.languageEnum)">
+				<template name="model" var="langEnum">
+					<listitem label="@load(langEnum.name)" />
+				</template>
+			</listbox>
+			<label
+				value="Enter the default language of the indexed documents" />
+		</row>
+		<row>
+			<label value="Buffer size: " />
+			<intbox cols="5"
+				value="@bind(mbctrl.currentCrawl.bufferSize)" />
+			<label value="Enter the size of the buffer" />
+		</row>
+	</rows>
+</grid>

@@ -1,1 +1,8 @@
-release date=12:00 03.01.2017,version=2.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+release date=12:00 04.01.2015,version=1.5.13,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1502: A scheduler task able to launch a crawl script
+ * GH-1494: Error HttpHostConnectException should not abort the crawl session
+ * GH-1480: Multithreaded OCR 
+ * GH-1476: New index template for credentials storing
+ * GH-1475: Add an encryption filter 
+ * GH-1471: Authentication based on external index
+ * GH-1470: Renderer: Add range to date facet

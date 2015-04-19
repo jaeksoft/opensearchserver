@@ -1,0 +1,64 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<listbox model="@load(renderer.currentRenderer.sorts)"
+	selectedItem="@bind(renderer.selectedRendererSort)">
+	<listhead>
+		<listheader label="Label" />
+		<listheader label="Sort" />
+		<listheader label="Action" />
+	</listhead>
+	<auxhead>
+		<auxheader>
+			<textbox value="@bind(renderer.currentRendererSort.label)"
+				cols="30" />
+		</auxheader>
+		<auxheader>
+			<textbox value="@bind(renderer.currentRendererSort.sort)"
+				cols="30" />
+		</auxheader>
+		<auxheader>
+			<button tooltiptext="Add a sort"
+				visible="@load(!renderer.sortSelected)"
+				image="/images/action_add.png"
+				onClick="@command('onRendererSortSave')" />
+			<hbox visible="@load(renderer.sortSelected)">
+				<button tooltiptext="Save a sort" label="Save"
+					onClick="@command('onRendererSortSave')" />
+				<button tooltiptext="Save a sort" label="Cancel"
+					onClick="@command('onRendererSortCancel')" />
+			</hbox>
+		</auxheader>
+	</auxhead>
+	<template name="model" var="rendererSort">
+		<listitem>
+			<listcell label="@load(rendererSort.label)" />
+			<listcell label="@load(rendererSort.sort)" />
+			<listcell>
+				<button tooltiptext="Move the sort up"
+					image="/images/arrow_top.png"
+					onClick="@command('onRendererSortUp', rendererSort=rendererSort)" />
+				<button tooltiptext="Move the sort down"
+					image="/images/arrow_down.png"
+					onClick="@command('onRendererSortDown', rendererSort=rendererSort)" />
+				<space />
+				<button tooltiptext="Remove a sort"
+					image="/images/action_delete.png"
+					onClick="@command('onRendererSortRemove', rendererSort=rendererSort)" />
+			</listcell>
+		</listitem>
+	</template>
+</listbox>

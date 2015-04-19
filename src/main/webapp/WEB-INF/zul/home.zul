@@ -1,0 +1,147 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('home') @init('com.jaeksoft.searchlib.web.controller.HomeController')">
+	<grid visible="@load(home.adminOrNoUser)" hflex="min">
+		<auxhead>
+			<auxheader colspan="4" label="Create a new index" />
+		</auxhead>
+		<columns visible="false">
+			<column align="right" />
+			<column align="left" />
+			<column align="left" />
+			<column width="82px" />
+		</columns>
+		<rows>
+			<row>
+				<label value="Index name: " />
+				<textbox value="@bind(home.newIndexName)" cols="50" />
+				<label
+					value="Choose a name for the index that will be created" />
+				<cell rowspan="3">
+					<image width="82px" height="79px"
+						src="/images/oss_logo.png" />
+				</cell>
+			</row>
+			<row>
+				<label value="Template: " />
+				<listbox mold="select"
+					selectedItem="@bind(home.newIndexTemplate)"
+					model="@load(home.templateList)">
+					<template name="model" var="telist">
+						<listitem
+							label="@load(telist.template.publicName)" />
+					</template>
+				</listbox>
+				<label
+					value="@load(home.newIndexTemplate.template.description)" />
+			</row>
+			<row>
+				<cell />
+				<button label="Create" onClick="@command('onNewIndex')" />
+				<cell />
+			</row>
+		</rows>
+	</grid>
+	<div visible="@load(!home.ossDataExists)"
+		style="color: #FF0000; text-align: center">
+		<separator height="10" />
+		<label>
+			There is an issue with the data directory. Please check that
+			the OPENSEARCHSERVER_DATA environment variable points to a
+			valid directory.
+		</label>
+		<label value="@load(home.ossDataPath)" />
+	</div>
+	<separator height="10" />
+	<listbox selectedItem="@bind(home.clientName)" mold="paging"
+		pageSize="20" model="@load(home.clientCatalog)">
+		<auxhead>
+			<auxheader align="center" label="List of indices" />
+			<auxheader align="center" label="Crawlers" colspan="3" />
+			<auxheader align="center" label="Scheduler" colspan="3" />
+			<auxheader align="center" label="Replication" colspan="2" />
+			<auxheader align="center" label="Information" colspan="3" />
+			<auxheader align="center" label="Action" />
+		</auxhead>
+		<listhead>
+			<listheader label="name" />
+			<listheader label="Web" align="center" hflex="min" />
+			<listheader label="Database" align="center" hflex="min" />
+			<listheader label="File" align="center" hflex="min" />
+			<listheader label="- R -" hflex="min"
+				tooltiptext="Number of running jobs" align="center" />
+			<listheader label="- A -" hflex="min"
+				tooltiptext="Number of active jobs" align="center" />
+			<listheader label="- N -" hflex="min"
+				tooltiptext="Number of jobs" align="center" />
+			<listheader label="- R -" hflex="min"
+				tooltiptext="Number of running replication items" align="center" />
+			<listheader label="- N -" hflex="min"
+				tooltiptext="Number of replication items" align="center" />
+			<listheader label="Doc(s)" align="right" hflex="min" />
+			<listheader label="Last modified" align="right" hflex="min" />
+			<listheader label="Size" align="right" hflex="min" />
+			<listheader align="center" hflex="min" />
+		</listhead>
+		<template name="model" var="catalogitem">
+			<listitem>
+				<listcell label="@load(catalogitem.indexName)" />
+				<listcell
+					tooltiptext="@load(catalogitem.client.webCrawlMaster.statusInfo)"
+					label="@load(catalogitem.client.webCrawlMaster.status.name)" />
+				<listcell
+					tooltiptext="@load(catalogitem.client.databaseCrawlMaster.statusInfo)"
+					label="@load(catalogitem.client.databaseCrawlMaster.status.name)" />
+				<listcell
+					tooltiptext="@load(catalogitem.client.fileCrawlMaster.statusInfo)"
+					label="@load(catalogitem.client.fileCrawlMaster.status.name)" />
+				<listcell
+					label="@load(catalogitem.client.jobList.runningCount)" />
+				<listcell
+					label="@load(catalogitem.client.jobList.activeCount)" />
+				<listcell
+					label="@load(catalogitem.client.jobList.count)" />
+				<listcell
+					label="@load(catalogitem.client.replicationMaster.threadsCount)" />
+				<listcell
+					label="@load(catalogitem.client.replicationList.size)" />
+				<listcell tooltiptext="@load(catalogitem.numDocs)"
+					label="@load(catalogitem.numDocs) @converter('com.jaeksoft.searchlib.web.converter.IntegerConverter')" />
+				<listcell
+					tooltiptext="@load(catalogitem.lastModifiedFile)"
+					label="@load(catalogitem.lastModified) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell tooltiptext="@load(catalogitem.size)"
+					label="@load(catalogitem.size) @converter('com.jaeksoft.searchlib.web.converter.SizeConverter')" />
+				<listcell>
+					<hbox align="center">
+						<button label="Info"
+							onClick="@command('computeInfos', catalogitem=catalogitem)"
+							tooltiptext="Compute the size of the index">
+						</button>
+						<space />
+						<button tooltiptext="Erase index"
+							image="/images/action_delete.png"
+							onClick="@command('eraseIndex', catalogitem=catalogitem)">
+						</button>
+						<space />
+					</hbox>
+				</listcell>
+			</listitem>
+		</template>
+	</listbox>
+</window>

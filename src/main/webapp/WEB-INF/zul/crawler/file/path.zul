@@ -1,0 +1,188 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('searchPath') @init('com.jaeksoft.searchlib.web.controller.crawler.file.FileController')">
+
+	<listbox model="@load(searchPath.fileList)" multiple="false"
+		checkmark="false">
+		<listhead sizable="true" hflex="min">
+			<listheader label="File" hflex="min">
+				<vbox width="100%">
+					<textbox width="90%"
+						value="@bind(searchPath.fileName)" />
+					<button label="Search"
+						onClick="@command('onSearch')" />
+				</vbox>
+			</listheader>
+			<listheader label="Index Date" hflex="min">
+				<vbox>
+					<datebox compact="true"
+						value="@bind(searchPath.crawlDateStart)" />
+					<datebox compact="true"
+						value="@bind(searchPath.crawlDateEnd)" />
+				</vbox>
+			</listheader>
+			<listheader label="Modified date" hflex="min">
+				<vbox>
+					<datebox compact="true"
+						value="@bind(searchPath.dateModifiedStart)" />
+					<datebox compact="true"
+						value="@bind(searchPath.dateModifiedEnd)" />
+				</vbox>
+			</listheader>
+			<listheader label="Type" hflex="min">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.fileTypeList)"
+						selectedItem="@bind(searchPath.fileType)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Extension" hflex="min">
+				<vbox>
+					<textbox cols="5"
+						value="@bind(searchPath.extension)" />
+				</vbox>
+			</listheader>
+			<listheader label="Size" hflex="min" />
+			<listheader label="Lang" hflex="min">
+				<vbox>
+					<textbox cols="4" value="@bind(searchPath.lang)" />
+				</vbox>
+			</listheader>
+			<listheader label="Fetch" hflex="min">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.fetchStatusList)"
+						selectedItem="@bind(searchPath.fetchStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Parsing" hflex="min">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.parserStatusList)"
+						selectedItem="@bind(searchPath.parserStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Index" hflex="min">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.indexStatusList)"
+						selectedItem="@bind(searchPath.indexStatus)">
+						<template name="model">
+							<listitem label="@load(each.name)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Repository" hflex="min">
+				<vbox>
+					<listbox mold="select" width="100%"
+						model="@load(searchPath.repositoryList)"
+						selectedItem="@bind(searchPath.repository)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
+				</vbox>
+			</listheader>
+			<listheader label="Parser" hflex="min">
+				<vbox width="100%">
+					<textbox width="90%"
+						value="@bind(searchPath.parser)" />
+				</vbox>
+			</listheader>
+			<listheader label="Time" hflex="min">
+				<vbox width="100%">
+					<intbox width="90%"
+						value="@bind(searchPath.minTime)" />
+					<intbox width="90%"
+						value="@bind(searchPath.maxTime)" />
+				</vbox>
+			</listheader>
+		</listhead>
+		<template name="model" var="file">
+			<listitem>
+				<listcell label="@load(file.fileName)"
+					tooltiptext="@load(file.uri)" />
+				<listcell
+					label="@load(file.crawlDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell
+					label="@load(file.fileSystemDate) @converter('com.jaeksoft.searchlib.web.converter.DateConverter')" />
+				<listcell label="@load(file.fileType)" />
+				<listcell label="@load(file.fileExtension)" />
+				<listcell label="@load(file.humanSize)" />
+				<listcell label="@load(file.lang)" />
+				<listcell label="@load(file.fetchStatus.name)" />
+				<listcell label="@load(file.parserStatus.name)" />
+				<listcell label="@load(file.indexStatus.name)" />
+				<listcell label="@load(file.repository)" />
+				<listcell label="@load(file.parser)" />
+				<listcell label="@load(file.time)" />
+			</listitem>
+		</template>
+		<listfoot>
+			<listfooter span="13">
+				<paging id="paging" detailed="true"
+					totalSize="@load(searchPath.totalSize)"
+					pageSize="@load(searchPath.pageSize)"
+					activePage="@bind(searchPath.activePage)" />
+				<label value="Line per page: " />
+				<intbox cols="3"
+					constraint="no negative, no zero, no negative"
+					value="@bind(searchPath.pageSize)" onChange="@command('onSearch')" />
+				<space width="50px" />
+
+				<label value="Commands: " />
+				<listbox mold="select"
+					model="@load(searchPath.batchCommandEnum)"
+					visible="@load(searchPath.fileManager.noCurrentTaskLogExists)"
+					selectedItem="@bind(searchPath.batchCommand)"
+					disabled="@load(searchPath.fileManager.currentTaskLogExists)">
+					<template name="model" var="command">
+						<listitem label="@load(command.label)" />
+					</template>
+				</listbox>
+				<button label="Go" onClick="@command('onGo')"
+					visible="@load(searchPath.fileManager.noCurrentTaskLogExists)" />
+				<label value="Buffer size" />
+				<intbox value="@bind(searchPath.bufferSize)"
+					visible="@load(searchPath.fileManager.noCurrentTaskLogExists)" />
+				<image src="/images/ajax-loader.gif"
+					visible="@load(searchPath.fileManager.currentTaskLogExists)" />
+				<label
+					visible="@load(searchPath.fileManager.currentTaskLogExists)"
+					value="@load(searchPath.fileManager.currentTaskLog.info)" />
+				<timer delay="5000" repeats="true"
+					onTimer="@command('onRefreshCurrentTaskLog')"
+					running="@load(searchPath.fileManager.currentTaskLogExists)" />
+
+			</listfooter>
+		</listfoot>
+	</listbox>
+</window>

@@ -1,0 +1,46 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<grid visible="@load(filters.current.relativeDateFilter)">
+	<columns>
+		<column label="Field" hflex="min" />
+		<column label="Date format" hflex="min" />
+		<column label="From interval" hflex="min" />
+		<column label="From unit" hflex="min" />
+		<column label="To interval" hflex="min" />
+		<column label="To unit" hflex="min" />
+	</columns>
+	<rows>
+		<row>
+			<textbox value="@bind(filters.current.field)" />
+			<textbox value="@bind(filters.current.dateFormat)" />
+			<intbox value="@bind(filters.current.from.interval)" />
+			<listbox mold="select" model="@load(filters.intervalUnits)"
+				selectedItem="@bind(filters.current.from.unit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+			<intbox value="@bind(filters.current.to.interval)" />
+			<listbox mold="select" model="@load(filters.intervalUnits)"
+				selectedItem="@bind(filters.current.to.unit)">
+				<template name="model">
+					<listitem label="@load(each)" />
+				</template>
+			</listbox>
+		</row>
+	</rows>
+</grid>
