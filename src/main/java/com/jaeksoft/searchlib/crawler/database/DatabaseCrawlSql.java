@@ -354,7 +354,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 			sw = new StringWriter();
 			pw = new PrintWriter(sw);
 			transaction = getNewTransaction(jdbcCnx);
-			Query query = transaction.prepare(sqlSelect);
+			Query query = transaction.prepare(sqlSelect,
+					ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			query.getStatement().setFetchSize(getFetchSize());
 			ResultSet resultSet = query.getResultSet();
 			ResultSetMetaData metaData = resultSet.getMetaData();
@@ -374,5 +375,4 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 				transaction.close();
 		}
 	}
-
 }
