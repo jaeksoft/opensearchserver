@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
@@ -220,12 +221,15 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				FileInstanceAbstract fileInstance = FileInstanceAbstract
 						.create(filePathItem, null, filePathItem.getPath()
 								+ content);
-				Parser parser = context.parserSelector
-						.parseStream(null, fileInstance.getFileName(), null,
-								null, fileInstance.getInputStream(),
-								context.lang, null, null);
-				if (parser != null)
-					parser.popupateResult(0, target);
+				FileTypeEnum type = fileInstance.getFileType();
+				if (type != null && type == FileTypeEnum.file) {
+					Parser parser = context.parserSelector.parseStream(null,
+							fileInstance.getFileName(), null, null,
+							fileInstance.getInputStream(), context.lang, null,
+							null);
+					if (parser != null)
+						parser.popupateResult(0, target);
+				}
 			}
 		}
 		if (dfTarget.isCrawlUrl()) {

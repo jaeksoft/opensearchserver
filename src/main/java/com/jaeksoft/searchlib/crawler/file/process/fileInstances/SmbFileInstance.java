@@ -112,9 +112,9 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 				return FileTypeEnum.file;
 			return null;
 		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
+			throw new SearchLibException("URL error on " + getPath(), e);
 		} catch (SmbException e) {
-			throw new SearchLibException(e);
+			throw new SearchLibException("SMB Error on " + getPath(), e);
 		}
 	}
 
@@ -126,7 +126,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 				return null;
 			return smbFile.getName();
 		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
+			throw new SearchLibException("URL error on " + getPath(), e);
 		}
 	}
 
@@ -231,8 +231,12 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		SmbFile smbFile = getSmbFile();
-		return smbFile.getInputStream();
+		try {
+			SmbFile smbFile = getSmbFile();
+			return smbFile.getInputStream();
+		} catch (IOException e) {
+			throw new IOException("I/O error on SMB path: " + getPath(), e);
+		}
 	}
 
 	public final static ACE[] getSecurity(SmbFile smbFile) throws IOException {
