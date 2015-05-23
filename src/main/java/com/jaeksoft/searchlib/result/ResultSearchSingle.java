@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
+import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
@@ -213,6 +214,15 @@ public class ResultSearchSingle extends AbstractResultSearch {
 					ResultDocument rd = new ResultDocument(request,
 							fieldNameSet, doc, reader, 0, null, 0, timer);
 					resultDocument.addCollapsedDocument(rd);
+					for (String field : fieldNameSet) {
+						FieldValue fieldValue = resultDocument
+								.getReturnFields().get(field);
+						if (fieldValue != null
+								&& fieldValue.getValuesCount() > 0)
+							continue;
+						resultDocument.addReturnedFields(rd.getReturnFields()
+								.get(field));
+					}
 				}
 			}
 			return resultDocument;

@@ -276,6 +276,20 @@ public class ResultDocument {
 		fieldValue.addValues(new FieldValueItem(origin, value));
 	}
 
+	public void addReturnedFields(FieldValue newFieldValue) {
+		if (newFieldValue == null)
+			return;
+		if (newFieldValue.getValuesCount() == 0)
+			return;
+		String field = newFieldValue.getName();
+		FieldValue fieldValue = returnFields.get(field);
+		if (fieldValue == null) {
+			fieldValue = new FieldValue(field);
+			returnFields.put(field, fieldValue);
+		}
+		fieldValue.addValues(newFieldValue.getValueList());
+	}
+
 	public void addPosition(Position position) {
 		positions.add(position);
 	}
