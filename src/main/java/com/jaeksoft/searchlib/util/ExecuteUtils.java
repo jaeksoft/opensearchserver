@@ -93,9 +93,10 @@ public class ExecuteUtils {
 		ProcessBuilder processBuilder = new ProcessBuilder(args);
 		processBuilder.redirectErrorStream(true);
 		Process process = processBuilder.start();
-		synchronized (process) {
-			process.wait(secTimeOut * 1000);
-		}
+		if (!waitFor(process, secTimeOut))
+			throw new ExecutionException("TimeOut reached", null,
+					processBuilder, null);
+
 		returnedText = IOUtils.copy(process.getInputStream(), returnedText,
 				"UTF-8", true);
 		int exitValue = process.exitValue();
@@ -113,6 +114,30 @@ public class ExecuteUtils {
 		return exitValue;
 	}
 
+	/**
+	 * Backport from Java 1.8 Wait for the completion of the process
+	 * 
+	 * @param process
+	 *            the process to wait for
+	 * @param secTimeOut
+	 *            the maximum number of seconds to wait for
+	 * @return true if the process returned an exit code
+	 * @throws InterruptedException
+	 */
+	public static boolean waitFor(Process process, int secTimeOut)
+			throws InterruptedException {
+		long last = System.currentTimeMillis() + secTimeOut * 1000;
+		do {
+			try {
+				process.exitValue();
+				return true;
+			} catch (IllegalThreadStateException ex) {
+				Thread.sleep(100);
+			}
+		} while (System.currentTimeMillis() < last);
+		return false;
+	}
+
 	public static class ExecutionException extends IOException {
 
 		/**
@@ -122,11 +147,11 @@ public class ExecuteUtils {
 
 		private final String commandLine;
 
-		private final int exitValue;
+		private final Integer exitValue;
 
 		private final String returnedText;
 
-		private ExecutionException(String msg, int exitValue,
+		private ExecutionException(String msg, Integer exitValue,
 				ProcessBuilder processBuilder, StringBuilder returnedText) {
 			super(msg);
 			this.exitValue = exitValue;
@@ -145,7 +170,7 @@ public class ExecuteUtils {
 		}
 
 		public int getExitValue() {
-			return exitValue;
+			return exitValue == null ? -1 : exitValue;
 		}
 	}
 }
