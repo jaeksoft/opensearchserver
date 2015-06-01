@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.renderer.log.RendererLogField;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface.User;
+import com.jaeksoft.searchlib.renderer.plugin.AuthRendererTokens;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -161,6 +162,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private RendererJspEnum defaultJsp;
 
+	private final AuthRendererTokens tokens;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
@@ -174,6 +177,7 @@ public class Renderer implements Comparable<Renderer> {
 		filtersTitleText = "Active filters";
 		facetWidth = "200px";
 		logEnabled = false;
+		tokens = new AuthRendererTokens();
 		fields = new ArrayList<RendererField>();
 		filters = new ArrayList<RendererFilter>();
 		sorts = new ArrayList<RendererSort>(0);
@@ -838,6 +842,10 @@ public class Renderer implements Comparable<Renderer> {
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public AuthRendererTokens getTokens() {
+		return tokens;
 	}
 
 	public String getApiUrl() throws UnsupportedEncodingException {

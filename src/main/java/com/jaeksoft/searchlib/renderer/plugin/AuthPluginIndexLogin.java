@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.TermFilter;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
+import com.jaeksoft.searchlib.renderer.plugin.AuthRendererTokens.AuthToken;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -49,6 +50,13 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+		String token = request.getParameter("token");
+		if (!StringUtils.isEmpty(token)) {
+			AuthToken authToken = renderer.getTokens().getToken(token);
+			if (authToken == null)
+				throw new AuthException("Invalid authentication token");
+			return getUser(renderer, authToken.login, authToken.password);
+		}
 		return getUser(renderer, request.getParameter("username"),
 				request.getParameter("password"));
 	}
