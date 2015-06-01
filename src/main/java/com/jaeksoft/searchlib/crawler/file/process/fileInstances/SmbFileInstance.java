@@ -252,13 +252,23 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		}
 	}
 
-	@Override
-	public List<SecurityAccess> getSecurity() throws IOException {
-		SmbFile smbFile = getSmbFile();
-		ACE[] aces = getSecurity(smbFile);
-		if (aces == null)
+	public final static ACE[] getSharedSecurity(SmbFile smbFile)
+			throws IOException {
+		try {
+			return smbFile.getShareSecurity(false);
+		} catch (SmbAuthException e) {
+			Logging.warn(e.getMessage() + " - " + smbFile.getPath(), e);
 			return null;
-		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		} catch (SmbException e) {
+			if (e.getNtStatus() == 0xC00000BB)
+				return null;
+			throw e;
+		}
+	}
+
+	private void fillSecurity(ACE[] aces, List<SecurityAccess> accesses) {
+		if (aces == null)
+			return;
 		for (ACE ace : aces) {
 			if ((ace.getAccessMask() & ACE.FILE_READ_DATA) == 0)
 				continue;
@@ -287,6 +297,14 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			}
 			accesses.add(access);
 		}
-		return accesses;
+	}
+
+	@Override
+	public List<SecurityAccess> getSecurity() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		fillSecurity(getSecurity(smbFile), accesses);
+		fillSecurity(getSecurity(smbFile), accesses);
+		return accesses.isEmpty() ? null : accesses;
 	}
 }
