@@ -57,7 +57,7 @@ public class ActiveDirectory implements Closeable {
 		properties.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		properties.put(Context.PROVIDER_URL,
-				StringUtils.fastConcat("LDAP://", serverName));
+				StringUtils.fastConcat("ldap://", serverName, ":389"));
 		properties.put(Context.SECURITY_PRINCIPAL,
 				StringUtils.fastConcat(username, "@", domain));
 		properties.put(Context.SECURITY_CREDENTIALS, password);
