@@ -160,7 +160,8 @@ public class TaskQueryXsltPost extends TaskAbstract {
 					+ " not found");
 		searchRequest.setQueryString(queryString);
 		taskLog.setInfo("Execute request " + searchTemplate);
-		AbstractResultSearch resultSearch = (AbstractResultSearch) client
+		@SuppressWarnings("unchecked")
+		AbstractResultSearch<AbstractSearchRequest> resultSearch = (AbstractResultSearch<AbstractSearchRequest>) client
 				.request(searchRequest);
 
 		if (resultSearch == null || resultSearch.getNumFound() == 0) {
@@ -177,7 +178,7 @@ public class TaskQueryXsltPost extends TaskAbstract {
 			sw = new StringWriter();
 			pw = new PrintWriter(sw);
 			taskLog.setInfo("Render XML");
-			new RenderSearchXml(resultSearch).render(pw);
+			new RenderSearchXml<AbstractSearchRequest>(resultSearch).render(pw);
 			pw.close();
 			pw = null;
 			sw.close();

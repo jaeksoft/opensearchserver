@@ -34,7 +34,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -74,19 +74,19 @@ public class MirrorAndFilter extends FilterAbstract<MirrorAndFilter> {
 
 	@Override
 	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException, SyntaxError,
-			SearchLibException, IOException {
+			AbstractLocalSearchRequest request) throws ParseException,
+			SyntaxError, SearchLibException, IOException {
 		StringBuilder sb = new StringBuilder("MirrorAndFilter - ");
 		sb.append(getQuery(request).toString());
 		return sb.toString();
 	}
 
-	private Query getQuery(AbstractSearchRequest request)
+	private Query getQuery(AbstractLocalSearchRequest request)
 			throws ParseException, SyntaxError, SearchLibException, IOException {
 		if (query != null)
 			return query;
 		try {
-			request = (AbstractSearchRequest) request.duplicate();
+			request = (AbstractLocalSearchRequest) request.duplicate();
 			request.setDefaultOperator(OperatorEnum.AND);
 			query = request.getNotBoostedQuery();
 			return query;
@@ -99,7 +99,7 @@ public class MirrorAndFilter extends FilterAbstract<MirrorAndFilter> {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			Analyzer analyzer, AbstractLocalSearchRequest request, Timer timer)
 			throws ParseException, IOException, SearchLibException, SyntaxError {
 		Query query = getQuery(request);
 		return new FilterHits(

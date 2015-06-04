@@ -99,7 +99,7 @@ public class DeleteController extends CommonController {
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		request.reset();
-		int numFound = ((AbstractResultSearch) getClient().request(request))
+		int numFound = ((AbstractResultSearch<?>) getClient().request(request))
 				.getNumFound();
 		isChecked = true;
 		new AlertController(numFound + " document(s) found.",
@@ -114,7 +114,7 @@ public class DeleteController extends CommonController {
 		if (!isChecked)
 			return;
 		request.reset();
-		int numFound = ((AbstractResultSearch) getClient().request(request))
+		int numFound = ((AbstractResultSearch<?>) getClient().request(request))
 				.getNumFound();
 		new DeleteAlert(numFound);
 	}

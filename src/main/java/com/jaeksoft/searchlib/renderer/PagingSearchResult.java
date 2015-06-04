@@ -33,7 +33,7 @@ public class PagingSearchResult {
 	private int leftPage;
 	private int rightPage;
 
-	public PagingSearchResult(AbstractResultSearch result, int maxPages) {
+	public PagingSearchResult(AbstractResultSearch<?> result, int maxPages) {
 
 		AbstractSearchRequest request = result.getRequest();
 		int numFound = result.getNumFound() - result.getCollapsedDocCount();

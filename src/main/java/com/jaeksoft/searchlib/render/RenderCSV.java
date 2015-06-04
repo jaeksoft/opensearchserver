@@ -47,10 +47,10 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class RenderCSV implements Render {
 
 	private PrintWriter writer;
-	private AbstractResultSearch result;
+	private AbstractResultSearch<?> result;
 	private AbstractSearchRequest searchRequest;
 
-	public RenderCSV(AbstractResultSearch result) {
+	public RenderCSV(AbstractResultSearch<?> result) {
 		this.result = result;
 		this.searchRequest = result.getRequest();
 

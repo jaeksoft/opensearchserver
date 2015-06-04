@@ -274,7 +274,7 @@ public class MailboxCrawlThread extends
 			return false;
 		uniqueSearchRequest.reset();
 		uniqueSearchRequest.setQueryString(value);
-		AbstractResultSearch result = (AbstractResultSearch) client
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
 				.request(uniqueSearchRequest);
 		return result.getNumFound() > 0;
 	}

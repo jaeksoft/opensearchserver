@@ -53,8 +53,8 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -403,9 +403,9 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		try {
 			int[] ids = null;
-			if (request instanceof AbstractSearchRequest) {
+			if (request instanceof AbstractLocalSearchRequest) {
 				DocSetHits dsh = indexSingle.searchDocSet(
-						(AbstractSearchRequest) request, null);
+						(AbstractLocalSearchRequest) request, null);
 				if (dsh != null)
 					ids = dsh.getIds();
 			} else if (request instanceof DocumentsRequest) {

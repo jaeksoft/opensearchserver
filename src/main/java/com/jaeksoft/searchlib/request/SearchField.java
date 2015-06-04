@@ -217,7 +217,6 @@ public class SearchField implements Cloneable {
 				SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP,
 				booleanGroup == null ? null : Integer.toString(booleanGroup));
 		xmlWriter.endElement();
-
 	}
 
 	@Override

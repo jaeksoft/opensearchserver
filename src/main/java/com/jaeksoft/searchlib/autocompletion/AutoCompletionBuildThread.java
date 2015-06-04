@@ -144,7 +144,7 @@ public class AutoCompletionBuildThread extends
 					+ " is not a Search request ");
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
 		searchRequest.setRows(0);
-		AbstractResultSearch result = (AbstractResultSearch) sourceClient
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) sourceClient
 				.request(request);
 		if (result == null)
 			return docCount;

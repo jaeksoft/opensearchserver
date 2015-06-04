@@ -42,7 +42,7 @@ public class RendererFilterDate extends RendererFilterAbstract {
 	private final List<Item> items = new ArrayList<Item>();
 
 	@Override
-	public void populate(AbstractResultSearch facetResult,
+	public void populate(AbstractResultSearch<?> facetResult,
 			List<RendererFilterItem> filterItem) {
 		long time = System.currentTimeMillis();
 		for (Item item : items)

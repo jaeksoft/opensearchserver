@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetField;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -86,13 +87,14 @@ public class SearchResult extends CommonResult {
 		maxScore = 0;
 	}
 
-	public SearchResult(AbstractResultSearch result) {
+	public SearchResult(AbstractResultSearch<?> result) {
 		super(true, null);
 		try {
 			AbstractSearchRequest searchRequest = result.getRequest();
 			documents = new ArrayList<DocumentResult>(0);
 			facets = new ArrayList<FacetResult>(0);
-			query = searchRequest.getQueryParsed();
+			query = searchRequest instanceof AbstractLocalSearchRequest ? ((AbstractLocalSearchRequest) searchRequest)
+					.getQueryParsed() : searchRequest.getQueryString();
 			start = searchRequest.getStart();
 			rows = searchRequest.getRows();
 			numFound = result.getNumFound();

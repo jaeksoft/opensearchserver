@@ -70,7 +70,7 @@ public class AutoCompletionServlet extends AbstractServlet {
 			return;
 		transaction.setResponseContentType("text/plain");
 		PrintWriter pw = transaction.getWriter("UTF-8");
-		AbstractResultSearch result = autoCompItem.search(query, rows);
+		AbstractResultSearch<?> result = autoCompItem.search(query, rows);
 		if (result == null)
 			return;
 		if (result.getDocumentCount() <= 0)

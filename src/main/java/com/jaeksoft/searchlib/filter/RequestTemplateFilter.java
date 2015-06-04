@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
@@ -81,7 +82,7 @@ public class RequestTemplateFilter extends
 
 	@Override
 	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException {
+			AbstractLocalSearchRequest request) throws ParseException {
 		return StringUtils.fastConcat("TemplateFilter - ", requestName,
 				queryString);
 	}
@@ -96,7 +97,7 @@ public class RequestTemplateFilter extends
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			Analyzer analyzer, AbstractLocalSearchRequest request, Timer timer)
 			throws ParseException, IOException, SearchLibException {
 		Config config = request.getConfig();
 		AbstractRequest filterRequest = config.getNewRequest(requestName);

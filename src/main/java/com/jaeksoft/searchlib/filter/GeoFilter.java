@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.filter.DegreesRadiansFilter;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.DistanceInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -215,7 +215,7 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	@Override
 	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException {
+			AbstractLocalSearchRequest request) throws ParseException {
 		StringBuilder sb = new StringBuilder("GeoFilter - ");
 		sb.append(getQuery(request.getGeoParameters()).toString());
 		sb.append(" - ");
@@ -284,8 +284,8 @@ public class GeoFilter extends FilterAbstract<GeoFilter> {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest searchRequest, Timer timer)
-			throws ParseException, IOException, SearchLibException {
+			Analyzer analyzer, AbstractLocalSearchRequest searchRequest,
+			Timer timer) throws ParseException, IOException, SearchLibException {
 		GeoParameters geoParams = searchRequest.getGeoParameters();
 		Query query = getQuery(geoParams);
 		ResultSearchSingle result = getResult(searchRequest.getConfig(), query,

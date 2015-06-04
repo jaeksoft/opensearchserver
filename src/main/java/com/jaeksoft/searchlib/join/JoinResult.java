@@ -86,7 +86,7 @@ public class JoinResult {
 				.getCollector(JoinScoreInterface.class);
 	}
 
-	public AbstractResultSearch getForeignResult() {
+	public AbstractResultSearch<?> getForeignResult() {
 		return foreignResult;
 	}
 

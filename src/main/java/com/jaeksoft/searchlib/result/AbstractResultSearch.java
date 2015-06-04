@@ -43,9 +43,8 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.ScoreInterface;
 import com.jaeksoft.searchlib.util.Timer;
 
-public abstract class AbstractResultSearch extends
-		AbstractResult<AbstractSearchRequest> implements
-		ResultDocumentsInterface<AbstractSearchRequest> {
+public abstract class AbstractResultSearch<T extends AbstractSearchRequest>
+		extends AbstractResult<T> implements ResultDocumentsInterface<T> {
 
 	protected final ReaderAbstract reader;
 	transient protected CollapseAbstract collapse;
@@ -58,8 +57,7 @@ public abstract class AbstractResultSearch extends
 	protected int collapsedDocCount;
 	private JoinResult[] joinResults;
 
-	protected AbstractResultSearch(ReaderAbstract reader,
-			AbstractSearchRequest searchRequest) {
+	protected AbstractResultSearch(ReaderAbstract reader, T searchRequest) {
 		super(searchRequest);
 		this.reader = reader;
 		this.numFound = 0;
@@ -212,7 +210,7 @@ public abstract class AbstractResultSearch extends
 
 	@Override
 	protected Render getRenderXml() {
-		return new RenderSearchXml(this);
+		return new RenderSearchXml<T>(this);
 	}
 
 	@Override
@@ -222,7 +220,7 @@ public abstract class AbstractResultSearch extends
 
 	@Override
 	protected Render getRenderJson(boolean indent) {
-		return new RenderSearchJson(this, indent);
+		return new RenderSearchJson<T>(this, indent);
 	}
 
 }

@@ -151,7 +151,7 @@ public class RendererServlet extends AbstractServlet {
 					searchRequest
 							.setStart(searchRequest.getRows() * (page - 1));
 				}
-				AbstractResultSearch result = (AbstractResultSearch) client
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
 						.request(searchRequest);
 				transaction.setRequestAttribute("result", result);
 				if (result != null) {
@@ -173,7 +173,7 @@ public class RendererServlet extends AbstractServlet {
 					facetRequest.setStart(searchRequest.getStart());
 					facetRequest.setRows(searchRequest.getRows());
 					renderer.configureAuthRequest(facetRequest, servletRequest);
-					AbstractResultSearch facetResult = (AbstractResultSearch) client
+					AbstractResultSearch<?> facetResult = (AbstractResultSearch<?>) client
 							.request(facetRequest);
 					transaction.setRequestAttribute("facetResult", facetResult);
 				}

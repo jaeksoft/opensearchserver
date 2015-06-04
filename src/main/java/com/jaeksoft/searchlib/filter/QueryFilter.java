@@ -37,7 +37,7 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
@@ -102,7 +102,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	@Override
 	public String getCacheKey(SchemaField defaultField, Analyzer analyzer,
-			AbstractSearchRequest request) throws ParseException {
+			AbstractLocalSearchRequest request) throws ParseException {
 		return "QueryFilter - " + getQuery(defaultField, analyzer).toString();
 	}
 
@@ -116,7 +116,7 @@ public class QueryFilter extends FilterAbstract<QueryFilter> {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			Analyzer analyzer, AbstractLocalSearchRequest request, Timer timer)
 			throws ParseException, IOException, SearchLibException {
 		Query query = getQuery(defaultField, analyzer);
 		return new FilterHits(

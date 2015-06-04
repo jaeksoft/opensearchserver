@@ -132,7 +132,7 @@ public class LogReportManager {
 				sb.append(timer.getDuration());
 			sb.append('\u0009');
 			if (result != null && result instanceof AbstractResultSearch)
-				sb.append(((AbstractResultSearch) result).getNumFound());
+				sb.append(((AbstractResultSearch<?>) result).getNumFound());
 			sb.append('\u0009');
 			if (searchRequest != null)
 				sb.append(searchRequest.getStart());

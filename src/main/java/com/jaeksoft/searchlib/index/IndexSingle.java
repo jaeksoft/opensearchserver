@@ -50,8 +50,8 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
@@ -426,7 +426,7 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			PerFieldAnalyzer analyzer, AbstractLocalSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException, SearchLibException, SyntaxError {
 		rwl.r.lock();
@@ -442,7 +442,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
+	public DocSetHits searchDocSet(AbstractLocalSearchRequest searchRequest,
 			Timer timer) throws IOException, ParseException, SyntaxError,
 			SearchLibException {
 		rwl.r.lock();

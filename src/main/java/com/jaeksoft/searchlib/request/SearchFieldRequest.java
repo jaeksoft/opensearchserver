@@ -58,7 +58,7 @@ import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery.SearchFie
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.FragmenterEnum;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
-public class SearchFieldRequest extends AbstractSearchRequest implements
+public class SearchFieldRequest extends AbstractLocalSearchRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
 		RequestInterfaces.FilterListInterface {
 

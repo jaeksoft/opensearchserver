@@ -53,7 +53,8 @@ public abstract class AbstractRenderJson<T1 extends AbstractRequest, T2 extends 
 			throws ParseException, SyntaxError, SearchLibException, IOException {
 		JSONObject jsonHeader = new JSONObject();
 		jsonHeader.put("status", 0);
-		jsonHeader.put("query", queryString);
+		if (queryString != null)
+			jsonHeader.put("query", queryString);
 		jsonResponse.put("header", jsonHeader);
 
 	}

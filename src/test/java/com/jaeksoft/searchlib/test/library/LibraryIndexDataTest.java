@@ -134,7 +134,7 @@ public class LibraryIndexDataTest {
 		request.addFacet("category", 1, false, false, null);
 
 		// Let's execute the search request
-		AbstractResultSearch results = (AbstractResultSearch) client
+		AbstractResultSearch<?> results = (AbstractResultSearch<?>) client
 				.request(request);
 
 		// Check the number of returned document

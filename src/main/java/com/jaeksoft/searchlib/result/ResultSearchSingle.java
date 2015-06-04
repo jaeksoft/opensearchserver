@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.join.JoinResult;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -50,7 +50,8 @@ import com.jaeksoft.searchlib.sort.SorterAbstract;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
-public class ResultSearchSingle extends AbstractResultSearch {
+public class ResultSearchSingle extends
+		AbstractResultSearch<AbstractLocalSearchRequest> {
 
 	transient private DocSetHits docSetHits;
 	transient private final TreeSet<String> fieldNameSet;
@@ -70,7 +71,7 @@ public class ResultSearchSingle extends AbstractResultSearch {
 	 * @throws InstantiationException
 	 */
 	public ResultSearchSingle(ReaderAbstract reader,
-			AbstractSearchRequest searchRequest) throws IOException,
+			AbstractLocalSearchRequest searchRequest) throws IOException,
 			ParseException, SyntaxError, SearchLibException,
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {

@@ -96,7 +96,7 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 	}
 
 	@Override
-	public void populate(AbstractResultSearch facetResult,
+	public void populate(AbstractResultSearch<?> facetResult,
 			List<RendererFilterItem> filterItem) {
 		if (facetResult == null)
 			return;
