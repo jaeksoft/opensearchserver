@@ -131,7 +131,7 @@ public class TaskQueryCheck extends TaskAbstract {
 		try {
 			taskLog.setInfo("Execute request " + searchTemplate);
 			SearchResult searchResult = new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+					(AbstractResultSearch<?>) client.request(searchRequest));
 			if (jsonPath != null && jsonPath.length() > 0) {
 				String json = JsonUtils.toJsonString(searchResult);
 				JsonPath jsonPathCompile = JsonPath.compile(jsonPath);

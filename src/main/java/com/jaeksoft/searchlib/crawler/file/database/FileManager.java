@@ -218,7 +218,7 @@ public class FileManager extends AbstractManager {
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(1);
-		AbstractResultSearch result = (AbstractResultSearch) dbClient
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 				.request(searchRequest);
 		if (result.getNumFound() == 0)
 			return null;
@@ -237,7 +237,7 @@ public class FileManager extends AbstractManager {
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(Integer.MAX_VALUE);
-		AbstractResultSearch result = (AbstractResultSearch) dbClient
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 				.request(searchRequest);
 		int l = result.getNumFound();
 		for (int i = 0; i < l; i++) {
@@ -252,7 +252,7 @@ public class FileManager extends AbstractManager {
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
@@ -285,7 +285,7 @@ public class FileManager extends AbstractManager {
 		try {
 			if (orderBy != null)
 				orderBy.addSort(searchRequest, !orderAsc);
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)

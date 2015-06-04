@@ -53,7 +53,7 @@ public class ResultSearchController extends AbstractQueryController {
 
 	public boolean getDocumentFound() throws SearchLibException {
 		synchronized (this) {
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) getResult();
 			if (result == null)
 				return false;
 			return result.getDocumentCount() > 0;
@@ -62,7 +62,7 @@ public class ResultSearchController extends AbstractQueryController {
 
 	public FacetList getFacetList() throws SearchLibException {
 		synchronized (this) {
-			AbstractResultSearch result = (AbstractResultSearch) getResult();
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) getResult();
 			if (result == null)
 				return null;
 			FacetList facetList = result.getFacetList();
@@ -86,7 +86,7 @@ public class ResultSearchController extends AbstractQueryController {
 		Client client = getClient();
 		if (client == null)
 			return;
-		AbstractResultSearch result = (AbstractResultSearch) getResult();
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) getResult();
 		if (result == null)
 			return;
 

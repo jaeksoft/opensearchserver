@@ -58,13 +58,13 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class RenderOpenSearch implements Render {
 
 	private PrintWriter writer;
-	private AbstractResultSearch result;
+	private AbstractResultSearch<?> result;
 	private AbstractSearchRequest searchRequest;
 	private Matcher controlMatcher;
 	private String serverURL;
 	private String outputEncoding;
 
-	public RenderOpenSearch(AbstractResultSearch result, String serverURL,
+	public RenderOpenSearch(AbstractResultSearch<?> result, String serverURL,
 			String outputEncoding) {
 		this.result = result;
 		this.searchRequest = result.getRequest();

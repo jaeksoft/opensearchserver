@@ -37,7 +37,6 @@ import org.json.JSONObject;
 import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.webservice.query.search.FacetFieldItem;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class FacetResult {
@@ -54,7 +53,7 @@ public class FacetResult {
 
 	}
 
-	public FacetResult(AbstractResultSearch result, String field) {
+	public FacetResult(AbstractResultSearch<?> result, String field) {
 		terms = new ArrayList<FacetFieldItem>();
 		FacetList facetList = result.getFacetList();
 		fieldName = field;

@@ -57,13 +57,13 @@ public class Pagination {
 			navPages.add(i);
 	}
 
-	private Pagination(AbstractResultSearch result,
+	private Pagination(AbstractResultSearch<?> result,
 			AbstractSearchRequest searchRequest, int pagesArround) {
 		this(result.getNumFound(), searchRequest.getStart(), searchRequest
 				.getRows(), pagesArround);
 	}
 
-	public Pagination(AbstractResultSearch result, int pagesArround) {
+	public Pagination(AbstractResultSearch<?> result, int pagesArround) {
 		this(result, result.getRequest(), pagesArround);
 
 	}

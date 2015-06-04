@@ -39,6 +39,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
@@ -65,7 +66,7 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 
 	@Override
 	final public String getCacheKey(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request)
+			Analyzer analyzer, AbstractLocalSearchRequest request)
 			throws ParseException {
 		StringBuilder sb = new StringBuilder(getDescription());
 		sb.append(" - ");
@@ -134,7 +135,7 @@ public class AuthFilter extends FilterAbstract<AuthFilter> {
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			Analyzer analyzer, AbstractLocalSearchRequest request, Timer timer)
 			throws ParseException, IOException, SearchLibException {
 		AuthManager auth = request.getConfig().getAuthManager();
 		Query query = getQuery(request, auth);

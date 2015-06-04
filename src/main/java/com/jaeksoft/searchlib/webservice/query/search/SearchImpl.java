@@ -78,7 +78,7 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 			if (query != null)
 				query.apply(searchRequest);
 			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+					(AbstractResultSearch<?>) client.request(searchRequest));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -103,7 +103,7 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 			if (query != null)
 				query.apply(searchRequest);
 			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+					(AbstractResultSearch<?>) client.request(searchRequest));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
@@ -130,7 +130,7 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 			if (query != null)
 				query.apply(searchRequest);
 			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+					(AbstractResultSearch<?>) client.request(searchRequest));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -151,7 +151,7 @@ public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
 			if (query != null)
 				query.apply(searchRequest);
 			return new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+					(AbstractResultSearch<?>) client.request(searchRequest));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

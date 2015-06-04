@@ -182,7 +182,7 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 						config);
 				searchRequest.setRows(1);
 				searchRequest.setQueryString(docQuery);
-				AbstractResultSearch result = (AbstractResultSearch) index
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) index
 						.request(searchRequest);
 				if (result.getNumFound() == 0)
 					return mlt.like(new StringReader(""));

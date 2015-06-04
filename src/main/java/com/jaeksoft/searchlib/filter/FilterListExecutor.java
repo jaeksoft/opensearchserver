@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.ExceptionUtils;
@@ -47,14 +47,15 @@ public class FilterListExecutor {
 	private final ThreadGroup threadGroup;
 	private final SchemaField defaultField;
 	private final PerFieldAnalyzer analyzer;
-	private final AbstractSearchRequest request;
+	private final AbstractLocalSearchRequest request;
 	private final OperatorEnum defaultOperator;
 	private final Timer timer;
 	private final FilterHits finalFilterHits;
 	private final List<FilterThread> threads;
 
-	public FilterListExecutor(AbstractSearchRequest searchRequest, Timer timer)
-			throws SearchLibException, ParseException, IOException, SyntaxError {
+	public FilterListExecutor(AbstractLocalSearchRequest searchRequest,
+			Timer timer) throws SearchLibException, ParseException,
+			IOException, SyntaxError {
 		Config config = searchRequest.getConfig();
 		Schema schema = config.getSchema();
 		defaultField = schema.getFieldList().getDefaultField();

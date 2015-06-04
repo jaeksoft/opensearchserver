@@ -165,7 +165,7 @@ public class DocumentResult {
 			throws SearchLibException {
 		int start = result.getRequestStart();
 		int end = result.getDocumentCount() + result.getRequestStart();
-		AbstractResultSearch resultSearch = result instanceof AbstractResultSearch ? (AbstractResultSearch) result
+		AbstractResultSearch<?> resultSearch = result instanceof AbstractResultSearch ? (AbstractResultSearch<?>) result
 				: null;
 		for (int i = start; i < end; i++) {
 			ResultDocument resultDocument = result.getDocument(i, null);

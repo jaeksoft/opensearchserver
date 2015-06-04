@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.index.docvalue.OrderDocValue;
 import com.jaeksoft.searchlib.index.docvalue.RadiansDocValue;
 import com.jaeksoft.searchlib.index.docvalue.ReverseOrderDocValue;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.Timer;
 
@@ -64,7 +64,7 @@ public abstract class ReaderAbstract implements ReaderInterface {
 
 	@Override
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
+			PerFieldAnalyzer analyzer, AbstractLocalSearchRequest request,
 			FilterAbstract<?> filter, Timer timer) throws ParseException,
 			IOException, SearchLibException, SyntaxError;
 

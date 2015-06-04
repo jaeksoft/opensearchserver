@@ -211,7 +211,7 @@ public class AutoCompletionComposer extends CommonController {
 		if (selectedItem == null)
 			return;
 		String[] resultArray = new String[0];
-		AbstractResultSearch result = selectedItem.search(event.getValue(),
+		AbstractResultSearch<?> result = selectedItem.search(event.getValue(),
 				selectedItem.getRows());
 		if (result != null) {
 			if (result.getDocumentCount() > 0) {

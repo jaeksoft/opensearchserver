@@ -140,7 +140,7 @@ public class SearchQueryBatch {
 				searchRequest = new SearchPatternRequest(client);
 			query.apply(searchRequest);
 			SearchResult searchResult = new SearchResult(
-					(AbstractResultSearch) client.request(searchRequest));
+					(AbstractResultSearch<?>) client.request(searchRequest));
 			searchResults.add(searchResult);
 			if (mode != null) {
 				switch (mode) {

@@ -171,7 +171,7 @@ public class ReportsManager {
 			dateTo = endDate == null ? "99999999999999" : modifyDate(endDate);
 			searchRequest = generateSearchRequest(topKeywords, fromDate,
 					dateTo, withResult, rows);
-			AbstractResultSearch result = (AbstractResultSearch) reportsClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) reportsClient
 					.request(searchRequest);
 			FacetList facet = result.getFacetList();
 			return facet.getByField("keywords");

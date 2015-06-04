@@ -123,7 +123,7 @@ public class LibraryIndexFileTest {
 		request.setRows(10);
 
 		// Let's execute the search request
-		AbstractResultSearch results = (AbstractResultSearch) client
+		AbstractResultSearch<?> results = (AbstractResultSearch<?>) client
 				.request(request);
 
 		// Check the number of returned document

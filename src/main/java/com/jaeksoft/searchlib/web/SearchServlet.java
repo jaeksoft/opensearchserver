@@ -88,7 +88,7 @@ public class SearchServlet extends AbstractServlet {
 			URISyntaxException, ClassNotFoundException, InterruptedException,
 			SearchLibException, InstantiationException, IllegalAccessException {
 
-		AbstractResultSearch result = (AbstractResultSearch) client
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
 				.request(searchRequest);
 		return new RenderOpenSearch(result, serverURL, outputEncoding);
 

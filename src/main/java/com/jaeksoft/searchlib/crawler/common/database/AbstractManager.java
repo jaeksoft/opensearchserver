@@ -214,7 +214,7 @@ public abstract class AbstractManager {
 			joinItem.setLocalField(targetField);
 			joinItem.setOuterCollector(outerCollector);
 			searchRequest.getJoinList().add(joinItem);
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(searchRequest);
 			outerCollector.delete();
 			if (taskLog != null) {

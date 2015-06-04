@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.analysis.Analyzer;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -188,7 +189,7 @@ public class StandardLearner implements LearnerInterface {
 			throws IOException, SearchLibException {
 		if (CollectionUtils.isEmpty(sources))
 			return;
-		AbstractResultSearch result = null;
+		AbstractResultSearch<?> result = null;
 		List<IndexDocument> learnIndexDocuments = new ArrayList<IndexDocument>(
 				sources.size());
 		rwl.r.lock();
@@ -207,7 +208,7 @@ public class StandardLearner implements LearnerInterface {
 				if (StringUtils.isEmpty(uniqueTerm))
 					continue;
 				request.addTermFilter(uniqueField, uniqueTerm, false);
-				result = (AbstractResultSearch) client.request(request);
+				result = (AbstractResultSearch<?>) client.request(request);
 				if (result.getDocumentCount() != 1)
 					continue;
 				addNewlearnDocument(sourceFieldMap, result, 0,
@@ -272,7 +273,7 @@ public class StandardLearner implements LearnerInterface {
 			if (booleanQuery == null || booleanQuery.getClauses() == null
 					|| booleanQuery.getClauses().length == 0)
 				return;
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
+			AbstractLocalSearchRequest searchRequest = (AbstractLocalSearchRequest) learnerClient
 					.getNewRequest(REQUEST_SEARCH);
 			int start = 0;
 			final int rows = 1000;
@@ -284,7 +285,7 @@ public class StandardLearner implements LearnerInterface {
 				searchRequest.setStart(start);
 				searchRequest.setRows(rows);
 				searchRequest.setBoostedComplexQuery(booleanQuery);
-				AbstractResultSearch result = (AbstractResultSearch) learnerClient
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) learnerClient
 						.request(searchRequest);
 				if (result.getDocumentCount() == 0)
 					break;
@@ -326,7 +327,7 @@ public class StandardLearner implements LearnerInterface {
 	private void fieldClassify(String fieldName, Float boost, String data,
 			TreeMap<String, LearnerResultItem> targetMap)
 			throws SearchLibException, IOException {
-		AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
+		AbstractLocalSearchRequest searchRequest = (AbstractLocalSearchRequest) learnerClient
 				.getNewRequest(REQUEST_SEARCH);
 		BooleanQuery booleanQuery = getBooleanQuery(fieldName, data);
 		if (booleanQuery == null || booleanQuery.getClauses() == null
@@ -405,7 +406,7 @@ public class StandardLearner implements LearnerInterface {
 	}
 
 	private void addNewlearnDocument(FieldMap sourceFieldMap,
-			AbstractResultSearch result, int pos,
+			AbstractResultSearch<?> result, int pos,
 			Collection<IndexDocument> learnIndexDocuments) throws IOException,
 			SearchLibException {
 		ResultDocument resultDocument = result.getDocument(pos);
@@ -441,7 +442,7 @@ public class StandardLearner implements LearnerInterface {
 			request.setEmptyReturnsAll(true);
 			for (;;) {
 				request.setStart(start);
-				AbstractResultSearch result = (AbstractResultSearch) client
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
 						.request(request);
 				if (result.getDocumentCount() == 0)
 					break;
@@ -467,7 +468,7 @@ public class StandardLearner implements LearnerInterface {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) learnerClient
 				.getNewRequest(REQUEST_CUSTOM);
 		searchRequest.setQueryString(name);
-		AbstractResultSearch result = (AbstractResultSearch) learnerClient
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) learnerClient
 				.request(searchRequest);
 		if (result.getDocumentCount() == 0)
 			return null;

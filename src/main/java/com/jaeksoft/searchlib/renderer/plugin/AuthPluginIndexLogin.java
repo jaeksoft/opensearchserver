@@ -92,7 +92,7 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 			searchFieldRequest.setStart(0);
 			searchFieldRequest.setRows(1);
 			searchFieldRequest.addReturnField(GROUPS_FIELD);
-			AbstractResultSearch result = (AbstractResultSearch) authClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) authClient
 					.request(searchFieldRequest);
 			if (result == null || result.getNumFound() == 0)
 				throw new AuthException("Authentication failed.");

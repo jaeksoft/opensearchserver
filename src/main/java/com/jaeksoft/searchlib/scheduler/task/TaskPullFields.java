@@ -115,7 +115,7 @@ public class TaskPullFields extends TaskPullAbstract {
 
 			for (;;) {
 				searchRequest.setStart(start);
-				AbstractResultSearch result = (AbstractResultSearch) executionData.sourceClient
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) executionData.sourceClient
 						.request(searchRequest);
 
 				if (result.getDocumentCount() <= 0)

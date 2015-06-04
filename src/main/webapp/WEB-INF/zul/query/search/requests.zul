@@ -1,0 +1,64 @@
+<!--
+	License Agreement for OpenSearchServer
+	Copyright (C) 2015 Emmanuel Keller / Jaeksoft
+	http://www.open-search-server.com
+	This file is part of OpenSearchServer.
+	OpenSearchServer is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	OpenSearchServer is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with OpenSearchServer.
+	If not, see <http://www.gnu.org/licenses/>.
+-->
+<window apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('requestsCtrl') @init('com.jaeksoft.searchlib.web.controller.query.RequestsController')">
+	<listbox model="@load(requestsCtrl.request.requests)"
+		selectedItem="@bind(requestsCtrl.selectedRequest)">
+		<listhead>
+			<listheader label="Remote URL" width="350px" />
+			<listheader label="Index name" width="150px" />
+			<listheader label="Request name" width="150px" />
+			<listheader label="Action" />
+		</listhead>
+		<auxhead>
+			<auxheader>
+				<textbox width="95%"
+					value="@bind(requestsCtrl.currentRequest.remoteURL)" />
+			</auxheader>
+			<auxheader>
+				<textbox width="95%"
+					value="@bind(requestsCtrl.currentRequest.indexName)" />
+			</auxheader>
+			<auxheader>
+				<textbox width="95%"
+					value="@bind(requestsCtrl.currentRequest.requestName)" />
+			</auxheader>
+			<auxheader>
+				<button image="images/action_add.png" tooltip="Create"
+					visible="@load(!requestsCtrl.requestSelected)"
+					onClick="@command('onRequestSave')" />
+				<button image="images/action_check.png" tooltip="Save"
+					visible="@load(requestsCtrl.requestSelected)"
+					onClick="@command('onRequestSave')" />
+				<button image="images/action_cancel.png"
+					tooltip="Cancel" visible="@load(requestsCtrl.requestSelected)"
+					onClick="@command('onRequestCancel')" />
+				<button image="images/action_delete.png"
+					tooltip="Remove" visible="@load(requestsCtrl.requestSelected)"
+					onClick="@command('onRequestRemove')" />
+			</auxheader>
+		</auxhead>
+		<template name="model">
+			<listitem>
+				<listcell label="@load(each.remoteURL)" />
+				<listcell label="@load(each.indexName)" />
+				<listcell label="@load(each.requestName)" />
+				<listcell />
+			</listitem>
+		</template>
+	</listbox>
+</window>

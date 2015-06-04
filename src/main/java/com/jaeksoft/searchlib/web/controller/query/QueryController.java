@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -146,6 +146,10 @@ public final class QueryController extends AbstractQueryController {
 
 	public boolean isEditingSearchField() throws SearchLibException {
 		return isEditing(RequestTypeEnum.SearchFieldRequest);
+	}
+
+	public boolean isEditingSearchMerged() throws SearchLibException {
+		return isEditing(RequestTypeEnum.SearchMergedRequest);
 	}
 
 	public boolean isNotEditingSearchField() throws SearchLibException {

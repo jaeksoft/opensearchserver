@@ -206,7 +206,7 @@ public class UrlManager extends AbstractManager {
 			int maxUrlPerHost, NamedItem.Selection selection,
 			List<NamedItem> list, Set<String> hostSet)
 			throws SearchLibException {
-		AbstractResultSearch result = (AbstractResultSearch) dbClient
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 				.request(searchRequest);
 		List<FacetItem> facetItems = result.getFacetList()
 				.getByField(field.getName()).getList();
@@ -316,7 +316,7 @@ public class UrlManager extends AbstractManager {
 			throw new SearchLibException(e);
 		}
 		searchRequest.setRows((int) urlLimit);
-		AbstractResultSearch result = (AbstractResultSearch) dbClient
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 				.request(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(getNewUrlItem(item));
@@ -346,7 +346,7 @@ public class UrlManager extends AbstractManager {
 					searchRequest, ParserStatus.PARSED.value, false, false);
 			searchRequest.setQueryString(sb.toString());
 			searchRequest.setRows(0);
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(searchRequest);
 			return result.getNumFound();
 		} catch (ParseException e) {
@@ -508,7 +508,7 @@ public class UrlManager extends AbstractManager {
 		request.setStart(0);
 		request.setRows(1);
 		try {
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(request);
 			for (ResultDocument doc : result)
 				return getNewUrlItem(doc);
@@ -524,7 +524,7 @@ public class UrlManager extends AbstractManager {
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
@@ -545,7 +545,7 @@ public class UrlManager extends AbstractManager {
 			if (minCount < 0)
 				minCount = 0;
 			facetField.setMinCount(minCount);
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 					.request(searchRequest);
 			if (result == null)
 				return null;
