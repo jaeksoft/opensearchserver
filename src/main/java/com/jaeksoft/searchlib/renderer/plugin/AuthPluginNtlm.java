@@ -105,9 +105,9 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 					"DistinguishedName");
 			if (!StringUtils.isEmpty(dnUser))
 				activeDirectory.findUserGroup(dnUser, groups);
-			user = new User(userId, remoteUser, null,
-					ActiveDirectory.toArray(groups),
-					ActiveDirectory.getDisplayString(domain, remoteUser));
+			user = new User(userId, remoteUser, null, ActiveDirectory.toArray(
+					groups, "everyone"), ActiveDirectory.getDisplayString(
+					domain, remoteUser));
 
 			Logging.info("USER authenticated: " + user + " DN=" + dnUser);
 

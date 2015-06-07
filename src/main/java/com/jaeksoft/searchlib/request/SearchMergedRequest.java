@@ -42,6 +42,7 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.ResultSearchMerged;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
@@ -132,8 +133,7 @@ public class SearchMergedRequest extends AbstractSearchRequest implements
 	@Override
 	public AbstractResult<?> execute(ReaderInterface reader)
 			throws SearchLibException {
-		// TODO Auto-generated method stub
-		return null;
+		return new ResultSearchMerged(this);
 	}
 
 	public static class RemoteRequest implements Comparable<RemoteRequest> {
