@@ -113,7 +113,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			Logging.info("USER authenticated: " + user);
 
 			user = new User(userId.toLowerCase(), username.toLowerCase(),
-					password, ActiveDirectory.toArray(groups),
+					password, ActiveDirectory.toArray(groups, "everyone"),
 					ActiveDirectory.getDisplayString(domain, username));
 			AuthUserCache.INSTANCE.add(username, domain, user);
 			return user;
@@ -173,7 +173,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			if (!StringUtils.isEmpty(dnUser))
 				activeDirectory.findUserGroup(dnUser, groups);
 
-			String[] groupArray = ActiveDirectory.toArray(groups);
+			String[] groupArray = ActiveDirectory.toArray(groups, "everyone");
 			System.out.println(new User(userId, username, password, groupArray,
 					ActiveDirectory.getDisplayString(domain, username)));
 			for (String group : groupArray)

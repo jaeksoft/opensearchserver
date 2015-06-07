@@ -224,7 +224,8 @@ public class ActiveDirectory implements Closeable {
 		}
 	}
 
-	public static String[] toArray(Collection<ADGroup> groups) {
+	public static String[] toArray(Collection<ADGroup> groups,
+			String... additionalGroups) {
 		TreeSet<String> groupSet = new TreeSet<String>();
 		for (ADGroup group : groups) {
 			if ("builtin".equalsIgnoreCase(group.cn2))
@@ -233,6 +234,9 @@ public class ActiveDirectory implements Closeable {
 				groupSet.add(StringUtils.fastConcat(group.dc, '\\', group.cn1)
 						.toLowerCase());
 		}
+		if (additionalGroups != null)
+			for (String additionalGroup : additionalGroups)
+				groupSet.add(additionalGroup);
 		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
