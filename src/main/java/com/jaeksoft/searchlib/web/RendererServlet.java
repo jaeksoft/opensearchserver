@@ -54,6 +54,7 @@ import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class RendererServlet extends AbstractServlet {
@@ -74,11 +75,11 @@ public class RendererServlet extends AbstractServlet {
 		transaction.forward(path);
 	}
 
-	final private void token(Renderer renderer, String login, String password,
-			PrintWriter pw) throws IOException, SearchLibException,
-			TransformerConfigurationException, SAXException {
-		AuthPluginInterface.User rendererUser = renderer.testAuthRequest(login,
-				password);
+	final private void token(Renderer renderer, String username,
+			String password, PrintWriter pw) throws IOException,
+			SearchLibException, TransformerConfigurationException, SAXException {
+		AuthPluginInterface.User rendererUser = renderer.testAuthRequest(
+				username, password);
 		if (rendererUser == null)
 			throw new SearchLibException("Authentication failed");
 		String token = renderer.getTokens().generateToken(
@@ -109,13 +110,16 @@ public class RendererServlet extends AbstractServlet {
 				throw new SearchLibException("The renderer has not been found");
 
 			// Generate Auth token
-			String login = transaction.getParameterString("login");
-			String password = transaction.getParameterString("password");
-			if (!StringUtils.isEmpty(login) && !StringUtils.isEmpty(password)) {
-				transaction.setResponseContentType("text/xml");
-				PrintWriter pw = transaction.getWriter("UTF-8");
-				token(renderer, login, password, pw);
-				return;
+			if (transaction.getMethod() == Method.GET) {
+				String username = transaction.getParameterString("username");
+				String password = transaction.getParameterString("password");
+				if (!StringUtils.isEmpty(username)
+						&& !StringUtils.isEmpty(password)) {
+					transaction.setResponseContentType("text/xml");
+					PrintWriter pw = transaction.getWriter("UTF-8");
+					token(renderer, username, password, pw);
+					return;
+				}
 			}
 
 			String query = transaction.getParameterString("query");
