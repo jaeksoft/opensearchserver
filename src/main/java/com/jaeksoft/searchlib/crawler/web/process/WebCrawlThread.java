@@ -80,7 +80,7 @@ public class WebCrawlThread extends
 		this.hostUrlList = hostUrlList;
 		httpDownloader = crawlMaster.getNewHttpDownloader(false);
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
-				.getUserAgent().getValue(), false,
+				.getUserAgent().getValue(), true,
 				propertyManager.getProxyHandler());
 		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ? config
 				.getExclusionPatternManager().getPatternListMatcher() : null;
