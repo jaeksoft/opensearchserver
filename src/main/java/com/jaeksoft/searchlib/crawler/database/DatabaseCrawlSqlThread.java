@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
@@ -146,7 +147,20 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				databaseCrawl.getLang());
 
 		Set<String> filePathSet = new TreeSet<String>();
-		while (resultSet.next() && !isAborted()) {
+		int faultTolerancy = 10;
+
+		while (!isAborted()) {
+
+			try {
+				if (!resultSet.next())
+					break;
+				faultTolerancy = 10;
+			} catch (SQLException e) {
+				if (faultTolerancy <= 0)
+					throw e;
+				Logging.error(e);
+				faultTolerancy--;
+			}
 
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
 				dbPrimaryKey = null;
