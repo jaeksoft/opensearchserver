@@ -24,21 +24,20 @@
 
 package com.jaeksoft.searchlib.crawler.web.sitemap;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.regex.Pattern;
-
-import org.w3c.dom.Node;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
+import org.w3c.dom.Node;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 public class SiteMapUrl implements Comparable<SiteMapUrl> {
 
@@ -87,6 +86,9 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 	private final static ThreadSafeDateFormat w3cdateFormat = new ThreadSafeSimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ssZ");
 
+	private final static ThreadSafeDateFormat shortDateFormat = new ThreadSafeSimpleDateFormat(
+			"yyyy-MM-dd");
+
 	private final static Pattern w3cTimeZonePattern = Pattern
 			.compile(":(?=[0-9]{2}$)");
 
@@ -97,16 +99,25 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 				.getText(node));
 		node = DomUtils.getFirstNode(urlNode, "lastmod");
 		Date d = null;
-		try {
-			if (node != null) {
-				String t = RegExpUtils.replaceFirst(DomUtils.getText(node),
-						w3cTimeZonePattern, "");
-				if (t != null)
+		if (node != null) {
+			String t = RegExpUtils.replaceFirst(DomUtils.getText(node),
+					w3cTimeZonePattern, "");
+			if (t != null) {
+				try {
 					d = w3cdateFormat.parse(t);
+				} catch (ParseException e) {
+					Logging.warn(e);
+				}
+				if (d == null) {
+					try {
+						d = shortDateFormat.parse(t);
+					} catch (ParseException e) {
+						Logging.warn(e);
+					}
+				}
 			}
-		} catch (ParseException e) {
-			Logging.warn(e);
 		}
+
 		lastMod = d;
 		node = DomUtils.getFirstNode(urlNode, "changefreq");
 		changeFreq = ChangeFreq.find(node == null ? null : DomUtils

@@ -10,3 +10,5 @@
 /src/cc/*.o
 /src/cc/release
 /src/cc/*.bak
+.idea
+opensearchserver.iml
