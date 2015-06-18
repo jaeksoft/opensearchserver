@@ -49,6 +49,7 @@ import com.jaeksoft.searchlib.webservice.screenshot.ScreenshotImpl;
 import com.jaeksoft.searchlib.webservice.script.ScriptImpl;
 import com.jaeksoft.searchlib.webservice.stopwords.StopWordsImpl;
 import com.jaeksoft.searchlib.webservice.synonyms.SynonymsImpl;
+import com.jaeksoft.searchlib.webservice.user.UserImpl;
 
 public enum WebServiceEnum {
 
@@ -99,6 +100,8 @@ public enum WebServiceEnum {
 	Synonyms(SynonymsImpl.class, "/synonyms"),
 
 	Stopwords(StopWordsImpl.class, "/stopwords"),
+
+	User(UserImpl.class, "/user"),
 
 	WebCrawler(WebCrawlerImpl.class, "/crawler/web");
 
