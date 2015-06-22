@@ -592,9 +592,9 @@
 									<version>1.3.17</version>
 								</extraDependency>
 								<extraDependency>
-									<groupId>postgresql</groupId>
+									<groupId>org.postgresql</groupId>
 									<artifactId>postgresql</artifactId>
-									<version>9.4-1201-jdbc41</version>
+									<version>9.3-1103-jdbc3</version>
 								</extraDependency>
 								<extraDependency>
 									<groupId>org.hsqldb</groupId>
