@@ -99,6 +99,11 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-catalina</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
 			<version>1.9.22</version>
@@ -463,6 +468,7 @@
 		<selenium.version>2.45.0</selenium.version>
 		<zk.version>6.5.4</zk.version>
 		<jackson.version>2.5.3</jackson.version>
+		<tomcat.version>7.0.62</tomcat.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
 	<organization>
@@ -564,7 +570,7 @@
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.1</version>
+				<version>2.2</version>
 				<executions>
 					<execution>
 						<id>tomcat-package</id>
@@ -588,17 +594,17 @@
 								<extraDependency>
 									<groupId>postgresql</groupId>
 									<artifactId>postgresql</artifactId>
-									<version>9.1-901.jdbc4</version>
+									<version>9.4-1201-jdbc41</version>
 								</extraDependency>
 								<extraDependency>
 									<groupId>org.hsqldb</groupId>
-									<artifactId>hsqldb-j5</artifactId>
-									<version>2.2.4</version>
+									<artifactId>hsqldb</artifactId>
+									<version>2.3.2</version>
 								</extraDependency>
 								<extraDependency>
 									<groupId>org.apache.derby</groupId>
 									<artifactId>derby</artifactId>
-									<version>10.10.1.1</version>
+									<version>10.11.1.1</version>
 								</extraDependency>
 								<extraDependency>
 									<groupId>com.ingres.jdbc</groupId>
@@ -613,7 +619,7 @@
 								<extraDependency>
 									<groupId>org.xerial</groupId>
 									<artifactId>sqlite-jdbc</artifactId>
-									<version>3.7.2</version>
+									<version>3.8.10.1</version>
 								</extraDependency>
 							</extraDependencies>
 						</configuration>
@@ -858,5 +864,119 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.tomcat.maven</groupId>
+					<artifactId>tomcat7-maven-plugin</artifactId>
+					<version>2.3-SNAPSHOT</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.tomcat.embed</groupId>
+							<artifactId>tomcat-embed-core</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-util</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-coyote</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-api</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-jdbc</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-dbcp</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-servlet-api</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-jsp-api</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-jasper</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-jasper-el</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-el-api</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-catalina</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-tribes</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-catalina-ha</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-annotations-api</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat-juli</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+
+						<dependency>
+							<groupId>org.apache.tomcat.embed</groupId>
+							<artifactId>tomcat-embed-logging-juli</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>org.apache.tomcat.embed</groupId>
+							<artifactId>tomcat-embed-logging-log4j</artifactId>
+							<version>${tomcat.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 </project>
