@@ -34,7 +34,9 @@ public enum AuthPluginEnum {
 
 	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class),
 
-	INDEX_LOGIN("INDEX with login", AuthPluginIndexLogin.class);
+	INDEX_LOGIN("INDEX with login", AuthPluginIndexLogin.class),
+
+	WAFFLE("WAFFLE/SSO", AuthPluginWaffle.class);
 
 	public final String label;
 
