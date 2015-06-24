@@ -261,7 +261,7 @@ public class Client extends Config {
 	private final int deleteUniqueKeyList(int totalCount, int docCount,
 			Collection<String> deleteList, InfoCallback infoCallBack)
 			throws SearchLibException {
-		docCount += deleteDocuments(null, deleteList);
+		docCount += deleteDocuments(getSchema().getUniqueField(), deleteList);
 		StringBuilder sb = new StringBuilder();
 		sb.append(docCount);
 		sb.append(" / ");
