@@ -55,7 +55,8 @@ public class DeleteXmlRpc extends AbstractXmlRpc {
 			InstantiationException, IllegalAccessException,
 			ClassNotFoundException {
 		Client client = ClientCatalog.getClient(index);
-		int n = client.deleteDocuments(null, uniqueKeys);
+		int n = client.deleteDocuments(client.getSchema().getUniqueField(),
+				uniqueKeys);
 		return newInfoMap(n + " document(s) deleted");
 	}
 }
