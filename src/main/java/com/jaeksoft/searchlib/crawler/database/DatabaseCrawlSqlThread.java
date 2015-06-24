@@ -158,8 +158,12 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			} catch (SQLException e) {
 				if (faultTolerancy <= 0)
 					throw e;
-				Logging.error(e);
+				Logging.error(
+						e.getMessage() + " Vendor Error Number: "
+								+ e.getErrorCode() + " Counters: "
+								+ this.getCountInfo(), e);
 				faultTolerancy--;
+				continue;
 			}
 
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
