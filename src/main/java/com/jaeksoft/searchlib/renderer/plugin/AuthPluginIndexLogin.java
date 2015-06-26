@@ -106,7 +106,7 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 					groups[i++] = value.value;
 			} else
 				groups = null;
-			User user = new User(username, username.toLowerCase(), password,
+			User user = new User(username.toLowerCase(), username, password,
 					groups);
 			Logging.info("USER authenticated: " + user);
 			return user;
