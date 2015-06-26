@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 import org.zkoss.zk.ui.WebApp;
 import org.zkoss.zk.ui.http.WebManager;
@@ -53,6 +54,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class ServletTransaction {
 
@@ -113,12 +115,17 @@ public class ServletTransaction {
 			return null;
 		String login = request.getParameter("login");
 		String key = request.getParameter("key");
-		loggedUser = ClientCatalog.authenticateKey(login, key);
-		if (loggedUser == null) {
-			Thread.sleep(500);
-			throw new SearchLibException("Bad credential");
+		if (!StringUtils.isEmpty(login) || !StringUtils.isEmpty(key)) {
+			loggedUser = ClientCatalog.authenticateKey(login, key);
+			if (loggedUser != null)
+				return loggedUser;
 		}
-		return loggedUser;
+		loggedUser = (User) request.getSession().getAttribute(
+				ScopeAttribute.LOGGED_USER.name());
+		if (loggedUser != null)
+			return loggedUser;
+		Thread.sleep(500);
+		throw new SearchLibException("Bad credential");
 	}
 
 	public String getIndexName() {
