@@ -332,6 +332,8 @@ public class WebCrawlMaster extends
 			InterruptedException, InstantiationException,
 			IllegalAccessException {
 		Config config = getConfig();
+		if (currentStats == null)
+			currentStats = new CrawlStatistics();
 		UrlManager urlManager = config.getUrlManager();
 		List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 		UrlItem urlItem = urlManager.getUrlToFetch(url);
