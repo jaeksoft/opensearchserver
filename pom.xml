@@ -571,7 +571,6 @@
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.1</version>
 				<executions>
 					<execution>
 						<id>tomcat-package</id>
@@ -870,7 +869,7 @@
 				<plugin>
 					<groupId>org.apache.tomcat.maven</groupId>
 					<artifactId>tomcat7-maven-plugin</artifactId>
-					<version>2.3-SNAPSHOT</version>
+					<version>2.1</version>
 					<dependencies>
 						<dependency>
 							<groupId>org.apache.tomcat.embed</groupId>
@@ -975,7 +974,7 @@
 							<artifactId>tomcat-embed-logging-log4j</artifactId>
 							<version>${tomcat.version}</version>
 						</dependency>
-					</dependencies>
+					</dependencies> 
 				</plugin>
 			</plugins>
 		</pluginManagement>
