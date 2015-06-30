@@ -502,8 +502,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	@Override
 	public CommonResult getUrls(String index, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return null;
 		} catch (InterruptedException e) {
@@ -513,4 +512,26 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		}
 	}
 
+	@Override
+	public CommonResult robotstxt(String index, String login, String key,
+			Boolean enabled) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.WEB_CRAWLER_EDIT_PARAMETERS);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (enabled == null)
+				enabled = client.getWebPropertyManager().getRobotsTxtEnabled()
+						.getValue();
+			else
+				client.getWebPropertyManager().getRobotsTxtEnabled()
+						.setValue(enabled);
+			return new CommonResult(true, "Robots.txt status: " + enabled);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 }

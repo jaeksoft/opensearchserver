@@ -159,4 +159,10 @@ public interface RestWebCrawler {
 	public CommonResult getUrls(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key);
 
+	@POST
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/robotstxt")
+	public CommonResult robotstxt(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("enable") Boolean enable);
 }
