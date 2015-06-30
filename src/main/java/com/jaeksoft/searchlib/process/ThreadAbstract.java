@@ -155,7 +155,12 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 		@Override
 		public boolean done() {
-			return getStartTime() != 0 || getEndTime() != 0;
+			if (getStartTime() != 0 || getEndTime() != 0)
+				return true;
+			State state = getThreadState();
+			if (state == State.NEW)
+				return false;
+			return state == State.RUNNABLE;
 		}
 
 	}
@@ -164,7 +169,11 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 		@Override
 		public boolean done() {
-			return getEndTime() != 0;
+			if (getStartTime() == 0)
+				return true;
+			if (getEndTime() != 0)
+				return true;
+			return getThreadState() == State.TERMINATED;
 		}
 
 	}
