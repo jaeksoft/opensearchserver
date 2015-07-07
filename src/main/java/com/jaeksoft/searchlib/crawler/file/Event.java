@@ -37,6 +37,7 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -45,30 +46,38 @@ public class Event implements Runnable {
 
 	static Logger log = Logger.getLogger("LogTest");
 
-	private final Path path;
+	private final Path rootPath;
 	private final WatchService watcher;
 
+	private final HashMap<WatchKey, Path> keys;
+
 	public Event(String filePath) throws IOException {
-		path = FileSystems.getDefault().getPath(filePath);
+		rootPath = FileSystems.getDefault().getPath(filePath);
 		watcher = FileSystems.getDefault().newWatchService();
-		new Register(path);
-		System.out.println("Watch " + path);
+		keys = new HashMap<WatchKey, Path>();
+		new Register(rootPath);
+		System.out.println("Watch " + rootPath + " " + keys.size());
 		new Thread(this).start();
 	}
 
 	private class Register extends SimpleFileVisitor<Path> {
 
-		private Register(Path path) throws IOException {
-			Files.walkFileTree(path, this);
+		private Register(Path path) {
+			try {
+				Files.walkFileTree(path, this);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override
 		final public FileVisitResult preVisitDirectory(Path file,
 				BasicFileAttributes attrs) throws IOException {
 			if (attrs.isDirectory()) {
-				file.register(watcher, StandardWatchEventKinds.ENTRY_CREATE,
+				keys.put(file.register(watcher,
+						StandardWatchEventKinds.ENTRY_CREATE,
 						StandardWatchEventKinds.ENTRY_DELETE,
-						StandardWatchEventKinds.ENTRY_MODIFY);
+						StandardWatchEventKinds.ENTRY_MODIFY), file);
 			}
 			return FileVisitResult.CONTINUE;
 		}
@@ -79,29 +88,34 @@ public class Event implements Runnable {
 		try {
 			for (;;) {
 				WatchKey key = watcher.take();
-				for (WatchEvent<?> watchEvent : key.pollEvents()) {
-					Kind<?> kind = watchEvent.kind();
-					if (kind == StandardWatchEventKinds.OVERFLOW)
-						continue;
-					Object o = watchEvent.context();
-					Path path = (o instanceof Path) ? (Path) o : null;
-					if (path != null
-							&& kind == StandardWatchEventKinds.ENTRY_CREATE) {
-						if (Files.isDirectory((Path) o,
-								LinkOption.NOFOLLOW_LINKS))
-							new Register((Path) o);
+				Path dir = keys.get(key);
+				if (dir != null) {
+					for (WatchEvent<?> watchEvent : key.pollEvents()) {
+						Kind<?> kind = watchEvent.kind();
+						if (kind == StandardWatchEventKinds.OVERFLOW)
+							continue;
+						Object o = watchEvent.context();
+						Path file = (o instanceof Path) ? (Path) o : null;
+						if (file == null)
+							continue;
+
+						Path child = dir.resolve(file);
+						if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS))
+							if (kind == StandardWatchEventKinds.ENTRY_CREATE)
+								new Register(child);
 					}
-					if (path != null)
-						log.info(kind + " " + path.toAbsolutePath());
+					log.info(dir.toAbsolutePath());
 				}
-				key.reset();
+				if (!key.reset()) {
+					keys.remove(key);
+					if (keys.isEmpty())
+						break;
+				}
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-		System.out.println("Unwatch " + path);
+		System.out.println("Unwatch " + rootPath);
 	}
 
 	public static void main(String[] args) throws IOException,
