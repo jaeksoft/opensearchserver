@@ -34,7 +34,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
@@ -104,9 +105,10 @@ public class SearchResult extends CommonResult {
 
 			DocumentResult.populateDocumentList(result, documents);
 
-			if (searchRequest.getFacetFieldList().size() > 0)
-				for (FacetField FacetField : searchRequest.getFacetFieldList())
-					facets.add(new FacetResult(result, FacetField.getName()));
+			FacetList facetList = result.getFacetList();
+			if (facetList != null)
+				for (Facet facet : facetList)
+					facets.add(new FacetResult(facet));
 
 		} catch (ParseException e) {
 			throw new CommonServices.CommonServiceException(e);

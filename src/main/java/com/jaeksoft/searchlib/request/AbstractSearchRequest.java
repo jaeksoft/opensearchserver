@@ -727,6 +727,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	final public boolean isFacet() {
 		rwl.r.lock();
 		try {
+
 			if (facetFieldList == null)
 				return false;
 			return facetFieldList.size() > 0;
