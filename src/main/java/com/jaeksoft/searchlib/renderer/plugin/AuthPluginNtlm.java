@@ -70,10 +70,15 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
-
 		String remoteUser = request.getRemoteUser();
 		if (remoteUser == null)
 			remoteUser = request.getHeader("X-OSS-REMOTE-USER");
+		return getUser(renderer, remoteUser, null);
+	}
+
+	@Override
+	public User getUser(Renderer renderer, String remoteUser,
+			String ignoredPassword) throws IOException {
 		ActiveDirectory activeDirectory = null;
 		if (StringUtils.isEmpty(remoteUser))
 			throw new AuthException("No user");
@@ -120,11 +125,5 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		} finally {
 			IOUtils.close(activeDirectory);
 		}
-	}
-
-	@Override
-	public User getUser(Renderer renderer, String login, String password)
-			throws IOException {
-		throw new IOException("Not implemented");
 	}
 }
