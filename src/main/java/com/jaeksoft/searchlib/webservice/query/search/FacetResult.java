@@ -34,9 +34,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.facet.FacetList;
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class FacetResult {
@@ -53,12 +52,12 @@ public class FacetResult {
 
 	}
 
-	public FacetResult(AbstractResultSearch<?> result, String field) {
+	public FacetResult(Facet facet) {
 		terms = new ArrayList<FacetFieldItem>();
-		FacetList facetList = result.getFacetList();
-		fieldName = field;
-		for (FacetItem facet : facetList.getByField(field.trim()))
-			terms.add(new FacetFieldItem(facet.getCount(), facet.getTerm()));
+		fieldName = facet.getFacetField().getName();
+		for (FacetItem facetItem : facet)
+			terms.add(new FacetFieldItem(facetItem.getCount(), facetItem
+					.getTerm()));
 	}
 
 	private FacetResult(JSONObject json) throws JSONException {
