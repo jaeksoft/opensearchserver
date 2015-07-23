@@ -48,7 +48,7 @@ public interface RestWebCrawler {
 	@Path("/run")
 	public CommonResult run(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("once") boolean once);
+			@QueryParam("once") Boolean once);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -69,7 +69,9 @@ public interface RestWebCrawler {
 	public CommonResult injectPatternsInclusion(
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("replace") boolean replaceAll, List<String> injectList);
+			@QueryParam("replace") Boolean replaceAll,
+			@QueryParam("inject_urls") Boolean inject_urls,
+			List<String> injectList);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -95,7 +97,7 @@ public interface RestWebCrawler {
 	public CommonResult injectPatternsExclusion(
 			@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("replace") boolean replaceAll, List<String> injectList);
+			@QueryParam("replace") Boolean replaceAll, List<String> injectList);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -150,7 +152,7 @@ public interface RestWebCrawler {
 	@Path("/urls")
 	public CommonResult injectUrls(@PathParam("index_name") String use,
 			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("replace") boolean replaceAll, List<String> urls);
+			@QueryParam("replace") Boolean replaceAll, List<String> urls);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
