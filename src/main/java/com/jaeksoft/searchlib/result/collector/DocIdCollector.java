@@ -71,6 +71,8 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	final public void collectDoc(final int doc) throws IOException {
+		if (doc == -1)
+			return;
 		ids[currentPos++] = doc;
 		bitSet.set(doc);
 	}
