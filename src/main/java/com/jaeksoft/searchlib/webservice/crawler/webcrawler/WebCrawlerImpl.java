@@ -72,7 +72,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		RestWebCrawler {
 
 	@Override
-	public CommonResult run(String use, String login, String key, boolean once) {
+	public CommonResult run(String use, String login, String key, Boolean once) {
 		try {
 			Client client = getLoggedClient(use, login, key,
 					Role.WEB_CRAWLER_START_STOP);
@@ -181,8 +181,13 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	private CommonResult injectPatterns(String index, String login, String key,
-			boolean replaceAll, List<String> patterns, boolean inclusion) {
+			Boolean replaceAll, Boolean injectUrls, List<String> patterns,
+			boolean inclusion) {
 		try {
+			if (injectUrls == null)
+				injectUrls = false;
+			if (replaceAll == null)
+				replaceAll = false;
 			Client client = getLoggedClientAnyRole(index, login, key,
 					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -194,6 +199,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			patternManager.addList(patternList, replaceAll);
 			int count = PatternManager.countStatus(patternList,
 					PatternItem.Status.INJECTED);
+			if (injectUrls && inclusion)
+				client.getUrlManager().injectPrefix(patternList);
 			return new CommonResult(true, count + " patterns injected");
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -206,14 +213,17 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	@Override
 	public CommonResult injectPatternsInclusion(String index, String login,
-			String key, boolean replaceAll, List<String> patterns) {
-		return injectPatterns(index, login, key, replaceAll, patterns, true);
+			String key, Boolean replaceAll, Boolean injectURLS,
+			List<String> patterns) {
+		return injectPatterns(index, login, key, replaceAll, injectURLS,
+				patterns, true);
 	}
 
 	@Override
 	public CommonResult injectPatternsExclusion(String index, String login,
-			String key, boolean replaceAll, List<String> patterns) {
-		return injectPatterns(index, login, key, replaceAll, patterns, false);
+			String key, Boolean replaceAll, List<String> patterns) {
+		return injectPatterns(index, login, key, replaceAll, false, patterns,
+				false);
 	}
 
 	private CommonResult getPatternStatusResult(
@@ -479,14 +489,14 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	@Override
 	public CommonResult injectUrls(String index, String login, String key,
-			boolean replaceAll, List<String> urls) {
+			Boolean replaceAll, List<String> urls) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key,
 					Role.WEB_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			UrlManager urlManager = client.getUrlManager();
 			CommonResult result = new CommonResult(true, null);
-			if (replaceAll)
+			if (replaceAll != null && replaceAll)
 				urlManager.deleteAll(null);
 			urlManager.inject(urls, result);
 			return result;
