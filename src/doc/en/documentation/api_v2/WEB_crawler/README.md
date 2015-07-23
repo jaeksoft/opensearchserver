@@ -15,4 +15,5 @@ The WEB crawler indexes Web sites.
 	* [List](exclusion_patterns/list.md)
 	* [Delete](exclusion_patterns/delete.md)
 * [URL Database](URL_database/readme.md)
+	* [Hostname list](URL_database/hostnames.md)
 	* [Injecting URLs](URL_database/inject.md)

@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.transform.TransformerConfigurationException;
@@ -66,8 +67,8 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.QueryFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -208,20 +209,20 @@ public class UrlManager extends AbstractManager {
 			throws SearchLibException {
 		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
 				.request(searchRequest);
-		List<FacetItem> facetItems = result.getFacetList()
-				.getByField(field.getName()).getList();
+		List<Map.Entry<String, FacetCounter>> facetItems = result
+				.getFacetList().getByField(field.getName()).getList();
 		while (facetItems != null && facetItems.size() > 0) {
 			if (urlLimit <= 0)
 				break;
-			FacetItem facetItem = facetItems.remove(RandomUtils.nextInt(0,
-					facetItems.size()));
-			int nbURL = facetItem.getCount();
+			Map.Entry<String, FacetCounter> facetItem = facetItems
+					.remove(RandomUtils.nextInt(0, facetItems.size()));
+			long nbURL = facetItem.getValue().count;
 			if (nbURL == 0)
 				continue;
 			urlLimit -= nbURL > maxUrlPerHost ? maxUrlPerHost : nbURL;
 			if (urlLimit < 0)
 				urlLimit = 0;
-			String term = facetItem.getTerm();
+			String term = facetItem.getKey();
 			if (term == null)
 				continue;
 			if (term.length() == 0)
@@ -231,7 +232,7 @@ public class UrlManager extends AbstractManager {
 					continue;
 				hostSet.add(term);
 			}
-			list.add(new NamedItem(term, facetItem.getCount(), selection));
+			list.add(new NamedItem(term, facetItem.getValue().count, selection));
 		}
 		return urlLimit;
 	}

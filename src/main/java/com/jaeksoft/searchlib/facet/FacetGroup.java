@@ -26,6 +26,7 @@ package com.jaeksoft.searchlib.facet;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 
 public class FacetGroup extends Facet {
 
@@ -42,10 +43,10 @@ public class FacetGroup extends Facet {
 	}
 
 	public void expunge() {
-		Iterator<FacetItem> iterator = iterator();
+		Iterator<Map.Entry<String, FacetCounter>> iterator = iterator();
 		int minCount = facetField.getMinCount();
 		while (iterator.hasNext())
-			if (iterator.next().count < minCount)
+			if (iterator.next().getValue().count < minCount)
 				iterator.remove();
 		list = null;
 	}

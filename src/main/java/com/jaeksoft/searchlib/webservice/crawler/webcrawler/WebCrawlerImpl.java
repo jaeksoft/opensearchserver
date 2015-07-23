@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -541,6 +541,26 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public HostnamesResult getHostnames(String index, String login, String key,
+			Integer minCount) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key,
+					Role.GROUP_WEB_CRAWLER);
+			ClientFactory.INSTANCE.properties.checkApi();
+			if (minCount == null)
+				minCount = 0;
+			return new HostnamesResult(client.getUrlManager().getHostFacetList(
+					minCount));
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}

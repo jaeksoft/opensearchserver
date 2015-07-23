@@ -8,13 +8,14 @@
 <%@ page
 	import="com.jaeksoft.searchlib.renderer.filter.RendererFilterQueries"%>
 <%@ page import="com.jaeksoft.searchlib.facet.Facet"%>
-<%@ page import="com.jaeksoft.searchlib.facet.FacetItem"%>
+<%@ page import="com.jaeksoft.searchlib.facet.FacetCounter"%>
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.util.Set"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.Map.Entry"%>
 <%
 	Renderer renderer = (Renderer) request.getAttribute("renderer");
-	AbstractResultSearch facetResult = (AbstractResultSearch) request
+	AbstractResultSearch<?> facetResult = (AbstractResultSearch<?>) request
 			.getAttribute("facetResult");
 	RendererFilterQueries filterQueries = (RendererFilterQueries) session
 			.getAttribute("filterQueries");
@@ -110,7 +111,7 @@
 		<div class="panel-body">
 			<ul style="list-style-type: none">
 				<%
-					for (FacetItem facetItem : facet) {
+					for (Entry<String, FacetCounter> facetItem : facet) {
 								boolean current = filterQueries.contains(fieldName,
 										facetItem);
 								String filterUrl = getUrl;
@@ -121,7 +122,7 @@
  	if (current) {
  %><strong> <%
  	}
- %><%=facetItem.getTerm()%> (<%=facetItem.getCount()%>) <%
+ %><%=facetItem.getKey()%> (<%=facetItem.getValue().count%>) <%
  	if (current) {
  %>
 					</strong> <%

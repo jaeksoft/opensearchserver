@@ -38,8 +38,8 @@
 				</listhead>
 				<template name="model" var="item">
 					<listitem>
-						<listcell label="@load(item.count)" />
-						<listcell label="@load(item.term)" />
+						<listcell label="@load(item.value.count)" />
+						<listcell label="@load(item.key)" />
 					</listitem>
 				</template>
 			</listbox>

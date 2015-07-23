@@ -32,14 +32,14 @@ import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 public class NamedItem {
 
 	final protected String name;
-	final protected int count;
+	final protected long count;
 	final public Selection selection;
 
 	public NamedItem(String name) {
 		this(name, 0, null);
 	}
 
-	public NamedItem(String name, int count, Selection selection) {
+	public NamedItem(String name, long count, Selection selection) {
 		this.name = name;
 		this.count = count;
 		this.selection = selection;
@@ -49,7 +49,7 @@ public class NamedItem {
 		return name;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 

@@ -25,12 +25,13 @@
 package com.jaeksoft.searchlib.render;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -67,10 +68,10 @@ public class RenderSearchJson<T extends AbstractSearchRequest> extends
 	@SuppressWarnings("unchecked")
 	private void renderFacet(Facet facet, ArrayList<JSONObject> jsonFacetList)
 			throws Exception {
-		for (FacetItem facetItem : facet) {
+		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			JSONObject jsonFacet = new JSONObject();
-			jsonFacet.put("name", facetItem.getTerm());
-			jsonFacet.put("value", facetItem.getCount());
+			jsonFacet.put("name", facetItem.getKey());
+			jsonFacet.put("value", facetItem.getValue().count);
 			jsonFacetList.add(jsonFacet);
 		}
 

@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.renderer.field.RendererWidget;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
@@ -106,17 +106,17 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 		Facet facet = facetList.getByField(fieldName);
 		if (facet == null)
 			return;
-		List<FacetItem> facetItems = facet.getList();
+		List<Map.Entry<String, FacetCounter>> facetItems = facet.getList();
 		if (facetItems == null || facetItems.size() == 0)
 			return;
 		TreeMap<String, Item> facetMap = new TreeMap<String, Item>();
-		for (FacetItem facetItem : facetItems) {
-			String testedValue = facetItem.getTerm();
+		for (Map.Entry<String, FacetCounter> facetItem : facetItems) {
+			String testedValue = facetItem.getKey();
 			if (!caseSensitive)
 				testedValue = testedValue.toLowerCase();
 			String target = map.get(testedValue);
 			if (target == null) {
-				target = facetItem.getTerm();
+				target = facetItem.getKey();
 				if (!patternList.isEmpty()) {
 					int p = 0;
 					for (Pattern pattern : patternList) {
@@ -153,9 +153,9 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 			count = 0;
 		}
 
-		private void add(FacetItem facetItem) {
-			terms.add(facetItem.getTerm());
-			count += facetItem.getCount();
+		private void add(Map.Entry<String, FacetCounter> facetItem) {
+			terms.add(facetItem.getKey());
+			count += facetItem.getValue().count;
 		}
 
 		private final RendererFilterItem getRendererFilterItem(String target) {
