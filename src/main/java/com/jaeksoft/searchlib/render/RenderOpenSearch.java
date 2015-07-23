@@ -30,6 +30,7 @@ package com.jaeksoft.searchlib.render;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,8 +43,8 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -254,13 +255,13 @@ public class RenderOpenSearch implements Render {
 		writer.print("\t\t<OpenSearchServer:");
 		writer.print(facetField.getName());
 		writer.println(">");
-		for (FacetItem facetItem : facet) {
+		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			writer.print("\t\t<OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
 			writer.print(">");
-			writer.print(facetItem.getCount());
+			writer.print(facetItem.getValue().count);
 			writer.print("</OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
 			writer.print(">");
 		}
 		writer.print("</OpenSearchServer:");

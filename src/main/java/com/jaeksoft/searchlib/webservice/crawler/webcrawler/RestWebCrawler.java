@@ -84,6 +84,13 @@ public interface RestWebCrawler {
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/hostnames")
+	public HostnamesResult getHostnames(@PathParam("index_name") String use,
+			@QueryParam("login") String login, @QueryParam("key") String key,
+			@QueryParam("min_count") Integer minCount);
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/inclusion")
 	public CommonListResult<String> extractPatternsInclusion(
 			@PathParam("index_name") String use,

@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.facet;
 
+import it.unimi.dsi.fastutil.Arrays;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,25 +39,24 @@ import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.facet.FacetCounter.FacetDescendant;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
-import com.jaeksoft.searchlib.util.External;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
-public class Facet implements Iterable<FacetItem>,
-		External.Collecter<FacetItem> {
+public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
 	protected FacetField facetField;
-	private Map<String, FacetItem> facetMap;
-	protected transient List<FacetItem> list = null;
+	private Map<String, FacetCounter> facetMap;
+	protected transient List<Map.Entry<String, FacetCounter>> list = null;
 
 	public Facet() {
 		list = null;
-		facetMap = new TreeMap<String, FacetItem>();
+		facetMap = new TreeMap<String, FacetCounter>();
 	}
 
 	public Facet(FacetField facetField) {
@@ -69,20 +70,21 @@ public class Facet implements Iterable<FacetItem>,
 		int minCount = facetField.getMinCount();
 		for (int count : counts) {
 			String term = terms[i];
-			if (term != null && count >= minCount) {
-				FacetItem facetItem = new FacetItem(term, count);
-				facetMap.put(term, facetItem);
-			}
+			if (term != null && count >= minCount)
+				facetMap.put(term, new FacetCounter(count));
 			i++;
 		}
 	}
 
-	private Facet(FacetField facetField, Map<String, FacetItem> facetMap) {
+	private Facet(FacetField facetField, Map<String, FacetCounter> facetMap) {
 		this(facetField);
 		int minCount = facetField.getMinCount();
-		for (FacetItem item : facetMap.values())
-			if (item.count >= minCount)
-				this.facetMap.put(item.term, item);
+		for (Map.Entry<String, FacetCounter> entry : facetMap.entrySet()) {
+			String term = entry.getKey();
+			FacetCounter counter = entry.getValue();
+			if (term != null && counter.count >= minCount)
+				facetMap.put(term, counter);
+		}
 	}
 
 	public FacetField getFacetField() {
@@ -92,39 +94,42 @@ public class Facet implements Iterable<FacetItem>,
 	protected void sum(Facet facet) {
 		if (facet == null)
 			return;
-		for (FacetItem facetItem : facet) {
-			if (facetItem.term == null)
+		for (Map.Entry<String, FacetCounter> entry : facet) {
+			String term = entry.getKey();
+			if (term == null)
 				continue;
-			FacetItem currentFacetItem = facetMap.get(facetItem.term);
-			if (currentFacetItem != null)
-				currentFacetItem.count += facetItem.count;
+			FacetCounter value = entry.getValue();
+			FacetCounter count = facetMap.get(term);
+			if (count == null)
+				facetMap.put(term, new FacetCounter(value));
 			else
-				facetMap.put(facetItem.term, facetItem);
+				count.add(value);
 		}
 	}
 
-	public List<FacetItem> getList() {
+	public List<Map.Entry<String, FacetCounter>> getList() {
 		synchronized (this) {
 			if (list != null)
 				return list;
-			list = new ArrayList<FacetItem>(facetMap.values());
+			list = new ArrayList<Map.Entry<String, FacetCounter>>(
+					facetMap.entrySet());
 			return list;
 		}
 	}
 
-	public Map<String, FacetItem> getMap() {
+	public Map<String, FacetCounter> getMap() {
 		synchronized (this) {
 			return facetMap;
 		}
 	}
 
-	private FacetItem get(int i) {
+	private Map.Entry<String, FacetCounter> get(int i) {
 		return getList().get(i);
 	}
 
 	@Override
-	public Iterator<FacetItem> iterator() {
-		return facetMap.values().iterator();
+	public Iterator<Map.Entry<String, FacetCounter>> iterator() {
+		return facetMap.entrySet().iterator();
 	}
 
 	public int getTermCount() {
@@ -132,11 +137,11 @@ public class Facet implements Iterable<FacetItem>,
 	}
 
 	public String getTerm(int i) {
-		return get(i).term;
+		return get(i).getKey();
 	}
 
-	public int getCount(int i) {
-		return get(i).count;
+	public long getCount(int i) {
+		return get(i).getValue().count;
 	}
 
 	final static protected Facet facetMultivalued(ReaderAbstract reader,
@@ -150,7 +155,7 @@ public class Facet implements Iterable<FacetItem>,
 					stringIndex, docIdInterface);
 			return new Facet(facetField, stringIndex.lookup, countIndex);
 		} else {
-			Map<String, FacetItem> facetMap = computeMultivaluedTFV(reader,
+			Map<String, FacetCounter> facetMap = computeMultivaluedTFV(reader,
 					fieldName, docIdInterface);
 			return new Facet(facetField, facetMap);
 		}
@@ -163,11 +168,6 @@ public class Facet implements Iterable<FacetItem>,
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeSinglevalued(stringIndex, collector);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
-	}
-
-	@Override
-	public void addObject(FacetItem facetItem) {
-		facetMap.put(facetItem.term, facetItem);
 	}
 
 	final private static int[] computeMultivaluedTD(ReaderAbstract reader,
@@ -199,11 +199,11 @@ public class Facet implements Iterable<FacetItem>,
 		return countIndex;
 	}
 
-	final private static Map<String, FacetItem> computeMultivaluedTFV(
+	final private static Map<String, FacetCounter> computeMultivaluedTFV(
 			ReaderAbstract reader, String fieldName,
 			DocIdInterface docIdInterface) throws IOException,
 			SearchLibException {
-		Map<String, FacetItem> termMap = new HashMap<String, FacetItem>();
+		Map<String, FacetCounter> termMap = new HashMap<String, FacetCounter>();
 		if (docIdInterface.getSize() == 0)
 			return termMap;
 		for (int docId : docIdInterface.getIds()) {
@@ -217,11 +217,11 @@ public class Facet implements Iterable<FacetItem>,
 			int i = 0;
 			for (String term : terms) {
 				if (freqs[i++] > 0) {
-					FacetItem facetItem = termMap.get(term);
+					FacetCounter facetItem = termMap.get(term);
 					if (facetItem == null)
-						termMap.put(term, new FacetItem(term, 1));
+						termMap.put(term, new FacetCounter(1));
 					else
-						facetItem.count++;
+						facetItem.increment();
 				}
 			}
 		}
@@ -240,6 +240,16 @@ public class Facet implements Iterable<FacetItem>,
 			i--;
 		}
 		return countArray;
+	}
+
+	public static List<Map.Entry<String, FacetCounter>> getTop(Facet facet,
+			int max) {
+		List<Map.Entry<String, FacetCounter>> list = facet.getList();
+		FacetDescendant facetDescendant = new FacetDescendant(list);
+		Arrays.quickSort(0, list.size(), facetDescendant, facetDescendant);
+		if (list.size() <= max)
+			return list;
+		return list.subList(0, max);
 	}
 
 }

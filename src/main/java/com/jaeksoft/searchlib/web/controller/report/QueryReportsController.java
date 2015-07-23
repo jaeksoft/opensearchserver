@@ -28,7 +28,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.TreeSet;
+import java.util.List;
+import java.util.Map;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
@@ -36,12 +37,10 @@ import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.facet.FacetItemCountComparator;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.report.ReportsManager;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.TopSet;
 
 @AfterCompose(superclass = true)
 public class QueryReportsController extends ReportsController {
@@ -52,7 +51,7 @@ public class QueryReportsController extends ReportsController {
 	private int numberOfQuery;
 	private String topKeywords;
 
-	private TreeSet<FacetItem> reportSet;
+	private List<Map.Entry<String, FacetCounter>> reportList;
 
 	public QueryReportsController() throws SearchLibException {
 		super();
@@ -64,7 +63,7 @@ public class QueryReportsController extends ReportsController {
 		endDate = new Date();
 		queryType = "topqueries";
 		numberOfQuery = 100;
-		reportSet = null;
+		reportList = null;
 	}
 
 	@Command
@@ -78,19 +77,17 @@ public class QueryReportsController extends ReportsController {
 			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
 					endDate, false, numberOfQuery);
 		}
-		TopSet<FacetItem> topSet = new TopSet<FacetItem>(
-				facetReportsList.getList(), new FacetItemCountComparator(),
-				numberOfQuery);
-		reportSet = topSet.getTreeMap();
+
+		reportList = Facet.getTop(facetReportsList, numberOfQuery);
 		reload();
 	}
 
-	public TreeSet<FacetItem> getReportSet() {
-		return reportSet;
+	public List<Map.Entry<String, FacetCounter>> getReportList() {
+		return reportList;
 	}
 
 	public boolean isReportSetExists() {
-		return reportSet != null;
+		return reportList != null;
 	}
 
 	@Command
@@ -99,12 +96,12 @@ public class QueryReportsController extends ReportsController {
 		try {
 			File tempFile = File.createTempFile("OSS_Query_Reports", "csv");
 			pw = new PrintWriter(tempFile);
-			for (FacetItem facetItem : reportSet) {
+			for (Map.Entry<String, FacetCounter> facetItem : reportList) {
 				pw.print('"');
-				pw.print(facetItem.getTerm().replaceAll("\"", "\"\""));
+				pw.print(facetItem.getKey().replaceAll("\"", "\"\""));
 				pw.print('"');
 				pw.print(',');
-				pw.println(facetItem.getCount());
+				pw.println(facetItem.getValue().count);
 			}
 			pw.close();
 			pw = null;

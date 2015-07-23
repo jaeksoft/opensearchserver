@@ -1,7 +1,7 @@
 <%@ page import="com.jaeksoft.searchlib.renderer.Renderer"%>
 <%@ page import="com.jaeksoft.searchlib.result.AbstractResultSearch"%>
 <%
-	AbstractResultSearch result = (AbstractResultSearch) request
+	AbstractResultSearch<?> result = (AbstractResultSearch<?>) request
 			.getAttribute("result");
 	if (result != null) {
 		Renderer renderer = (Renderer) request.getAttribute("renderer");
