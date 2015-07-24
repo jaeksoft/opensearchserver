@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -22,6 +22,8 @@
 			<column label="Multivalued" />
 			<column label="Post collapsing" />
 			<column label="Minimal count" />
+			<column label="Limit" />
+			<column label="Order By" />
 			<column label="Action" />
 		</columns>
 		<rows>
@@ -44,6 +46,15 @@
 					</listbox>
 					<intbox constraint="no empty, no negative"
 						value="@bind(facetField.minCount)" />
+					<intbox constraint="no negative"
+						value="@bind(facetField.limit)" />
+					<listbox mold="select"
+						model="@load(facet.orderByValues)"
+						selectedItem="@bind(facetField.orderBy)">
+						<template name="model">
+							<listitem label="@load(each)" />
+						</template>
+					</listbox>
 					<button label="remove"
 						onClick="@command('onFacetRemove', facetField=facetField)" />
 				</row>
