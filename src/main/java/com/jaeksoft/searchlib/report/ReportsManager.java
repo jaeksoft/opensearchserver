@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Facet.OrderByEnum;
 
 public class ReportsManager {
 
@@ -112,7 +113,8 @@ public class ReportsManager {
 		searchRequest.addReturnField("datetime");
 		searchRequest.addReturnField("responseTime");
 		searchRequest.getFacetFieldList().put(
-				new FacetField("keywords", 1, false, false, null));
+				new FacetField("keywords", 1, false, false, rows,
+						OrderByEnum.count_desc, null));
 		searchRequest.setLang(LanguageEnum.UNDEFINED);
 		return searchRequest;
 	}

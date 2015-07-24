@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -909,16 +909,24 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Facet {
 
+		public static enum OrderByEnum {
+			no_sort, term_asc, term_desc, count_asc, count_desc;
+		}
+
 		final public String field;
 		final public Integer minCount;
 		final public Boolean multivalued;
 		final public Boolean postCollapsing;
+		final public Integer limit;
+		final public OrderByEnum orderBy;
 
 		public Facet() {
 			field = null;
 			minCount = null;
 			multivalued = null;
 			postCollapsing = null;
+			limit = null;
+			orderBy = null;
 		}
 
 		public Facet(FacetField facetField) {
@@ -926,6 +934,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			minCount = facetField.getMinCount();
 			multivalued = facetField.isCheckMultivalued();
 			postCollapsing = facetField.isCheckPostCollapsing();
+			limit = facetField.getLimit();
+			orderBy = facetField.getOrderBy();
 		}
 
 		@JsonIgnore
@@ -939,6 +949,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				facetField.setMultivalued(multivalued);
 			if (postCollapsing != null)
 				facetField.setPostCollapsing(postCollapsing);
+			if (limit != null)
+				facetField.setLimit(limit);
+			if (orderBy != null)
+				facetField.setOrderBy(orderBy);
 			return facetField;
 		}
 	}

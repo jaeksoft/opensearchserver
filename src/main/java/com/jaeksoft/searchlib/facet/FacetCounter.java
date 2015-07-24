@@ -29,6 +29,9 @@ import it.unimi.dsi.fastutil.ints.IntComparator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Facet.OrderByEnum;
 
 public class FacetCounter implements Comparable<FacetCounter> {
 
@@ -71,12 +74,44 @@ public class FacetCounter implements Comparable<FacetCounter> {
 		return count;
 	}
 
-	public static class FacetDescendant implements IntComparator, Swapper {
+	public static abstract class FacetSorter implements IntComparator, Swapper {
 
-		private List<Map.Entry<String, FacetCounter>> facetList;
+		protected List<Map.Entry<String, FacetCounter>> facetList;
 
-		public FacetDescendant(List<Map.Entry<String, FacetCounter>> facetList) {
+		public FacetSorter(List<Map.Entry<String, FacetCounter>> facetList) {
 			this.facetList = facetList;
+		}
+
+		@Override
+		public void swap(int a, int b) {
+			Map.Entry<String, FacetCounter> entry = facetList.get(a);
+			facetList.set(a, facetList.set(b, entry));
+		}
+
+		public static FacetSorter getSorter(
+				List<Entry<String, FacetCounter>> list, OrderByEnum orderBy) {
+			if (orderBy == null)
+				return null;
+			switch (orderBy) {
+			case no_sort:
+				return null;
+			case count_asc:
+				return new FacetCounterAsc(list);
+			case count_desc:
+				return new FacetCounterDesc(list);
+			case term_asc:
+				return new FacetTermAsc(list);
+			case term_desc:
+				return new FacetTermDesc(list);
+			}
+			return null;
+		}
+	}
+
+	public static class FacetCounterDesc extends FacetSorter {
+
+		public FacetCounterDesc(List<Map.Entry<String, FacetCounter>> facetList) {
+			super(facetList);
 		}
 
 		@Override
@@ -90,11 +125,62 @@ public class FacetCounter implements Comparable<FacetCounter> {
 			return Long.compare(facetList.get(k2).getValue().count, facetList
 					.get(k1).getValue().count);
 		}
+	}
+
+	public static class FacetCounterAsc extends FacetSorter {
+
+		public FacetCounterAsc(List<Map.Entry<String, FacetCounter>> facetList) {
+			super(facetList);
+		}
 
 		@Override
-		public void swap(int a, int b) {
-			Map.Entry<String, FacetCounter> entry = facetList.get(a);
-			facetList.set(a, facetList.set(b, entry));
+		public int compare(Integer o1, Integer o2) {
+			return Long.compare(facetList.get(o1).getValue().count, facetList
+					.get(o2).getValue().count);
+		}
+
+		@Override
+		public int compare(int k1, int k2) {
+			return Long.compare(facetList.get(k1).getValue().count, facetList
+					.get(k2).getValue().count);
+		}
+	}
+
+	public static class FacetTermDesc extends FacetSorter {
+
+		public FacetTermDesc(List<Map.Entry<String, FacetCounter>> facetList) {
+			super(facetList);
+		}
+
+		@Override
+		public int compare(Integer o1, Integer o2) {
+			return facetList.get(o2).getKey()
+					.compareTo(facetList.get(o1).getKey());
+		}
+
+		@Override
+		public int compare(int k1, int k2) {
+			return facetList.get(k2).getKey()
+					.compareTo(facetList.get(k1).getKey());
+		}
+	}
+
+	public static class FacetTermAsc extends FacetSorter {
+
+		public FacetTermAsc(List<Map.Entry<String, FacetCounter>> facetList) {
+			super(facetList);
+		}
+
+		@Override
+		public int compare(Integer o1, Integer o2) {
+			return facetList.get(o1).getKey()
+					.compareTo(facetList.get(o2).getKey());
+		}
+
+		@Override
+		public int compare(int k1, int k2) {
+			return facetList.get(k1).getKey()
+					.compareTo(facetList.get(k2).getKey());
 		}
 	}
 

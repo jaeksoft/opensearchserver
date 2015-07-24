@@ -39,7 +39,7 @@ import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.FacetCounter.FacetDescendant;
+import com.jaeksoft.searchlib.facet.FacetCounter.FacetSorter;
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
@@ -113,13 +113,8 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 				return list;
 			list = new ArrayList<Map.Entry<String, FacetCounter>>(
 					facetMap.entrySet());
+			list = limitOrderBy(facetField, list);
 			return list;
-		}
-	}
-
-	public Map<String, FacetCounter> getMap() {
-		synchronized (this) {
-			return facetMap;
 		}
 	}
 
@@ -242,14 +237,20 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		return countArray;
 	}
 
-	public static List<Map.Entry<String, FacetCounter>> getTop(Facet facet,
-			int max) {
-		List<Map.Entry<String, FacetCounter>> list = facet.getList();
-		FacetDescendant facetDescendant = new FacetDescendant(list);
-		Arrays.quickSort(0, list.size(), facetDescendant, facetDescendant);
-		if (list.size() <= max)
+	final private static List<Map.Entry<String, FacetCounter>> limitOrderBy(
+			FacetField facetField, List<Map.Entry<String, FacetCounter>> list) {
+		FacetSorter facetSorter = FacetSorter.getSorter(list,
+				facetField.getOrderBy());
+		if (facetSorter == null)
 			return list;
-		return list.subList(0, max);
+		Arrays.quickSort(0, list.size(), facetSorter, facetSorter);
+		Integer limit = facetField.getLimit();
+		if (limit == null)
+			return list;
+		if (list.size() <= limit)
+			return list;
+		return list.subList(0, limit);
+
 	}
 
 }

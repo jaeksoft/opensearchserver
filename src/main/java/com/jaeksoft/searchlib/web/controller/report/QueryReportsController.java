@@ -78,7 +78,7 @@ public class QueryReportsController extends ReportsController {
 					endDate, false, numberOfQuery);
 		}
 
-		reportList = Facet.getTop(facetReportsList, numberOfQuery);
+		reportList = facetReportsList.getList();
 		reload();
 	}
 

@@ -242,7 +242,7 @@ public class UrlManager extends AbstractManager {
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		searchRequest.getFacetFieldList().put(
-				new FacetField("host", 1, false, false, null));
+				new FacetField("host", 1, false, false, null, null, null));
 		return searchRequest;
 	}
 

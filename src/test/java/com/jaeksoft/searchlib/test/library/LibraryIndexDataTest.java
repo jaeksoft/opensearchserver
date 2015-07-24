@@ -132,7 +132,7 @@ public class LibraryIndexDataTest {
 		request.addFilter("category:Article", false);
 
 		// We want facet count on category
-		request.addFacet("category", 1, false, false, null);
+		request.addFacet("category", 1, false, false, null, null, null);
 
 		// Let's execute the search request
 		AbstractResultSearch<?> results = (AbstractResultSearch<?>) client
