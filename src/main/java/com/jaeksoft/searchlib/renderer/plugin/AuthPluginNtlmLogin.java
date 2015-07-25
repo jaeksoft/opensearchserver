@@ -40,8 +40,9 @@ import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
-import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
+
+import org.apache.directory.api.ldap.model.exception.LdapException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
@@ -93,8 +94,8 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			UniAddress dc = UniAddress.getByName(authServer, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(authServer,
-					ntlmAuth.getUsername(), ntlmAuth.getPassword(), domain);
+			activeDirectory = new ActiveDirectory(ntlmAuth.getUsername(),
+					ntlmAuth.getPassword(), domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
@@ -132,13 +133,17 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			Logging.warn(e);
 			throw new AuthException("LDAP error (NamingException) : "
 					+ e.getMessage());
+		} catch (LdapException e) {
+			Logging.warn(e);
+			throw new AuthException("LDAP error (LdapException) : "
+					+ e.getMessage());
 		} finally {
 			IOUtils.close(activeDirectory);
 		}
 	}
 
 	public static void main(String[] args) throws NamingException,
-			UnknownHostException, SmbException {
+			LdapException, IOException {
 
 		ActiveDirectory activeDirectory = null;
 		try {
@@ -152,8 +157,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			UniAddress dc = UniAddress.getByName(server, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(server, username, password,
-					domain);
+			activeDirectory = new ActiveDirectory(username, password, domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
@@ -164,6 +168,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 				return;
 			}
 			String userId = ActiveDirectory.getObjectSID(attrs);
+			System.out.println("SID: " + userId);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
 

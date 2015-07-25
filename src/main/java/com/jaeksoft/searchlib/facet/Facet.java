@@ -123,7 +123,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
 	@Override
 	public Iterator<Map.Entry<String, FacetCounter>> iterator() {
-		return facetMap.entrySet().iterator();
+		return getList().iterator();
 	}
 
 	public int getTermCount() {
