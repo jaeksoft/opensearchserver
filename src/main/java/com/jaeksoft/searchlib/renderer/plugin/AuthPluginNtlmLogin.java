@@ -40,9 +40,8 @@ import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
+import jcifs.smb.SmbException;
 import jcifs.smb.SmbSession;
-
-import org.apache.directory.api.ldap.model.exception.LdapException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
@@ -133,17 +132,13 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			Logging.warn(e);
 			throw new AuthException("LDAP error (NamingException) : "
 					+ e.getMessage());
-		} catch (LdapException e) {
-			Logging.warn(e);
-			throw new AuthException("LDAP error (LdapException) : "
-					+ e.getMessage());
 		} finally {
 			IOUtils.close(activeDirectory);
 		}
 	}
 
 	public static void main(String[] args) throws NamingException,
-			LdapException, IOException {
+			UnknownHostException, SmbException {
 
 		ActiveDirectory activeDirectory = null;
 		try {

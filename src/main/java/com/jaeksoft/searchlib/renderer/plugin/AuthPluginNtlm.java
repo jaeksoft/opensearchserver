@@ -38,7 +38,6 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.renderer.Renderer;
@@ -121,10 +120,6 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		} catch (NamingException e) {
 			Logging.warn(e);
 			throw new AuthException("LDAP error (NamingException) : "
-					+ e.getMessage());
-		} catch (LdapException e) {
-			Logging.warn(e);
-			throw new AuthException("LDAP error (LdapException) : "
 					+ e.getMessage());
 		} finally {
 			IOUtils.close(activeDirectory);
