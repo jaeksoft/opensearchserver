@@ -171,12 +171,13 @@ public class JoinDocCollector extends
 	}
 
 	final public static DocIdInterface getDocIdInterface(int maxDoc,
-			int joinPosition, JoinDocCollector joinDocColletor)
+			int joinPosition, JoinDocCollector joinDocCollector)
 			throws IOException {
 		DocIdCollector docIdCollector = new DocIdCollector(maxDoc,
-				joinDocColletor.srcIds.length);
-		for (int[] foreinDocs : joinDocColletor.getForeignDocIdsArray())
-			docIdCollector.collectDoc(foreinDocs[joinPosition]);
+				joinDocCollector.srcIds.length);
+		for (int[] foreignDocs : joinDocCollector.getForeignDocIdsArray())
+			if (foreignDocs != null)
+				docIdCollector.collectDoc(foreignDocs[joinPosition]);
 		return docIdCollector;
 	}
 
