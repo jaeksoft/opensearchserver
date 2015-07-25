@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -56,7 +55,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
 	public Facet() {
 		list = null;
-		facetMap = new TreeMap<String, FacetCounter>();
+		facetMap = new HashMap<String, FacetCounter>();
 	}
 
 	public Facet(FacetField facetField) {
@@ -83,7 +82,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 			String term = entry.getKey();
 			FacetCounter counter = entry.getValue();
 			if (term != null && counter.count >= minCount)
-				facetMap.put(term, counter);
+				this.facetMap.put(term, counter);
 		}
 	}
 
