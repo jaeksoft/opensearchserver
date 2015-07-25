@@ -23,6 +23,7 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,35 +37,35 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 
 import com.jaeksoft.searchlib.Logging;
 
 public class ActiveDirectory implements Closeable {
 
-	private DirContext dirContext = null;
-	private String domainSearchName = null;
+	private final DirContext dirContext;
 
-	public ActiveDirectory(String serverName, String username, String password,
-			String domain) throws NamingException {
+	private final String domainSearchName;
+
+	public ActiveDirectory(String username, String password, String domain)
+			throws NamingException, LdapException {
 		if (StringUtils.isEmpty(domain))
 			throw new NamingException("The domain is empty");
 		Properties properties = new Properties();
 		properties.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
-		properties.put(Context.PROVIDER_URL,
-				StringUtils.fastConcat("ldap://", serverName, ":389"));
-		properties.put(Context.SECURITY_PRINCIPAL,
-				StringUtils.fastConcat(username, "@", domain));
-		properties.put(Context.SECURITY_CREDENTIALS, password);
-		properties.put("java.naming.ldap.attributes.binary", "objectSID");
-		properties.put(Context.REFERRAL, "follow");
-		dirContext = new InitialDirContext(properties);
 		domainSearchName = getDomainSearch(domain);
+		String login = StringUtils.fastConcat(username, "@", domain);
+		properties.put(Context.SECURITY_PRINCIPAL, login);
+		properties.put(Context.SECURITY_CREDENTIALS, password);
+		properties.put(Context.REFERRAL, "follow");
+		properties.put("java.naming.ldap.attributes.binary", "objectSID");
+		dirContext = new InitialLdapContext(properties, null);
 	}
 
 	public final static String ATTR_CN = "cn";
@@ -153,11 +154,10 @@ public class ActiveDirectory implements Closeable {
 	}
 
 	@Override
-	public void close() {
+	public void close() throws IOException {
 		try {
 			if (dirContext != null)
 				dirContext.close();
-			dirContext = null;
 		} catch (NamingException e) {
 			Logging.warn(e);
 		}
@@ -240,7 +240,8 @@ public class ActiveDirectory implements Closeable {
 		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NamingException, IOException,
+			LdapException {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
 		System.out
 				.println(new ADGroup(
@@ -250,9 +251,12 @@ public class ActiveDirectory implements Closeable {
 	private static String getDomainSearch(String domain) {
 		String[] dcs = StringUtils.split(domain, '.');
 		StringBuilder sb = new StringBuilder();
+		boolean first = true;
 		for (String dc : dcs) {
-			if (sb.length() > 0)
+			if (!first)
 				sb.append(',');
+			else
+				first = false;
 			sb.append("dc=");
 			sb.append(dc);
 		}
