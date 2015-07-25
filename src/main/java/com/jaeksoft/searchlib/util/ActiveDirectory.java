@@ -23,7 +23,6 @@
 package com.jaeksoft.searchlib.util;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +41,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.directory.api.ldap.model.exception.LdapException;
 
 import com.jaeksoft.searchlib.Logging;
 
@@ -53,7 +51,7 @@ public class ActiveDirectory implements Closeable {
 	private final String domainSearchName;
 
 	public ActiveDirectory(String username, String password, String domain)
-			throws NamingException, LdapException {
+			throws NamingException {
 		if (StringUtils.isEmpty(domain))
 			throw new NamingException("The domain is empty");
 		Properties properties = new Properties();
@@ -154,7 +152,7 @@ public class ActiveDirectory implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		try {
 			if (dirContext != null)
 				dirContext.close();
@@ -240,8 +238,7 @@ public class ActiveDirectory implements Closeable {
 		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
-	public static void main(String[] args) throws NamingException, IOException,
-			LdapException {
+	public static void main(String[] args) throws NamingException {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
 		System.out
 				.println(new ADGroup(
