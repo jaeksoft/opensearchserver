@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.index;
 import java.io.IOException;
 
 import org.apache.lucene.search.Query;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.cache.LRUItemAbstract;
@@ -47,7 +48,6 @@ import com.jaeksoft.searchlib.result.collector.docsethit.ScoreBufferCollector;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 
@@ -119,7 +119,7 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 		return docSetHitCollector.getSize();
 	}
 
-	final public BitSetInterface getBitSet() {
+	final public RoaringBitmap getBitSet() {
 		if (docIdBufferCollector == null)
 			return null;
 		return docIdBufferCollector.getBitSet();

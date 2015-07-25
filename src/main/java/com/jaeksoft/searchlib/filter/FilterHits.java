@@ -32,13 +32,13 @@ import java.util.TreeMap;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.Filter;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector.FilterHitsCollector;
 import com.jaeksoft.searchlib.result.collector.docsethit.DocSetHitBaseCollector.FilterHitsCollector.Segment;
+import com.jaeksoft.searchlib.util.RoaringDocIdSet;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
 public class FilterHits extends Filter {
@@ -48,13 +48,13 @@ public class FilterHits extends Filter {
 	 */
 	private static final long serialVersionUID = -7434283983275758714L;
 
-	protected final HashMap<IndexReader, BitSetInterface> docSetMap;
-	protected final TreeMap<Integer, BitSetInterface> docBaseMap;
+	protected final HashMap<IndexReader, RoaringBitmap> docSetMap;
+	protected final TreeMap<Integer, RoaringBitmap> docBaseMap;
 	private final boolean isNegative;
 
 	public FilterHits(boolean isNegative) {
-		docSetMap = new HashMap<IndexReader, BitSetInterface>();
-		docBaseMap = new TreeMap<Integer, BitSetInterface>();
+		docSetMap = new HashMap<IndexReader, RoaringBitmap>();
+		docBaseMap = new TreeMap<Integer, RoaringBitmap>();
 		this.isNegative = isNegative;
 	}
 
@@ -63,9 +63,9 @@ public class FilterHits extends Filter {
 		this(isNegative);
 		Timer t = new Timer(timer, "FilterHits - copy segments");
 		for (Segment segment : collector.segments) {
-			BitSetInterface docSet = segment.docBitSet.clone();
+			RoaringBitmap docSet = segment.docBitSet.clone();
 			if (isNegative)
-				docSet.flip(0, docSet.size());
+				docSet.flip(0, docSet.getCardinality());
 			docSetMap.put(segment.indexReader, docSet);
 			docBaseMap.put(segment.docBase, docSet);
 		}
@@ -78,12 +78,12 @@ public class FilterHits extends Filter {
 
 	final void operate(FilterHits sourceFilterHits, OperatorEnum operator) {
 		if (docSetMap.isEmpty()) {
-			for (Map.Entry<IndexReader, BitSetInterface> entry : sourceFilterHits.docSetMap
+			for (Map.Entry<IndexReader, RoaringBitmap> entry : sourceFilterHits.docSetMap
 					.entrySet())
-				docSetMap.put(entry.getKey(), (BitSetInterface) entry
-						.getValue().clone());
+				docSetMap.put(entry.getKey(), (RoaringBitmap) entry.getValue()
+						.clone());
 		} else {
-			for (Map.Entry<IndexReader, BitSetInterface> entry : sourceFilterHits.docSetMap
+			for (Map.Entry<IndexReader, RoaringBitmap> entry : sourceFilterHits.docSetMap
 					.entrySet()) {
 				switch (operator) {
 				case AND:
@@ -99,16 +99,16 @@ public class FilterHits extends Filter {
 
 	@Override
 	public DocIdSet getDocIdSet(IndexReader reader) throws IOException {
-		return BitSetFactory.INSTANCE.getDocIdSet(docSetMap.get(reader));
+		return new RoaringDocIdSet(docSetMap.get(reader));
 	}
 
 	final public void fastRemove(int doc) {
 		Integer floorKey = docBaseMap.floorKey(doc);
-		BitSetInterface bitSet = docBaseMap.get(floorKey);
+		RoaringBitmap bitSet = docBaseMap.get(floorKey);
 		doc -= floorKey;
 		if (isNegative)
-			bitSet.set(doc);
+			bitSet.add(doc);
 		else
-			bitSet.clear(doc);
+			bitSet.remove(doc);
 	}
 }

@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.analysis;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -44,7 +44,7 @@ public class IndexDocumentAnalyzer extends AbstractAnalyzer {
 	private final Map<String, IndexField> fieldMap;
 
 	public IndexDocumentAnalyzer(IndexDocumentResult document) {
-		fieldMap = new TreeMap<String, IndexField>();
+		fieldMap = new HashMap<String, IndexField>();
 		if (document.fields != null)
 			for (IndexField indexField : document.fields)
 				if (indexField.terms != null)

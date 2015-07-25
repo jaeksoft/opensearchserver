@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,13 +24,13 @@
 
 package com.jaeksoft.searchlib.collapse;
 
+import org.roaringbitmap.RoaringBitmap;
+
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.collapsing.CollapseCollectorInterface;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class CollapseAdjacent extends CollapseAbstract {
 
@@ -44,8 +44,7 @@ public class CollapseAdjacent extends CollapseAbstract {
 
 		Timer t = new Timer(timer, "adjacent collapse");
 
-		BitSetInterface collapsedSet = BitSetFactory.INSTANCE
-				.newInstance(fetchLength);
+		RoaringBitmap collapsedSet = new RoaringBitmap();
 
 		int[] ids = collector.getIds();
 		String lastTerm = null;
@@ -54,20 +53,20 @@ public class CollapseAdjacent extends CollapseAbstract {
 			String term = collapseStringIndex.lookup[collapseStringIndex.order[ids[i]]];
 			if (term != null && term.equals(lastTerm)) {
 				if (++adjacent >= getCollapseMax())
-					collapsedSet.set(i);
+					collapsedSet.add(i);
 			} else {
 				lastTerm = term;
 				adjacent = 0;
 			}
 		}
 
-		int collapsedDocCount = (int) collapsedSet.cardinality();
+		int collapsedDocCount = (int) collapsedSet.getCardinality();
 		CollapseCollectorInterface collapseCollector = getNewCollapseInterfaceInstance(
 				collector, fetchLength - collapsedDocCount,
 				getCollectDocArray());
 		int collapsePos = -1;
 		for (int i = 0; i < fetchLength; i++) {
-			if (!collapsedSet.get(i))
+			if (!collapsedSet.contains(i))
 				collapsePos = collapseCollector.collectDoc(i);
 			else
 				collapseCollector.collectCollapsedDoc(i, collapsePos);
