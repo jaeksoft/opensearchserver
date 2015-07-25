@@ -24,8 +24,8 @@
 
 package com.jaeksoft.searchlib.collapse;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.index.FieldCacheIndex;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
@@ -44,7 +44,7 @@ public class CollapseCluster extends CollapseAbstract {
 			int fetchLength, FieldCacheIndex collapseStringIndex, Timer timer) {
 
 		Timer t = new Timer(timer, "Build collapse map");
-		Map<String, Integer> collapsedDocMap = new TreeMap<String, Integer>();
+		Map<String, Integer> collapsedDocMap = new HashMap<String, Integer>();
 		int[] ids = collector.getIds();
 
 		CollapseCollectorInterface collapseCollector = getNewCollapseInterfaceInstance(

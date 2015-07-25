@@ -56,6 +56,7 @@ import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.ReaderUtil;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -75,8 +76,6 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
@@ -416,18 +415,17 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			StringIndex si = getStringIndexNoLock(fieldName);
-			BitSetInterface bitSet = BitSetFactory.INSTANCE
-					.newInstance(si.order.length);
+			RoaringBitmap bitSet = new RoaringBitmap();
 			for (int doc = 0; doc < si.order.length; doc++) {
 				if (!indexReader.isDeleted(doc)) {
-					bitSet.set(si.order[doc]);
+					bitSet.add(si.order[doc]);
 				}
 			}
-			String[] result = new String[(int) bitSet.cardinality()];
+			String[] result = new String[bitSet.getCardinality()];
 			int i = 0;
 			int j = 0;
 			for (String term : si.lookup)
-				if (bitSet.get(i++))
+				if (bitSet.contains(i++))
 					result[j++] = term;
 			return result;
 		} finally {

@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.analysis.stopwords;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.analysis.filter.stop.PrefixArray;
@@ -44,9 +44,9 @@ public class StopWordsManager extends DirectoryTextContentManager {
 
 	public StopWordsManager(Config config, File directory) {
 		super(config, directory);
-		wordArrayMap = new TreeMap<String, WordArray>();
-		prefixArrayMap = new TreeMap<String, PrefixArray>();
-		suffixArrayMap = new TreeMap<String, SuffixArray>();
+		wordArrayMap = new HashMap<String, WordArray>();
+		prefixArrayMap = new HashMap<String, PrefixArray>();
+		suffixArrayMap = new HashMap<String, SuffixArray>();
 	}
 
 	private final static String getListKey(String listname,

@@ -35,6 +35,7 @@ import java.util.List;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -46,7 +47,6 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class AutoCompletionBuildThread extends
 		ThreadAbstract<AutoCompletionBuildThread> {
@@ -151,8 +151,8 @@ public class AutoCompletionBuildThread extends
 		DocIdInterface docIds = result.getDocs();
 		if (docIds == null)
 			return docCount;
-		BitSetInterface bitSet = docIds.getBitSet();
-		if (bitSet == null || bitSet.size() == 0)
+		RoaringBitmap bitSet = docIds.getBitSet();
+		if (bitSet == null || bitSet.isEmpty())
 			return docCount;
 		for (String fieldName : fieldNames) {
 			termEnum = sourceClient.getTermEnum(new Term(fieldName, ""));
@@ -163,7 +163,7 @@ public class AutoCompletionBuildThread extends
 				TermDocs termDocs = sourceClient.getIndex().getTermDocs(term);
 				boolean add = false;
 				while (termDocs.next() && !add)
-					add = bitSet.get(termDocs.doc());
+					add = bitSet.contains(termDocs.doc());
 				if (add)
 					docCount = indexTerm(term.text(), termEnum.docFreq(),
 							buffer, docCount);

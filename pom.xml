@@ -458,6 +458,11 @@
 			<artifactId>hunspell-bridj</artifactId>
 			<version>1.0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.roaringbitmap</groupId>
+			<artifactId>RoaringBitmap</artifactId>
+			<version>0.4.9</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -974,7 +979,7 @@
 							<artifactId>tomcat-embed-logging-log4j</artifactId>
 							<version>${tomcat.version}</version>
 						</dependency>
-					</dependencies> 
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>

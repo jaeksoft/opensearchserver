@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import java.util.Map;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermFreqVector;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetCounter.FacetSorter;
@@ -45,7 +46,6 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
@@ -174,7 +174,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 			return countIndex;
 		int[] docs = new int[100];
 		int[] freqs = new int[100];
-		BitSetInterface bitset = docIdInterface.getBitSet();
+		RoaringBitmap bitset = docIdInterface.getBitSet();
 		Term oTerm = new Term(fieldName);
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
@@ -184,7 +184,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 				while ((l = termDocs.read(docs, freqs)) > 0)
 					for (int i = 0; i < l; i++)
 						if (freqs[i] > 0)
-							if (bitset.get(docs[i]))
+							if (bitset.contains(docs[i]))
 								countIndex[indexPos]++;
 				termDocs.close();
 			}

@@ -29,23 +29,21 @@ import it.unimi.dsi.fastutil.Swapper;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
-
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
+import org.roaringbitmap.RoaringBitmap;
 
 public class DocIdCollector implements DocIdInterface, Swapper {
 
 	private final int maxDoc;
 	private final int[] ids;
 	private int currentPos;
-	private BitSetInterface bitSet;
+	private RoaringBitmap bitSet;
 	private final int classType = getClass().hashCode();
 
 	public DocIdCollector(final int maxDoc, final int maxSize) {
 		this.maxDoc = maxDoc;
 		ids = new int[maxSize];
 		currentPos = 0;
-		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
+		bitSet = new RoaringBitmap();
 	}
 
 	private DocIdCollector(final DocIdCollector source) {
@@ -74,7 +72,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 		if (doc == -1)
 			return;
 		ids[currentPos++] = doc;
-		bitSet.set(doc);
+		bitSet.add(doc);
 	}
 
 	@Override
@@ -101,7 +99,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	@Override
-	final public BitSetInterface getBitSet() {
+	final public RoaringBitmap getBitSet() {
 		return bitSet;
 	}
 
