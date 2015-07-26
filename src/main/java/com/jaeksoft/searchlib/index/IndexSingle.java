@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
@@ -95,9 +96,12 @@ public class IndexSingle extends IndexAbstract {
 		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir)
 				: new IndexDirectory(remoteURI);
 		bCreate = bCreate || indexDirectory.isEmpty();
-		writer = new WriterLocal(indexConfig, this, indexDirectory);
-		if (bCreate)
-			((WriterLocal) writer).create();
+		if (!indexConfig.isMulti()) {
+			writer = new WriterLocal(indexConfig, this, indexDirectory);
+			if (bCreate)
+				((WriterLocal) writer).create();
+		} else
+			writer = null;
 		reader = new ReaderLocal(indexConfig, indexDirectory, true);
 	}
 
@@ -132,6 +136,14 @@ public class IndexSingle extends IndexAbstract {
 	private void checkOnline(boolean online) throws SearchLibException {
 		if (this.online != online)
 			throw new SearchLibException("Index is offline");
+		try {
+			if (!reader.isCurrent())
+				reader.reload();
+		} catch (CorruptIndexException e) {
+			throw new SearchLibException(e);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	@Override

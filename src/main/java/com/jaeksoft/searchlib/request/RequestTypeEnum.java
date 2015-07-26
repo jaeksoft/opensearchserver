@@ -39,7 +39,7 @@ public enum RequestTypeEnum {
 
 	SearchRequest(SearchPatternRequest.class, "Search (pattern)"),
 
-	SearchMergedRequest(SearchMergedRequest.class, "Search (merged)"),
+	// SearchMergedRequest(SearchMergedRequest.class, "Search (merged)"),
 
 	SpellCheckRequest(SpellCheckRequest.class, "Spell check"),
 

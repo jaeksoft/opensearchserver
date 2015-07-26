@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ import java.util.TreeSet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
@@ -58,6 +61,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.ReaderUtil;
 import org.roaringbitmap.RoaringBitmap;
 
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
@@ -84,6 +88,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	private final IndexDirectory indexDirectory;
 	private IndexSearcher indexSearcher;
 	private IndexReader indexReader;
+	private IndexDirectory[] indexDirectories;
+	private IndexReader[] indexReaders;
 
 	private final SpellCheckCache spellCheckCache;
 	private final DocSetHitsCache docSetHitsCache;
@@ -95,18 +101,34 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		docSetHitsCache = new DocSetHitsCache(indexConfig);
 		indexSearcher = null;
 		indexReader = null;
+		indexDirectories = null;
+		indexReaders = null;
 		this.indexDirectory = indexDirectory;
 		if (bOnline)
 			openNoLock();
 	}
 
 	private void openNoLock() throws IOException, SearchLibException {
-		if (this.indexReader != null && this.indexSearcher != null)
+		if (indexReader != null && indexSearcher != null)
 			return;
 		Directory directory = indexDirectory.getDirectory();
 		if (directory == null)
 			throw new IOException("The directory is closed");
-		this.indexReader = IndexReader.open(directory);
+		if (indexConfig.isMulti()) {
+			List<String> indexList = indexConfig.getIndexList();
+			indexDirectories = new IndexDirectory[indexList.size()];
+			indexReaders = new IndexReader[indexList.size()];
+			int i = 0;
+			for (String indexName : indexList) {
+				IndexDirectory indexDir = new IndexDirectory(new File(
+						ClientCatalog.getClient(indexName).getDirectory(),
+						"index"));
+				indexDirectories[i] = indexDir;
+				indexReaders[i++] = IndexReader.open(indexDir.getDirectory());
+			}
+			indexReader = new MultiReader(indexReaders);
+		} else
+			indexReader = IndexReader.open(directory);
 		indexSearcher = new IndexSearcher(indexReader);
 
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
@@ -120,6 +142,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	public long getVersion() {
 		rwl.r.lock();
 		try {
+			if (indexConfig.isMulti())
+				return 0L;
 			return indexReader.getVersion();
 		} finally {
 			rwl.r.unlock();
@@ -272,6 +296,18 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			indexReader.close();
 			indexReader = null;
 		}
+		if (indexReaders != null) {
+			for (IndexReader ir : indexReaders) {
+				org.apache.lucene.search.FieldCache.DEFAULT.purge(ir);
+				ir.close();
+			}
+			indexReaders = null;
+		}
+		if (indexDirectories != null) {
+			for (IndexDirectory id : indexDirectories)
+				id.close();
+			indexDirectories = null;
+		}
 	}
 
 	@Override
@@ -402,8 +438,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			StringIndex si = getStringIndexNoLock(fieldName);
-			return new FieldCacheIndex(indexReader.getVersion(), si.lookup,
-					si.order);
+			return new FieldCacheIndex(si.lookup, si.order);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -715,6 +750,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		rwl.r.lock();
 		try {
 			return request.execute(this);
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public boolean isCurrent() throws CorruptIndexException, IOException {
+		rwl.r.lock();
+		try {
+			return indexReader.isCurrent();
 		} finally {
 			rwl.r.unlock();
 		}

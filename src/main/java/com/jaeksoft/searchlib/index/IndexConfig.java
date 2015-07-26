@@ -28,6 +28,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.Similarity;
@@ -36,75 +41,137 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class IndexConfig {
 
-	private int searchCache;
+	private final AtomicInteger searchCache;
 
-	private int filterCache;
+	private final AtomicInteger filterCache;
 
-	private int fieldCache;
+	private final AtomicInteger fieldCache;
 
-	private int termVectorCache;
+	private final AtomicInteger termVectorCache;
 
-	private URI remoteURI;
+	private volatile URI remoteURI;
 
-	private String keyField;
+	private volatile String keyField;
 
-	private String keyMd5RegExp;
+	private volatile String keyMd5RegExp;
 
-	private String similarityClass;
+	private volatile String similarityClass;
 
-	private int maxNumSegments;
+	private final AtomicInteger maxNumSegments;
 
-	private long writeLockTimeout;
+	private final AtomicLong writeLockTimeout;
+
+	private final ConcurrentSkipListSet<String> indexSet;
 
 	public IndexConfig(Node node) throws URISyntaxException {
-		maxNumSegments = 1;
-		searchCache = XPathParser.getAttributeValue(node, "searchCache");
-		filterCache = XPathParser.getAttributeValue(node, "filterCache");
-		fieldCache = XPathParser.getAttributeValue(node, "fieldCache");
-		if (fieldCache == 0)
-			fieldCache = XPathParser.getAttributeValue(node, "documentCache");
-		termVectorCache = XPathParser
-				.getAttributeValue(node, "termVectorCache");
+		searchCache = new AtomicInteger(XPathParser.getAttributeValue(node,
+				"searchCache"));
+		filterCache = new AtomicInteger(XPathParser.getAttributeValue(node,
+				"filterCache"));
+		int fc = XPathParser.getAttributeValue(node, "fieldCache");
+		if (fc == 0)
+			fc = XPathParser.getAttributeValue(node, "documentCache");
+		fieldCache = new AtomicInteger(fc);
+		termVectorCache = new AtomicInteger(XPathParser.getAttributeValue(node,
+				"termVectorCache"));
 		String s = XPathParser.getAttributeString(node, "remoteURI");
 		remoteURI = StringUtils.isEmpty(s) ? null : new URI(s);
 		keyField = XPathParser.getAttributeString(node, "keyField");
 		keyMd5RegExp = XPathParser.getAttributeString(node, "keyMd5RegExp");
 		setSimilarityClass(XPathParser.getAttributeString(node,
 				"similarityClass"));
-		maxNumSegments = XPathParser.getAttributeValue(node, "maxNumSegments");
-		if (maxNumSegments == 0)
-			maxNumSegments = 1;
-		writeLockTimeout = XPathParser.getAttributeValue(node,
-				"writeLockTimeout");
-		if (writeLockTimeout == 0)
-			writeLockTimeout = IndexWriterConfig.getDefaultWriteLockTimeout();
+		int mns = XPathParser.getAttributeValue(node, "maxNumSegments");
+		if (mns == 0)
+			mns = 1;
+		maxNumSegments = new AtomicInteger(mns);
+		long wlt = XPathParser.getAttributeValue(node, "writeLockTimeout");
+		if (wlt == 0)
+			wlt = IndexWriterConfig.getDefaultWriteLockTimeout();
+		writeLockTimeout = new AtomicLong(wlt);
+		Node indicesNode = DomUtils.getFirstNode(node, "indices");
+		if (indicesNode != null) {
+			indexSet = new ConcurrentSkipListSet<String>();
+			List<Node> indexNodes = DomUtils.getNodes(indicesNode, "index");
+			if (indexNodes != null)
+				for (Node indexNode : indexNodes)
+					addIndex(indexNode.getTextContent());
+		} else
+			indexSet = null;
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("index", "searchCache",
-				Integer.toString(searchCache), "filterCache",
-				Integer.toString(filterCache), "fieldCache",
-				Integer.toString(fieldCache), "termVectorCache",
-				Integer.toString(termVectorCache), "remoteURI",
+				Integer.toString(searchCache.get()), "filterCache",
+				Integer.toString(filterCache.get()), "fieldCache",
+				Integer.toString(fieldCache.get()), "termVectorCache",
+				Integer.toString(termVectorCache.get()), "remoteURI",
 				remoteURI != null ? remoteURI.toString() : null, "keyField",
 				keyField, "keyMd5RegExp", keyMd5RegExp, "similarityClass",
 				similarityClass, "maxNumSegments",
-				Integer.toString(maxNumSegments), "writeLockTimeout",
-				Long.toString(writeLockTimeout));
+				Integer.toString(maxNumSegments.get()), "writeLockTimeout",
+				Long.toString(writeLockTimeout.get()));
+		if (indexSet != null) {
+			xmlWriter.startElement("indices");
+			for (String index : indexSet) {
+				xmlWriter.startElement("index");
+				xmlWriter.textNode(index);
+				xmlWriter.endElement();
+			}
+			xmlWriter.endElement();
+		}
 		xmlWriter.endElement();
+	}
+
+	/**
+	 * Add a new index in the index set
+	 * 
+	 * @param indexName
+	 */
+	public void addIndex(String indexName) {
+		if (indexName == null || indexName.length() == 0)
+			return;
+		indexSet.add(indexName);
+	}
+
+	/**
+	 * Remove an index from the index set
+	 * 
+	 * @param indexName
+	 */
+	public void removeIndex(String indexName) {
+		if (indexName == null || indexName.length() == 0)
+			return;
+		indexSet.remove(indexName);
+	}
+
+	public boolean isMulti() {
+		return indexSet != null;
+	}
+
+	/**
+	 * @return the index list
+	 */
+	public List<String> getIndexList() {
+		if (indexSet == null)
+			return null;
+		List<String> list = new ArrayList<String>(indexSet.size());
+		for (String indexName : indexSet)
+			list.add(indexName);
+		return list;
 	}
 
 	/**
 	 * @return the searchCache
 	 */
 	public int getSearchCache() {
-		return searchCache;
+		return searchCache.get();
 	}
 
 	/**
@@ -112,14 +179,14 @@ public class IndexConfig {
 	 *            the searchCache to set
 	 */
 	public void setSearchCache(int searchCache) {
-		this.searchCache = searchCache;
+		this.searchCache.set(searchCache);
 	}
 
 	/**
 	 * @return the filterCache
 	 */
 	public int getFilterCache() {
-		return filterCache;
+		return filterCache.get();
 	}
 
 	/**
@@ -127,14 +194,14 @@ public class IndexConfig {
 	 *            the filterCache to set
 	 */
 	public void setFilterCache(int filterCache) {
-		this.filterCache = filterCache;
+		this.filterCache.set(filterCache);
 	}
 
 	/**
 	 * @return the documentCache
 	 */
 	public int getFieldCache() {
-		return fieldCache;
+		return fieldCache.get();
 	}
 
 	/**
@@ -142,14 +209,14 @@ public class IndexConfig {
 	 *            the documentCache to set
 	 */
 	public void setFieldCache(int fieldCache) {
-		this.fieldCache = fieldCache;
+		this.fieldCache.set(fieldCache);
 	}
 
 	/**
 	 * @return the termVectorCache
 	 */
 	public int getTermVectorCache() {
-		return termVectorCache;
+		return termVectorCache.get();
 	}
 
 	/**
@@ -157,7 +224,7 @@ public class IndexConfig {
 	 *            the termVectorCache to set
 	 */
 	public void setTermVectorCache(int termVectorCache) {
-		this.termVectorCache = termVectorCache;
+		this.termVectorCache.set(termVectorCache);
 	}
 
 	/**
@@ -224,7 +291,7 @@ public class IndexConfig {
 	 * @return the maxNumSegments
 	 */
 	public int getMaxNumSegments() {
-		return maxNumSegments;
+		return maxNumSegments.get();
 	}
 
 	/**
@@ -232,7 +299,7 @@ public class IndexConfig {
 	 *            the maxNumSegments to set
 	 */
 	public void setMaxNumSegments(int maxNumSegments) {
-		this.maxNumSegments = maxNumSegments;
+		this.maxNumSegments.set(maxNumSegments);
 	}
 
 	public Similarity getNewSimilarityInstance() throws SearchLibException {
@@ -256,7 +323,7 @@ public class IndexConfig {
 	}
 
 	public long getWriteLockTimeout() {
-		return writeLockTimeout;
+		return writeLockTimeout.get();
 	}
 
 	/**
@@ -264,7 +331,7 @@ public class IndexConfig {
 	 *            the writeLockTimeout to set
 	 */
 	public void setWriteLockTimeout(long writeLockTimeout) {
-		this.writeLockTimeout = writeLockTimeout;
+		this.writeLockTimeout.set(writeLockTimeout);
 	}
 
 }

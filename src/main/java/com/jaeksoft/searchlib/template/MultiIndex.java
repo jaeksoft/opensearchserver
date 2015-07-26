@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,35 +24,19 @@
 
 package com.jaeksoft.searchlib.template;
 
-public enum TemplateList {
+public class MultiIndex extends TemplateAbstract {
 
-	EMPTY_INDEX(new EmptyIndex()),
+	public final static String root = "multi_index";
 
-	WEB_CRAWLER(new WebCrawler()),
+	public final static String[] resources = { "config.xml", "requests.xml",
+			"renderers/default-file.xml", "renderers/default.xml" };
 
-	FILE_CRAWLER(new FileCrawler()),
+	public final static String publicName = "Multi index";
 
-	USERS_CREDENTIALS(new UsersCredentialsIndex()),
+	public final static String description = "A read only index merging data from a set of indexes.";
 
-	MULTI_INDEX(new MultiIndex());
-
-	private TemplateAbstract template;
-
-	private TemplateList(TemplateAbstract template) {
-		this.template = template;
-	}
-
-	public TemplateAbstract getTemplate() {
-		return template;
-	}
-
-	public static TemplateAbstract findTemplate(String name) {
-		if (name == null)
-			return EMPTY_INDEX.template;
-		TemplateList template = TemplateList.valueOf(name.toUpperCase());
-		if (template == null)
-			return EMPTY_INDEX.template;
-		return template.template;
+	protected MultiIndex() {
+		super(root, resources, publicName, description);
 	}
 
 }
