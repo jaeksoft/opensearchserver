@@ -50,8 +50,8 @@ public class ActiveDirectory implements Closeable {
 
 	private final String domainSearchName;
 
-	public ActiveDirectory(String username, String password, String domain)
-			throws NamingException {
+	public ActiveDirectory(String serverName, String username, String password,
+			String domain) throws NamingException {
 		if (StringUtils.isEmpty(domain))
 			throw new NamingException("The domain is empty");
 		Properties properties = new Properties();
@@ -59,6 +59,10 @@ public class ActiveDirectory implements Closeable {
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		domainSearchName = getDomainSearch(domain);
 		String login = StringUtils.fastConcat(username, "@", domain);
+		if (serverName != null) {
+			properties.put(Context.PROVIDER_URL,
+					StringUtils.fastConcat("ldap://", serverName, ":389"));
+		}
 		properties.put(Context.SECURITY_PRINCIPAL, login);
 		properties.put(Context.SECURITY_CREDENTIALS, password);
 		properties.put(Context.REFERRAL, "follow");

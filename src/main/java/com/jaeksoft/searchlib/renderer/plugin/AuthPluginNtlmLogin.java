@@ -93,8 +93,8 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			UniAddress dc = UniAddress.getByName(authServer, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(ntlmAuth.getUsername(),
-					ntlmAuth.getPassword(), domain);
+			activeDirectory = new ActiveDirectory(renderer.getAuthServer(),
+					ntlmAuth.getUsername(), ntlmAuth.getPassword(), domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
@@ -152,7 +152,8 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			UniAddress dc = UniAddress.getByName(server, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(username, password, domain);
+			activeDirectory = new ActiveDirectory(server, username, password,
+					domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
 					.findUser(username);
