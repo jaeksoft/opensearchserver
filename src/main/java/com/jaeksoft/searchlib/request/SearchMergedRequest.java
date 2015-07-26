@@ -55,12 +55,12 @@ public class SearchMergedRequest extends AbstractSearchRequest implements
 	private final TreeSet<RemoteRequest> requests;
 
 	public SearchMergedRequest() {
-		super(null, RequestTypeEnum.SearchMergedRequest);
+		super(null, null /* RequestTypeEnum.SearchMergedRequest */);
 		requests = new TreeSet<RemoteRequest>();
 	}
 
 	public SearchMergedRequest(Config config) {
-		super(config, RequestTypeEnum.SearchMergedRequest);
+		super(config, null /* RequestTypeEnum.SearchMergedRequest */);
 		requests = new TreeSet<RemoteRequest>();
 	}
 

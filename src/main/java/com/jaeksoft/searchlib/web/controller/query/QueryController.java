@@ -149,7 +149,7 @@ public final class QueryController extends AbstractQueryController {
 	}
 
 	public boolean isEditingSearchMerged() throws SearchLibException {
-		return isEditing(RequestTypeEnum.SearchMergedRequest);
+		return false; /* isEditing(RequestTypeEnum.SearchMergedRequest); */
 	}
 
 	public boolean isNotEditingSearchField() throws SearchLibException {
