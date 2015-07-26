@@ -105,7 +105,7 @@ public class ActiveDirectory implements Closeable {
 				"CN=Users,",
 				StringUtils
 						.fastConcat(
-								"(&(objectClass=User)(samAccountType=805306368)(sAMAccountName=",
+								"(&(objectCategory=person)(objectClass=user)(samAccountType=805306368)(sAMAccountName=",
 								username, "))"), ATTR_CN, ATTR_MAIL,
 				ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
 				ATTR_MEMBEROF, ATTR_DN);
@@ -117,7 +117,7 @@ public class ActiveDirectory implements Closeable {
 				"CN=Users,",
 				StringUtils
 						.fastConcat(
-								"(&(objectClass=Group)(samAccountType=268435456)(sAMAccountName=",
+								"(&(objectCategory=group)(objectClass=group)(samAccountType=268435456)(sAMAccountName=",
 								group, "))"), ATTR_CN, ATTR_MAIL,
 				ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
 				ATTR_MEMBEROF, ATTR_DN);
