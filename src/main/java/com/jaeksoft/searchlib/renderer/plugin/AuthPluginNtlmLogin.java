@@ -144,15 +144,16 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		try {
 			String server = args[0];
 			String domain = args[1];
-			String username = args[2];
+			String authUser = args[2];
 			String password = args[3];
+			String username = args[4];
 
 			NtlmPasswordAuthentication ntlmAuth = new NtlmPasswordAuthentication(
-					domain, username, password);
+					domain, authUser, password);
 			UniAddress dc = UniAddress.getByName(server, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(server, username, password,
+			activeDirectory = new ActiveDirectory(server, authUser, password,
 					domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory

@@ -85,6 +85,9 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		int i = remoteUser.indexOf('@');
 		if (i != -1)
 			remoteUser = remoteUser.substring(0, i);
+		i = remoteUser.indexOf('\\');
+		if (i != -1)
+			remoteUser = remoteUser.substring(i + 1);
 		try {
 			String domain = renderer.getAuthDomain();
 
