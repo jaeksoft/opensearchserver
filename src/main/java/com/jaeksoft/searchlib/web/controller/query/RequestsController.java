@@ -30,7 +30,6 @@ import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.request.SearchMergedRequest;
 import com.jaeksoft.searchlib.request.SearchMergedRequest.RemoteRequest;
 
@@ -40,7 +39,7 @@ public class RequestsController extends AbstractQueryController {
 	private transient RemoteRequest selectedRequest;
 
 	public RequestsController() throws SearchLibException {
-		super(RequestTypeEnum.SearchMergedRequest);
+		super(null/* RequestTypeEnum.SearchMergedRequest */);
 	}
 
 	@Override
