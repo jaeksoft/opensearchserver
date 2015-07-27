@@ -547,10 +547,13 @@ public class ClientCatalog {
 			File pathToMoveFile = new File(clientDir, PATH_TO_MOVE);
 			if (pathToMoveFile.exists()) {
 				for (String pathToMove : FileUtils.readLines(pathToMoveFile)) {
-					new File(trashDir, pathToMove).renameTo(new File(clientDir,
-							pathToMove));
+					File from = new File(trashDir, pathToMove);
+					File to = new File(clientDir, pathToMove);
+					FileUtils.moveFile(from, to);
 				}
-				pathToMoveFile.delete();
+				if (!pathToMoveFile.delete())
+					throw new IOException("Unable to delete the file: "
+							+ pathToMoveFile.getAbsolutePath());
 			}
 			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
 			newClient.writeReplCheck();
