@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,6 +25,9 @@
 package com.jaeksoft.searchlib.replication;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
@@ -45,13 +48,26 @@ public class ReplicationMerge implements RecursiveDirectoryBrowser.CallBack {
 	public void file(File file) throws SearchLibException {
 		File dest = new File(destRoot, file.getAbsolutePath().substring(
 				prefixSize));
-		if (dest.exists())
-			dest.delete();
-		else {
+		if (dest.exists()) {
+			if (!dest.delete())
+				throw new SearchLibException("Unable to delete the file: "
+						+ dest.getAbsolutePath());
+		} else {
 			File parent = dest.getParentFile();
 			if (!parent.exists())
-				parent.mkdirs();
+				if (!parent.mkdirs())
+					throw new SearchLibException(
+							"Unable to create the directory: "
+									+ parent.getAbsolutePath());
 		}
-		file.renameTo(dest);
+		if (!file.isFile())
+			throw new SearchLibException("Unsupported file type: "
+					+ file.getAbsolutePath());
+		try {
+			FileUtils.moveFile(file, dest);
+		} catch (IOException e) {
+			throw new SearchLibException("File move failed on "
+					+ file.getAbsolutePath());
+		}
 	}
 }
