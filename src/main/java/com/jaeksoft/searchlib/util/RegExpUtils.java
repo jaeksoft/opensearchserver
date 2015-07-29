@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -166,6 +167,21 @@ public class RegExpUtils {
 			}
 		}
 		return false;
+	}
+
+	public static class FileNameFilterPattern implements FilenameFilter {
+
+		private final Pattern pattern;
+
+		public FileNameFilterPattern(Pattern pattern) {
+			this.pattern = pattern;
+		}
+
+		@Override
+		public boolean accept(File dir, String name) {
+			return pattern.matcher(name).find();
+		}
+
 	}
 
 }

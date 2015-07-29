@@ -132,4 +132,19 @@ public class RestCrawlList {
 		}
 	}
 
+	public String[] getNameArray() {
+		rwl.r.lock();
+		try {
+			if (array == null)
+				return null;
+			String[] names = new String[array.length];
+			int i = 0;
+			for (RestCrawlItem item : array)
+				names[i++] = item.getName();
+			return names;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
 }
