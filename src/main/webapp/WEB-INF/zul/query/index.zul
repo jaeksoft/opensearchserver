@@ -103,8 +103,6 @@
 			visible="@load(query.editingSearchPattern)" />
 		<include src="WEB-INF/zul/query/requestSearchField.zul"
 			visible="@load(query.editingSearchField)" />
-		<include src="WEB-INF/zul/query/requestSearchMerged.zul"
-			visible="@load(query.editingSearchMerged)" />
 		<include src="WEB-INF/zul/query/requestSpellCheck.zul"
 			visible="@load(query.editingSpellCheck)" />
 		<include src="WEB-INF/zul/query/requestMoreLikeThis.zul"
