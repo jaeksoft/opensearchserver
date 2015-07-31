@@ -31,8 +31,14 @@
 					%>
 					<div id="oss-login" class="pull-right">
 						<br />
-						<%=login%>&nbsp;-&nbsp;<a
-							href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
+						<%=login%>
+						<%
+							if (renderer.isLogout()) {
+						%>&nbsp;-&nbsp;<a
+							href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%>
+							<%
+								}
+							%></a>
 					</div>
 					<%
 						}
