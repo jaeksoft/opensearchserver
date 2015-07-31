@@ -1329,6 +1329,11 @@ public class Renderer implements Comparable<Renderer> {
 		return authPlugin != null && authPlugin != AuthPluginEnum.NO_AUTH;
 	}
 
+	public boolean isLogout() {
+		AuthPluginEnum authPlugin = AuthPluginEnum.find(authPluginClass);
+		return authPlugin != null && authPlugin.isLogout();
+	}
+
 	private AuthPluginInterface getNewAuthPluginInterface()
 			throws SearchLibException {
 		if (authPluginClass == null || authPluginClass.length() == 0)

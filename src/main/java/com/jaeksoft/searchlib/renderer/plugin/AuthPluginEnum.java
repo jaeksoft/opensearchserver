@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -26,26 +26,30 @@ package com.jaeksoft.searchlib.renderer.plugin;
 
 public enum AuthPluginEnum {
 
-	NO_AUTH("No authentication", null),
+	NO_AUTH("No authentication", null, false),
 
-	HTTP_HEADER("HTTP Header", AuthPluginHttpHeader.class),
+	HTTP_HEADER("HTTP Header", AuthPluginHttpHeader.class, false),
 
-	NTLM("NTLM", AuthPluginNtlm.class),
+	NTLM("NTLM", AuthPluginNtlm.class, false),
 
-	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class),
+	NTLM_LOGIN("NTLM with login", AuthPluginNtlmLogin.class, true),
 
-	INDEX_LOGIN("INDEX with login", AuthPluginIndexLogin.class),
+	INDEX_LOGIN("INDEX with login", AuthPluginIndexLogin.class, true),
 
-	WAFFLE("WAFFLE/SSO", AuthPluginWaffle.class);
+	WAFFLE("WAFFLE/SSO", AuthPluginWaffle.class, false);
 
 	public final String label;
 
 	public final Class<? extends AuthPluginInterface> authPluginClass;
 
+	private final boolean isLogout;
+
 	private AuthPluginEnum(String label,
-			Class<? extends AuthPluginInterface> authPluginClass) {
+			Class<? extends AuthPluginInterface> authPluginClass,
+			boolean isLogout) {
 		this.label = label;
 		this.authPluginClass = authPluginClass;
+		this.isLogout = isLogout;
 	}
 
 	@Override
@@ -57,6 +61,10 @@ public enum AuthPluginEnum {
 		if (authPluginClass == null)
 			return null;
 		return authPluginClass.getName();
+	}
+
+	public boolean isLogout() {
+		return isLogout;
 	}
 
 	public static AuthPluginEnum find(String nameOrClass) {

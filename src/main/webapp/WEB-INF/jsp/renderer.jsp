@@ -46,7 +46,10 @@ body,html {
 		</div>
 		<% if (renderer.isAuthentication()) { %>
 		<div id="oss-login">
-		<%=login%>&nbsp;-&nbsp;<a href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
+		<%=login%>
+		<% if (renderer.isLogout()){ %>
+		&nbsp;-&nbsp;<a href="<%=request.getAttribute("getUrl")%>&logout"><%=renderer.getLogoutText()%></a>
+		<% } %>
 		</div>
 		<% } %>
 		<div id="oss-facet">
