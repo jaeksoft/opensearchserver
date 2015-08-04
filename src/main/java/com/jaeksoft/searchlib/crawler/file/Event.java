@@ -51,6 +51,13 @@ public class Event implements Runnable {
 
 	private final HashMap<WatchKey, Path> keys;
 
+	/**
+	 * An Event class is running thread listening for events in the file system.
+	 * 
+	 * @param filePath
+	 *            The path of the monitored directory
+	 * @throws IOException
+	 */
 	public Event(String filePath) throws IOException {
 		rootPath = FileSystems.getDefault().getPath(filePath);
 		watcher = FileSystems.getDefault().newWatchService();
@@ -86,6 +93,13 @@ public class Event implements Runnable {
 	@Override
 	public void run() {
 		try {
+
+			// Store the last logged directory to avoid contiguous log entries
+			// for the same directory
+			Path lastDir = null;
+			long lastTime = System.currentTimeMillis();
+
+			// Infinite loop.
 			for (;;) {
 				WatchKey key = watcher.take();
 				Path dir = keys.get(key);
@@ -100,11 +114,20 @@ public class Event implements Runnable {
 							continue;
 
 						Path child = dir.resolve(file);
+						// If this is a new directory, we have to register it
 						if (Files.isDirectory(child, LinkOption.NOFOLLOW_LINKS))
 							if (kind == StandardWatchEventKinds.ENTRY_CREATE)
 								new Register(child);
 					}
-					log.info(dir.toAbsolutePath());
+					Path newDir = dir.toAbsolutePath();
+					long newTime = System.currentTimeMillis();
+					long elapsedTime = newTime - lastTime;
+					// Logged if it is not already been logged since 10 seconds
+					if (elapsedTime > 10000
+							|| (lastDir != null && !lastDir.equals(newDir))) {
+						log.info(newDir);
+						lastDir = newDir;
+					}
 				}
 				if (!key.reset()) {
 					keys.remove(key);
