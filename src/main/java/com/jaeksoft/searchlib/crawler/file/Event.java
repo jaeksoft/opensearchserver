@@ -38,9 +38,13 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
+import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class Event implements Runnable {
 
@@ -50,6 +54,46 @@ public class Event implements Runnable {
 	private final WatchService watcher;
 
 	private final HashMap<WatchKey, Path> keys;
+
+	private class PathFifoMap {
+
+		private final ReadWriteLock rwl;
+		private final LinkedHashMap<Path, Long> hashMap;
+
+		private PathFifoMap() {
+			rwl = new ReadWriteLock();
+			hashMap = new LinkedHashMap<Path, Long>() {
+
+				private static final long serialVersionUID = 2288939087853531613L;
+
+				@Override
+				protected boolean removeEldestEntry(Map.Entry<Path, Long> eldest) {
+					long t = System.currentTimeMillis();
+					return t - t % 60000 != eldest.getValue();
+				}
+			};
+		}
+
+		public Long get(Path dirPath) {
+			rwl.r.lock();
+			try {
+				return hashMap.get(dirPath);
+			} finally {
+				rwl.r.unlock();
+			}
+		}
+
+		public void put(Path dirPath, long now) {
+			rwl.w.lock();
+			try {
+				hashMap.put(dirPath, now);
+			} finally {
+				rwl.w.unlock();
+			}
+		}
+	}
+
+	private final PathFifoMap history;
 
 	/**
 	 * An Event class is running thread listening for events in the file system.
@@ -62,6 +106,7 @@ public class Event implements Runnable {
 		rootPath = FileSystems.getDefault().getPath(filePath);
 		watcher = FileSystems.getDefault().newWatchService();
 		keys = new HashMap<WatchKey, Path>();
+		history = new PathFifoMap();
 		new Register(rootPath);
 		System.out.println("Watch " + rootPath + " " + keys.size());
 		new Thread(this).start();
@@ -94,16 +139,12 @@ public class Event implements Runnable {
 	public void run() {
 		try {
 
-			// Store the last logged directory to avoid contiguous log entries
-			// for the same directory
-			Path lastDir = null;
-			long lastTime = System.currentTimeMillis();
-
 			// Infinite loop.
 			for (;;) {
 				WatchKey key = watcher.take();
 				Path dir = keys.get(key);
 				if (dir != null) {
+
 					for (WatchEvent<?> watchEvent : key.pollEvents()) {
 						Kind<?> kind = watchEvent.kind();
 						if (kind == StandardWatchEventKinds.OVERFLOW)
@@ -119,14 +160,15 @@ public class Event implements Runnable {
 							if (kind == StandardWatchEventKinds.ENTRY_CREATE)
 								new Register(child);
 					}
-					Path newDir = dir.toAbsolutePath();
-					long newTime = System.currentTimeMillis();
-					long elapsedTime = newTime - lastTime;
-					// Logged if it is not already been logged since 10 seconds
-					if (elapsedTime > 10000
-							|| (lastDir != null && !lastDir.equals(newDir))) {
-						log.info(newDir);
-						lastDir = newDir;
+
+					long t = System.currentTimeMillis();
+					long now = t - t % 60000;
+
+					Path dirPath = dir.toAbsolutePath();
+					Long time = history.get(dirPath);
+					if (time == null || time != now) {
+						log.info(dirPath);
+						history.put(dirPath, now);
 					}
 				}
 				if (!key.reset()) {
