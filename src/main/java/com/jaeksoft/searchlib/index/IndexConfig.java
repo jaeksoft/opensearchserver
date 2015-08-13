@@ -167,6 +167,10 @@ public class IndexConfig {
 		return list;
 	}
 
+	public boolean isIndexMulti(String index) {
+		return indexSet != null && indexSet.contains(index);
+	}
+
 	/**
 	 * @return the searchCache
 	 */

@@ -30,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -48,6 +50,7 @@ import org.zkoss.zk.ui.WebApp;
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
+import com.jaeksoft.searchlib.index.IndexConfig;
 import com.jaeksoft.searchlib.ocr.OcrManager;
 import com.jaeksoft.searchlib.renderer.RendererResults;
 import com.jaeksoft.searchlib.replication.ReplicationMerge;
@@ -147,6 +150,23 @@ public class ClientCatalog {
 			return client;
 		} finally {
 			clientsLock.w.unlock();
+		}
+	}
+
+	private static List<Client> findDepends(String indexName) {
+		clientsLock.r.lock();
+		try {
+			ArrayList<Client> list = new ArrayList<Client>();
+			for (Client client : CLIENTS.values()) {
+				IndexConfig indexConfig = client.getIndex().getIndexConfig();
+				if (indexConfig.isMulti())
+					if (indexConfig.isIndexMulti(indexName)) {
+						list.add(client);
+					}
+			}
+			return list;
+		} finally {
+			clientsLock.r.unlock();
 		}
 	}
 
@@ -522,6 +542,20 @@ public class ClientCatalog {
 		}
 	}
 
+	private static void lockClients(List<Client> clients) {
+		if (clients == null)
+			return;
+		for (Client client : clients)
+			lockClientDir(client.getDirectory());
+	}
+
+	private static void closeClients(List<Client> clients) {
+		if (clients == null)
+			return;
+		for (Client client : clients)
+			client.close();
+	}
+
 	private static void unlockClientDir(File clientDir, Client newClient) {
 		clientsLock.w.lock();
 		try {
@@ -533,6 +567,13 @@ public class ClientCatalog {
 		}
 	}
 
+	private static void unlockClients(List<Client> clients) {
+		if (clients == null)
+			return;
+		for (Client client : clients)
+			unlockClientDir(client.getDirectory(), null);
+	}
+
 	public static void receive_switch(WebApp webapp, Client client)
 			throws SearchLibException, NamingException, IOException {
 		File trashDir = getTrashReceiveDir(client);
@@ -540,23 +581,32 @@ public class ClientCatalog {
 		if (trashDir.exists())
 			FileUtils.deleteDirectory(trashDir);
 		Client newClient = null;
+		List<Client> clientDepends = findDepends(client.getIndexName());
 		lockClientDir(clientDir);
 		try {
-			client.trash(trashDir);
-			getTempReceiveDir(client).renameTo(clientDir);
-			File pathToMoveFile = new File(clientDir, PATH_TO_MOVE);
-			if (pathToMoveFile.exists()) {
-				for (String pathToMove : FileUtils.readLines(pathToMoveFile)) {
-					File from = new File(trashDir, pathToMove);
-					File to = new File(clientDir, pathToMove);
-					FileUtils.moveFile(from, to);
+			lockClients(clientDepends);
+			closeClients(clientDepends);
+			try {
+				client.trash(trashDir);
+				getTempReceiveDir(client).renameTo(clientDir);
+				File pathToMoveFile = new File(clientDir, PATH_TO_MOVE);
+				if (pathToMoveFile.exists()) {
+					for (String pathToMove : FileUtils
+							.readLines(pathToMoveFile)) {
+						File from = new File(trashDir, pathToMove);
+						File to = new File(clientDir, pathToMove);
+						FileUtils.moveFile(from, to);
+					}
+					if (!pathToMoveFile.delete())
+						throw new IOException("Unable to delete the file: "
+								+ pathToMoveFile.getAbsolutePath());
 				}
-				if (!pathToMoveFile.delete())
-					throw new IOException("Unable to delete the file: "
-							+ pathToMoveFile.getAbsolutePath());
+				newClient = ClientFactory.INSTANCE.newClient(clientDir, true,
+						true);
+				newClient.writeReplCheck();
+			} finally {
+				unlockClients(clientDepends);
 			}
-			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
-			newClient.writeReplCheck();
 		} finally {
 			unlockClientDir(clientDir, newClient);
 		}

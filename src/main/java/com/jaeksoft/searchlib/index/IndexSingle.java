@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,6 +69,7 @@ public class IndexSingle extends IndexAbstract {
 
 	final private IndexDirectory indexDirectory;
 
+	private List<ReaderLocal> readerDepends;
 	private final ReaderLocal reader;
 	private final WriterInterface writer;
 
@@ -78,7 +80,7 @@ public class IndexSingle extends IndexAbstract {
 			SearchLibException, JSONException {
 		super(indexConfig);
 		this.online = true;
-
+		this.readerDepends = null;
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
 		if (!indexDir.exists()) {
@@ -100,8 +102,9 @@ public class IndexSingle extends IndexAbstract {
 			writer = new WriterLocal(indexConfig, this, indexDirectory);
 			if (bCreate)
 				((WriterLocal) writer).create();
-		} else
+		} else {
 			writer = null;
+		}
 		reader = new ReaderLocal(indexConfig, indexDirectory, true);
 	}
 
