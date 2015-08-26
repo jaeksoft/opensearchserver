@@ -21,6 +21,7 @@
 			<field name="uri" indexed="yes" stored="yes" termVector="no" />
 			<field name="repository" indexed="yes" stored="no" termVector="no" />
 			<field name="directory" indexed="yes" stored="no" termVector="no" />
+			<field name="host" indexed="yes" stored="no" termVector="no" />
 			<field name="subDirectory" indexed="yes" stored="no"
 				termVector="no" />
 			<field name="lang" indexed="yes" stored="no" termVector="no" />
@@ -51,7 +52,7 @@
 			rows="0">
 			<query>$$</query>
 			<returnFields>
-				uri,repository,directory,subDirectory, lang,langMethod,
+				uri,repository,directory,subDirectory,host,lang,langMethod,
 				parserStatus,fetchStatus,indexStatus,fileSystemDate,
 				crawlDate,fileName,fileSize,fileExtension,fileType,
 				md5size,parser,time

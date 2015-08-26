@@ -74,6 +74,7 @@ public class FileItem extends FileInfo {
 
 	private String repository;
 	private String directory;
+	private String host;
 	private List<String> subDirectory;
 	private String lang;
 	private String langMethod;
@@ -117,6 +118,8 @@ public class FileItem extends FileInfo {
 				FileItemFieldEnum.INSTANCE.repository.getName(), 0));
 		setDirectory(doc.getValueContent(
 				FileItemFieldEnum.INSTANCE.directory.getName(), 0));
+		setHost(doc.getValueContent(FileItemFieldEnum.INSTANCE.host.getName(),
+				0));
 		setSubDirectory(FieldValueItem.buildArrayList(doc
 				.getValues(FileItemFieldEnum.INSTANCE.subDirectory.getName())));
 
@@ -151,6 +154,7 @@ public class FileItem extends FileInfo {
 	public FileItem(FileInstanceAbstract fileInstance)
 			throws SearchLibException {
 		super(fileInstance);
+		setHost(fileInstance.getFilePathItem().getHost());
 		setRepository(fileInstance.getFilePathItem().toString());
 		FileInstanceAbstract parentFileInstance = fileInstance.getParent();
 		if (parentFileInstance != null)
@@ -236,6 +240,10 @@ public class FileItem extends FileInfo {
 		if (directory != null)
 			indexDocument.setString(
 					FileItemFieldEnum.INSTANCE.directory.getName(), directory);
+
+		if (host != null)
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.host.getName(),
+					host);
 
 		indexDocument.setStringList(
 				FileItemFieldEnum.INSTANCE.subDirectory.getName(),
@@ -414,6 +422,21 @@ public class FileItem extends FileInfo {
 		} catch (ParseException e) {
 			Logging.warn(e.getMessage());
 		}
+	}
+
+	/**
+	 * @return the host
+	 */
+	public String getHost() {
+		return host;
+	}
+
+	/**
+	 * @param host
+	 *            the host to set
+	 */
+	public void setHost(String host) {
+		this.host = host;
 	}
 
 }
