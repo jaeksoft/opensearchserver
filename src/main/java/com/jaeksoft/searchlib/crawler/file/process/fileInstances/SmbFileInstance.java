@@ -270,7 +270,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		if (aces == null)
 			return;
 		for (ACE ace : aces) {
-			if ((ace.getAccessMask() & ACE.FILE_READ_DATA) == 0)
+			if ((ace.getAccessMask() & ACE.GENERIC_READ) == 0)
 				continue;
 			SID sid = ace.getSID();
 			SecurityAccess access = new SecurityAccess();
