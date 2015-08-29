@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -403,7 +402,8 @@ public class PdfParser extends Parser {
 		Iterator<?> iter = pages.iterator();
 		int currentPage = 0;
 		AtomicInteger emptyPageImages = new AtomicInteger(0);
-		ExecutorService executorService = Executors.newFixedThreadPool(8);
+
+		ExecutorService executorService = config.getThreadPool();
 		List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
 		while (iter.hasNext()) {
 			PDPage page = (PDPage) iter.next();
