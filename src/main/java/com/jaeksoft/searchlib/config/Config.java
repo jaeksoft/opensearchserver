@@ -503,7 +503,8 @@ public abstract class Config implements ThreadFactory {
 			if (threadGroup == null)
 				threadGroup = new ThreadGroup(ClientCatalog.getThreadGroup(),
 						getIndexName());
-			threadPool = Executors.newCachedThreadPool(this);
+			threadPool = Executors.newFixedThreadPool(Runtime.getRuntime()
+					.availableProcessors(), this);
 			return threadPool;
 		} finally {
 			threadPoolLock.w.unlock();
