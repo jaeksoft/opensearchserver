@@ -403,15 +403,19 @@ public class PdfParser extends Parser {
 		int currentPage = 0;
 		AtomicInteger emptyPageImages = new AtomicInteger(0);
 
-		ExecutorService executorService = config.getThreadPool();
-		List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
-		while (iter.hasNext()) {
-			PDPage page = (PDPage) iter.next();
-			ImageOcrCallable callable = new ImageOcrCallable(context, page,
-					++currentPage, emptyPageImages);
-			futures.add(executorService.submit(callable));
+		ExecutorService executorService = context.ocr.getFixedPool();
+		try {
+			List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
+			while (iter.hasNext()) {
+				PDPage page = (PDPage) iter.next();
+				ImageOcrCallable callable = new ImageOcrCallable(context, page,
+						++currentPage, emptyPageImages);
+				futures.add(executorService.submit(callable));
+			}
+			ThreadUtils.<Boolean> done(futures);
+		} finally {
+			executorService.shutdown();
 		}
-		ThreadUtils.<Boolean> done(futures);
 
 		if (currentPage > 0 && emptyPageImages.get() == currentPage)
 			throw new SearchLibException("All pages are blank " + currentPage);

@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -71,6 +73,8 @@ public class OcrManager implements Closeable {
 
 	private File propFile;
 
+	private final ExecutorService executorService;
+
 	private OcrManager(File dataDir) throws InvalidPropertiesFormatException,
 			IOException, InstantiationException, IllegalAccessException {
 		propFile = new File(dataDir, OCR_PROPERTY_FILE);
@@ -84,6 +88,8 @@ public class OcrManager implements Closeable {
 		hocrFileExtension = properties.getProperty(
 				OCR_PROPERTY_HOCR_FILE_EXTENSION, "hocr");
 		setEnabled(enabled);
+		executorService = Executors.newFixedThreadPool(Runtime.getRuntime()
+				.availableProcessors());
 	}
 
 	private static OcrManager INSTANCE = null;
@@ -350,4 +356,7 @@ public class OcrManager implements Closeable {
 		}
 	}
 
+	public ExecutorService getFixedPool() {
+		return executorService;
+	}
 }
