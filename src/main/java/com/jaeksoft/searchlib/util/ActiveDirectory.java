@@ -147,7 +147,8 @@ public class ActiveDirectory implements Closeable {
 			throws NamingException {
 		String filter = StringUtils.fastConcat(
 				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
-		NamingEnumeration<SearchResult> results = find(filter, ATTR_DN);
+		NamingEnumeration<SearchResult> results = find(filter, ATTR_OBJECTSID,
+				ATTR_DN);
 		while (results.hasMore()) {
 			SearchResult searchResult = results.next();
 			Attributes groupAttrs = searchResult.getAttributes();
