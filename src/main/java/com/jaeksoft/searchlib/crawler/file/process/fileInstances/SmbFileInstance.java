@@ -273,21 +273,28 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			if ((ace.getAccessMask() & ACE.FILE_READ_DATA) == 0)
 				continue;
 			SID sid = ace.getSID();
-			SecurityAccess access = new SecurityAccess();
-			access.setId(sid.toDisplayString().toLowerCase());
-			if (ace.isAllow())
-				access.setGrant(SecurityAccess.Grant.ALLOW);
-			else
-				access.setGrant(SecurityAccess.Grant.DENY);
+			SecurityAccess accessName = new SecurityAccess();
+			SecurityAccess accessSid = new SecurityAccess();
+			accessName.setId(sid.toDisplayString().toLowerCase());
+			accessSid.setId(sid.toString());
+			if (ace.isAllow()) {
+				accessName.setGrant(SecurityAccess.Grant.ALLOW);
+				accessSid.setGrant(SecurityAccess.Grant.ALLOW);
+			} else {
+				accessName.setGrant(SecurityAccess.Grant.DENY);
+				accessSid.setGrant(SecurityAccess.Grant.DENY);
+			}
 			switch (sid.getType()) {
 			case SID.SID_TYPE_USER:
-				access.setType(SecurityAccess.Type.USER);
+				accessName.setType(SecurityAccess.Type.USER);
+				accessSid.setType(SecurityAccess.Type.USER);
 				break;
 			case SID.SID_TYPE_DOM_GRP:
 			case SID.SID_TYPE_DOMAIN:
 			case SID.SID_TYPE_ALIAS:
 			case SID.SID_TYPE_WKN_GRP:
-				access.setType(SecurityAccess.Type.GROUP);
+				accessName.setType(SecurityAccess.Type.GROUP);
+				accessSid.setType(SecurityAccess.Type.GROUP);
 				break;
 			case SID.SID_TYPE_DELETED:
 			case SID.SID_TYPE_INVALID:
@@ -295,7 +302,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			case SID.SID_TYPE_USE_NONE:
 				break;
 			}
-			accesses.add(access);
+			accesses.add(accessName);
+			accesses.add(accessSid);
 		}
 	}
 

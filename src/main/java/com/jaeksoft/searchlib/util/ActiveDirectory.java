@@ -152,8 +152,8 @@ public class ActiveDirectory implements Closeable {
 			SearchResult searchResult = results.next();
 			Attributes groupAttrs = searchResult.getAttributes();
 			Logging.info("ATTRS: " + groupAttrs.toString());
-			ADGroup adGroup = new ADGroup(getStringAttribute(groupAttrs,
-					ATTR_DN));
+			ADGroup adGroup = new ADGroup(getObjectSID(groupAttrs),
+					getStringAttribute(groupAttrs, ATTR_DN));
 			collector.add(adGroup);
 		}
 	}
@@ -194,18 +194,20 @@ public class ActiveDirectory implements Closeable {
 		NamingEnumeration<?> membersOf = tga.getAll();
 		while (membersOf.hasMore()) {
 			Object memberObject = membersOf.next();
-			groups.add(new ADGroup(memberObject.toString()));
+			groups.add(new ADGroup(getObjectSID(attrs), memberObject.toString()));
 		}
 		membersOf.close();
 	}
 
 	public static class ADGroup {
 
+		public final String sid;
 		public final String cn1;
 		public final String cn2;
 		public final String dc;
 
-		private ADGroup(final String memberOf) {
+		private ADGroup(final String sid, final String memberOf) {
+			this.sid = sid;
 			String[] parts = StringUtils.split(memberOf, ',');
 			String lcn1 = null;
 			String lcn2 = null;
@@ -238,6 +240,7 @@ public class ActiveDirectory implements Closeable {
 			else
 				groupSet.add(StringUtils.fastConcat(group.dc, '\\', group.cn1)
 						.toLowerCase());
+			groupSet.add(group.sid);
 		}
 		if (additionalGroups != null)
 			for (String additionalGroup : additionalGroups)
@@ -249,6 +252,7 @@ public class ActiveDirectory implements Closeable {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
 		System.out
 				.println(new ADGroup(
+						null,
 						"CN=GG-TEST-TEST-TEST,OU=Groupes Ressource,OU=Groupes,OU=DSCP,DC=sp,DC=pn,DC=int"));
 	}
 
