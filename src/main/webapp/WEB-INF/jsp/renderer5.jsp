@@ -20,6 +20,9 @@
 <script type="text/javascript" src="js/opensearchserver.js"
 	charset="UTF-8"></script>
 <script src="js/jquery-1.11.1.min.js"></script>
+<style type="text/css">
+<%=renderer.getCss()%>
+</style>
 </head>
 <body>
 	<div class="container">
