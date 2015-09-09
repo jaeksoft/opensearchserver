@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance.SmbSecurityPermissions;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
@@ -53,6 +54,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * For CIFS/SMB
 	 */
 	private String domain;
+	private SmbSecurityPermissions smbSecurityPermissions;
 
 	/**
 	 * For SWIFT
@@ -85,6 +87,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		enabled = false;
 		ignoreHiddenFiles = false;
 		delay = 0;
+		smbSecurityPermissions = null;
 		swiftAuthType = null;
 		swiftTenant = null;
 		swiftAuthURL = null;
@@ -103,6 +106,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.host = host;
 		destFilePath.path = path;
 		destFilePath.domain = domain;
+		destFilePath.smbSecurityPermissions = smbSecurityPermissions;
 		destFilePath.username = username;
 		destFilePath.password = password;
 		destFilePath.enabled = enabled;
@@ -159,6 +163,22 @@ public class FilePathItem implements Comparable<FilePathItem> {
 			if (domain.length() == 0)
 				domain = null;
 		this.domain = domain;
+	}
+
+	/**
+	 * @return the smbSecurityPermissions
+	 */
+	public SmbSecurityPermissions getSmbSecurityPermissions() {
+		return smbSecurityPermissions;
+	}
+
+	/**
+	 * @param smbSecurityPermissions
+	 *            the smbSecurityPermissions to set
+	 */
+	public void setSmbSecurityPermissions(
+			SmbSecurityPermissions smbSecurityPermissions) {
+		this.smbSecurityPermissions = smbSecurityPermissions;
 	}
 
 	/**
@@ -265,6 +285,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (type != null)
 			filePathItem.setType(FileInstanceType.findByName(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
+		filePathItem
+				.setSmbSecurityPermissions(SmbSecurityPermissions.find(DomUtils
+						.getAttributeText(node, "smbSecurityPermissions")));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
 		if (password != null)
@@ -307,7 +330,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	public void writeXml(XmlWriter xmlWriter, String nodeName)
 			throws SAXException, UnsupportedEncodingException {
 		xmlWriter.startElement(nodeName, "type", type.getName(), "domain",
-				domain, "username", username, "password",
+				domain, "smbSecurityPermissions",
+				smbSecurityPermissions != null ? smbSecurityPermissions.name()
+						: null, "username", username, "password",
 				password == null ? null : StringUtils.base64encode(password),
 				"host", host, "withSub", withSub ? "yes" : "no",
 				"ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no",

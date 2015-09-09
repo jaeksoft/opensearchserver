@@ -44,6 +44,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FileInstanceType;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.DropboxFileInstance;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance.SmbSecurityPermissions;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
@@ -199,6 +200,12 @@ public class FilePathEditController extends FileCrawlerController {
 		return "swift".equals(currentFilePath.getType().getScheme());
 	}
 
+	public boolean isSmbFileType() {
+		if (currentFilePath == null)
+			return false;
+		return "smb".equals(currentFilePath.getType().getScheme());
+	}
+
 	public boolean isFtpFileType() {
 		if (currentFilePath == null)
 			return false;
@@ -212,6 +219,10 @@ public class FilePathEditController extends FileCrawlerController {
 
 	public AuthType[] getSwiftAuthTypes() {
 		return AuthType.values();
+	}
+
+	public SmbSecurityPermissions[] getSmbSecurityPermissions() {
+		return SmbSecurityPermissions.values();
 	}
 
 	public boolean isDomain() {

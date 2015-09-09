@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -64,6 +64,16 @@
 						<label value="Domain: " />
 						<textbox
 							value="@bind(filepathedit.currentFilePath.domain)" cols="50" />
+					</row>
+					<row visible="@load(filepathedit.smbFileType)">
+						<label value="Security permissions: " />
+						<listbox
+							model="@load(filepathedit.smbSecurityPermissions)" mold="select"
+							selectedItem="@bind(filepathedit.currentFilePath.smbSecurityPermissions)">
+							<template name="model">
+								<listitem label="@load(each.label)" />
+							</template>
+						</listbox>
 					</row>
 					<row
 						visible="@load(filepathedit.notLocalFileType)">
