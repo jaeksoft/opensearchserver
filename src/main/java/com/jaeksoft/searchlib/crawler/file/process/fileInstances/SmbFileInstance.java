@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -62,6 +62,32 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 			System.setProperty("java.protocol.handler.pkgs", "jcifs");
 		if (StringUtils.isEmpty("jicfs.resolveOrder"))
 			System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
+	}
+
+	public static enum SmbSecurityPermissions {
+
+		SHARE_PERMISSIONS("Share permissions"),
+
+		FILE_PERMISSIONS("File permissions"),
+
+		FILE_SHARE_PERMISSIONS("File & share permissions");
+
+		private final String label;
+
+		private SmbSecurityPermissions(String label) {
+			this.label = label;
+		}
+
+		public static SmbSecurityPermissions find(String type) {
+			for (SmbSecurityPermissions securityPermission : values())
+				if (securityPermission.name().equalsIgnoreCase(type))
+					return securityPermission;
+			return null;
+		}
+
+		public String getLabel() {
+			return label;
+		}
 	}
 
 	private SmbFile smbFileStore;
@@ -311,8 +337,22 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	public List<SecurityAccess> getSecurity() throws IOException {
 		SmbFile smbFile = getSmbFile();
 		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
-		fillSecurity(getSecurity(smbFile), accesses);
-		fillSecurity(getShareSecurity(smbFile), accesses);
+		SmbSecurityPermissions smbSecurityPermissions = filePathItem
+				.getSmbSecurityPermissions();
+		if (smbSecurityPermissions == null)
+			smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
+		switch (smbSecurityPermissions) {
+		case FILE_PERMISSIONS:
+			fillSecurity(getSecurity(smbFile), accesses);
+			break;
+		case SHARE_PERMISSIONS:
+			fillSecurity(getShareSecurity(smbFile), accesses);
+			break;
+		case FILE_SHARE_PERMISSIONS:
+			fillSecurity(getSecurity(smbFile), accesses);
+			fillSecurity(getShareSecurity(smbFile), accesses);
+			break;
+		}
 		return accesses.isEmpty() ? null : accesses;
 	}
 }
