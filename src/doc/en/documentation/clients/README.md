@@ -1,5 +1,7 @@
 ## Clients libraries
 
+* JAVA
+	* [oss-java-client](https://github.com/jaeksoft/oss-java-client)
 * PHP
 	* [PHP Client - current version](https://github.com/jaeksoft/opensearchserver-php-client)
 	* [Documentation for the previous version](php_client/README.md)
