@@ -36,14 +36,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.jaeksoft.pojodbc.Query;
+import com.jaeksoft.pojodbc.Transaction;
+import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.opensearchserver.pojodbc.Query;
-import com.opensearchserver.pojodbc.Transaction;
-import com.opensearchserver.pojodbc.connection.JDBCConnection;
 
 public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
@@ -84,8 +84,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
 	private int fetchSize;
 
-	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
-			DatabasePropertyManager propertyManager, String name) {
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager, String name) {
 		super(crawlMaster, propertyManager, name);
 		driverClass = null;
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
@@ -104,8 +103,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		sqlUpdate = variables.replace(sqlUpdate);
 	}
 
-	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
-			DatabasePropertyManager propertyManager) {
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager) {
 		this(crawlMaster, propertyManager, null);
 	}
 
@@ -221,46 +219,36 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	protected final static String DBCRAWL_NODE_NAME_SQL_UPDATE = "sqlUpdate";
 	protected final static String DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE = "mode";
 
-	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster,
-			DatabasePropertyManager propertyManager, XPathParser xpp, Node item)
-			throws XPathExpressionException {
+	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager, XPathParser xpp,
+			Node item) throws XPathExpressionException {
 		super(crawlMaster, propertyManager, xpp, item);
-		setDriverClass(XPathParser.getAttributeString(item,
-				DBCRAWL_ATTR_DRIVER_CLASS));
-		setIsolationLevel(IsolationLevelEnum.find(XPathParser
-				.getAttributeString(item, DBCRAWL_ATTR_ISOLATION_LEVEL)));
-		setPrimaryKey(XPathParser.getAttributeString(item,
-				DBCRAWL_ATTR_PRIMARY_KEY));
-		setUniqueKeyDeleteField(XPathParser.getAttributeString(item,
-				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD));
-		setBufferSize(XPathParser.getAttributeValue(item,
-				DBCRAWL_ATTR_BUFFER_SIZE));
-		setFetchSize(DomUtils.getAttributeInteger(item,
-				DBCRAWL_ATTR_FETCH_SIZE, 50));
+		setDriverClass(XPathParser.getAttributeString(item, DBCRAWL_ATTR_DRIVER_CLASS));
+		setIsolationLevel(IsolationLevelEnum.find(XPathParser.getAttributeString(item, DBCRAWL_ATTR_ISOLATION_LEVEL)));
+		setPrimaryKey(XPathParser.getAttributeString(item, DBCRAWL_ATTR_PRIMARY_KEY));
+		setUniqueKeyDeleteField(XPathParser.getAttributeString(item, DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD));
+		setBufferSize(XPathParser.getAttributeValue(item, DBCRAWL_ATTR_BUFFER_SIZE));
+		setFetchSize(DomUtils.getAttributeInteger(item, DBCRAWL_ATTR_FETCH_SIZE, 50));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_SELECT);
 		if (sqlNode != null)
 			setSqlSelect(xpp.getNodeString(sqlNode, true));
 		sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_SQL_UPDATE);
 		if (sqlNode != null) {
 			setSqlUpdate(xpp.getNodeString(sqlNode, true));
-			setSqlUpdateMode(SqlUpdateMode.find(DomUtils.getAttributeText(
-					sqlNode, DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
+			setSqlUpdateMode(
+					SqlUpdateMode.find(DomUtils.getAttributeText(sqlNode, DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE)));
 		}
 	}
 
 	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
-				DBCRAWL_ATTR_TYPE, getType().name(), DBCRAWL_ATTR_DRIVER_CLASS,
-				getDriverClass(), DBCRAWL_ATTR_ISOLATION_LEVEL,
-				isolationLevel != null ? isolationLevel.name() : null,
-				DBCRAWL_ATTR_USER, getUser(), DBCRAWL_ATTR_PASSWORD,
-				getPassword(), DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG,
-				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey,
-				DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD, uniqueKeyDeleteField,
-				DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()),
-				DBCRAWL_ATTR_FETCH_SIZE, Integer.toString(getFetchSize()),
-				DBCRAWL_ATTR_MSSLEEP, Integer.toString(getMsSleep()));
+		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(), DBCRAWL_ATTR_TYPE, getType().name(),
+				DBCRAWL_ATTR_DRIVER_CLASS, getDriverClass(), DBCRAWL_ATTR_ISOLATION_LEVEL,
+				isolationLevel != null ? isolationLevel.name() : null, DBCRAWL_ATTR_USER, getUser(),
+				DBCRAWL_ATTR_PASSWORD, getPassword(), DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG,
+				getLang().getCode(), DBCRAWL_ATTR_PRIMARY_KEY, primaryKey, DBCRAWL_ATTR_UNIQUE_KEY_DELETE_FIELD,
+				uniqueKeyDeleteField, DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()),
+				DBCRAWL_ATTR_FETCH_SIZE, Integer.toString(getFetchSize()), DBCRAWL_ATTR_MSSLEEP,
+				Integer.toString(getMsSleep()));
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
@@ -270,8 +258,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		xmlWriter.endElement();
 		// SQL Update Node
 		if (!StringUtils.isEmpty(sqlUpdate)) {
-			xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE,
-					DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE,
+			xmlWriter.startElement(DBCRAWL_NODE_NAME_SQL_UPDATE, DBCRAWL_ATTR__NAME_SQL_UPDATE_MODE,
 					sqlUpdateMode == null ? null : sqlUpdateMode.name());
 			xmlWriter.textNode(getSqlUpdate());
 			xmlWriter.endElement();
@@ -324,8 +311,8 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		this.fetchSize = fetchSize;
 	}
 
-	public JDBCConnection getNewJdbcConnection() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	public JDBCConnection getNewJdbcConnection()
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		JDBCConnection jdbcCnx = new JDBCConnection();
 		jdbcCnx.setDriver(driverClass);
 		jdbcCnx.setUrl(getUrl());
@@ -338,14 +325,12 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 		return jdbcCnx;
 	}
 
-	public Transaction getNewTransaction(JDBCConnection jdbcCnx)
-			throws SQLException {
+	public Transaction getNewTransaction(JDBCConnection jdbcCnx) throws SQLException {
 		return jdbcCnx.getNewTransaction(false, isolationLevel.value);
 	}
 
 	@Override
-	public String test() throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException {
+	public String test() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
 		JDBCConnection jdbcCnx = getNewJdbcConnection();
 		Transaction transaction = null;
 		StringWriter sw = null;
@@ -354,8 +339,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 			sw = new StringWriter();
 			pw = new PrintWriter(sw);
 			transaction = getNewTransaction(jdbcCnx);
-			Query query = transaction.prepare(sqlSelect,
-					ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			Query query = transaction.prepare(sqlSelect, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			query.getStatement().setFetchSize(getFetchSize());
 			ResultSet resultSet = query.getResultSet();
 			ResultSetMetaData metaData = resultSet.getMetaData();
