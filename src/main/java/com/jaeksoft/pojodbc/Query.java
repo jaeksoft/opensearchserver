@@ -240,7 +240,7 @@ public class Query {
 	 * @param beanClass
 	 *            The class name of POJO returned in the list
 	 * @return a list of POJO
-	 * @throws SQLException
+	 * @throws Exception
 	 *             if any JDBC error occurs
 	 */
 	public <T> List<T> getResultList(Class<T> beanClass) throws Exception {
