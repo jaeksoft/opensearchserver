@@ -26,7 +26,10 @@ package com.jaeksoft.searchlib.crawler.file.process;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
+
+import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,12 +42,12 @@ import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
 import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 
-public class CrawlFileMaster extends
-		CrawlMasterAbstract<CrawlFileMaster, CrawlFileThread> {
+public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlFileThread> {
 
 	private FileCrawlQueue fileCrawlQueue;
 
@@ -52,13 +55,11 @@ public class CrawlFileMaster extends
 
 	public CrawlFileMaster(Config config) throws SearchLibException {
 		super(config);
-		FilePropertyManager filePropertyManager = config
-				.getFilePropertyManager();
+		FilePropertyManager filePropertyManager = config.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config);
 		filePathList = new LinkedList<FilePathItem>();
 		if (filePropertyManager.getCrawlEnabled().getValue()) {
-			Logging.info("The file crawler is starting for "
-					+ config.getIndexName());
+			Logging.info("The file crawler is starting for " + config.getIndexName());
 			start(false);
 		}
 	}
@@ -67,8 +68,7 @@ public class CrawlFileMaster extends
 	public void runner() throws Exception {
 		Config config = getConfig();
 		FilePropertyManager propertyManager = config.getFilePropertyManager();
-		fileCrawlQueue.setMaxBufferSize(propertyManager
-				.getIndexDocumentBufferSize().getValue());
+		fileCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());
 
 		while (!isAborted()) {
 
@@ -77,8 +77,7 @@ public class CrawlFileMaster extends
 			fileCrawlQueue.setStatistiques(currentStats);
 
 			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
-			String schedulerJobName = propertyManager
-					.getSchedulerAfterSession().getValue();
+			String schedulerJobName = propertyManager.getSchedulerAfterSession().getValue();
 
 			synchronized (filePathList) {
 				filePathList.clear();
@@ -92,8 +91,7 @@ public class CrawlFileMaster extends
 				if (filePathItem == null)
 					break;
 
-				CrawlFileThread crawlThread = new CrawlFileThread(config, this,
-						currentStats, filePathItem);
+				CrawlFileThread crawlThread = new CrawlFileThread(config, this, currentStats, filePathItem);
 				add(crawlThread);
 
 				while (getThreadsCount() >= threadNumber && !isAborted())
@@ -112,8 +110,7 @@ public class CrawlFileMaster extends
 
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
-				TaskManager.getInstance().executeJob(config.getIndexName(),
-						schedulerJobName);
+				TaskManager.getInstance().executeJob(config.getIndexName(), schedulerJobName);
 			}
 
 			if (isOnce())
@@ -124,10 +121,23 @@ public class CrawlFileMaster extends
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	private void extractFilePathList() throws IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, SearchLibException, InstantiationException,
-			IllegalAccessException {
+	public void crawlDirectory(FilePathItem filePathItem, String path)
+			throws SearchLibException, NoSuchAlgorithmException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, URISyntaxException, IOException, HttpException {
+		Config config = getConfig();
+		FilePropertyManager propertyManager = config.getFilePropertyManager();
+		fileCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());
+		CrawlFileThread crawlThread = new CrawlFileThread(getConfig(), this, null, filePathItem);
+		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(filePathItem, null, path);
+		if (fileInstance.getFileType() != FileTypeEnum.directory)
+			return;
+		crawlThread.browse(fileInstance, false);
+		fileCrawlQueue.index(true);
+	}
+
+	private void extractFilePathList()
+			throws IOException, ParseException, SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		Config config = getConfig();
 		setStatus(CrawlStatus.EXTRACTING_FILEPATHLIST);
 

@@ -53,8 +53,7 @@ public class FilePathManager {
 
 	private final File filePathFile;
 
-	public FilePathManager(Config config, File indexDir)
-			throws SearchLibException {
+	public FilePathManager(Config config, File indexDir) throws SearchLibException {
 		filePathFile = new File(indexDir, "filePaths.xml");
 		filePathMap = new TreeMap<FilePathItem, FilePathItem>();
 		try {
@@ -72,9 +71,8 @@ public class FilePathManager {
 		}
 	}
 
-	private void load(Config config) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			SearchLibException, URISyntaxException {
+	private void load(Config config) throws ParserConfigurationException, SAXException, IOException,
+			XPathExpressionException, SearchLibException, URISyntaxException {
 		if (!filePathFile.exists())
 			return;
 
@@ -89,8 +87,7 @@ public class FilePathManager {
 		addListWithoutStoreAndLock(filePathList, true);
 	}
 
-	private void store() throws IOException, TransformerConfigurationException,
-			SAXException {
+	private void store() throws IOException, TransformerConfigurationException, SAXException {
 		if (!filePathFile.exists())
 			filePathFile.createNewFile();
 		PrintWriter pw = new PrintWriter(filePathFile);
@@ -106,8 +103,8 @@ public class FilePathManager {
 		}
 	}
 
-	private void addListWithoutStoreAndLock(List<FilePathItem> filePathList,
-			boolean bDeleteAll) throws SearchLibException {
+	private void addListWithoutStoreAndLock(List<FilePathItem> filePathList, boolean bDeleteAll)
+			throws SearchLibException {
 		if (bDeleteAll)
 			filePathMap.clear();
 
@@ -115,8 +112,7 @@ public class FilePathManager {
 			addPathWithoutLock(item);
 	}
 
-	public void addList(List<FilePathItem> filePathList, boolean bDeleteAll)
-			throws SearchLibException {
+	public void addList(List<FilePathItem> filePathList, boolean bDeleteAll) throws SearchLibException {
 		rwl.w.lock();
 		try {
 			addListWithoutStoreAndLock(filePathList, bDeleteAll);
@@ -132,8 +128,7 @@ public class FilePathManager {
 		}
 	}
 
-	private void addPathWithoutLock(FilePathItem filePathItem)
-			throws SearchLibException {
+	private void addPathWithoutLock(FilePathItem filePathItem) throws SearchLibException {
 		if (filePathMap.containsKey(filePathItem))
 			throw new SearchLibException("This filePathItem already exists");
 		filePathMap.put(filePathItem, filePathItem);
@@ -155,8 +150,7 @@ public class FilePathManager {
 		}
 	}
 
-	public int getFilePaths(long start, long rows, List<FilePathItem> list)
-			throws SearchLibException {
+	public int getFilePaths(long start, long rows, List<FilePathItem> list) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			long end = start + rows;
@@ -248,8 +242,21 @@ public class FilePathManager {
 		rwl.r.lock();
 		try {
 			for (FilePathItem item : filePathMap.keySet())
-				if (item.getType().getScheme().equals(scheme)
-						&& item.getHost().equals(host))
+				if (item.getType().getScheme().equals(scheme) && item.getHost().equals(host))
+					return item;
+			return null;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	public FilePathItem find(String filePath) {
+		if (filePath == null)
+			return null;
+		rwl.r.lock();
+		try {
+			for (FilePathItem item : filePathMap.keySet())
+				if (filePath.equals(item.toString()))
 					return item;
 			return null;
 		} finally {

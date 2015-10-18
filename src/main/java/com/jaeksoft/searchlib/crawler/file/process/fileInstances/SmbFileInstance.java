@@ -34,14 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import jcifs.smb.ACE;
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SID;
-import jcifs.smb.SmbAuthException;
-import jcifs.smb.SmbException;
-import jcifs.smb.SmbFile;
-import jcifs.smb.SmbFileFilter;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
@@ -53,12 +45,18 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
-public class SmbFileInstance extends FileInstanceAbstract implements
-		SecurityInterface {
+import jcifs.smb.ACE;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SID;
+import jcifs.smb.SmbAuthException;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileFilter;
+
+public class SmbFileInstance extends FileInstanceAbstract implements SecurityInterface {
 
 	static {
-		if (StringUtils.isEmpty(System
-				.getProperty("java.protocol.handler.pkgs")))
+		if (StringUtils.isEmpty(System.getProperty("java.protocol.handler.pkgs")))
 			System.setProperty("java.protocol.handler.pkgs", "jcifs");
 		if (StringUtils.isEmpty("jicfs.resolveOrder"))
 			System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
@@ -96,11 +94,9 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		smbFileStore = null;
 	}
 
-	protected SmbFileInstance(FilePathItem filePathItem,
-			SmbFileInstance parent, SmbFile smbFile) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
-		init(filePathItem, parent,
-				LinkUtils.concatPath(parent.getPath(), smbFile.getName()));
+	protected SmbFileInstance(FilePathItem filePathItem, SmbFileInstance parent, SmbFile smbFile)
+			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+		init(filePathItem, parent, LinkUtils.concatPath(parent.getPath(), smbFile.getName()));
 		this.smbFileStore = smbFile;
 	}
 
@@ -112,19 +108,16 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	protected SmbFile getSmbFile() throws MalformedURLException {
 		if (smbFileStore != null)
 			return smbFileStore;
-		String context = StringUtils.fastConcat("smb://", getFilePathItem()
-				.getHost());
+		String context = StringUtils.fastConcat("smb://", getFilePathItem().getHost());
 		if (filePathItem.isGuest()) {
 			smbFileStore = new SmbFile(context, getPath());
 		} else {
-			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(
-					filePathItem.getDomain(), filePathItem.getUsername(),
-					filePathItem.getPassword());
+			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(filePathItem.getDomain(),
+					filePathItem.getUsername(), filePathItem.getPassword());
 			smbFileStore = new SmbFile(context, getPath(), auth);
 		}
 		if (Logging.isDebug)
-			Logging.debug("SMB Connect to (without auth) "
-					+ smbFileStore.getURL().toString());
+			Logging.debug("SMB Connect to (without auth) " + smbFileStore.getURL().toString());
 		return smbFileStore;
 	}
 
@@ -156,15 +149,13 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		}
 	}
 
-	protected SmbFileInstance newInstance(FilePathItem filePathItem,
-			SmbFileInstance parent, SmbFile smbFile) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	protected SmbFileInstance newInstance(FilePathItem filePathItem, SmbFileInstance parent, SmbFile smbFile)
+			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
 		return new SmbFileInstance(filePathItem, parent, smbFile);
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(SmbFile[] files)
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
+			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -176,12 +167,10 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 
 	@Override
 	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws SearchLibException, UnsupportedEncodingException,
-			URISyntaxException {
+			throws SearchLibException, UnsupportedEncodingException, URISyntaxException {
 		try {
 			SmbFile smbFile = getSmbFile();
-			SmbFile[] files = smbFile
-					.listFiles(new SmbInstanceFileFilter(false));
+			SmbFile[] files = smbFile.listFiles(new SmbInstanceFileFilter(false));
 			return buildFileInstanceArray(files);
 		} catch (SmbAuthException e) {
 			Logging.warn(e.getMessage() + " - " + getPath(), e);
@@ -221,12 +210,11 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws SearchLibException,
-			UnsupportedEncodingException, URISyntaxException {
+	public FileInstanceAbstract[] listFilesOnly()
+			throws SearchLibException, UnsupportedEncodingException, URISyntaxException {
 		try {
 			SmbFile smbFile = getSmbFile();
-			SmbFile[] files = smbFile
-					.listFiles(new SmbInstanceFileFilter(true));
+			SmbFile[] files = smbFile.listFiles(new SmbInstanceFileFilter(true));
 			return buildFileInstanceArray(files);
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
@@ -256,6 +244,11 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	}
 
 	@Override
+	public void delete() throws IOException {
+		getSmbFile().delete();
+	}
+
+	@Override
 	public InputStream getInputStream() throws IOException {
 		try {
 			SmbFile smbFile = getSmbFile();
@@ -278,8 +271,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 		}
 	}
 
-	public final static ACE[] getShareSecurity(SmbFile smbFile)
-			throws IOException {
+	public final static ACE[] getShareSecurity(SmbFile smbFile) throws IOException {
 		try {
 			return smbFile.getShareSecurity(false);
 		} catch (SmbAuthException e) {
@@ -337,8 +329,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements
 	public List<SecurityAccess> getSecurity() throws IOException {
 		SmbFile smbFile = getSmbFile();
 		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
-		SmbSecurityPermissions smbSecurityPermissions = filePathItem
-				.getSmbSecurityPermissions();
+		SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();
 		if (smbSecurityPermissions == null)
 			smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
 		switch (smbSecurityPermissions) {
