@@ -55,8 +55,7 @@ public class AnalyzerList {
 		nameListMap = new TreeMap<String, List<Analyzer>>();
 	}
 
-	final private static String getAnalyzerLangKey(String analyzerName,
-			LanguageEnum lang) {
+	final private static String getAnalyzerLangKey(String analyzerName, LanguageEnum lang) {
 		StringBuilder sb = new StringBuilder(analyzerName);
 		sb.append('_');
 		sb.append(lang.getCode());
@@ -71,12 +70,14 @@ public class AnalyzerList {
 	 * Update or create an analyzer
 	 * 
 	 * @param analyzer
+	 *            the analyzer to add
 	 * @return true if it has been created, false if it was an update
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	public boolean addOrUpdate(Analyzer analyzer)
-			throws ClassNotFoundException, SearchLibException {
+	public boolean addOrUpdate(Analyzer analyzer) throws ClassNotFoundException, SearchLibException {
 		rwl.w.lock();
 		try {
 			String langKey = getAnalyzerLangKey(analyzer);
@@ -163,9 +164,8 @@ public class AnalyzerList {
 		}
 	}
 
-	public static AnalyzerList fromXmlConfig(Config config, XPathParser xpp,
-			Node parentNode) throws XPathExpressionException,
-			SearchLibException, DOMException, ClassNotFoundException {
+	public static AnalyzerList fromXmlConfig(Config config, XPathParser xpp, Node parentNode)
+			throws XPathExpressionException, SearchLibException, DOMException, ClassNotFoundException {
 		AnalyzerList analyzers = new AnalyzerList();
 		if (parentNode == null)
 			return analyzers;
@@ -173,8 +173,7 @@ public class AnalyzerList {
 		if (nodes == null)
 			return analyzers;
 		for (int i = 0; i < nodes.getLength(); i++)
-			analyzers.addOrUpdate(Analyzer.fromXmlConfig(config, xpp,
-					nodes.item(i)));
+			analyzers.addOrUpdate(Analyzer.fromXmlConfig(config, xpp, nodes.item(i)));
 		return analyzers;
 	}
 

@@ -71,9 +71,7 @@ public enum DatabaseDriverNames {
 	private static String[] dbDriverList = null;
 
 	/**
-	 * Build the list of available driver classes
-	 * 
-	 * @return
+	 * @return the list of available driver classes
 	 */
 	public static synchronized String[] getAvailableList(ClassLoader classLoader) {
 		if (dbDriverList != null)
@@ -95,7 +93,6 @@ public enum DatabaseDriverNames {
 	}
 
 	public static synchronized String[] getAvailableList() {
-		return getAvailableList(Executions.getCurrent().getDesktop()
-				.getWebApp().getClass().getClassLoader());
+		return getAvailableList(Executions.getCurrent().getDesktop().getWebApp().getClass().getClassLoader());
 	}
 }

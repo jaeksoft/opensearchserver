@@ -58,6 +58,7 @@ public class ClusterInstance {
 	 * @param instanceUrl
 	 *            the instanceUrl to set
 	 * @throws URISyntaxException
+	 *             thrown if the URI is not valid
 	 */
 	public void setUri(String instanceUrl) throws URISyntaxException {
 		this.uri = new URI(instanceUrl);
@@ -143,8 +144,11 @@ public class ClusterInstance {
 	 * @param file
 	 * @return
 	 * @throws JsonParseException
+	 *             if the JSON is not valid
 	 * @throws JsonMappingException
+	 *             if the JSON is not valid
 	 * @throws IOException
+	 *             if any I/O error occurs
 	 */
 	final static List<ClusterInstance> readList(File file)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -161,12 +165,14 @@ public class ClusterInstance {
 	 * @param file
 	 *            The destination file
 	 * @throws JsonGenerationException
+	 *             if the JSON is not valid
 	 * @throws JsonMappingException
+	 *             if the JSON is not valid
 	 * @throws IOException
+	 *             if any I/O error occurs
 	 */
-	final static void writeList(Collection<ClusterInstance> clusterInstances,
-			File file) throws JsonGenerationException, JsonMappingException,
-			IOException {
+	final static void writeList(Collection<ClusterInstance> clusterInstances, File file)
+			throws JsonGenerationException, JsonMappingException, IOException {
 		JsonUtils.jsonToFile(clusterInstances, file);
 	}
 

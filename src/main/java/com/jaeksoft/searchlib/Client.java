@@ -64,13 +64,12 @@ import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class Client extends Config {
 
-	public Client(File initFileOrDir, boolean createIndexIfNotExists,
-			boolean disableCrawler) throws SearchLibException {
+	public Client(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
+			throws SearchLibException {
 		super(initFileOrDir, null, createIndexIfNotExists, disableCrawler);
 	}
 
-	public Client(File initFileOrDir, String resourceName,
-			boolean createIndexIfNotExists) throws SearchLibException {
+	public Client(File initFileOrDir, String resourceName, boolean createIndexIfNotExists) throws SearchLibException {
 		super(initFileOrDir, resourceName, createIndexIfNotExists, false);
 	}
 
@@ -83,12 +82,14 @@ public class Client extends Config {
 	 * the schema, the document is updated if it already exists.
 	 * 
 	 * @param document
-	 * @return
+	 *            the document to udpate
+	 * @return true if the document has been updated
 	 * @throws IOException
+	 *             inherited error
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
-	public boolean updateDocument(IndexDocument document)
-			throws SearchLibException, IOException {
+	public boolean updateDocument(IndexDocument document) throws SearchLibException, IOException {
 		Timer timer = new Timer("Update document " + document.toString());
 		try {
 			checkMaxStorageLimit();
@@ -101,24 +102,20 @@ public class Client extends Config {
 		}
 	}
 
-	public int updateIndexDocuments(
-			Collection<IndexDocumentResult> indexDocuments)
+	public int updateIndexDocuments(Collection<IndexDocumentResult> indexDocuments)
 			throws SearchLibException, IOException {
-		Timer timer = new Timer("Update " + indexDocuments.size()
-				+ " documents");
+		Timer timer = new Timer("Update " + indexDocuments.size() + " documents");
 		try {
 			checkMaxStorageLimit();
 			checkMaxDocumentLimit();
 			Schema schema = getSchema();
-			return getIndexAbstract().updateIndexDocuments(schema,
-					indexDocuments);
+			return getIndexAbstract().updateIndexDocuments(schema, indexDocuments);
 		} finally {
 			getStatisticsList().addUpdate(timer);
 		}
 	}
 
-	public int updateDocuments(Collection<IndexDocument> documents)
-			throws IOException, SearchLibException {
+	public int updateDocuments(Collection<IndexDocument> documents) throws IOException, SearchLibException {
 		Timer timer = new Timer("Update " + documents.size() + " documents");
 		try {
 			checkMaxStorageLimit();
@@ -132,11 +129,9 @@ public class Client extends Config {
 		}
 	}
 
-	private final int updateDocList(int totalCount, int docCount,
-			Collection<IndexDocument> docList, InfoCallback infoCallBack)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	private final int updateDocList(int totalCount, int docCount, Collection<IndexDocument> docList,
+			InfoCallback infoCallBack) throws NoSuchAlgorithmException, IOException, URISyntaxException,
+					SearchLibException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		checkMaxStorageLimit();
 		checkMaxDocumentLimit();
 		docCount += updateDocuments(docList);
@@ -155,36 +150,28 @@ public class Client extends Config {
 		return docCount;
 	}
 
-	public int updateXmlDocuments(Node document, int bufferSize,
-			CredentialItem urlDefaultCredential, HttpDownloader httpDownloader,
-			InfoCallback infoCallBack) throws XPathExpressionException,
-			NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	public int updateXmlDocuments(Node document, int bufferSize, CredentialItem urlDefaultCredential,
+			HttpDownloader httpDownloader, InfoCallback infoCallBack)
+					throws XPathExpressionException, NoSuchAlgorithmException, IOException, URISyntaxException,
+					SearchLibException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		List<Node> nodeList = DomUtils.getNodes(document, "index", "document");
-		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
-				bufferSize);
+		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(bufferSize);
 		int docCount = 0;
 		final int totalCount = nodeList.size();
 		for (Node node : nodeList) {
-			docList.add(new IndexDocument(this, getParserSelector(), node,
-					urlDefaultCredential, httpDownloader));
+			docList.add(new IndexDocument(this, getParserSelector(), node, urlDefaultCredential, httpDownloader));
 			if (docList.size() == bufferSize)
-				docCount = updateDocList(totalCount, docCount, docList,
-						infoCallBack);
+				docCount = updateDocList(totalCount, docCount, docList, infoCallBack);
 		}
 		if (docList.size() > 0)
-			docCount = updateDocList(totalCount, docCount, docList,
-					infoCallBack);
+			docCount = updateDocList(totalCount, docCount, docList, infoCallBack);
 		return docCount;
 	}
 
-	public int updateTextDocuments(StreamSource streamSource, String charset,
-			Integer bufferSize, String capturePattern, Integer langPosition,
-			List<String> fieldList, InfoCallback infoCallBack)
-			throws SearchLibException, IOException, NoSuchAlgorithmException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	public int updateTextDocuments(StreamSource streamSource, String charset, Integer bufferSize, String capturePattern,
+			Integer langPosition, List<String> fieldList, InfoCallback infoCallBack)
+					throws SearchLibException, IOException, NoSuchAlgorithmException, URISyntaxException,
+					InstantiationException, IllegalAccessException, ClassNotFoundException {
 		if (capturePattern == null)
 			throw new SearchLibException("No capture pattern");
 		if (fieldList == null || fieldList.size() == 0)
@@ -193,23 +180,18 @@ public class Client extends Config {
 		Matcher matcher = Pattern.compile(capturePattern).matcher("");
 		BufferedReader br = null;
 		Reader reader = null;
-		SchemaField uniqueSchemaField = getSchema().getFieldList()
-				.getUniqueField();
-		String uniqueField = uniqueSchemaField != null ? uniqueSchemaField
-				.getName() : null;
+		SchemaField uniqueSchemaField = getSchema().getFieldList().getUniqueField();
+		String uniqueField = uniqueSchemaField != null ? uniqueSchemaField.getName() : null;
 		if (charset == null)
 			charset = "UTF-8";
 		if (bufferSize == null)
 			bufferSize = 50;
 		try {
-			Collection<IndexDocument> docList = new ArrayList<IndexDocument>(
-					bufferSize);
+			Collection<IndexDocument> docList = new ArrayList<IndexDocument>(bufferSize);
 			reader = streamSource.getReader();
 			if (reader == null)
-				reader = new InputStreamReader(streamSource.getInputStream(),
-						charset);
-			br = reader instanceof BufferedReader ? (BufferedReader) reader
-					: new BufferedReader(reader);
+				reader = new InputStreamReader(streamSource.getInputStream(), charset);
+			br = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
 			String line;
 			int docCount = 0;
 			IndexDocument lastDocument = null;
@@ -221,11 +203,9 @@ public class Client extends Config {
 				LanguageEnum lang = LanguageEnum.UNDEFINED;
 				int matcherGroupCount = matcher.groupCount();
 				if (langPosition != null && matcherGroupCount >= langPosition)
-					lang = LanguageEnum.findByNameOrCode(matcher
-							.group(langPosition));
+					lang = LanguageEnum.findByNameOrCode(matcher.group(langPosition));
 				IndexDocument document = new IndexDocument(lang);
-				int i = matcherGroupCount < fields.length ? matcherGroupCount
-						: fields.length;
+				int i = matcherGroupCount < fields.length ? matcherGroupCount : fields.length;
 				String uniqueValue = null;
 				while (i > 0) {
 					String value = matcher.group(i--);
@@ -236,8 +216,7 @@ public class Client extends Config {
 				}
 				// Consecutive documents with same uniqueKey value are merged
 				// (multivalued)
-				if (uniqueField != null && lastDocument != null
-						&& uniqueValue != null
+				if (uniqueField != null && lastDocument != null && uniqueValue != null
 						&& uniqueValue.equals(lastUniqueValue)) {
 					lastDocument.addIfNotAlreadyHere(document);
 					continue;
@@ -258,9 +237,8 @@ public class Client extends Config {
 		}
 	}
 
-	private final int deleteUniqueKeyList(int totalCount, int docCount,
-			Collection<String> deleteList, InfoCallback infoCallBack)
-			throws SearchLibException {
+	private final int deleteUniqueKeyList(int totalCount, int docCount, Collection<String> deleteList,
+			InfoCallback infoCallBack) throws SearchLibException {
 		docCount += deleteDocuments(getSchema().getUniqueField(), deleteList);
 		StringBuilder sb = new StringBuilder();
 		sb.append(docCount);
@@ -275,29 +253,23 @@ public class Client extends Config {
 		return docCount;
 	}
 
-	public int deleteXmlDocuments(Node xmlDoc, int bufferSize,
-			InfoCallback infoCallBack) throws XPathExpressionException,
-			NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		List<Node> deleteNodeList = DomUtils
-				.getNodes(xmlDoc, "index", "delete");
+	public int deleteXmlDocuments(Node xmlDoc, int bufferSize, InfoCallback infoCallBack)
+			throws XPathExpressionException, NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+		List<Node> deleteNodeList = DomUtils.getNodes(xmlDoc, "index", "delete");
 		Collection<String> deleteList = new ArrayList<String>(bufferSize);
 		int deleteCount = 0;
 		final int totalCount = deleteNodeList.size();
 		for (Node deleteNode : deleteNodeList) {
-			List<Node> uniqueKeyNodeList = DomUtils.getNodes(deleteNode,
-					"uniquekey");
+			List<Node> uniqueKeyNodeList = DomUtils.getNodes(deleteNode, "uniquekey");
 			for (Node uniqueKeyNode : uniqueKeyNodeList) {
 				deleteList.add(uniqueKeyNode.getTextContent());
 				if (deleteList.size() == bufferSize)
-					deleteCount = deleteUniqueKeyList(totalCount, deleteCount,
-							deleteList, infoCallBack);
+					deleteCount = deleteUniqueKeyList(totalCount, deleteCount, deleteList, infoCallBack);
 			}
 		}
 		if (deleteList.size() > 0)
-			deleteCount = deleteUniqueKeyList(totalCount, deleteCount,
-					deleteList, infoCallBack);
+			deleteCount = deleteUniqueKeyList(totalCount, deleteCount, deleteList, infoCallBack);
 		return deleteCount;
 	}
 
@@ -305,25 +277,21 @@ public class Client extends Config {
 		if (StringUtils.isEmpty(field))
 			throw new SearchLibException("No field has been given.");
 		if (getSchema().getField(field) == null)
-			throw new SearchLibException("The field " + field
-					+ " does not exist.");
+			throw new SearchLibException("The field " + field + " does not exist.");
 	}
 
-	public int deleteDocuments(String field, Collection<String> values)
-			throws SearchLibException {
+	public int deleteDocuments(String field, Collection<String> values) throws SearchLibException {
 		checkField(field);
 		return deleteDocuments(new DocumentsRequest(this, field, values, false));
 	}
 
-	public int deleteDocument(String field, String value)
-			throws SearchLibException {
+	public int deleteDocument(String field, String value) throws SearchLibException {
 		List<String> values = new ArrayList<String>(1);
 		values.add(value);
 		return deleteDocuments(field, values);
 	}
 
-	public int deleteDocuments(AbstractRequest request)
-			throws SearchLibException {
+	public int deleteDocuments(AbstractRequest request) throws SearchLibException {
 		Timer timer = new Timer("Delete by query documents");
 		try {
 			return getIndexAbstract().deleteDocuments(request);
@@ -345,14 +313,12 @@ public class Client extends Config {
 		return getIndexAbstract().isOptimizing();
 	}
 
-	public String getOptimizationStatus() throws IOException,
-			SearchLibException {
+	public String getOptimizationStatus() throws IOException, SearchLibException {
 		if (!isOnline())
 			return "Unknown";
 		if (isOptimizing())
 			return "Running";
-		return Boolean.toString(getIndexAbstract().getStatistics()
-				.isOptimized());
+		return Boolean.toString(getIndexAbstract().getStatistics().isOptimized());
 	}
 
 	public String getMergeStatus() {
@@ -393,8 +359,7 @@ public class Client extends Config {
 		return getIndexAbstract().isOnline();
 	}
 
-	public AbstractResult<?> request(AbstractRequest request)
-			throws SearchLibException {
+	public AbstractResult<?> request(AbstractRequest request) throws SearchLibException {
 		Timer timer = null;
 		AbstractResult<?> result = null;
 		SearchLibException exception = null;
@@ -420,13 +385,11 @@ public class Client extends Config {
 		}
 	}
 
-	public String explain(AbstractRequest request, int docId, boolean bHtml)
-			throws SearchLibException {
+	public String explain(AbstractRequest request, int docId, boolean bHtml) throws SearchLibException {
 		return getIndexAbstract().explain(request, docId, bHtml);
 	}
 
-	protected final void checkMaxDocumentLimit() throws SearchLibException,
-			IOException {
+	protected final void checkMaxDocumentLimit() throws SearchLibException, IOException {
 		ClientFactory.INSTANCE.properties.checkMaxDocumentLimit();
 	}
 
@@ -434,8 +397,7 @@ public class Client extends Config {
 		ClientFactory.INSTANCE.properties.checkMaxStorageLimit();
 	}
 
-	public IndexStatistics getStatistics() throws IOException,
-			SearchLibException {
+	public IndexStatistics getStatistics() throws IOException, SearchLibException {
 		return getIndexAbstract().getStatistics();
 	}
 

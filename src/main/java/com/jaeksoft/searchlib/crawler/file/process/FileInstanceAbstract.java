@@ -49,8 +49,8 @@ public abstract class FileInstanceAbstract {
 
 	private URI uri;
 
-	final public static FileInstanceAbstract create(FilePathItem filePathItem,
-			FileInstanceAbstract parent, String path) throws SearchLibException {
+	final public static FileInstanceAbstract create(FilePathItem filePathItem, FileInstanceAbstract parent, String path)
+			throws SearchLibException {
 		FileInstanceAbstract fileInstance;
 		try {
 			fileInstance = filePathItem.getType().getNewInstance();
@@ -70,18 +70,15 @@ public abstract class FileInstanceAbstract {
 	protected FileInstanceAbstract() {
 	}
 
-	final protected void init(FilePathItem filePathItem,
-			FileInstanceAbstract parent, String path)
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
+	final protected void init(FilePathItem filePathItem, FileInstanceAbstract parent, String path)
+			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
 		this.path = path;
 		this.uri = init();
 	}
 
-	public abstract URI init() throws SearchLibException, URISyntaxException,
-			UnsupportedEncodingException;
+	public abstract URI init() throws SearchLibException, URISyntaxException, UnsupportedEncodingException;
 
 	public URI getURI() {
 		return uri;
@@ -90,12 +87,10 @@ public abstract class FileInstanceAbstract {
 	public abstract FileTypeEnum getFileType() throws SearchLibException;
 
 	public abstract FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException;
+			throws URISyntaxException, SearchLibException, UnsupportedEncodingException;
 
 	public abstract FileInstanceAbstract[] listFilesOnly()
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException;
+			throws URISyntaxException, SearchLibException, UnsupportedEncodingException;
 
 	public abstract String getFileName() throws SearchLibException;
 
@@ -105,8 +100,9 @@ public abstract class FileInstanceAbstract {
 
 	public abstract InputStream getInputStream() throws IOException;
 
-	public String check() throws SearchLibException, URISyntaxException,
-			UnsupportedEncodingException {
+	public abstract void delete() throws IOException;
+
+	public String check() throws SearchLibException, URISyntaxException, UnsupportedEncodingException {
 		StringWriter sw = null;
 		PrintWriter pw = null;
 		try {

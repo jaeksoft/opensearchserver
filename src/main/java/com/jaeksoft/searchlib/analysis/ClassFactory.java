@@ -61,13 +61,12 @@ public abstract class ClassFactory {
 		packageName = null;
 	}
 
-	final public ClassProperty addProperty(ClassPropertyEnum classPropertyEnum,
-			String defaultValue, Object[] valueList, int cols, int rows) {
+	final public ClassProperty addProperty(ClassPropertyEnum classPropertyEnum, String defaultValue, Object[] valueList,
+			int cols, int rows) {
 		ClassProperty classProperty = properties.get(classPropertyEnum);
 		if (classProperty != null)
 			return classProperty;
-		classProperty = new ClassProperty(this, classPropertyEnum,
-				defaultValue, valueList, cols, rows);
+		classProperty = new ClassProperty(this, classPropertyEnum, defaultValue, valueList, cols, rows);
 		properties.put(classPropertyEnum, classProperty);
 		if (classPropertyEnum.isUser()) {
 			if (userProperties == null)
@@ -80,14 +79,17 @@ public abstract class ClassFactory {
 	/**
 	 * 
 	 * @param config
+	 *            the current config
 	 * @param packageName
+	 *            the name of the package
 	 * @param className
-	 * @param properties
+	 *            the name of the class
 	 * @throws IOException
+	 *             inherited error
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
-	public void setParams(Config config, String packageName, String className)
-			throws IOException, SearchLibException {
+	public void setParams(Config config, String packageName, String className) throws IOException, SearchLibException {
 		this.config = config;
 		this.packageName = packageName;
 		getProperty(ClassPropertyEnum.CLASS).setValue(className);
@@ -96,8 +98,7 @@ public abstract class ClassFactory {
 	protected void initProperties() throws SearchLibException {
 	}
 
-	protected void checkValue(ClassPropertyEnum prop, String value)
-			throws SearchLibException {
+	protected void checkValue(ClassPropertyEnum prop, String value) throws SearchLibException {
 	}
 
 	public void checkProperties() throws SearchLibException {
@@ -136,8 +137,7 @@ public abstract class ClassFactory {
 		return cp.getValue();
 	}
 
-	final private void addProperty(final String name, final String value)
-			throws SearchLibException {
+	final private void addProperty(final String name, final String value) throws SearchLibException {
 		ClassPropertyEnum propEnum = ClassPropertyEnum.valueOf(name);
 		if (propEnum != null) {
 			ClassProperty prop = getProperty(propEnum);
@@ -148,21 +148,19 @@ public abstract class ClassFactory {
 		}
 	}
 
-	final protected void addProperties(final NamedNodeMap nnm)
-			throws SearchLibException {
+	final protected void addProperties(final NamedNodeMap nnm) throws SearchLibException {
 		if (nnm == null)
 			return;
 		int l = nnm.getLength();
 		for (int i = 0; i < l; i++) {
 			Node attr = nnm.item(i);
-			addProperty(attr.getNodeName(),
-					StringEscapeUtils.unescapeXml(attr.getNodeValue()));
+			addProperty(attr.getNodeName(), StringEscapeUtils.unescapeXml(attr.getNodeValue()));
 		}
 	}
 
 	/**
 	 * 
-	 * @return
+	 * @return the name of the class
 	 */
 	public String getClassName() {
 		return getProperty(ClassPropertyEnum.CLASS).getValue();
@@ -185,13 +183,11 @@ public abstract class ClassFactory {
 		return attributes;
 	}
 
-	public void writeXmlNodeAttributes(XmlWriter writer, String nodeName)
-			throws SAXException {
+	public void writeXmlNodeAttributes(XmlWriter writer, String nodeName) throws SAXException {
 		Map<String, String> map = new HashMap<String, String>();
 		for (ClassProperty prop : properties.values()) {
 			if (prop.isMultilinetextbox())
-				map.put(prop.getClassPropertyEnum().getAttribute(),
-						prop.getValue());
+				map.put(prop.getClassPropertyEnum().getAttribute(), prop.getValue());
 		}
 		if (map.isEmpty())
 			return;
@@ -207,14 +203,19 @@ public abstract class ClassFactory {
 	/**
 	 * 
 	 * @param config
+	 *            the current config
 	 * @param packageName
+	 *            the name of the package
 	 * @param className
-	 * @return
+	 *            the name fo the class
+	 * @return a new class factory
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	protected static ClassFactory create(Config config, String packageName,
-			String className) throws SearchLibException, ClassNotFoundException {
+	protected static ClassFactory create(Config config, String packageName, String className)
+			throws SearchLibException, ClassNotFoundException {
 		String cl = className;
 		if (className.indexOf('.') == -1)
 			cl = packageName + '.' + cl;
@@ -235,16 +236,20 @@ public abstract class ClassFactory {
 	/**
 	 * 
 	 * @param config
+	 *            the current config
 	 * @param factoryClass
-	 * @return
+	 *            the class of the factory
+	 * @param <T>
+	 *            the type of the instance
+	 * @return a new instance
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
-	protected static <T extends ClassFactory> T createInstance(Config config,
-			Class<T> factoryClass) throws SearchLibException {
+	protected static <T extends ClassFactory> T createInstance(Config config, Class<T> factoryClass)
+			throws SearchLibException {
 		try {
 			T o = factoryClass.newInstance();
-			o.setParams(config, factoryClass.getPackage().getName(),
-					factoryClass.getSimpleName());
+			o.setParams(config, factoryClass.getPackage().getName(), factoryClass.getSimpleName());
 			o.initProperties();
 			return o;
 		} catch (InstantiationException e) {
@@ -258,51 +263,56 @@ public abstract class ClassFactory {
 
 	/**
 	 * 
-	 * @param classFactory
-	 * @return
+	 * @param config
+	 *            the current config
+	 * @param packageName
+	 *            the name of the package
+	 * @param node
+	 *            the node with the parameters
+	 * @param attributeNodeName
+	 *            the name of the attribute
+	 * @return a new class factory
 	 * @throws SearchLibException
-	 * @throws ClassNotFoundException
+	 *             inherited error
 	 * @throws DOMException
+	 *             inherited error
+	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	protected static ClassFactory create(Config config, String packageName,
-			Node node, String attributeNodeName) throws SearchLibException,
-			DOMException, ClassNotFoundException {
+	protected static ClassFactory create(Config config, String packageName, Node node, String attributeNodeName)
+			throws SearchLibException, DOMException, ClassNotFoundException {
 		if (node == null)
 			return null;
 		NamedNodeMap nnm = node.getAttributes();
 		if (nnm == null)
 			return null;
-		Node classNode = nnm.getNamedItem(ClassPropertyEnum.CLASS
-				.getAttribute());
+		Node classNode = nnm.getNamedItem(ClassPropertyEnum.CLASS.getAttribute());
 		if (classNode == null)
 			return null;
-		ClassFactory newClassFactory = create(config, packageName,
-				classNode.getNodeValue());
+		ClassFactory newClassFactory = create(config, packageName, classNode.getNodeValue());
 		newClassFactory.addProperties(nnm);
-		List<Node> attrNodes = DomUtils.getNodes(node, attributeNodeName,
-				"attribute");
+		List<Node> attrNodes = DomUtils.getNodes(node, attributeNodeName, "attribute");
 		if (attrNodes != null)
 			for (Node attrNode : attrNodes)
-				newClassFactory.addProperty(
-						DomUtils.getAttributeText(attrNode, "name"),
-						attrNode.getTextContent());
+				newClassFactory.addProperty(DomUtils.getAttributeText(attrNode, "name"), attrNode.getTextContent());
 		return newClassFactory;
 	}
 
 	/**
 	 * 
 	 * @param classFactory
-	 * @return
+	 *            a class factory
+	 * @return a new class factory instance
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	protected static ClassFactory create(ClassFactory classFactory)
-			throws SearchLibException, ClassNotFoundException {
-		ClassFactory newClassFactory = create(classFactory.config,
-				classFactory.packageName, classFactory.getClassName());
+	protected static ClassFactory create(ClassFactory classFactory) throws SearchLibException, ClassNotFoundException {
+		ClassFactory newClassFactory = create(classFactory.config, classFactory.packageName,
+				classFactory.getClassName());
 		for (ClassProperty prop : classFactory.properties.values())
-			newClassFactory.getProperty(prop.getClassPropertyEnum()).setValue(
-					prop.getValue());
+			newClassFactory.getProperty(prop.getClassPropertyEnum()).setValue(prop.getValue());
 		return newClassFactory;
 	}
 
@@ -316,8 +326,7 @@ public abstract class ClassFactory {
 		return userProperties;
 	}
 
-	public void setUserProperty(String name, String value)
-			throws SearchLibException {
+	public void setUserProperty(String name, String value) throws SearchLibException {
 		if (userProperties == null || name == null)
 			throw new SearchLibException("No properties");
 		for (ClassProperty prop : userProperties) {

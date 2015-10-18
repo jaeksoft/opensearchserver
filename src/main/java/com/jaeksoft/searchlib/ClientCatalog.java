@@ -70,8 +70,6 @@ import com.jaeksoft.searchlib.web.controller.PushEvent;
 
 /**
  * This class handles a list of indexes stored in a given directory.
- * 
- * 
  */
 public class ClientCatalog {
 
@@ -121,8 +119,7 @@ public class ClientCatalog {
 		}
 	}
 
-	private static final Client getClient(File indexDirectory)
-			throws SearchLibException {
+	private static final Client getClient(File indexDirectory) throws SearchLibException {
 		clientsLock.r.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
@@ -137,15 +134,13 @@ public class ClientCatalog {
 			i--;
 		}
 		if (i == 0)
-			throw new SearchLibException("Time out while getting "
-					+ indexDirectory);
+			throw new SearchLibException("Time out while getting " + indexDirectory);
 		clientsLock.w.lock();
 		try {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
-			client = ClientFactory.INSTANCE.newClient(indexDirectory, true,
-					false);
+			client = ClientFactory.INSTANCE.newClient(indexDirectory, true, false);
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
@@ -174,8 +169,7 @@ public class ClientCatalog {
 		try {
 			synchronized (ClientCatalog.class) {
 				for (ClientCatalogItem catalogItem : getClientCatalog(null)) {
-					Logging.info("OSS loads index "
-							+ catalogItem.getIndexName());
+					Logging.info("OSS loads index " + catalogItem.getIndexName());
 					getClient(catalogItem.getIndexName());
 				}
 			}
@@ -201,8 +195,7 @@ public class ClientCatalog {
 		}
 	}
 
-	public static final long countAllDocuments() throws IOException,
-			SearchLibException {
+	public static final long countAllDocuments() throws IOException, SearchLibException {
 		long count = 0;
 		clientsLock.r.lock();
 		try {
@@ -222,8 +215,7 @@ public class ClientCatalog {
 	public static final long calculateInstanceSize() throws SearchLibException {
 		if (StartStopListener.OPENSEARCHSERVER_DATA_FILE == null)
 			return 0;
-		lastInstanceSize = new LastModifiedAndSize(
-				StartStopListener.OPENSEARCHSERVER_DATA_FILE, false).getSize();
+		lastInstanceSize = new LastModifiedAndSize(StartStopListener.OPENSEARCHSERVER_DATA_FILE, false).getSize();
 		return lastInstanceSize;
 	}
 
@@ -233,21 +225,18 @@ public class ClientCatalog {
 		return calculateInstanceSize();
 	}
 
-	public static final LastModifiedAndSize getLastModifiedAndSize(
-			String indexName) throws SearchLibException {
+	public static final LastModifiedAndSize getLastModifiedAndSize(String indexName) throws SearchLibException {
 		File file = getIndexDirectory(indexName);
 		if (!file.exists())
 			return null;
 		return new LastModifiedAndSize(file, false);
 	}
 
-	public static final Client getClient(String indexName)
-			throws SearchLibException {
+	public static final Client getClient(String indexName) throws SearchLibException {
 		return getClient(getIndexDirectory(indexName));
 	}
 
-	public static final void closeIndex(String indexName)
-			throws SearchLibException {
+	public static final void closeIndex(String indexName) throws SearchLibException {
 		Client client = null;
 		clientsLock.w.lock();
 		try {
@@ -265,16 +254,13 @@ public class ClientCatalog {
 			PushEvent.eventClientSwitch.publish(client);
 	}
 
-	private static final File getIndexDirectory(String indexName)
-			throws SearchLibException {
+	private static final File getIndexDirectory(String indexName) throws SearchLibException {
 		if (!isValidIndexName(indexName))
-			throw new SearchLibException("The name '" + indexName
-					+ "' is not allowed");
+			throw new SearchLibException("The name '" + indexName + "' is not allowed");
 		return new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, indexName);
 	}
 
-	public static final Set<ClientCatalogItem> getClientCatalog(User user)
-			throws SearchLibException {
+	public static final Set<ClientCatalogItem> getClientCatalog(User user) throws SearchLibException {
 		File[] files = StartStopListener.OPENSEARCHSERVER_DATA_FILE
 				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
 		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
@@ -297,32 +283,27 @@ public class ClientCatalog {
 	 * 
 	 * @param indexName
 	 *            The name of an index
-	 * @return
+	 * @return true if the index exist
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
-	public static final boolean exists(String indexName)
-			throws SearchLibException {
+	public static final boolean exists(String indexName) throws SearchLibException {
 		return exists(null, indexName);
 	}
 
-	public static final boolean exists(User user, String indexName)
-			throws SearchLibException {
+	public static final boolean exists(User user, String indexName) throws SearchLibException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		if (!isValidIndexName(indexName))
-			throw new SearchLibException("The name '" + indexName
-					+ "' is not allowed");
-		return getClientCatalog(null)
-				.contains(new ClientCatalogItem(indexName));
+			throw new SearchLibException("The name '" + indexName + "' is not allowed");
+		return getClientCatalog(null).contains(new ClientCatalogItem(indexName));
 	}
 
-	public static synchronized final OcrManager getOcrManager()
-			throws SearchLibException {
+	public static synchronized final OcrManager getOcrManager() throws SearchLibException {
 		return OcrManager.getInstance();
 	}
 
-	public static synchronized final ClusterManager getClusterManager()
-			throws SearchLibException {
+	public static synchronized final ClusterManager getClusterManager() throws SearchLibException {
 		return ClusterManager.getInstance();
 	}
 
@@ -339,35 +320,35 @@ public class ClientCatalog {
 	 * 
 	 * @param indexName
 	 *            The name of the index.
-	 * @param template
+	 * @param templateName
 	 *            The name of the template (EMPTY_INDEX, WEB_CRAWLER,
 	 *            FILE_CRAWLER)
+	 * @param remoteURI
+	 *            the remote URI
 	 * @throws IOException
+	 *             inherited error
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
-	public static void createIndex(String indexName, String templateName,
-			URI remoteURI) throws SearchLibException, IOException {
+	public static void createIndex(String indexName, String templateName, URI remoteURI)
+			throws SearchLibException, IOException {
 		TemplateAbstract template = TemplateList.findTemplate(templateName);
 		if (template == null)
 			throw new SearchLibException("Template not found: " + templateName);
 		createIndex(null, indexName, template, remoteURI);
 	}
 
-	public static void createIndex(User user, String indexName,
-			TemplateAbstract template, URI remoteURI)
+	public static void createIndex(User user, String indexName, TemplateAbstract template, URI remoteURI)
 			throws SearchLibException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		ClientFactory.INSTANCE.properties.checkMaxIndexNumber();
 		if (!isValidIndexName(indexName))
-			throw new SearchLibException("The name '" + indexName
-					+ "' is not allowed");
+			throw new SearchLibException("The name '" + indexName + "' is not allowed");
 		synchronized (ClientCatalog.class) {
-			File indexDir = new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE, indexName);
+			File indexDir = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, indexName);
 			if (indexDir.exists())
-				throw new SearchLibException("directory " + indexName
-						+ " already exists");
+				throw new SearchLibException("directory " + indexName + " already exists");
 			template.createIndex(indexDir, remoteURI);
 		}
 	}
@@ -378,16 +359,17 @@ public class ClientCatalog {
 	 * @param indexName
 	 *            The name of the index
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws NamingException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public static void eraseIndex(String indexName) throws SearchLibException,
-			NamingException, IOException {
+	public static void eraseIndex(String indexName) throws SearchLibException, NamingException, IOException {
 		eraseIndex(null, indexName);
 	}
 
-	public static void eraseIndex(User user, String indexName)
-			throws SearchLibException, NamingException, IOException {
+	public static void eraseIndex(User user, String indexName) throws SearchLibException, NamingException, IOException {
 		if (user != null && !user.isAdmin())
 			throw new SearchLibException("Operation not permitted");
 		File indexDir = getIndexDirectory(indexName);
@@ -420,13 +402,10 @@ public class ClientCatalog {
 		usersLock.r.lock();
 		try {
 			if (userList == null) {
-				File userFile = new File(
-						StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-						"users.xml");
+				File userFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
 				if (userFile.exists()) {
 					XPathParser xpp = new XPathParser(userFile);
-					userList = UserList.fromXml(xpp,
-							xpp.getNode("/" + UserList.usersElement));
+					userList = UserList.fromXml(xpp, xpp.getNode("/" + UserList.usersElement));
 				} else
 					userList = new UserList();
 			}
@@ -454,13 +433,10 @@ public class ClientCatalog {
 	}
 
 	private static void saveUserListWithoutLock()
-			throws TransformerConfigurationException, SAXException,
-			IOException, SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(
-				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
+			throws TransformerConfigurationException, SAXException, IOException, SearchLibException {
+		ConfigFileRotation cfr = configFiles.get(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "users.xml");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(
-					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			getUserList().writeXml(xmlWriter);
 			xmlWriter.endDocument();
 			cfr.rotate();
@@ -484,8 +460,7 @@ public class ClientCatalog {
 		}
 	}
 
-	public static User authenticate(String login, String password)
-			throws SearchLibException {
+	public static User authenticate(String login, String password) throws SearchLibException {
 		usersLock.r.lock();
 		try {
 			User user = getUserList().get(login);
@@ -499,8 +474,7 @@ public class ClientCatalog {
 		}
 	}
 
-	public static User authenticateKey(String login, String key)
-			throws SearchLibException {
+	public static User authenticateKey(String login, String key) throws SearchLibException {
 		usersLock.r.lock();
 		try {
 			User user = getUserList().get(login);
@@ -524,8 +498,7 @@ public class ClientCatalog {
 		return new File(clientDir.getParentFile(), "._" + clientDir.getName());
 	}
 
-	public static final void receive_init(Client client) throws IOException,
-			SearchLibException {
+	public static final void receive_init(Client client) throws IOException, SearchLibException {
 		ClientFactory.INSTANCE.properties.checkMaxStorageLimit();
 		File rootDir = getTempReceiveDir(client);
 		FileUtils.deleteDirectory(rootDir);
@@ -591,18 +564,15 @@ public class ClientCatalog {
 				getTempReceiveDir(client).renameTo(clientDir);
 				File pathToMoveFile = new File(clientDir, PATH_TO_MOVE);
 				if (pathToMoveFile.exists()) {
-					for (String pathToMove : FileUtils
-							.readLines(pathToMoveFile)) {
+					for (String pathToMove : FileUtils.readLines(pathToMoveFile)) {
 						File from = new File(trashDir, pathToMove);
 						File to = new File(clientDir, pathToMove);
 						FileUtils.moveFile(from, to);
 					}
 					if (!pathToMoveFile.delete())
-						throw new IOException("Unable to delete the file: "
-								+ pathToMoveFile.getAbsolutePath());
+						throw new IOException("Unable to delete the file: " + pathToMoveFile.getAbsolutePath());
 				}
-				newClient = ClientFactory.INSTANCE.newClient(clientDir, true,
-						true);
+				newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
 				newClient.writeReplCheck();
 			} finally {
 				unlockClients(clientDepends);
@@ -614,8 +584,7 @@ public class ClientCatalog {
 		FileUtils.deleteDirectory(trashDir);
 	}
 
-	public static void receive_merge(WebApp webapp, Client client)
-			throws SearchLibException, IOException {
+	public static void receive_merge(WebApp webapp, Client client) throws SearchLibException, IOException {
 		File tempDir = getTempReceiveDir(client);
 		File clientDir = client.getDirectory();
 		Client newClient = null;
@@ -643,8 +612,7 @@ public class ClientCatalog {
 		}
 	}
 
-	public static final void receive_dir(Client client, String filePath)
-			throws IOException {
+	public static final void receive_dir(Client client, String filePath) throws IOException {
 		File rootDir = getTempReceiveDir(client);
 		File targetFile = new File(rootDir, filePath);
 		targetFile.mkdir();
@@ -652,8 +620,8 @@ public class ClientCatalog {
 
 	private final static String PATH_TO_MOVE = ".path-to-move";
 
-	public static final boolean receive_file_exists(Client client,
-			String filePath, long lastModified, long length) throws IOException {
+	public static final boolean receive_file_exists(Client client, String filePath, long lastModified, long length)
+			throws IOException {
 		File existsFile = new File(client.getDirectory(), filePath);
 		if (!existsFile.exists())
 			return false;
@@ -666,8 +634,8 @@ public class ClientCatalog {
 		return true;
 	}
 
-	public static final void receive_file(Client client, String filePath,
-			long lastModified, InputStream is) throws IOException {
+	public static final void receive_file(Client client, String filePath, long lastModified, InputStream is)
+			throws IOException {
 		File rootDir = getTempReceiveDir(client);
 		File targetFile = new File(rootDir, filePath);
 		targetFile.createNewFile();

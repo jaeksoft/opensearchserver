@@ -55,8 +55,7 @@ public class Analyzer {
 	private CompiledAnalyzer queryAnalyzer;
 	private CompiledAnalyzer indexAnalyzer;
 
-	public Analyzer(Config config) throws SearchLibException,
-			ClassNotFoundException {
+	public Analyzer(Config config) throws SearchLibException, ClassNotFoundException {
 		name = null;
 		this.config = config;
 		lang = LanguageEnum.UNDEFINED;
@@ -67,8 +66,7 @@ public class Analyzer {
 		indexAnalyzer = null;
 	}
 
-	public void copyFrom(Analyzer source) throws SearchLibException,
-			ClassNotFoundException {
+	public void copyFrom(Analyzer source) throws SearchLibException, ClassNotFoundException {
 		rwl.w.lock();
 		try {
 			source.copyTo(this);
@@ -77,20 +75,16 @@ public class Analyzer {
 		}
 	}
 
-	private void copyTo(Analyzer target) throws SearchLibException,
-			ClassNotFoundException {
+	private void copyTo(Analyzer target) throws SearchLibException, ClassNotFoundException {
 		rwl.r.lock();
 		try {
 			target.name = this.name;
 			target.lang = this.lang;
-			target.queryTokenizer = (TokenizerFactory) ClassFactory
-					.create(queryTokenizer);
-			target.indexTokenizer = (TokenizerFactory) ClassFactory
-					.create(indexTokenizer);
+			target.queryTokenizer = (TokenizerFactory) ClassFactory.create(queryTokenizer);
+			target.indexTokenizer = (TokenizerFactory) ClassFactory.create(indexTokenizer);
 			target.filters = new ArrayList<FilterFactory>();
 			for (FilterFactory filter : filters)
-				target.filters
-						.add((FilterFactory) FilterFactory.create(filter));
+				target.filters.add((FilterFactory) FilterFactory.create(filter));
 			target.config = this.config;
 			target.queryAnalyzer = null;
 			target.indexAnalyzer = null;
@@ -100,12 +94,10 @@ public class Analyzer {
 		}
 	}
 
-	private Analyzer(Config config, XPathParser xpp, Node node)
-			throws SearchLibException {
+	private Analyzer(Config config, XPathParser xpp, Node node) throws SearchLibException {
 		this.config = config;
 		this.name = XPathParser.getAttributeString(node, "name");
-		this.lang = LanguageEnum.findByCode(XPathParser.getAttributeString(
-				node, "lang"));
+		this.lang = LanguageEnum.findByCode(XPathParser.getAttributeString(node, "lang"));
 		this.filters = new ArrayList<FilterFactory>();
 		this.queryAnalyzer = null;
 		this.indexAnalyzer = null;
@@ -153,10 +145,11 @@ public class Analyzer {
 	 * @param tokenizer
 	 *            the tokenizer to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	public void setIndexTokenizer(TokenizerFactory tokenizer)
-			throws SearchLibException, ClassNotFoundException {
+	public void setIndexTokenizer(TokenizerFactory tokenizer) throws SearchLibException, ClassNotFoundException {
 		rwl.w.lock();
 		try {
 			this.indexTokenizer = TokenizerFactory.create(tokenizer);
@@ -170,10 +163,11 @@ public class Analyzer {
 	 * @param tokenizer
 	 *            the tokenizer to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	public void setQueryTokenizer(TokenizerFactory tokenizer)
-			throws SearchLibException, ClassNotFoundException {
+	public void setQueryTokenizer(TokenizerFactory tokenizer) throws SearchLibException, ClassNotFoundException {
 		rwl.w.lock();
 		try {
 			this.queryTokenizer = TokenizerFactory.create(tokenizer);
@@ -286,7 +280,9 @@ public class Analyzer {
 	 * Replace the old filter by the new one
 	 * 
 	 * @param oldFilter
+	 *            removed filter
 	 * @param newFilter
+	 *            new filter
 	 */
 	public void replace(FilterFactory oldFilter, FilterFactory newFilter) {
 		rwl.w.lock();
@@ -308,38 +304,39 @@ public class Analyzer {
 	/**
 	 * 
 	 * @param config
+	 *            current config
 	 * @param xpp
+	 *            and XPathParser instance
 	 * @param node
-	 * @return
+	 *            the current node
+	 * @return a new analyzer
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws XPathExpressionException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 * @throws DOMException
+	 *             inherited error
 	 */
-	public static Analyzer fromXmlConfig(Config config, XPathParser xpp,
-			Node node) throws SearchLibException, XPathExpressionException,
-			DOMException, ClassNotFoundException {
+	public static Analyzer fromXmlConfig(Config config, XPathParser xpp, Node node)
+			throws SearchLibException, XPathExpressionException, DOMException, ClassNotFoundException {
 		if (node == null)
 			return null;
 		Analyzer analyzer = new Analyzer(config, xpp, node);
 
-		String indexTokenizer = XPathParser.getAttributeString(node,
-				"tokenizer");
+		String indexTokenizer = XPathParser.getAttributeString(node, "tokenizer");
 		if (indexTokenizer != null)
-			analyzer.setIndexTokenizer(TokenizerFactory.create(config,
-					indexTokenizer));
+			analyzer.setIndexTokenizer(TokenizerFactory.create(config, indexTokenizer));
 		NodeList nodes = xpp.getNodeList(node, "tokenizer");
 		if (nodes.getLength() > 0)
-			analyzer.setIndexTokenizer(TokenizerFactory.create(config,
-					nodes.item(0)));
+			analyzer.setIndexTokenizer(TokenizerFactory.create(config, nodes.item(0)));
 
 		nodes = xpp.getNodeList(node, "queryTokenizer");
 		if (nodes.getLength() > 0)
-			analyzer.setQueryTokenizer(TokenizerFactory.create(config,
-					nodes.item(0)));
+			analyzer.setQueryTokenizer(TokenizerFactory.create(config, nodes.item(0)));
 		else
-			analyzer.setQueryTokenizer(TokenizerFactory
-					.create(analyzer.indexTokenizer));
+			analyzer.setQueryTokenizer(TokenizerFactory.create(analyzer.indexTokenizer));
 
 		nodes = xpp.getNodeList(node, "filter");
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -353,8 +350,7 @@ public class Analyzer {
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		rwl.r.lock();
 		try {
-			writer.startElement("analyzer", "name", getName(), "lang",
-					lang != null ? lang.getCode() : null);
+			writer.startElement("analyzer", "name", getName(), "lang", lang != null ? lang.getCode() : null);
 			if (indexTokenizer != null)
 				indexTokenizer.writeXmlConfig("tokenizer", writer);
 			if (queryTokenizer != null)
@@ -372,6 +368,7 @@ public class Analyzer {
 	 * Move filter up
 	 * 
 	 * @param filter
+	 *            the filter to move
 	 */
 	public void filterUp(FilterFactory filter) {
 		rwl.w.lock();
@@ -392,6 +389,7 @@ public class Analyzer {
 	 * Move filter down
 	 * 
 	 * @param filter
+	 *            the filter to move
 	 */
 	public void filterDown(FilterFactory filter) {
 		rwl.w.lock();
@@ -412,6 +410,7 @@ public class Analyzer {
 	 * Remove the filter
 	 * 
 	 * @param filter
+	 *            the filter to remove
 	 */
 	public void filterRemove(FilterFactory filter) {
 		rwl.w.lock();
@@ -425,10 +424,9 @@ public class Analyzer {
 	}
 
 	/**
-	 * Returns the compiled analyzer for queries
-	 * 
-	 * @return
+	 * @return the compiled analyzer for queries
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
 	public CompiledAnalyzer getQueryAnalyzer() throws SearchLibException {
 		rwl.r.lock();
@@ -442,8 +440,7 @@ public class Analyzer {
 		try {
 			if (queryAnalyzer != null)
 				return queryAnalyzer;
-			queryAnalyzer = new CompiledAnalyzer(queryTokenizer, filters,
-					FilterScope.QUERY);
+			queryAnalyzer = new CompiledAnalyzer(queryTokenizer, filters, FilterScope.QUERY);
 			return queryAnalyzer;
 		} finally {
 			rwl.w.unlock();
@@ -451,10 +448,10 @@ public class Analyzer {
 	}
 
 	/**
-	 * Returns the compiled analyzer for indexation
 	 * 
-	 * @return
+	 * @return the compiled analyzer for indexation
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
 	public CompiledAnalyzer getIndexAnalyzer() throws SearchLibException {
 		rwl.r.lock();
@@ -468,8 +465,7 @@ public class Analyzer {
 		try {
 			if (indexAnalyzer != null)
 				return indexAnalyzer;
-			indexAnalyzer = new CompiledAnalyzer(indexTokenizer, filters,
-					FilterScope.INDEX);
+			indexAnalyzer = new CompiledAnalyzer(indexTokenizer, filters, FilterScope.INDEX);
 			return indexAnalyzer;
 		} finally {
 			rwl.w.unlock();

@@ -35,8 +35,7 @@ public class ClassProperty {
 	private final int cols;
 	private final int rows;
 
-	public ClassProperty(ClassFactory classFactory,
-			ClassPropertyEnum classPropertyEnum, String value,
+	public ClassProperty(ClassFactory classFactory, ClassPropertyEnum classPropertyEnum, String value,
 			Object[] valueList, int cols, int rows) {
 		this.classPropertyEnum = classPropertyEnum;
 		this.classFactory = classFactory;
@@ -66,7 +65,9 @@ public class ClassProperty {
 	 * Set the value for this property
 	 * 
 	 * @param value
+	 *            the value
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
 	public void setValue(String value) throws SearchLibException {
 		classFactory.checkValue(classPropertyEnum, value);

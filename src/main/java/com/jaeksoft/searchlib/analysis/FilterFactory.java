@@ -37,8 +37,7 @@ public abstract class FilterFactory extends ClassFactory {
 
 	final private static String FILTER_PACKAGE = "com.jaeksoft.searchlib.analysis.filter";
 
-	public abstract TokenStream create(TokenStream tokenStream)
-			throws SearchLibException;
+	public abstract TokenStream create(TokenStream tokenStream) throws SearchLibException;
 
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("filter", getXmlAttributes());
@@ -48,51 +47,53 @@ public abstract class FilterFactory extends ClassFactory {
 
 	@Override
 	protected void initProperties() throws SearchLibException {
-		addProperty(ClassPropertyEnum.SCOPE, FilterScope.QUERY_INDEX.name(),
-				FilterScope.values(), 0, 0);
+		addProperty(ClassPropertyEnum.SCOPE, FilterScope.QUERY_INDEX.name(), FilterScope.values(), 0, 0);
 	}
 
 	public FilterScope getScope() {
-		return FilterScope.valueOf(getProperty(ClassPropertyEnum.SCOPE)
-				.getValue());
+		return FilterScope.valueOf(getProperty(ClassPropertyEnum.SCOPE).getValue());
 	}
 
 	public void setScope(FilterScope scope) throws SearchLibException {
 		getProperty(ClassPropertyEnum.SCOPE).setValue(scope.name());
 	}
 
-	public static FilterFactory getDefaultFilter(Config config)
-			throws SearchLibException, ClassNotFoundException {
-		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
-				FilterEnum.StandardFilter.name());
+	public static FilterFactory getDefaultFilter(Config config) throws SearchLibException, ClassNotFoundException {
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE, FilterEnum.StandardFilter.name());
 	}
 
 	/**
 	 * Create a new filter by reading the attributes of an XML node
 	 * 
 	 * @param config
+	 *            the current config
 	 * @param node
+	 *            the node with the parameters
 	 * @return a FilterFactory
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 * @throws DOMException
+	 *             inherited error
 	 */
 	public static FilterFactory create(Config config, Node node)
 			throws SearchLibException, DOMException, ClassNotFoundException {
-		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
-				node, "attributes");
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE, node, "attributes");
 	}
 
 	/**
 	 * Clone a filter
 	 * 
 	 * @param filter
+	 *            the filter to clone
 	 * @return a FilterFactory
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
-	public static FilterFactory create(FilterFactory filter)
-			throws SearchLibException, ClassNotFoundException {
+	public static FilterFactory create(FilterFactory filter) throws SearchLibException, ClassNotFoundException {
 		return (FilterFactory) ClassFactory.create(filter);
 	}
 
@@ -100,27 +101,35 @@ public abstract class FilterFactory extends ClassFactory {
 	 * Create a new filter with default parameters
 	 * 
 	 * @param config
+	 *            the current config
 	 * @param className
-	 * @return
+	 *            the class name of the filter
+	 * @return a new filter factory
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws ClassNotFoundException
+	 *             inherited error
 	 */
 	public static FilterFactory create(Config config, String className)
 			throws SearchLibException, ClassNotFoundException {
-		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE,
-				className);
+		return (FilterFactory) ClassFactory.create(config, FILTER_PACKAGE, className);
 	}
 
 	/**
 	 * Create a new filter with default parameters
 	 * 
 	 * @param config
+	 *            the current config
 	 * @param filterFactoryClass
-	 * @return
+	 *            the class of the filter factory
+	 * @param <T>
+	 *            the type of the filter
+	 * @return a new filter factory
 	 * @throws SearchLibException
+	 *             inherited error
 	 */
-	public static <T extends FilterFactory> T create(Config config,
-			Class<T> filterFactoryClass) throws SearchLibException {
+	public static <T extends FilterFactory> T create(Config config, Class<T> filterFactoryClass)
+			throws SearchLibException {
 		return ClassFactory.createInstance(config, filterFactoryClass);
 	}
 }

@@ -56,33 +56,27 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 		token = null;
 	}
 
-	protected SwiftFileInstance(FilePathItem filePathItem,
-			SwiftFileInstance parent, SwiftToken token, ObjectMeta object)
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
+	protected SwiftFileInstance(FilePathItem filePathItem, SwiftFileInstance parent, SwiftToken token,
+			ObjectMeta object) throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
 		this.token = token;
 		this.object = object;
 		init(filePathItem, parent, object.pathName);
 	}
 
 	private void authentication(HttpDownloader downloader)
-			throws ClientProtocolException, URISyntaxException, IOException,
-			JSONException, SearchLibException {
+			throws ClientProtocolException, URISyntaxException, IOException, JSONException, SearchLibException {
 		if (token != null)
 			return;
-		token = new SwiftToken(downloader, filePathItem.getSwiftAuthURL(),
-				filePathItem.getUsername(), filePathItem.getPassword(),
-				filePathItem.getSwiftAuthType(), filePathItem.getSwiftTenant());
+		token = new SwiftToken(downloader, filePathItem.getSwiftAuthURL(), filePathItem.getUsername(),
+				filePathItem.getPassword(), filePathItem.getSwiftAuthType(), filePathItem.getSwiftTenant());
 	}
 
 	@Override
-	public URI init() throws SearchLibException, URISyntaxException,
-			UnsupportedEncodingException {
+	public URI init() throws SearchLibException, URISyntaxException, UnsupportedEncodingException {
 		String path = getPath();
 		if (token != null)
 			return token.getURI(filePathItem.getSwiftContainer(), path, false);
-		return new URI(LinkUtils.concatPath(
-				getFilePathItem().getSwiftAuthURL(), path));
+		return new URI(LinkUtils.concatPath(getFilePathItem().getSwiftAuthURL(), path));
 	}
 
 	@Override
@@ -92,20 +86,16 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 		return object.isDirectory ? FileTypeEnum.directory : FileTypeEnum.file;
 	}
 
-	private FileInstanceAbstract[] listFiles(boolean withDirectory)
-			throws URISyntaxException, SearchLibException {
+	private FileInstanceAbstract[] listFiles(boolean withDirectory) throws URISyntaxException, SearchLibException {
 		HttpDownloader downloader = new HttpDownloader(null, false, null);
 		try {
 			authentication(downloader);
-			List<ObjectMeta> objectList = SwiftProtocol.listObjects(downloader,
-					token, filePathItem.getSwiftContainer(), getPath(),
-					withDirectory, filePathItem.isIgnoreHiddenFiles(),
-					filePathItem.getExclusionMatchers());
+			List<ObjectMeta> objectList = SwiftProtocol.listObjects(downloader, token, filePathItem.getSwiftContainer(),
+					getPath(), withDirectory, filePathItem.isIgnoreHiddenFiles(), filePathItem.getExclusionMatchers());
 			if (objectList == null)
 				return null;
 
-			FileInstanceAbstract[] files = new FileInstanceAbstract[objectList
-					.size()];
+			FileInstanceAbstract[] files = new FileInstanceAbstract[objectList.size()];
 			int i = 0;
 			FilePathItem fpi = this.getFilePathItem();
 			for (ObjectMeta object : objectList)
@@ -125,14 +115,12 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException {
+	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, SearchLibException {
 		return listFiles(true);
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
-			SearchLibException {
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException, SearchLibException {
 		return listFiles(false);
 
 	}
@@ -160,12 +148,16 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
+	public void delete() throws IOException {
+		throw new IOException("Delete not implemented");
+	}
+
+	@Override
 	public InputStream getInputStream() throws IOException {
 		HttpDownloader downloader = new HttpDownloader(null, false, null);
 		try {
 			authentication(downloader);
-			return SwiftProtocol.getObject(downloader, getFilePathItem()
-					.getSwiftContainer(), token, object);
+			return SwiftProtocol.getObject(downloader, getFilePathItem().getSwiftContainer(), token, object);
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		} catch (JSONException e) {

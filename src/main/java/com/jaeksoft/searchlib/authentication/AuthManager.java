@@ -82,8 +82,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 	private final static String AUTH_ATTR_DEFAULT_USER = "defaultUser";
 	private final static String AUTH_ATTR_DEFAULT_GROUP = "defaultGroup";
 
-	public AuthManager(Config config, File indexDir) throws SAXException,
-			IOException, ParserConfigurationException {
+	public AuthManager(Config config, File indexDir) throws SAXException, IOException, ParserConfigurationException {
 		this.config = config;
 		authFile = new File(indexDir, AUTH_CONFIG_FILENAME);
 		if (!authFile.exists())
@@ -93,21 +92,14 @@ public class AuthManager implements UpdateInterfaces.Before {
 		Node authNode = DomUtils.getFirstNode(docNode, AUTH_ITEM_ROOT_NODE);
 		if (authNode == null)
 			return;
-		enabled = DomUtils.getAttributeBoolean(authNode, AUTH_ATTR_ENABLED,
-				false);
+		enabled = DomUtils.getAttributeBoolean(authNode, AUTH_ATTR_ENABLED, false);
 		index = DomUtils.getAttributeText(authNode, AUTH_ATTR_INDEX);
-		userAllowField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_USER_ALLOW_FIELD);
-		userDenyField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_USER_DENY_FIELD);
-		groupAllowField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_GROUP_ALLOW_FIELD);
-		groupDenyField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_GROUP_DENY_FIELD);
-		defaultUser = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_DEFAULT_USER);
-		defaultGroup = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_DEFAULT_GROUP);
+		userAllowField = DomUtils.getAttributeText(authNode, AUTH_ATTR_USER_ALLOW_FIELD);
+		userDenyField = DomUtils.getAttributeText(authNode, AUTH_ATTR_USER_DENY_FIELD);
+		groupAllowField = DomUtils.getAttributeText(authNode, AUTH_ATTR_GROUP_ALLOW_FIELD);
+		groupDenyField = DomUtils.getAttributeText(authNode, AUTH_ATTR_GROUP_DENY_FIELD);
+		defaultUser = DomUtils.getAttributeText(authNode, AUTH_ATTR_DEFAULT_USER);
+		defaultGroup = DomUtils.getAttributeText(authNode, AUTH_ATTR_DEFAULT_GROUP);
 	}
 
 	/**
@@ -126,10 +118,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param userAllowField
 	 *            the userAllowField to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setUserAllowField(String userAllowField) throws IOException,
-			SearchLibException {
+	public void setUserAllowField(String userAllowField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.userAllowField = userAllowField;
@@ -155,10 +148,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param groupAllowField
 	 *            the groupAllowField to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setGroupAllowField(String groupAllowField) throws IOException,
-			SearchLibException {
+	public void setGroupAllowField(String groupAllowField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.groupAllowField = groupAllowField;
@@ -184,10 +178,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param userDenyField
 	 *            the userDenyField to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setUserDenyField(String userDenyField) throws IOException,
-			SearchLibException {
+	public void setUserDenyField(String userDenyField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.userDenyField = userDenyField;
@@ -213,10 +208,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param groupDenyField
 	 *            the groupDenyField to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setGroupDenyField(String groupDenyField) throws IOException,
-			SearchLibException {
+	public void setGroupDenyField(String groupDenyField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.groupDenyField = groupDenyField;
@@ -242,10 +238,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param enabled
 	 *            the enabled to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setEnabled(boolean enabled) throws IOException,
-			SearchLibException {
+	public void setEnabled(boolean enabled) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.enabled = enabled;
@@ -296,10 +293,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param defaultUser
 	 *            the defaultUser to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setDefaultUser(String defaultUser) throws IOException,
-			SearchLibException {
+	public void setDefaultUser(String defaultUser) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.defaultUser = defaultUser;
@@ -325,10 +323,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	 * @param defaultGroup
 	 *            the defaultGroup to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setDefaultGroup(String defaultGroup) throws IOException,
-			SearchLibException {
+	public void setDefaultGroup(String defaultGroup) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.defaultGroup = defaultGroup;
@@ -343,14 +342,10 @@ public class AuthManager implements UpdateInterfaces.Before {
 		try {
 			pw = new PrintWriter(authFile, "UTF-8");
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			xmlWriter.startElement(AUTH_ITEM_ROOT_NODE, AUTH_ATTR_ENABLED,
-					Boolean.toString(enabled), AUTH_ATTR_INDEX, index,
-					AUTH_ATTR_USER_ALLOW_FIELD, userAllowField,
-					AUTH_ATTR_USER_DENY_FIELD, userDenyField,
-					AUTH_ATTR_GROUP_ALLOW_FIELD, groupAllowField,
-					AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField,
-					AUTH_ATTR_DEFAULT_USER, defaultUser,
-					AUTH_ATTR_DEFAULT_GROUP, defaultGroup);
+			xmlWriter.startElement(AUTH_ITEM_ROOT_NODE, AUTH_ATTR_ENABLED, Boolean.toString(enabled), AUTH_ATTR_INDEX,
+					index, AUTH_ATTR_USER_ALLOW_FIELD, userAllowField, AUTH_ATTR_USER_DENY_FIELD, userDenyField,
+					AUTH_ATTR_GROUP_ALLOW_FIELD, groupAllowField, AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField,
+					AUTH_ATTR_DEFAULT_USER, defaultUser, AUTH_ATTR_DEFAULT_GROUP, defaultGroup);
 			xmlWriter.endElement();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
@@ -362,21 +357,18 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	@Override
-	public void update(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	public void update(Schema schema, IndexDocument document) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
 				return;
 			if (isJoin_noLock())
 				return;
-			if (!StringUtils.isEmpty(defaultUser)
-					&& !StringUtils.isEmpty(userAllowField)) {
+			if (!StringUtils.isEmpty(defaultUser) && !StringUtils.isEmpty(userAllowField)) {
 				if (!document.hasContent(userAllowField))
 					document.add(userAllowField, defaultUser, null);
 			}
-			if (!StringUtils.isEmpty(defaultGroup)
-					&& !StringUtils.isEmpty(groupAllowField)) {
+			if (!StringUtils.isEmpty(defaultGroup) && !StringUtils.isEmpty(groupAllowField)) {
 				if (!document.hasContent(groupAllowField))
 					document.add(groupAllowField, defaultGroup, null);
 			}
@@ -400,8 +392,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 		}
 	}
 
-	final public void apply(final AbstractSearchRequest searchRequest)
-			throws SearchLibException, IOException {
+	final public void apply(final AbstractSearchRequest searchRequest) throws SearchLibException, IOException {
 		if (!isJoin())
 			searchRequest.getFilterList().addAuthFilter();
 		else

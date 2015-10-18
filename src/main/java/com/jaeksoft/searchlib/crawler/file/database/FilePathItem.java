@@ -122,6 +122,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * Set the type
 	 * 
 	 * @param type
+	 *            the fileinstance type to set
 	 */
 	public void setType(FileInstanceType type) {
 		this.type = type;
@@ -176,8 +177,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * @param smbSecurityPermissions
 	 *            the smbSecurityPermissions to set
 	 */
-	public void setSmbSecurityPermissions(
-			SmbSecurityPermissions smbSecurityPermissions) {
+	public void setSmbSecurityPermissions(SmbSecurityPermissions smbSecurityPermissions) {
 		this.smbSecurityPermissions = smbSecurityPermissions;
 	}
 
@@ -270,12 +270,14 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * Create a new FilePathItem instance by reading XML
 	 * 
 	 * @param node
-	 * @return
+	 *            the node with the parameters
+	 * @return a new FilePathItem
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public static FilePathItem fromXml(Config config, Node node)
-			throws SearchLibException, IOException {
+	public static FilePathItem fromXml(Config config, Node node) throws SearchLibException, IOException {
 		FilePathItem filePathItem = new FilePathItem(config);
 		String path = DomUtils.getFirstTextNode(node, "fpath");
 		if (path == null)
@@ -285,9 +287,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (type != null)
 			filePathItem.setType(FileInstanceType.findByName(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
-		filePathItem
-				.setSmbSecurityPermissions(SmbSecurityPermissions.find(DomUtils
-						.getAttributeText(node, "smbSecurityPermissions")));
+		filePathItem.setSmbSecurityPermissions(
+				SmbSecurityPermissions.find(DomUtils.getAttributeText(node, "smbSecurityPermissions")));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
 		if (password != null)
@@ -295,27 +296,19 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setHost(DomUtils.getAttributeText(node, "host"));
 		String withSubString = DomUtils.getAttributeText(node, "withSub");
 		filePathItem.setWithSubDir("yes".equalsIgnoreCase(withSubString));
-		String ignoreHiddenFiles = DomUtils.getAttributeText(node,
-				"ignoreHiddenFiles");
-		filePathItem.setIgnoreHiddenFiles("yes"
-				.equalsIgnoreCase(ignoreHiddenFiles));
+		String ignoreHiddenFiles = DomUtils.getAttributeText(node, "ignoreHiddenFiles");
+		filePathItem.setIgnoreHiddenFiles("yes".equalsIgnoreCase(ignoreHiddenFiles));
 		String enabled = DomUtils.getAttributeText(node, "enabled");
 		filePathItem.setEnabled("yes".equalsIgnoreCase(enabled));
 		String delay = DomUtils.getAttributeText(node, "delay");
 		if (delay != null)
 			filePathItem.setDelay(Integer.parseInt(delay));
-		filePathItem.setSwiftAuthType(AuthType.find(DomUtils.getAttributeText(
-				node, "swiftAuthType")));
-		filePathItem.setSwiftTenant(DomUtils.getAttributeText(node,
-				"swiftTenant"));
-		filePathItem.setSwiftAuthURL(DomUtils.getAttributeText(node,
-				"swiftAuthURL"));
-		filePathItem.setSwiftContainer(DomUtils.getAttributeText(node,
-				"swiftContainer"));
-		filePathItem.setExclusionPatterns(DomUtils.getFirstTextNode(node,
-				"exclusionPatterns"));
-		filePathItem.setFtpUsePassiveMode(DomUtils.getAttributeBoolean(node,
-				"ftpUsePassiveMode", true));
+		filePathItem.setSwiftAuthType(AuthType.find(DomUtils.getAttributeText(node, "swiftAuthType")));
+		filePathItem.setSwiftTenant(DomUtils.getAttributeText(node, "swiftTenant"));
+		filePathItem.setSwiftAuthURL(DomUtils.getAttributeText(node, "swiftAuthURL"));
+		filePathItem.setSwiftContainer(DomUtils.getAttributeText(node, "swiftContainer"));
+		filePathItem.setExclusionPatterns(DomUtils.getFirstTextNode(node, "exclusionPatterns"));
+		filePathItem.setFtpUsePassiveMode(DomUtils.getAttributeBoolean(node, "ftpUsePassiveMode", true));
 		return filePathItem;
 	}
 
@@ -323,25 +316,23 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * Write the FilePathItem in XML format
 	 * 
 	 * @param xmlWriter
+	 *            the writer to use
 	 * @param nodeName
+	 *            the name of the node to write
 	 * @throws SAXException
+	 *             inherited error
 	 * @throws UnsupportedEncodingException
+	 *             inherited error
 	 */
-	public void writeXml(XmlWriter xmlWriter, String nodeName)
-			throws SAXException, UnsupportedEncodingException {
-		xmlWriter.startElement(nodeName, "type", type.getName(), "domain",
-				domain, "smbSecurityPermissions",
-				smbSecurityPermissions != null ? smbSecurityPermissions.name()
-						: null, "username", username, "password",
-				password == null ? null : StringUtils.base64encode(password),
-				"host", host, "withSub", withSub ? "yes" : "no",
-				"ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no",
-				"enabled", enabled ? "yes" : "no", "delay", Integer
-						.toString(delay), "swiftAuthType",
-				swiftAuthType != null ? swiftAuthType.name() : null,
-				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL,
-				"swiftContainer", swiftContainer, "ftpUsePassiveMode", Boolean
-						.toString(ftpUsePassiveMode));
+	public void writeXml(XmlWriter xmlWriter, String nodeName) throws SAXException, UnsupportedEncodingException {
+		xmlWriter.startElement(nodeName, "type", type.getName(), "domain", domain, "smbSecurityPermissions",
+				smbSecurityPermissions != null ? smbSecurityPermissions.name() : null, "username", username, "password",
+				password == null ? null : StringUtils.base64encode(password), "host", host, "withSub",
+				withSub ? "yes" : "no", "ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no", "enabled",
+				enabled ? "yes" : "no", "delay", Integer.toString(delay), "swiftAuthType",
+				swiftAuthType != null ? swiftAuthType.name() : null, "swiftTenant", swiftTenant, "swiftAuthURL",
+				swiftAuthURL, "swiftContainer", swiftContainer, "ftpUsePassiveMode",
+				Boolean.toString(ftpUsePassiveMode));
 		if (path != null) {
 			xmlWriter.startElement("fpath");
 			xmlWriter.textNode(path);
@@ -421,8 +412,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		return sb.toString();
 	}
 
-	public String check() throws InstantiationException,
-			IllegalAccessException, SearchLibException, URISyntaxException,
+	public String check() throws InstantiationException, IllegalAccessException, SearchLibException, URISyntaxException,
 			UnsupportedEncodingException {
 		if (Logging.isDebug)
 			Logging.debug("CHECK " + this.toString());
@@ -515,9 +505,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * @param exclusionPattern
 	 *            the exclusionPattern to set
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setExclusionPatterns(String exclusionPatterns)
-			throws IOException {
+	public void setExclusionPatterns(String exclusionPatterns) throws IOException {
 		this.exclusionPatterns = exclusionPatterns;
 		exclusionMatchers = RegExpUtils.wildcardMatcherArray(exclusionPatterns);
 	}

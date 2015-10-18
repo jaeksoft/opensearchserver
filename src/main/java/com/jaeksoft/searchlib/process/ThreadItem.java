@@ -24,8 +24,7 @@
 
 package com.jaeksoft.searchlib.process;
 
-public abstract class ThreadItem<I extends ThreadItem<I, T>, T extends ThreadAbstract<T>>
-		implements Comparable<I> {
+public abstract class ThreadItem<I extends ThreadItem<I, T>, T extends ThreadAbstract<T>> implements Comparable<I> {
 
 	protected final ThreadMasterAbstract<?, T> threadMaster;
 
@@ -43,7 +42,7 @@ public abstract class ThreadItem<I extends ThreadItem<I, T>, T extends ThreadAbs
 	}
 
 	/**
-	 * @param crawlThread
+	 * @param lastThread
 	 *            the crawlThread to set
 	 */
 	public void setLastThread(T lastThread) {
