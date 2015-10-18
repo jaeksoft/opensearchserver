@@ -58,32 +58,22 @@ public class FileInfo {
 		init();
 	}
 
-	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException,
-			URISyntaxException {
+	public FileInfo(ResultDocument doc) throws UnsupportedEncodingException, URISyntaxException {
 		init();
-		setFileSystemDate(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fileSystemDate.getName(), 0));
-		String s = doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fileType.getName(), 0);
+		setFileSystemDate(doc.getValueContent(FileItemFieldEnum.INSTANCE.fileSystemDate.getName(), 0));
+		String s = doc.getValueContent(FileItemFieldEnum.INSTANCE.fileType.getName(), 0);
 		if (s != null)
 			setFileType(FileTypeEnum.valueOf(s));
 		setUri(doc.getValueContent(FileItemFieldEnum.INSTANCE.uri.getName(), 0));
-		setFileName(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fileName.getName(), 0));
-		setFileExtension(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
-		setFileSize(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fileSize.getName(), 0));
-		setFetchStatusInt(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fetchStatus.getName(), 0));
-		setParserStatusInt(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.parserStatus.getName(), 0));
-		setIndexStatusInt(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
+		setFileName(doc.getValueContent(FileItemFieldEnum.INSTANCE.fileName.getName(), 0));
+		setFileExtension(doc.getValueContent(FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
+		setFileSize(doc.getValueContent(FileItemFieldEnum.INSTANCE.fileSize.getName(), 0));
+		setFetchStatusInt(doc.getValueContent(FileItemFieldEnum.INSTANCE.fetchStatus.getName(), 0));
+		setParserStatusInt(doc.getValueContent(FileItemFieldEnum.INSTANCE.parserStatus.getName(), 0));
+		setIndexStatusInt(doc.getValueContent(FileItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
 	}
 
-	public FileInfo(FileInstanceAbstract fileInstance)
-			throws SearchLibException {
+	public FileInfo(FileInstanceAbstract fileInstance) throws SearchLibException {
 		init();
 		setUriFileNameExtension(fileInstance.getURI());
 
@@ -249,12 +239,16 @@ public class FileInfo {
 	final public boolean isStatusFull() {
 		return fetchStatus == FetchStatus.FETCHED
 				&& (parserStatus == ParserStatus.PARSED || parserStatus == ParserStatus.PARSER_ERROR)
-				&& (indexStatus == IndexStatus.INDEXED
-						|| indexStatus == IndexStatus.NOTHING_TO_INDEX || indexStatus == IndexStatus.INDEX_ERROR);
+				&& (indexStatus == IndexStatus.INDEXED || indexStatus == IndexStatus.NOTHING_TO_INDEX
+						|| indexStatus == IndexStatus.INDEX_ERROR);
 	}
 
 	/**
 	 * Test if a new crawl is needed
+	 * 
+	 * @param newFileInfo
+	 *            the current file
+	 * @return true if the crawl is required
 	 */
 	final public boolean isNewCrawlNeeded(final FileInfo newFileInfo) {
 		if (!isStatusFull())
@@ -265,8 +259,7 @@ public class FileInfo {
 			return true;
 		if (newFileInfo.fileSystemDate == null)
 			return true;
-		if (fileSystemDate.longValue() != newFileInfo.fileSystemDate
-				.longValue())
+		if (fileSystemDate.longValue() != newFileInfo.fileSystemDate.longValue())
 			return true;
 		if (fileType != newFileInfo.fileType)
 			return true;
@@ -278,34 +271,19 @@ public class FileInfo {
 
 	public void populate(IndexDocument indexDocument) {
 		if (fileSystemDate != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.fileSystemDate.getName(),
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.fileSystemDate.getName(),
 					FileItem.dateFormat.format(fileSystemDate));
 		if (fileSize != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.fileSize.getName(),
-					fileSize.toString());
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.fileSize.getName(), fileSize.toString());
 		if (fileName != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.fileName.getName(),
-					fileName.toString());
-		indexDocument.setObject(
-				FileItemFieldEnum.INSTANCE.fetchStatus.getName(),
-				fetchStatus.value);
-		indexDocument.setObject(
-				FileItemFieldEnum.INSTANCE.parserStatus.getName(),
-				parserStatus.value);
-		indexDocument.setObject(
-				FileItemFieldEnum.INSTANCE.indexStatus.getName(),
-				indexStatus.value);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.fileName.getName(), fileName.toString());
+		indexDocument.setObject(FileItemFieldEnum.INSTANCE.fetchStatus.getName(), fetchStatus.value);
+		indexDocument.setObject(FileItemFieldEnum.INSTANCE.parserStatus.getName(), parserStatus.value);
+		indexDocument.setObject(FileItemFieldEnum.INSTANCE.indexStatus.getName(), indexStatus.value);
 		if (fileType != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.fileType.getName(),
-					fileType.name());
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.fileType.getName(), fileType.name());
 		if (fileExtension != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.fileExtension.getName(),
-					fileExtension);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.fileExtension.getName(), fileExtension);
 	}
 
 }

@@ -50,8 +50,7 @@ public class TokenTerm {
 		flags = 0;
 	}
 
-	public TokenTerm(String term, int start, int end, int increment,
-			String type, int flags) {
+	public TokenTerm(String term, int start, int end, int increment, String type, int flags) {
 		this.term = term;
 		this.start = start;
 		this.end = end;
@@ -73,6 +72,7 @@ public class TokenTerm {
 	 * Merge many token together
 	 * 
 	 * @param tokenTerms
+	 *            a copied collection
 	 */
 	public TokenTerm(final Collection<TokenTerm> tokenTerms) {
 		int start = Integer.MAX_VALUE;
@@ -93,15 +93,12 @@ public class TokenTerm {
 		this.flags = 0;
 	}
 
-	public TokenTerm(final CharTermAttribute termAtt,
-			final PositionIncrementAttribute posIncrAtt,
-			final OffsetAttribute offsetAtt, final TypeAttribute typeAtt,
-			final FlagsAttribute flagsAtt) {
+	public TokenTerm(final CharTermAttribute termAtt, final PositionIncrementAttribute posIncrAtt,
+			final OffsetAttribute offsetAtt, final TypeAttribute typeAtt, final FlagsAttribute flagsAtt) {
 		this.term = termAtt != null ? termAtt.toString() : null;
 		this.start = offsetAtt != null ? offsetAtt.startOffset() : 0;
 		this.end = offsetAtt != null ? offsetAtt.endOffset() : 0;
-		this.increment = posIncrAtt != null ? posIncrAtt.getPositionIncrement()
-				: 0;
+		this.increment = posIncrAtt != null ? posIncrAtt.getPositionIncrement() : 0;
 		this.type = typeAtt != null ? typeAtt.type() : null;
 		this.flags = flagsAtt != null ? flagsAtt.getFlags() : null;
 	}

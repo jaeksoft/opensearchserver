@@ -51,8 +51,7 @@ public class FileItem extends FileInfo {
 	public static final String UTF_8_ENCODING = "UTF-8";
 
 	public enum Status {
-		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY(
-				"Already injected"), ERROR("Unknown Error");
+		UNDEFINED("Undefined"), INJECTED("Injected"), ALREADY("Already injected"), ERROR("Unknown Error");
 
 		private String name;
 
@@ -66,11 +65,9 @@ public class FileItem extends FileInfo {
 		}
 	}
 
-	final static ThreadSafeDecimalFormat contentLengthFormat = new ThreadSafeDecimalFormat(
-			"00000000000000");
+	final static ThreadSafeDecimalFormat contentLengthFormat = new ThreadSafeDecimalFormat("00000000000000");
 
-	final static ThreadSafeDateFormat dateFormat = new ThreadSafeSimpleDateFormat(
-			"yyyyMMddHHmmssSSS");
+	final static ThreadSafeDateFormat dateFormat = new ThreadSafeSimpleDateFormat("yyyyMMddHHmmssSSS");
 
 	private String repository;
 	private String directory;
@@ -110,49 +107,34 @@ public class FileItem extends FileInfo {
 		groupDeny = null;
 	}
 
-	public FileItem(ResultDocument doc) throws UnsupportedEncodingException,
-			URISyntaxException {
+	public FileItem(ResultDocument doc) throws UnsupportedEncodingException, URISyntaxException {
 		super(doc);
 
-		setRepository(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.repository.getName(), 0));
-		setDirectory(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.directory.getName(), 0));
-		setHost(doc.getValueContent(FileItemFieldEnum.INSTANCE.host.getName(),
-				0));
-		setSubDirectory(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.subDirectory.getName())));
+		setRepository(doc.getValueContent(FileItemFieldEnum.INSTANCE.repository.getName(), 0));
+		setDirectory(doc.getValueContent(FileItemFieldEnum.INSTANCE.directory.getName(), 0));
+		setHost(doc.getValueContent(FileItemFieldEnum.INSTANCE.host.getName(), 0));
+		setSubDirectory(
+				FieldValueItem.buildArrayList(doc.getValues(FileItemFieldEnum.INSTANCE.subDirectory.getName())));
 
-		setLang(doc.getValueContent(FileItemFieldEnum.INSTANCE.lang.getName(),
-				0));
+		setLang(doc.getValueContent(FileItemFieldEnum.INSTANCE.lang.getName(), 0));
 
-		setLangMethod(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.langMethod.getName(), 0));
+		setLangMethod(doc.getValueContent(FileItemFieldEnum.INSTANCE.langMethod.getName(), 0));
 
-		setCrawlDate(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.crawlDate.getName(), 0));
+		setCrawlDate(doc.getValueContent(FileItemFieldEnum.INSTANCE.crawlDate.getName(), 0));
 
-		setFileExtension(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
+		setFileExtension(doc.getValueContent(FileItemFieldEnum.INSTANCE.fileExtension.getName(), 0));
 
-		setParser(doc.getValueContent(
-				FileItemFieldEnum.INSTANCE.parser.getName(), 0));
+		setParser(doc.getValueContent(FileItemFieldEnum.INSTANCE.parser.getName(), 0));
 
-		setTime(doc.getValueContent(FileItemFieldEnum.INSTANCE.time.getName(),
-				0));
+		setTime(doc.getValueContent(FileItemFieldEnum.INSTANCE.time.getName(), 0));
 
-		setUserAllow(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.userAllow.getName())));
-		setUserDeny(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.userDeny.getName())));
-		setGroupAllow(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.groupAllow.getName())));
-		setGroupDeny(FieldValueItem.buildArrayList(doc
-				.getValues(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
+		setUserAllow(FieldValueItem.buildArrayList(doc.getValues(FileItemFieldEnum.INSTANCE.userAllow.getName())));
+		setUserDeny(FieldValueItem.buildArrayList(doc.getValues(FileItemFieldEnum.INSTANCE.userDeny.getName())));
+		setGroupAllow(FieldValueItem.buildArrayList(doc.getValues(FileItemFieldEnum.INSTANCE.groupAllow.getName())));
+		setGroupDeny(FieldValueItem.buildArrayList(doc.getValues(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
 	}
 
-	public FileItem(FileInstanceAbstract fileInstance)
-			throws SearchLibException {
+	public FileItem(FileInstanceAbstract fileInstance) throws SearchLibException {
 		super(fileInstance);
 		setHost(fileInstance.getFilePathItem().getHost());
 		setRepository(fileInstance.getFilePathItem().toString());
@@ -172,14 +154,10 @@ public class FileItem extends FileInfo {
 			} catch (IOException e) {
 				throw new SearchLibException(e);
 			}
-			setUserAllow(SecurityAccess.getIds(securityAccesses, Type.USER,
-					Grant.ALLOW));
-			setUserDeny(SecurityAccess.getIds(securityAccesses, Type.USER,
-					Grant.DENY));
-			setGroupAllow(SecurityAccess.getIds(securityAccesses, Type.GROUP,
-					Grant.ALLOW));
-			setGroupDeny(SecurityAccess.getIds(securityAccesses, Type.GROUP,
-					Grant.DENY));
+			setUserAllow(SecurityAccess.getIds(securityAccesses, Type.USER, Grant.ALLOW));
+			setUserDeny(SecurityAccess.getIds(securityAccesses, Type.USER, Grant.DENY));
+			setGroupAllow(SecurityAccess.getIds(securityAccesses, Type.GROUP, Grant.ALLOW));
+			setGroupDeny(SecurityAccess.getIds(securityAccesses, Type.GROUP, Grant.DENY));
 		}
 	}
 
@@ -230,54 +208,35 @@ public class FileItem extends FileInfo {
 		super.populate(indexDocument);
 
 		if (repository != null)
-			indexDocument
-					.setString(FileItemFieldEnum.INSTANCE.repository.getName(),
-							repository);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.repository.getName(), repository);
 
-		indexDocument.setString(FileItemFieldEnum.INSTANCE.uri.getName(),
-				getUri());
+		indexDocument.setString(FileItemFieldEnum.INSTANCE.uri.getName(), getUri());
 
 		if (directory != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.directory.getName(), directory);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.directory.getName(), directory);
 
 		if (host != null)
-			indexDocument.setString(FileItemFieldEnum.INSTANCE.host.getName(),
-					host);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.host.getName(), host);
 
-		indexDocument.setStringList(
-				FileItemFieldEnum.INSTANCE.subDirectory.getName(),
-				getSubDirectory());
+		indexDocument.setStringList(FileItemFieldEnum.INSTANCE.subDirectory.getName(), getSubDirectory());
 
 		if (crawlDate != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.crawlDate.getName(),
-					dateFormat.format(crawlDate));
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.crawlDate.getName(), dateFormat.format(crawlDate));
 
 		if (lang != null)
-			indexDocument.setString(FileItemFieldEnum.INSTANCE.lang.getName(),
-					lang);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.lang.getName(), lang);
 		if (langMethod != null)
-			indexDocument
-					.setString(FileItemFieldEnum.INSTANCE.langMethod.getName(),
-							langMethod);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.langMethod.getName(), langMethod);
 
 		if (parser != null)
-			indexDocument.setString(
-					FileItemFieldEnum.INSTANCE.parser.getName(), parser);
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.parser.getName(), parser);
 		if (time != null)
-			indexDocument.setString(FileItemFieldEnum.INSTANCE.time.getName(),
-					contentLengthFormat.format(time));
+			indexDocument.setString(FileItemFieldEnum.INSTANCE.time.getName(), contentLengthFormat.format(time));
 
-		indexDocument.setStringList(
-				FileItemFieldEnum.INSTANCE.userAllow.getName(), getUserAllow());
-		indexDocument.setStringList(
-				FileItemFieldEnum.INSTANCE.userDeny.getName(), getUserDeny());
-		indexDocument.setStringList(
-				FileItemFieldEnum.INSTANCE.groupAllow.getName(),
-				getGroupAllow());
-		indexDocument.setStringList(
-				FileItemFieldEnum.INSTANCE.groupDeny.getName(), getGroupDeny());
+		indexDocument.setStringList(FileItemFieldEnum.INSTANCE.userAllow.getName(), getUserAllow());
+		indexDocument.setStringList(FileItemFieldEnum.INSTANCE.userDeny.getName(), getUserDeny());
+		indexDocument.setStringList(FileItemFieldEnum.INSTANCE.groupAllow.getName(), getGroupAllow());
+		indexDocument.setStringList(FileItemFieldEnum.INSTANCE.groupDeny.getName(), getGroupDeny());
 
 	}
 
@@ -407,7 +366,7 @@ public class FileItem extends FileInfo {
 	}
 
 	/**
-	 * @param time
+	 * @param t
 	 *            the time to set
 	 */
 	public void setTime(Integer t) {

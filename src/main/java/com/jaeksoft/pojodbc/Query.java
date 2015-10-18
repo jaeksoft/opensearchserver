@@ -239,6 +239,8 @@ public class Query {
 	 * 
 	 * @param beanClass
 	 *            The class name of POJO returned in the list
+	 * @param <T>
+	 *            The type of the pojo
 	 * @return a list of POJO
 	 * @throws Exception
 	 *             if any JDBC error occurs
