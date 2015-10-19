@@ -63,6 +63,9 @@ public class TaskFileCrawlerEvent extends TaskAbstract {
 	final private TaskPropertyDef propLogFilePattern = new TaskPropertyDef(TaskPropertyType.textBox, "Log file pattern",
 			"Log file pattern", "Log file pattern", 30);
 
+	final private TaskPropertyDef propDomain = new TaskPropertyDef(TaskPropertyType.textBox, "Domain", "Domain",
+			"Domain", 30);
+
 	final private TaskPropertyDef propLogin = new TaskPropertyDef(TaskPropertyType.textBox, "Login", "Login", "Login",
 			30);
 
@@ -70,7 +73,7 @@ public class TaskFileCrawlerEvent extends TaskAbstract {
 			"Password", 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propFilePathItem, propDirectoryURL, propLogFilePattern,
-			propLogin, propPassword };
+			propDomain, propLogin, propPassword };
 
 	@Override
 	public String getName() {
@@ -106,6 +109,7 @@ public class TaskFileCrawlerEvent extends TaskAbstract {
 		String filePath = properties.getValue(propFilePathItem);
 		String directoryURL = properties.getValue(propDirectoryURL);
 		String logFilePattern = properties.getValue(propLogFilePattern);
+		String domain = properties.getValue(propDomain);
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);
 
@@ -123,6 +127,8 @@ public class TaskFileCrawlerEvent extends TaskAbstract {
 				fpi = new FilePathItem(client);
 				fpi.setType(FileInstanceType.Smb);
 				fpi.setHost(srcURI.getHost());
+				if (domain != null)
+					fpi.setDomain(domain);
 				if (login != null)
 					fpi.setUsername(login);
 				if (password != null)
