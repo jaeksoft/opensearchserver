@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.request;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -104,8 +105,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 		this.text = neeRequest.text;
 		this.searchRequest = neeRequest.searchRequest;
 		this.namedEntityField = neeRequest.namedEntityField;
-		this.returnedFields = neeRequest.returnedFields == null ? null
-				: new TreeSet<String>(neeRequest.returnedFields);
+		this.returnedFields = neeRequest.returnedFields == null ? null : new TreeSet<String>(neeRequest.returnedFields);
 		this.stopWordsMap = neeRequest.stopWordsMap == null ? null
 				: new TreeMap<String, Boolean>(neeRequest.stopWordsMap);
 		this.maxNumberOfWords = neeRequest.maxNumberOfWords;
@@ -177,17 +177,12 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	private final static String ATTR_NAME_FIELD = "name";
 
 	@Override
-	public void fromXmlConfigNoLock(Config config, XPathParser xpp,
-			Node requestNode) throws XPathExpressionException, DOMException,
-			ParseException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	public void fromXmlConfigNoLock(Config config, XPathParser xpp, Node requestNode) throws XPathExpressionException,
+			DOMException, ParseException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		super.fromXmlConfigNoLock(config, xpp, requestNode);
-		searchRequest = DomUtils.getAttributeText(requestNode,
-				ATTR_SEARCH_REQUEST);
-		namedEntityField = DomUtils.getAttributeText(requestNode,
-				ATTR_NAMED_ENTITY_FIELD);
-		maxNumberOfWords = DomUtils.getAttributeInteger(requestNode,
-				ATTR_MAX_NUMBER_OF_WORDS, 5);
+		searchRequest = DomUtils.getAttributeText(requestNode, ATTR_SEARCH_REQUEST);
+		namedEntityField = DomUtils.getAttributeText(requestNode, ATTR_NAMED_ENTITY_FIELD);
+		maxNumberOfWords = DomUtils.getAttributeInteger(requestNode, ATTR_MAX_NUMBER_OF_WORDS, 5);
 		tokenizer = DomUtils.getAttributeText(requestNode, ATTR_TOKENIZER,
 				TokenizerEnum.LetterOrDigitTokenizerFactory.name());
 		Node textNode = DomUtils.getFirstNode(requestNode, NODE_TEXT);
@@ -195,19 +190,15 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 			text = DomUtils.getText(requestNode);
 		else
 			text = DomUtils.getText(textNode);
-		List<Node> returnedNodes = DomUtils.getNodes(requestNode,
-				NODE_RETURNED_FIELD);
+		List<Node> returnedNodes = DomUtils.getNodes(requestNode, NODE_RETURNED_FIELD);
 		if (returnedNodes != null)
 			for (Node returnedNode : returnedNodes)
-				addReturnedField(DomUtils.getAttributeText(returnedNode,
-						ATTR_NAME_FIELD));
-		List<Node> stopwordsNodes = DomUtils.getNodes(requestNode,
-				NODE_NAME_STOPWORDS_LIST);
+				addReturnedField(DomUtils.getAttributeText(returnedNode, ATTR_NAME_FIELD));
+		List<Node> stopwordsNodes = DomUtils.getNodes(requestNode, NODE_NAME_STOPWORDS_LIST);
 		if (stopwordsNodes != null)
 			for (Node stopwordsNode : stopwordsNodes)
-				addStopWords(DomUtils.getAttributeText(stopwordsNode,
-						ATTR_STOPWORDS_LISTNAME), DomUtils.getAttributeBoolean(
-						stopwordsNode, ATTR_STOPWORDS_CASESENSITIVE, true));
+				addStopWords(DomUtils.getAttributeText(stopwordsNode, ATTR_STOPWORDS_LISTNAME),
+						DomUtils.getAttributeBoolean(stopwordsNode, ATTR_STOPWORDS_CASESENSITIVE, true));
 
 	}
 
@@ -215,26 +206,19 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
-					getRequestName(), XML_ATTR_TYPE, getType().name(),
-					ATTR_SEARCH_REQUEST, searchRequest,
-					ATTR_NAMED_ENTITY_FIELD, namedEntityField,
-					ATTR_MAX_NUMBER_OF_WORDS,
-					Integer.toString(maxNumberOfWords), ATTR_TOKENIZER,
-					tokenizer);
+			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME, getRequestName(), XML_ATTR_TYPE, getType().name(),
+					ATTR_SEARCH_REQUEST, searchRequest, ATTR_NAMED_ENTITY_FIELD, namedEntityField,
+					ATTR_MAX_NUMBER_OF_WORDS, Integer.toString(maxNumberOfWords), ATTR_TOKENIZER, tokenizer);
 			if (returnedFields != null) {
 				for (String returnedField : returnedFields) {
-					xmlWriter.startElement(NODE_RETURNED_FIELD,
-							ATTR_NAME_FIELD, returnedField);
+					xmlWriter.startElement(NODE_RETURNED_FIELD, ATTR_NAME_FIELD, returnedField);
 					xmlWriter.endElement();
 				}
 			}
 			if (stopWordsMap != null) {
 				for (Map.Entry<String, Boolean> entry : stopWordsMap.entrySet()) {
-					xmlWriter.startElement(NODE_NAME_STOPWORDS_LIST,
-							ATTR_STOPWORDS_LISTNAME, entry.getKey(),
-							ATTR_STOPWORDS_CASESENSITIVE, entry.getValue()
-									.toString());
+					xmlWriter.startElement(NODE_NAME_STOPWORDS_LIST, ATTR_STOPWORDS_LISTNAME, entry.getKey(),
+							ATTR_STOPWORDS_CASESENSITIVE, entry.getValue().toString());
 					xmlWriter.endElement();
 				}
 			}
@@ -250,24 +234,18 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	}
 
 	@Override
-	final public void setFromServletNoLock(
-			final ServletTransaction transaction, final String prefix) {
+	final public void setFromServletNoLock(final ServletTransaction transaction, final String prefix) {
 		String value = null;
-		if ((value = transaction.getParameterString(StringUtils.fastConcat(
-				prefix, "text"))) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(prefix, "text"))) != null)
 			text = value;
-		if ((value = transaction.getParameterString(StringUtils.fastConcat(
-				prefix, "searchRequest"))) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(prefix, "searchRequest"))) != null)
 			searchRequest = value;
-		if ((value = transaction.getParameterString(StringUtils.fastConcat(
-				prefix, "namedEntityField"))) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(prefix, "namedEntityField"))) != null)
 			namedEntityField = value;
-		if ((value = transaction.getParameterString(StringUtils.fastConcat(
-				prefix, "stopWordList"))) != null)
+		if ((value = transaction.getParameterString(StringUtils.fastConcat(prefix, "stopWordList"))) != null)
 			stopWordsMap.put(value, true);
 		Integer iValue;
-		if ((iValue = transaction.getParameterInteger(StringUtils.fastConcat(
-				prefix, "maxNumberOfWords"))) != null)
+		if ((iValue = transaction.getParameterInteger(StringUtils.fastConcat(prefix, "maxNumberOfWords"))) != null)
 			maxNumberOfWords = iValue;
 	}
 
@@ -275,63 +253,49 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 	protected void resetNoLock() {
 	}
 
-	public List<FilterFactory> getFilterList(
-			DeduplicateTokenPositionsFilter dtpf) throws SearchLibException {
+	public List<FilterFactory> getFilterList(DeduplicateTokenPositionsFilter dtpf) throws SearchLibException {
 		List<FilterFactory> filterList = new ArrayList<FilterFactory>(10);
-		ShingleFilter shingleFilter = FilterFactory.create(config,
-				ShingleFilter.class);
+		ShingleFilter shingleFilter = FilterFactory.create(config, ShingleFilter.class);
 		shingleFilter.setProperties(" ", 1, maxNumberOfWords);
 		filterList.add(shingleFilter);
 		if (dtpf == null)
-			dtpf = FilterFactory.create(config,
-					DeduplicateTokenPositionsFilter.class);
+			dtpf = FilterFactory.create(config, DeduplicateTokenPositionsFilter.class);
 		filterList.add(dtpf);
 		if (stopWordsMap != null) {
 			for (Map.Entry<String, Boolean> entry : stopWordsMap.entrySet()) {
-				StopFilter stopFilter = FilterFactory.create(config,
-						StopFilter.class);
+				StopFilter stopFilter = FilterFactory.create(config, StopFilter.class);
 				stopFilter.setProperties(entry.getKey(), entry.getValue());
 				filterList.add(stopFilter);
 			}
 		}
-		IndexLookupFilter ilf = FilterFactory.create(config,
-				IndexLookupFilter.class);
+		IndexLookupFilter ilf = FilterFactory.create(config, IndexLookupFilter.class);
 		addReturnedField(namedEntityField);
-		ilf.setProperties(config.getIndexName(), searchRequest,
-				namedEntityField, StringUtils.join(returnedFields, '|'));
+		ilf.setProperties(config.getIndexName(), searchRequest, namedEntityField,
+				StringUtils.join(returnedFields, '|'));
 		filterList.add(ilf);
-		RemoveIncludedTermFilter ritf = FilterFactory.create(config,
-				RemoveIncludedTermFilter.class);
+		RemoveIncludedTermFilter ritf = FilterFactory.create(config, RemoveIncludedTermFilter.class);
 		ritf.setProperties(namedEntityField, true);
 		filterList.add(ritf);
 		return filterList;
 	}
 
 	@Override
-	public AbstractResult<AbstractRequest> execute(ReaderInterface reader)
-			throws SearchLibException {
+	public AbstractResult<AbstractRequest> execute(ReaderInterface reader) throws SearchLibException {
 		try {
-			AbstractSearchRequest abstractSearchRequest = (AbstractSearchRequest) config
-					.getNewRequest(searchRequest);
+			AbstractSearchRequest abstractSearchRequest = (AbstractSearchRequest) config.getNewRequest(searchRequest);
 			if (abstractSearchRequest == null)
-				throw new SearchLibException("Request not found: "
-						+ searchRequest);
-			TreeSet<String> fieldNameSet = new TreeSet<String>();
+				throw new SearchLibException("Request not found: " + searchRequest);
+			LinkedHashSet<String> fieldNameSet = new LinkedHashSet<String>();
 			abstractSearchRequest.getReturnFieldList().populate(fieldNameSet);
 
-			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(
-					this);
-			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config,
-					DeduplicateTokenPositionsFilter.class);
+			ResultNamedEntityExtraction result = new ResultNamedEntityExtraction(this);
+			DeduplicateTokenPositionsFilter dtpf = FilterFactory.create(config, DeduplicateTokenPositionsFilter.class);
 			Analyzer analyzer = new Analyzer(config);
-			analyzer.setIndexTokenizer(TokenizerFactory.create(config,
-					tokenizer));
-			analyzer.setQueryTokenizer(TokenizerFactory.create(config,
-					tokenizer));
+			analyzer.setIndexTokenizer(TokenizerFactory.create(config, tokenizer));
+			analyzer.setQueryTokenizer(TokenizerFactory.create(config, tokenizer));
 			analyzer.add(getFilterList(dtpf));
 			analyzer.getQueryAnalyzer().populate(text, result);
-			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap(),
-					text);
+			result.resolvePositions(namedEntityField, dtpf.getLastTokenMap(), text);
 			return result;
 		} catch (IOException e) {
 			throw new SearchLibException(e);

@@ -27,10 +27,10 @@ package com.jaeksoft.searchlib.schema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.xml.sax.SAXException;
@@ -38,11 +38,11 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public abstract class AbstractFieldList<T extends AbstractField<T>> implements
-		Comparable<AbstractFieldList<T>>, Iterable<T> {
+public abstract class AbstractFieldList<T extends AbstractField<T>>
+		implements Comparable<AbstractFieldList<T>>, Iterable<T> {
 
 	private final List<T> fieldList;
-	private final Map<String, T> fieldMap;
+	private final LinkedHashMap<String, T> fieldMap;
 	private String cacheKey;
 	private volatile TreeSet<String> cachedFieldSet;
 	private final boolean cacheKeySorted;
@@ -53,7 +53,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 	 * Basic contructor.
 	 */
 	protected AbstractFieldList(boolean cacheKeySorted) {
-		this.fieldMap = new TreeMap<String, T>();
+		this.fieldMap = new LinkedHashMap<String, T>();
 		this.fieldList = new ArrayList<T>(0);
 		this.cacheKeySorted = cacheKeySorted;
 		buildCache();
@@ -309,7 +309,7 @@ public abstract class AbstractFieldList<T extends AbstractField<T>> implements
 		}
 	}
 
-	public final void populate(Set<String> fieldNameSet) {
+	public final void populate(LinkedHashSet<String> fieldNameSet) {
 		for (String fieldName : fieldMap.keySet())
 			fieldNameSet.add(fieldName);
 	}

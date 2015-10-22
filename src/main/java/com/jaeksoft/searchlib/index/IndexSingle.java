@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.index.CorruptIndexException;
@@ -75,9 +75,8 @@ public class IndexSingle extends IndexAbstract {
 
 	private volatile boolean online;
 
-	public IndexSingle(File configDir, IndexConfig indexConfig,
-			boolean createIfNotExists) throws IOException, URISyntaxException,
-			SearchLibException, JSONException {
+	public IndexSingle(File configDir, IndexConfig indexConfig, boolean createIfNotExists)
+			throws IOException, URISyntaxException, SearchLibException, JSONException {
 		super(indexConfig);
 		this.online = true;
 		this.readerDepends = null;
@@ -95,8 +94,7 @@ public class IndexSingle extends IndexAbstract {
 		} else
 			indexDir = findIndexDirOrSub(indexDir);
 		URI remoteURI = indexConfig.getRemoteURI();
-		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir)
-				: new IndexDirectory(remoteURI);
+		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir) : new IndexDirectory(remoteURI);
 		bCreate = bCreate || indexDirectory.isEmpty();
 		if (!indexConfig.isMulti()) {
 			writer = new WriterLocal(indexConfig, this, indexDirectory);
@@ -115,8 +113,7 @@ public class IndexSingle extends IndexAbstract {
 	 * @return
 	 */
 	private File findIndexDirOrSub(File indexDir) {
-		File[] dirs = indexDir
-				.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
+		File[] dirs = indexDir.listFiles((FileFilter) DirectoryFileFilter.INSTANCE);
 		if (dirs == null)
 			return indexDir;
 		if (dirs.length == 0)
@@ -187,8 +184,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(AbstractRequest request)
-			throws SearchLibException {
+	public int deleteDocuments(AbstractRequest request) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -199,8 +195,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void addUpdateInterface(UpdateInterfaces updateInterface)
-			throws SearchLibException {
+	public void addUpdateInterface(UpdateInterfaces updateInterface) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (writer != null)
@@ -211,8 +206,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	public boolean updateDocument(Schema schema, IndexDocument document) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -226,8 +220,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents) throws SearchLibException {
+	public int updateDocuments(Schema schema, Collection<IndexDocument> documents) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -241,8 +234,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public int updateIndexDocuments(Schema schema,
-			Collection<IndexDocumentResult> documents)
+	public int updateIndexDocuments(Schema schema, Collection<IndexDocumentResult> documents)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -268,8 +260,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public AbstractResult<?> request(AbstractRequest request)
-			throws SearchLibException {
+	public AbstractResult<?> request(AbstractRequest request) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -282,8 +273,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public String explain(AbstractRequest request, int docId, boolean bHtml)
-			throws SearchLibException {
+	public String explain(AbstractRequest request, int docId, boolean bHtml) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -310,8 +300,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public IndexStatistics getStatistics() throws IOException,
-			SearchLibException {
+	public IndexStatistics getStatistics() throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -355,8 +344,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public TermEnum getTermEnum(final Term term)
-			throws SearchLibException {
+	final public TermEnum getTermEnum(final Term term) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -369,8 +357,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public TermDocs getTermDocs(final Term term)
-			throws SearchLibException, IOException {
+	final public TermDocs getTermDocs(final Term term) throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -383,8 +370,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public TermPositions getTermPositions() throws IOException,
-			SearchLibException {
+	final public TermPositions getTermPositions() throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -397,8 +383,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public TermFreqVector getTermFreqVector(final int docId,
-			final String field) throws IOException, SearchLibException {
+	final public TermFreqVector getTermFreqVector(final int docId, final String field)
+			throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -411,9 +397,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public void putTermVectors(final int[] docIds, final String field,
-			final Collection<String[]> termVectors) throws IOException,
-			SearchLibException {
+	final public void putTermVectors(final int[] docIds, final String field, final Collection<String[]> termVectors)
+			throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -425,8 +410,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public FieldCacheIndex getStringIndex(final String fieldName)
-			throws IOException, SearchLibException {
+	final public FieldCacheIndex getStringIndex(final String fieldName) throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -440,16 +424,14 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractLocalSearchRequest request,
-			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException, SearchLibException, SyntaxError {
+	public FilterHits getFilterHits(SchemaField defaultField, PerFieldAnalyzer analyzer,
+			AbstractLocalSearchRequest request, FilterAbstract<?> filter, Timer timer)
+					throws ParseException, IOException, SearchLibException, SyntaxError {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
 			if (reader != null)
-				return reader.getFilterHits(defaultField, analyzer, request,
-						filter, timer);
+				return reader.getFilterHits(defaultField, analyzer, request, filter, timer);
 			return null;
 		} finally {
 			rwl.r.unlock();
@@ -457,9 +439,8 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public DocSetHits searchDocSet(AbstractLocalSearchRequest searchRequest,
-			Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException {
+	public DocSetHits searchDocSet(AbstractLocalSearchRequest searchRequest, Timer timer)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -531,8 +512,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public String[] getDocTerms(String field) throws SearchLibException,
-			IOException {
+	public String[] getDocTerms(String field) throws SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -563,9 +543,9 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public Map<String, FieldValue> getDocumentFields(final int docId,
-			final Set<String> fieldNameSet, final Timer timer)
-			throws IOException, ParseException, SyntaxError, SearchLibException {
+	final public LinkedHashMap<String, FieldValue> getDocumentFields(final int docId,
+			final LinkedHashSet<String> fieldNameSet, final Timer timer)
+					throws IOException, ParseException, SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
@@ -578,7 +558,7 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public Map<String, FieldValue> getDocumentStoredField(final int docId)
+	public LinkedHashMap<String, FieldValue> getDocumentStoredField(final int docId)
 			throws IOException, SearchLibException {
 		rwl.r.lock();
 		try {
