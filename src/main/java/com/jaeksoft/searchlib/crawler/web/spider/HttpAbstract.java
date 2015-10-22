@@ -91,8 +91,7 @@ public abstract class HttpAbstract {
 	private CredentialsProvider credentialsProvider;
 	private final CookieStore cookieStore;
 
-	public HttpAbstract(String userAgent, boolean bFollowRedirect,
-			ProxyHandler proxyHandler) {
+	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler) {
 
 		this.followRedirect = bFollowRedirect;
 
@@ -113,14 +112,12 @@ public abstract class HttpAbstract {
 		this.proxyHandler = proxyHandler;
 		proxyHost = proxyHandler == null ? null : proxyHandler.getAnyProxy();
 
-		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder
-				.<AuthSchemeProvider> create()
+		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider> create()
 				.register(AuthSchemes.NTLM, new NTLMSchemeFactory())
 				.register(AuthSchemes.BASIC, new BasicSchemeFactory())
 				.register(AuthSchemes.DIGEST, new DigestSchemeFactory())
 				.register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
-				.register(AuthSchemes.KERBEROS, new KerberosSchemeFactory())
-				.build();
+				.register(AuthSchemes.KERBEROS, new KerberosSchemeFactory()).build();
 
 		credentialsProvider = new BasicCredentialsProvider();
 		builder.setDefaultCredentialsProvider(credentialsProvider);
@@ -150,8 +147,7 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	protected void execute(HttpRequestBase httpBaseRequest,
-			CredentialItem credentialItem, List<CookieItem> cookies)
+	protected void execute(HttpRequestBase httpBaseRequest, CredentialItem credentialItem, List<CookieItem> cookies)
 			throws ClientProtocolException, IOException, URISyntaxException {
 
 		// Filling the cookie store with configuration cookies
@@ -170,22 +166,19 @@ public abstract class HttpAbstract {
 		// No more than 10 minutes to establish the socket
 		// Enable stales connection checking
 		// Cookies uses best match policy
-		RequestConfig.Builder configBuilder = RequestConfig.custom()
-				.setSocketTimeout(1000 * 60 * 10).setConnectTimeout(1000 * 60)
-				.setCookieSpec(CookieSpecs.BEST_MATCH)
-				.setStaleConnectionCheckEnabled(true)
+		RequestConfig.Builder configBuilder = RequestConfig.custom().setSocketTimeout(1000 * 60 * 10)
+				.setConnectTimeout(1000 * 60).setCookieSpec(CookieSpecs.DEFAULT).setStaleConnectionCheckEnabled(true)
 				.setRedirectsEnabled(followRedirect);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
 		else
-			credentialItem.setUpCredentials(credentialsProvider);
+			credentialItem.setUpCredentials(credentialsProvider, httpBaseRequest);
 
 		URI uri = httpBaseRequest.getURI();
 		if (proxyHandler != null && proxyHost != null)
 			if (proxyHandler.isProxy(uri))
-				proxyHandler.applyProxy(configBuilder, proxyHost,
-						credentialsProvider);
+				proxyHandler.applyProxy(configBuilder, proxyHost, credentialsProvider);
 
 		httpBaseRequest.setConfig(configBuilder.build());
 
@@ -201,26 +194,22 @@ public abstract class HttpAbstract {
 			if (httpResponse == null)
 				return null;
 			try {
-				if (!redirectStrategy.isRedirected(httpBaseRequest,
-						httpResponse, httpClientContext)) {
-					Object redirects = httpClientContext
-							.getAttribute(HttpClientContext.REDIRECT_LOCATIONS);
+				if (!redirectStrategy.isRedirected(httpBaseRequest, httpResponse, httpClientContext)) {
+					Object redirects = httpClientContext.getAttribute(HttpClientContext.REDIRECT_LOCATIONS);
 					if (redirects == null)
 						return null;
 					if (redirects instanceof List<?>) {
 						List<?> redirectCollection = (List<?>) redirects;
 						if (CollectionUtils.isEmpty(redirectCollection))
 							return null;
-						redirects = redirectCollection.get(redirectCollection
-								.size() - 1);
+						redirects = redirectCollection.get(redirectCollection.size() - 1);
 					}
 					if (redirects instanceof URI)
 						return ((URI) redirects);
 					else
 						return new URI(redirects.toString());
 				}
-				HttpUriRequest httpUri = redirectStrategy.getRedirect(
-						httpBaseRequest, httpResponse, httpClientContext);
+				HttpUriRequest httpUri = redirectStrategy.getRedirect(httpBaseRequest, httpResponse, httpClientContext);
 				if (httpUri == null)
 					return null;
 				return httpUri.getURI();
@@ -287,9 +276,8 @@ public abstract class HttpAbstract {
 	// Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
 	// Sun Nov 6 08:49:37 1994
 
-	private final static String[] LastModifiedDateFormats = {
-			"EEE, dd MMM yyyy HH:mm:ss zzz", "EEE, dd MMM yyyy HH:mm:ss z",
-			"EEEE, dd-MMM-yy HH:mm:ss z", "EEE MMM d HH:mm:ss yyyy" };
+	private final static String[] LastModifiedDateFormats = { "EEE, dd MMM yyyy HH:mm:ss zzz",
+			"EEE, dd MMM yyyy HH:mm:ss z", "EEEE, dd-MMM-yy HH:mm:ss z", "EEE MMM d HH:mm:ss yyyy" };
 
 	private final static ThreadSafeDateFormat[] httpDatesFormats;
 
@@ -297,8 +285,7 @@ public abstract class HttpAbstract {
 		int i = 0;
 		httpDatesFormats = new ThreadSafeDateFormat[LastModifiedDateFormats.length * 2];
 		for (String format : LastModifiedDateFormats) {
-			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format,
-					Locale.ENGLISH);
+			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format, Locale.ENGLISH);
 			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format);
 		}
 	};
@@ -328,8 +315,7 @@ public abstract class HttpAbstract {
 	public static void main(String[] argv) throws IOException {
 		for (ThreadSafeDateFormat dateFormat : httpDatesFormats) {
 			try {
-				System.out.println(dateFormat.parse(
-						"Thu, 21 Feb 2013 20:11:52 GMT").getTime());
+				System.out.println(dateFormat.parse("Thu, 21 Feb 2013 20:11:52 GMT").getTime());
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -377,8 +363,7 @@ public abstract class HttpAbstract {
 		}
 	}
 
-	protected InputStream getContent() throws IllegalStateException,
-			IOException {
+	protected InputStream getContent() throws IllegalStateException, IOException {
 		synchronized (this) {
 			if (httpEntity == null)
 				return null;

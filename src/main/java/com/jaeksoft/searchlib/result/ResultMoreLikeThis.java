@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.result;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
@@ -57,16 +57,14 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 	final private ScoreInterface scores;
 
-	final private TreeSet<String> fieldNameSet;
+	final private LinkedHashSet<String> fieldNameSet;
 
 	public ResultMoreLikeThis(ReaderAbstract reader, MoreLikeThisRequest request)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws SearchLibException, IOException, ParseException, SyntaxError, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		super(request);
 		this.reader = reader;
-		AbstractLocalSearchRequest searchRequest = new SearchPatternRequest(
-				request.getConfig());
+		AbstractLocalSearchRequest searchRequest = new SearchPatternRequest(request.getConfig());
 		for (FilterAbstract<?> filter : request.getFilterList())
 			searchRequest.getFilterList().add(filter);
 		searchRequest.setBoostedComplexQuery(request.getQuery());
@@ -84,21 +82,19 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 
 		scores = dsh.getCollector(ScoreInterface.class);
 
-		fieldNameSet = new TreeSet<String>();
+		fieldNameSet = new LinkedHashSet<String>();
 		request.getReturnFieldList().populate(fieldNameSet);
 	}
 
 	@Override
-	public ResultDocument getDocument(int pos, Timer timer)
-			throws SearchLibException {
+	public ResultDocument getDocument(int pos, Timer timer) throws SearchLibException {
 		if (docs == null)
 			return null;
 		if (pos < 0 || pos >= docs.getSize())
 			return null;
 		try {
 			float score = scores != null ? scores.getScores()[pos] : 0;
-			return new ResultDocument(fieldNameSet, docs.getIds()[pos], reader,
-					score, null, timer);
+			return new ResultDocument(fieldNameSet, docs.getIds()[pos], reader, score, null, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {
@@ -190,8 +186,7 @@ public class ResultMoreLikeThis extends AbstractResult<MoreLikeThisRequest>
 	}
 
 	@Override
-	public void populate(List<IndexDocumentResult> indexDocuments)
-			throws IOException, SearchLibException {
+	public void populate(List<IndexDocumentResult> indexDocuments) throws IOException, SearchLibException {
 		throw new SearchLibException("Method not available");
 	}
 

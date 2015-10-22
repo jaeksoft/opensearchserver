@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,10 +27,10 @@ package com.jaeksoft.searchlib.result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
@@ -54,8 +54,8 @@ import com.jaeksoft.searchlib.webservice.query.document.FunctionFieldValue;
 
 public class ResultDocument {
 
-	final private Map<String, FieldValue> returnFields;
-	final private Map<String, SnippetFieldValue> snippetFields;
+	final private LinkedHashMap<String, FieldValue> returnFields;
+	final private LinkedHashMap<String, SnippetFieldValue> snippetFields;
 	final private int docId;
 	final private List<FunctionFieldValue> functionFieldValue;
 	final private List<Position> positions;
@@ -63,21 +63,18 @@ public class ResultDocument {
 	final private List<ResultDocument> collapsedDocuments;
 	final private float score;
 
-	public ResultDocument(final AbstractLocalSearchRequest searchRequest,
-			final TreeSet<String> fieldSet, final int docId,
-			final ReaderInterface reader, final float score,
-			final String joinParameter, final int collapsedDocumentCount,
-			final Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException {
+	public ResultDocument(final AbstractLocalSearchRequest searchRequest, final LinkedHashSet<String> fieldSet,
+			final int docId, final ReaderInterface reader, final float score, final String joinParameter,
+			final int collapsedDocumentCount, final Timer timer)
+					throws IOException, ParseException, SyntaxError, SearchLibException {
 
 		this.docId = docId;
 
-		returnFields = new TreeMap<String, FieldValue>();
-		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		returnFields = new LinkedHashMap<String, FieldValue>();
+		snippetFields = new LinkedHashMap<String, SnippetFieldValue>();
 		functionFieldValue = new ArrayList<FunctionFieldValue>(0);
 		positions = new ArrayList<Position>(0);
-		collapsedDocuments = collapsedDocumentCount == 0 ? null
-				: new ArrayList<ResultDocument>(0);
+		collapsedDocuments = collapsedDocumentCount == 0 ? null : new ArrayList<ResultDocument>(0);
 
 		this.joinParameter = joinParameter;
 		this.score = score;
@@ -89,8 +86,7 @@ public class ResultDocument {
 
 		Timer t = new Timer(mainTimer, "returnField(s)");
 
-		Map<String, FieldValue> documentFields = reader.getDocumentFields(
-				docId, fieldSet, t);
+		Map<String, FieldValue> documentFields = reader.getDocumentFields(docId, fieldSet, t);
 
 		for (ReturnField field : searchRequest.getReturnFieldList()) {
 			String fieldName = field.getName();
@@ -110,10 +106,8 @@ public class ResultDocument {
 			boolean isHighlighted = false;
 			FieldValue fieldValue = documentFields.get(fieldName);
 			if (fieldValue != null)
-				isHighlighted = field.getSnippets(docId, reader,
-						fieldValue.getValueList(), snippets, t);
-			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(
-					fieldName, snippets, isHighlighted);
+				isHighlighted = field.getSnippets(docId, reader, fieldValue.getValueList(), snippets, t);
+			SnippetFieldValue snippetFieldValue = new SnippetFieldValue(fieldName, snippets, isHighlighted);
 			snippetFields.put(fieldName, snippetFieldValue);
 		}
 
@@ -122,13 +116,11 @@ public class ResultDocument {
 		mainTimer.end(null);
 	}
 
-	public ResultDocument(TreeSet<String> fieldSet, int docId,
-			ReaderInterface reader, float score, String joinParameter,
-			Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException {
+	public ResultDocument(LinkedHashSet<String> fieldSet, int docId, ReaderInterface reader, float score,
+			String joinParameter, Timer timer) throws IOException, ParseException, SyntaxError, SearchLibException {
 		this.docId = docId;
 		returnFields = reader.getDocumentFields(docId, fieldSet, timer);
-		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		snippetFields = new LinkedHashMap<String, SnippetFieldValue>();
 		collapsedDocuments = null;
 		positions = new ArrayList<Position>(0);
 		functionFieldValue = null;
@@ -138,8 +130,8 @@ public class ResultDocument {
 
 	public ResultDocument(Integer docId) {
 		this.docId = docId;
-		returnFields = new TreeMap<String, FieldValue>();
-		snippetFields = new TreeMap<String, SnippetFieldValue>();
+		returnFields = new LinkedHashMap<String, FieldValue>();
+		snippetFields = new LinkedHashMap<String, SnippetFieldValue>();
 		collapsedDocuments = null;
 		positions = new ArrayList<Position>(0);
 		functionFieldValue = null;
@@ -252,8 +244,7 @@ public class ResultDocument {
 			if (fieldValue == null)
 				returnFields.put(fieldName, fieldValue);
 			else
-				fieldValue
-						.addIfStringDoesNotExist(newFieldValue.getValueList());
+				fieldValue.addIfStringDoesNotExist(newFieldValue.getValueList());
 		}
 		for (SnippetFieldValue newFieldValue : rd.snippetFields.values()) {
 			String fieldName = newFieldValue.getName();
@@ -261,13 +252,11 @@ public class ResultDocument {
 			if (fieldValue == null)
 				snippetFields.put(fieldName, fieldValue);
 			else
-				fieldValue
-						.addIfStringDoesNotExist(newFieldValue.getValueList());
+				fieldValue.addIfStringDoesNotExist(newFieldValue.getValueList());
 		}
 	}
 
-	public void addReturnedField(FieldValueOriginEnum origin, String field,
-			String value) {
+	public void addReturnedField(FieldValueOriginEnum origin, String field, String value) {
 		FieldValue fieldValue = returnFields.get(field);
 		if (fieldValue == null) {
 			fieldValue = new FieldValue(field);
@@ -302,12 +291,9 @@ public class ResultDocument {
 		return collapsedDocuments;
 	}
 
-	public void addFunctionField(CollapseFunctionField functionField,
-			ReaderAbstract reader, int pos, Timer timer) throws IOException,
-			java.text.ParseException, InstantiationException,
-			IllegalAccessException {
-		functionFieldValue.add(new FunctionFieldValue(functionField,
-				functionField.executeByPos(pos)));
+	public void addFunctionField(CollapseFunctionField functionField, ReaderAbstract reader, int pos, Timer timer)
+			throws IOException, java.text.ParseException, InstantiationException, IllegalAccessException {
+		functionFieldValue.add(new FunctionFieldValue(functionField, functionField.executeByPos(pos)));
 	}
 
 	public List<FunctionFieldValue> getFunctionFieldValues() {

@@ -39,12 +39,12 @@
 			</listbox>
 		</row>
 		<row>
-			<label value="Username: " />
+			<label value="Username (or HTTP header name): " />
 			<textbox
 				value="@bind(restCrawl.currentCrawl.credential.username)" cols="30" />
 		</row>
 		<row>
-			<label value="Password: " />
+			<label value="Password (or HTTP header value): " />
 			<textbox type="password"
 				value="@bind(restCrawl.currentCrawl.credential.password)" cols="20" />
 		</row>
