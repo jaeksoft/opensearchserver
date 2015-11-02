@@ -58,14 +58,13 @@ public class FilterHits extends Filter {
 		this.isNegative = isNegative;
 	}
 
-	public FilterHits(FilterHitsCollector collector, boolean isNegative,
-			Timer timer) {
+	public FilterHits(FilterHitsCollector collector, boolean isNegative, Timer timer) {
 		this(isNegative);
 		Timer t = new Timer(timer, "FilterHits - copy segments");
 		for (Segment segment : collector.segments) {
 			RoaringBitmap docSet = segment.docBitSet.clone();
 			if (isNegative)
-				docSet.flip(0, docSet.getCardinality());
+				docSet.flip(0, segment.indexReader.maxDoc());
 			docSetMap.put(segment.indexReader, docSet);
 			docBaseMap.put(segment.docBase, docSet);
 		}
@@ -78,13 +77,10 @@ public class FilterHits extends Filter {
 
 	final void operate(FilterHits sourceFilterHits, OperatorEnum operator) {
 		if (docSetMap.isEmpty()) {
-			for (Map.Entry<IndexReader, RoaringBitmap> entry : sourceFilterHits.docSetMap
-					.entrySet())
-				docSetMap.put(entry.getKey(), (RoaringBitmap) entry.getValue()
-						.clone());
+			for (Map.Entry<IndexReader, RoaringBitmap> entry : sourceFilterHits.docSetMap.entrySet())
+				docSetMap.put(entry.getKey(), (RoaringBitmap) entry.getValue().clone());
 		} else {
-			for (Map.Entry<IndexReader, RoaringBitmap> entry : sourceFilterHits.docSetMap
-					.entrySet()) {
+			for (Map.Entry<IndexReader, RoaringBitmap> entry : sourceFilterHits.docSetMap.entrySet()) {
 				switch (operator) {
 				case AND:
 					docSetMap.get(entry.getKey()).and(entry.getValue());
