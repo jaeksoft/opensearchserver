@@ -116,7 +116,7 @@
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
 			<artifactId>fastutil</artifactId>
-			<version>7.0.7</version>
+			<version>7.0.8</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -126,7 +126,7 @@
 		<dependency>
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
-			<version>55.1</version>
+			<version>56.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.api.client</groupId>
@@ -455,7 +455,7 @@
 		<dependency>
 			<groupId>org.roaringbitmap</groupId>
 			<artifactId>RoaringBitmap</artifactId>
-			<version>0.5.5</version>
+			<version>0.5.10</version>
 		</dependency>
 	</dependencies>
 	<properties>
@@ -465,9 +465,9 @@
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.5.1</httpclient.version>
 		<poi.version>3.12</poi.version>
-		<selenium.version>2.47.2</selenium.version>
+		<selenium.version>2.48.2</selenium.version>
 		<zk.version>6.5.4</zk.version>
-		<jackson.version>2.6.2</jackson.version>
+		<jackson.version>2.6.3</jackson.version>
 		<tomcat.version>7.0.65</tomcat.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
