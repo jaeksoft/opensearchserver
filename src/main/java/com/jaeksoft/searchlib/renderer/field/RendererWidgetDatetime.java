@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,15 +35,23 @@ public class RendererWidgetDatetime extends RendererWidget {
 	private ThreadSafeDateFormat inputDateFormat;
 	private ThreadSafeDateFormat outputDateFormat;
 
+	private final static String defaultInputDateFormat = "yyyyMMddHHmmssSSS";
+	private final static String defaultOutputDateFormat = "yyyy/MM/dd HH:mm:ss";
+
 	@Override
 	void init(String properties) throws IOException {
 		super.init(properties);
-		inputDateFormat = new ThreadSafeDateFormat(
-				new SimpleDateFormat(this.properties.getProperty("inputformat",
-						"yyyyMMddHHmmssSSS")));
-		outputDateFormat = new ThreadSafeDateFormat(new SimpleDateFormat(
-				this.properties.getProperty("outputformat",
-						"yyyy/MM/dd HH:mm:ss")));
+		final String inputDateFormatText;
+		final String outputDateFormatText;
+		if (this.properties != null) {
+			inputDateFormatText = this.properties.getProperty("inputformat", defaultInputDateFormat);
+			outputDateFormatText = this.properties.getProperty("outputformat", defaultOutputDateFormat);
+		} else {
+			inputDateFormatText = defaultInputDateFormat;
+			outputDateFormatText = defaultOutputDateFormat;
+		}
+		inputDateFormat = new ThreadSafeDateFormat(new SimpleDateFormat(inputDateFormatText));
+		outputDateFormat = new ThreadSafeDateFormat(new SimpleDateFormat(outputDateFormatText));
 	}
 
 	@Override
