@@ -44,8 +44,7 @@ import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 
-public class DatabaseFieldMap extends
-		FieldMapGeneric<SourceField, CommonFieldTarget> {
+public class DatabaseFieldMap extends FieldMapGeneric<SourceField, CommonFieldTarget> {
 
 	@Override
 	protected CommonFieldTarget loadTarget(String targetName, Node node) {
@@ -58,8 +57,7 @@ public class DatabaseFieldMap extends
 	}
 
 	@Override
-	protected void writeTarget(XmlWriter xmlWriter, CommonFieldTarget target)
-			throws SAXException {
+	protected void writeTarget(XmlWriter xmlWriter, CommonFieldTarget target) throws SAXException {
 		target.writeXml(xmlWriter);
 	}
 
@@ -72,12 +70,10 @@ public class DatabaseFieldMap extends
 		return false;
 	}
 
-	final public void mapResultSet(FieldMapContext context,
-			ResultSet resultSet, Set<String> columns, IndexDocument target,
-			Set<String> filePathSet) throws SQLException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException, InterruptedException {
+	final public void mapResultSet(FieldMapContext context, ResultSet resultSet, Set<String> columns,
+			IndexDocument target, Set<String> filePathSet) throws SQLException, InstantiationException,
+					IllegalAccessException, ClassNotFoundException, SearchLibException, ParseException, IOException,
+					SyntaxError, URISyntaxException, InterruptedException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			String columnName = link.getSource().getUniqueName();
 			if (!columns.contains(columnName))
@@ -85,8 +81,7 @@ public class DatabaseFieldMap extends
 			String content = resultSet.getString(columnName);
 			if (content == null)
 				continue;
-			mapFieldTarget(context, link.getTarget(), content, target,
-					filePathSet);
+			mapFieldTarget(context, link.getTarget(), content, target, filePathSet);
 		}
 	}
 

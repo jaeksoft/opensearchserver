@@ -61,11 +61,17 @@
 								<panel title="@load(entry.key)">
 									<panelchildren>
 										<listbox
-											model="@load(entry.value.set)">
+											model="@load(entry.value.map)">
+											<listhead sizable="true">
+												<listheader label="Path" />
+												<listheader label="Allow" />
+											</listhead>
 											<template name="model"
 												var="entry2">
-												<listitem
-													label="@load(entry2)" />
+												<listitem>
+													<listcell label="@load(entry2.key)" />
+													<listcell label="@load(entry2.value)" />
+												</listitem>
 											</template>
 										</listbox>
 									</panelchildren>

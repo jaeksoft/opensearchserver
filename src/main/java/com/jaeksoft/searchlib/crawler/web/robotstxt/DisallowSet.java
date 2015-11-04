@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,59 +24,56 @@
 
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DisallowSet {
 
 	/**
-	 * Contient la liste des clauses "Disallow" d'un fichier "robots.txt" pour
-	 * un "User-agent".
+	 * Contains the clause list of a "robots.txt" file for one "User-agent".
 	 */
 
-	private HashSet<String> set;
+	private LinkedHashMap<String, Boolean> clauseMap;
 
 	protected DisallowSet(String userAgent) {
-		set = null;
+		clauseMap = null;
 	}
 
 	/**
-	 * Ajoute une clause Disallow
+	 * Add a Allow/Disallow clause
 	 * 
-	 * @param disallowClause
+	 * @param clause
+	 *            the path of the clause
+	 * @param allow
+	 *            allow or disallow
 	 */
-	protected void add(String disallowClause) {
+	protected void add(String clause, Boolean allow) {
 		synchronized (this) {
-			if (set == null)
-				set = new HashSet<String>();
-			set.add(disallowClause);
+			if (clauseMap == null)
+				clauseMap = new LinkedHashMap<String, Boolean>();
+			clauseMap.put(clause, allow);
 		}
 	}
 
 	/**
-	 * Renvoie false si l'URL n'est pas autoris�e
-	 * 
-	 * @param url
-	 * @return
+	 * @param path
+	 *            the path to check
+	 * @return false if the URL is not allowed
 	 */
 	protected boolean isAllowed(String path) {
 		synchronized (this) {
-			if (set == null)
+			if (clauseMap == null)
 				return true;
 			if ("".equals(path))
 				path = "/";
-			Iterator<String> i = set.iterator();
-			while (i.hasNext()) {
-				String disallow = i.next();
-				if (path.startsWith(disallow))
-					return false;
-			}
+			for (Map.Entry<String, Boolean> clause : clauseMap.entrySet())
+				if (path.startsWith(clause.getKey()))
+					return clause.getValue();
 			return true;
 		}
 	}
 
-	public Set<String> getSet() {
-		return set;
+	public Map<String, Boolean> getMap() {
+		return clauseMap;
 	}
 }
