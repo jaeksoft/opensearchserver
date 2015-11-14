@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -81,6 +81,32 @@
 			<textbox value="@bind(restCrawl.currentCrawl.url)"
 				cols="120" />
 			<label value="Enter the URL of the HTTP/REST call" />
+		</row>
+		<row>
+			<label value="Sequence parameter: " />
+			<textbox
+				value="@bind(restCrawl.currentCrawl.sequenceParameter)" cols="20" />
+			<label
+				value="Enter an optional sequence parameter (paging)" />
+		</row>
+		<row>
+			<label value="Sequence from (inclusive): " />
+			<intbox
+				value="@bind(restCrawl.currentCrawl.sequenceFromInclusive)"
+				cols="10" />
+			<label value="Enter the first sequence number" />
+		</row>
+		<row>
+			<label value="Sequence to (exclusive): " />
+			<intbox
+				value="@bind(restCrawl.currentCrawl.sequenceToExclusive)" cols="10" />
+			<label value="Enter the last sequence number" />
+		</row>
+		<row>
+			<label value="Sequence increment: " />
+			<intbox
+				value="@bind(restCrawl.currentCrawl.sequenceIncrement)" cols="10" />
+			<label value="Enter the sequence increment" />
 		</row>
 		<row>
 			<label value="HTTP Method: " />

@@ -312,7 +312,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.12</version>
+			<version>1.7.13</version>
 		</dependency>
 		<dependency>
 			<groupId>org.zkoss.zk</groupId>
@@ -363,7 +363,7 @@
 		<dependency>
 			<groupId>com.dropbox.core</groupId>
 			<artifactId>dropbox-core-sdk</artifactId>
-			<version>1.8.1</version>
+			<version>1.8.2</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jackson-core</artifactId>
@@ -440,7 +440,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>3.1.0</version>
+			<version>3.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.jmimemagic</groupId>
@@ -461,7 +461,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<cxf.version>2.7.17</cxf.version>
+		<cxf.version>2.7.18</cxf.version>
 		<lucene.version>3.6.2</lucene.version>
 		<httpclient.version>4.5.1</httpclient.version>
 		<poi.version>3.12</poi.version>

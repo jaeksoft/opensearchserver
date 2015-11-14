@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -34,11 +34,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.utils.URIBuilder;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -52,48 +54,54 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader.Method;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 
-public class RestCrawlThread extends
-		CrawlThreadAbstract<RestCrawlThread, RestCrawlMaster> {
-
-	private final ReadWriteLock rwl = new ReadWriteLock();
+public class RestCrawlThread extends CrawlThreadAbstract<RestCrawlThread, RestCrawlMaster> {
 
 	protected final Client client;
 
 	private final RestCrawlItem restCrawlItem;
 
-	protected long pendingIndexDocumentCount;
+	private final AtomicLong pendingIndexDocumentCount;
 
-	protected long updatedIndexDocumentCount;
-
-	protected long pendingDeleteDocumentCount;
-
-	protected long updatedDeleteDocumentCount;
+	private final AtomicLong updatedIndexDocumentCount;
 
 	private final Collection<String> idsCallback;
 
 	private final FieldMapContext fieldMapContext;
 
+	private static class RestCrawlContext {
+
+		private final HttpDownloader downloader;
+		private final List<IndexDocument> indexDocumentList;
+		private final RestFieldMap restFieldMap;
+		private final int bufferSize;
+		private final JsonPath jsonPath;
+
+		private RestCrawlContext(HttpDownloader downloader, RestCrawlItem restCrawlItem) throws SearchLibException {
+			this.downloader = downloader;
+			jsonPath = JsonPath.compile(restCrawlItem.getPathDocument());
+			restFieldMap = restCrawlItem.getFieldMap();
+			bufferSize = restCrawlItem.getBufferSize();
+			indexDocumentList = new ArrayList<IndexDocument>(bufferSize);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
-	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster,
-			RestCrawlItem restCrawlItem, Variables variables,
+	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster, RestCrawlItem restCrawlItem, Variables variables,
 			InfoCallback infoCallback) throws SearchLibException {
 		super(client, crawlMaster, restCrawlItem, infoCallback);
 		this.restCrawlItem = restCrawlItem.duplicate();
 		this.restCrawlItem.apply(variables);
 		this.client = client;
-		pendingIndexDocumentCount = 0;
-		updatedIndexDocumentCount = 0;
-		pendingDeleteDocumentCount = 0;
-		pendingDeleteDocumentCount = 0;
+		pendingIndexDocumentCount = new AtomicLong();
+		updatedIndexDocumentCount = new AtomicLong();
 		fieldMapContext = new FieldMapContext(client, restCrawlItem.getLang());
-		this.idsCallback = infoCallback != null
-				&& infoCallback instanceof CommonListResult<?> ? ((CommonListResult<String>) infoCallback).items
-				: null;
+		this.idsCallback = infoCallback != null && infoCallback instanceof CommonListResult<
+				?> ? ((CommonListResult<String>) infoCallback).items : null;
 	}
 
 	public String getCountInfo() {
@@ -101,48 +109,16 @@ public class RestCrawlThread extends
 		sb.append(getUpdatedIndexDocumentCount());
 		sb.append(" (");
 		sb.append(getPendingIndexDocumentCount());
-		sb.append(") / ");
-		sb.append(getUpdatedDeleteDocumentCount());
-		sb.append(" (");
-		sb.append(getPendingDeleteDocumentCount());
-		sb.append(')');
+		sb.append(")");
 		return sb.toString();
 	}
 
 	final public long getPendingIndexDocumentCount() {
-		rwl.r.lock();
-		try {
-			return pendingIndexDocumentCount;
-		} finally {
-			rwl.r.unlock();
-		}
+		return pendingIndexDocumentCount.get();
 	}
 
 	final public long getUpdatedIndexDocumentCount() {
-		rwl.r.lock();
-		try {
-			return updatedIndexDocumentCount;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	final public long getPendingDeleteDocumentCount() {
-		rwl.r.lock();
-		try {
-			return pendingDeleteDocumentCount;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	final public long getUpdatedDeleteDocumentCount() {
-		rwl.r.lock();
-		try {
-			return updatedDeleteDocumentCount;
-		} finally {
-			rwl.r.unlock();
-		}
+		return updatedIndexDocumentCount.get();
 	}
 
 	public RestCrawlItem getRestCrawlItem() {
@@ -155,20 +131,15 @@ public class RestCrawlThread extends
 	}
 
 	private void callback(HttpDownloader downloader, URI uri, String query)
-			throws URISyntaxException, ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException {
-		uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(),
-				uri.getPath(), query, uri.getFragment());
-		DownloadItem dlItem = downloader.request(uri,
-				restCrawlItem.getCallbackMethod(),
-				restCrawlItem.getCredential(), null, null, null);
+			throws URISyntaxException, ClientProtocolException, IllegalStateException, IOException, SearchLibException {
+		uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), query, uri.getFragment());
+		DownloadItem dlItem = downloader.request(uri, restCrawlItem.getCallbackMethod(), restCrawlItem.getCredential(),
+				null, null, null);
 		dlItem.checkNoErrorList(200, 201, 202, 203);
 	}
 
-	private final void callbackPerDoc(HttpDownloader downloader, URI uri,
-			String queryPrefix, String key) throws ClientProtocolException,
-			IllegalStateException, IOException, URISyntaxException,
-			SearchLibException {
+	private final void callbackPerDoc(HttpDownloader downloader, URI uri, String queryPrefix, String key)
+			throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException, SearchLibException {
 		StringBuilder queryString = new StringBuilder();
 		String query = uri.getQuery();
 		if (query != null)
@@ -185,10 +156,8 @@ public class RestCrawlThread extends
 		callback(downloader, uri, queryString.toString());
 	}
 
-	private final void callbackAllDocs(HttpDownloader downloader, URI uri,
-			String queryPrefix, List<String> pkList)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			URISyntaxException, SearchLibException {
+	private final void callbackAllDocs(HttpDownloader downloader, URI uri, String queryPrefix, List<String> pkList)
+			throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException, SearchLibException {
 		StringBuilder queryString = new StringBuilder();
 		String query = uri.getQuery();
 		if (query != null)
@@ -206,8 +175,7 @@ public class RestCrawlThread extends
 	}
 
 	private final void doCallBack(HttpDownloader downloader, List<String> pkList)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			URISyntaxException, SearchLibException {
+			throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException, SearchLibException {
 		CallbackMode mode = restCrawlItem.getCallbackMode();
 		if (mode == CallbackMode.NO_CALL)
 			return;
@@ -229,134 +197,129 @@ public class RestCrawlThread extends
 
 	}
 
-	private final boolean index(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList, int limit)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		int i = indexDocumentList.size();
+	private final boolean index(RestCrawlContext context, int limit)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException {
+		int i = context.indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
 		setStatus(CrawlStatus.INDEXATION);
-		client.updateDocuments(indexDocumentList);
-		SchemaField uniqueField = client.getSchema().getFieldList()
-				.getUniqueField();
+		client.updateDocuments(context.indexDocumentList);
+		SchemaField uniqueField = client.getSchema().getFieldList().getUniqueField();
 		List<String> pkList = null;
 		if (uniqueField != null) {
-			pkList = new ArrayList<String>(indexDocumentList.size());
+			pkList = new ArrayList<String>(context.indexDocumentList.size());
 			String fieldName = uniqueField.getName();
-			for (IndexDocument indexDocument : indexDocumentList)
+			for (IndexDocument indexDocument : context.indexDocumentList)
 				pkList.add(indexDocument.getFieldValueString(fieldName, 0));
 			if (idsCallback != null)
 				idsCallback.addAll(pkList);
 		}
-		doCallBack(downloader, pkList);
-		rwl.w.lock();
-		try {
-			pendingIndexDocumentCount -= i;
-			updatedIndexDocumentCount += i;
-		} finally {
-			rwl.w.unlock();
-		}
-		indexDocumentList.clear();
-		if (infoCallback != null) {
-			infoCallback.setInfo(updatedIndexDocumentCount
-					+ " document(s) indexed");
-		}
+		doCallBack(context.downloader, pkList);
+		pendingIndexDocumentCount.addAndGet(-i);
+		updatedIndexDocumentCount.addAndGet(i);
+		context.indexDocumentList.clear();
+		if (infoCallback != null)
+			infoCallback.setInfo(updatedIndexDocumentCount + " document(s) indexed");
 		return true;
 	}
 
-	private void runDocument(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList, RestFieldMap restFieldMap,
-			Object document, int bufferSize) throws Exception {
+	private void runDocument(RestCrawlContext context, Object document) throws Exception {
 		setStatus(CrawlStatus.CRAWL);
 		IndexDocument newIndexDocument = new IndexDocument(fieldMapContext.lang);
-		restFieldMap.mapJson(fieldMapContext, document, newIndexDocument);
-		indexDocumentList.add(newIndexDocument);
-		rwl.w.lock();
-		try {
-			pendingIndexDocumentCount++;
-		} finally {
-			rwl.w.unlock();
-		}
-		if (index(downloader, indexDocumentList, bufferSize))
+		context.restFieldMap.mapJson(fieldMapContext, document, newIndexDocument);
+		context.indexDocumentList.add(newIndexDocument);
+		pendingIndexDocumentCount.incrementAndGet();
+		if (index(context, context.bufferSize))
 			setStatus(CrawlStatus.CRAWL);
 	}
 
-	private void runDocumentList(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList, RestFieldMap restFieldMap,
-			Object jsonDoc, int bufferSize) throws Exception {
+	private int runDocumentList(RestCrawlContext context, Object jsonDoc) throws Exception {
 		if (jsonDoc == null)
-			return;
+			return 0;
 		if (jsonDoc instanceof Map<?, ?>) {
-			runDocument(downloader, indexDocumentList, restFieldMap, jsonDoc,
-					bufferSize);
-			return;
+			runDocument(context, jsonDoc);
+			return 1;
 		}
 		if (jsonDoc instanceof List<?>) {
 			List<?> documents = (List<?>) jsonDoc;
 			for (Object document : documents)
-				runDocument(downloader, indexDocumentList, restFieldMap,
-						document, bufferSize);
+				runDocument(context, document);
+			return documents.size();
+		}
+		return 0;
+	}
+
+	private int runDownload(RestCrawlContext context, URI uri) throws Exception {
+		DownloadItem dlItem = context.downloader.request(uri, restCrawlItem.getMethod(), restCrawlItem.getCredential(),
+				null, null, null);
+		try {
+			List<Object> documents = context.jsonPath.read(dlItem.getContentInputStream());
+			return runDocumentList(context, documents);
+		} catch (PathNotFoundException e) {
+			return 0;
 		}
 	}
 
-	private void runDownload(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList, URI uri, JsonPath path,
-			RestFieldMap restFieldMap, int bufferSize) throws Exception {
-		DownloadItem dlItem = downloader.request(uri,
-				restCrawlItem.getMethod(), restCrawlItem.getCredential(), null,
-				null, null);
-		List<Object> documents = path.read(dlItem.getContentInputStream());
-		runDocumentList(downloader, indexDocumentList, restFieldMap, documents,
-				bufferSize);
-	}
-
-	private void runFile(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList, File file, JsonPath path,
-			RestFieldMap restFieldMap, int bufferSize) throws Exception {
-		runDocumentList(downloader, indexDocumentList, restFieldMap,
-				path.read(file), bufferSize);
+	private int runFile(RestCrawlContext context, File file) throws Exception {
+		int res;
+		try {
+			res = runDocumentList(context, context.jsonPath.read(file));
+		} catch (PathNotFoundException e) {
+			res = 0;
+		}
 		if (restCrawlItem.getMethod() == Method.DELETE)
 			FileUtils.delete(file);
+		return res;
 	}
 
-	private void runFiles(HttpDownloader downloader,
-			List<IndexDocument> indexDocumentList, URI uri, JsonPath path,
-			RestFieldMap restFieldMap, int bufferSize) throws Exception {
+	private int runFiles(RestCrawlContext context, URI uri) throws Exception {
 		File rootFile = new File(uri);
-		if (rootFile.isFile()) {
-			runFile(downloader, indexDocumentList, rootFile, path,
-					restFieldMap, bufferSize);
-			return;
-		}
-		for (File file : rootFile.listFiles((FileFilter) FileFileFilter.FILE)) {
-			runFile(downloader, indexDocumentList, file, path, restFieldMap,
-					bufferSize);
+		if (rootFile.isFile())
+			return runFile(context, rootFile);
+		int res = 0;
+		for (File file : rootFile.listFiles((FileFilter) FileFileFilter.FILE))
+			res += runFile(context, file);
+		return res;
+	}
+
+	private int runURL(RestCrawlContext context, URI uri) throws Exception {
+		setStatus(CrawlStatus.CRAWL);
+		if ("file".equals(uri.getScheme()))
+			return runFiles(context, uri);
+		else
+			return runDownload(context, uri);
+	}
+
+	private void runSequence(RestCrawlContext context) throws Exception {
+		Integer start = restCrawlItem.getSequenceFromInclusive();
+		if (start == null)
+			start = 0;
+		Integer end = restCrawlItem.getSequenceToExclusive();
+		if (end == null)
+			end = 100;
+		Integer inc = restCrawlItem.getSequenceIncrement();
+		if (inc == null)
+			inc = 1;
+		for (int i = start; i < end; i += inc) {
+			URIBuilder uriBuilder = new URIBuilder(restCrawlItem.getUrl());
+			uriBuilder.addParameter(restCrawlItem.getSequenceParameter(), Integer.toString(i));
+			if (runURL(context, uriBuilder.build()) == 0)
+				break;
 		}
 	}
 
 	@Override
 	public void runner() throws Exception {
-		HttpDownloader downloader = getConfig().getWebCrawlMaster()
-				.getNewHttpDownloader(true);
+		HttpDownloader downloader = getConfig().getWebCrawlMaster().getNewHttpDownloader(true);
 		setStatus(CrawlStatus.STARTING);
 		try {
-			String pathDoc = restCrawlItem.getPathDocument();
-			JsonPath path = JsonPath.compile(pathDoc);
-			RestFieldMap restFieldMap = restCrawlItem.getFieldMap();
-			int bufferSize = restCrawlItem.getBufferSize();
-			List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(
-					bufferSize);
-			URI uri = new URI(restCrawlItem.getUrl());
-			setStatus(CrawlStatus.CRAWL);
-			if ("file".equals(uri.getScheme()))
-				runFiles(downloader, indexDocumentList, uri, path,
-						restFieldMap, bufferSize);
+			RestCrawlContext context = new RestCrawlContext(downloader, restCrawlItem);
+			if (StringUtils.isEmpty(restCrawlItem.getSequenceParameter()))
+				runURL(context, new URI(restCrawlItem.getUrl()));
 			else
-				runDownload(downloader, indexDocumentList, uri, path,
-						restFieldMap, bufferSize);
-			index(downloader, indexDocumentList, 0);
+				runSequence(context);
+			index(context, 0);
 		} finally {
 			if (downloader != null)
 				downloader.release();
