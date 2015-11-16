@@ -46,6 +46,7 @@ import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 import jcifs.smb.ACE;
+import jcifs.smb.Kerb5Authenticator;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SID;
 import jcifs.smb.SmbAuthException;
@@ -60,6 +61,12 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			System.setProperty("java.protocol.handler.pkgs", "jcifs");
 		if (StringUtils.isEmpty("jicfs.resolveOrder"))
 			System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
+		if (StringUtils.isEmpty("jcifs.smb.client.capabilities"))
+			System.setProperty("jcifs.smb.client.capabilities", Kerb5Authenticator.CAPABILITIES);
+		if (StringUtils.isEmpty("jcifs.smb.client.flags2"))
+			System.setProperty("jcifs.smb.client.flags2", Kerb5Authenticator.FLAGS2);
+		if (StringUtils.isEmpty("jcifs.smb.client.signingPreferred"))
+			System.setProperty("jcifs.smb.client.signingPreferred", "true");
 	}
 
 	public static enum SmbSecurityPermissions {
