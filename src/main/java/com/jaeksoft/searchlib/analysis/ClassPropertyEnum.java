@@ -71,6 +71,9 @@ public class ClassPropertyEnum extends ExtensibleEnumItem<ClassPropertyEnum> {
 	public static ClassPropertyEnum ADDITIONAL_ALLOWED_CHARS = new ClassPropertyEnum(true, "charArrayToken",
 			"Additional characters", "List of additional characters allowed in token");
 
+	public static ClassPropertyEnum CUSTOM_TOKEN_CHARS = new ClassPropertyEnum(true, "customCharToken",
+			"Token characters", "List of characters which cause token to be generated");
+
 	public final static ClassPropertyEnum MIN_GRAM = new ClassPropertyEnum(true, "min_gram", "Min gram size",
 			"The smallest n-gram to generate");
 
