@@ -157,8 +157,7 @@ public class TermController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return;
-			fieldList = StringUtils.toStringArray(client.getIndexAbstract()
-					.getFieldNames(), true);
+			fieldList = StringUtils.toStringArray(client.getIndexAbstract().getFieldNames(), true);
 		}
 	}
 
@@ -209,8 +208,7 @@ public class TermController extends CommonController {
 	}
 
 	@NotifyChange("*")
-	public void setCurrentField(String field) throws IOException,
-			SearchLibException {
+	public void setCurrentField(String field) throws IOException, SearchLibException {
 		synchronized (this) {
 			currentField = field;
 			onSearch();
@@ -268,9 +266,8 @@ public class TermController extends CommonController {
 				termEnum.close();
 				termEnum = null;
 				pw = null;
-				Filedownload.save(new FileInputStream(tempFile),
-						"text/csv; charset-UTF-8", "OSS_term_freq_"
-								+ currentField + ".csv");
+				Filedownload.save(new FileInputStream(tempFile), "text/csv; charset-UTF-8",
+						"OSS_term_freq_" + currentField + ".csv");
 			} finally {
 				if (pw != null)
 					pw.close();
