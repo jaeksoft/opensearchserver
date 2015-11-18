@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -43,21 +43,19 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 public class FieldImpl extends CommonServices implements SoapField, RestField {
 
 	@Override
-	public CommonResult setField(String use, String login, String key,
-			String field_name, SchemaFieldRecord schemaFieldRecord) {
+	public CommonResult setField(String use, String login, String key, String field_name,
+			SchemaFieldRecord schemaFieldRecord) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (schemaFieldRecord == null)
-				throw new CommonServiceException(Status.BAD_REQUEST,
-						"The field structure is missing");
+				throw new CommonServiceException(Status.BAD_REQUEST, "The field structure is missing");
 			if (StringUtils.isEmpty(field_name))
 				throw new CommonServiceException("Field name is missing");
 			SchemaField schemaField = new SchemaField();
 			if (!StringUtils.isEmpty(schemaFieldRecord.name)) {
 				if (!schemaFieldRecord.name.equals(field_name))
-					throw new CommonServiceException(
-							"Field names does not match");
+					throw new CommonServiceException("Field names does not match");
 			} else
 				schemaFieldRecord.name = field_name;
 			schemaFieldRecord.toShemaField(schemaField);
@@ -74,14 +72,12 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public CommonResult setField(String use, String login, String key,
-			List<SchemaFieldRecord> schemaFieldRecords) {
+	public CommonResult setField(String use, String login, String key, List<SchemaFieldRecord> schemaFieldRecords) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (schemaFieldRecords == null)
-				throw new CommonServiceException(Status.BAD_REQUEST,
-						"The field structure is missing");
+				throw new CommonServiceException(Status.BAD_REQUEST, "The field structure is missing");
 			int count = 0;
 			for (SchemaFieldRecord schemaFieldRecord : schemaFieldRecords) {
 				SchemaField schemaField = new SchemaField();
@@ -101,8 +97,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public CommonResult deleteField(String use, String login, String key,
-			String deleteField) {
+	public CommonResult deleteField(String use, String login, String key, String deleteField) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -117,22 +112,20 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 		}
 	}
 
-	private String delete(Client client, String use, String deleteField)
-			throws SearchLibException {
+	private String delete(Client client, String use, String deleteField) throws SearchLibException {
 		com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 		SchemaFieldList sfl = schema.getFieldList();
 		SchemaField field = sfl.get(deleteField.trim());
 		if (field == null)
-			throw new CommonServiceException(Status.NOT_FOUND,
-					"Field not found: " + deleteField);
+			throw new CommonServiceException(Status.NOT_FOUND, "Field not found: " + deleteField);
 		sfl.remove(field.getName());
 		client.saveConfig();
 		return "Deleted " + deleteField;
 	}
 
 	@Override
-	public CommonResult setDefaultUniqueField(String use, String login,
-			String key, String defaultField, String uniqueField) {
+	public CommonResult setDefaultUniqueField(String use, String login, String key, String defaultField,
+			String uniqueField) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
@@ -143,8 +136,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			if (defaultField != null) {
 				if (defaultField.length() > 0)
 					if (schemaFieldList.get(defaultField) == null)
-						throw new CommonServiceException(Status.NOT_FOUND,
-								"Field not found: " + defaultField);
+						throw new CommonServiceException(Status.NOT_FOUND, "Field not found: " + defaultField);
 				schemaFieldList.setDefaultField(defaultField);
 				msg.append("Default field set to '");
 				msg.append(defaultField);
@@ -153,8 +145,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			if (uniqueField != null) {
 				if (uniqueField.length() > 0)
 					if (schemaFieldList.get(uniqueField) == null)
-						throw new CommonServiceException(Status.NOT_FOUND,
-								"Field not found: " + uniqueField);
+						throw new CommonServiceException(Status.NOT_FOUND, "Field not found: " + uniqueField);
 				schemaFieldList.setUniqueField(uniqueField);
 				msg.append("Unique field set to '");
 				msg.append(uniqueField);
@@ -181,8 +172,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			SchemaFieldList schemaFieldList = schema.getFieldList();
 			for (SchemaField schemaField : schemaFieldList.getList())
 				fieldList.add(new SchemaFieldRecord(schemaField));
-			return new ResultFieldList(true, fieldList,
-					schemaFieldList.getUniqueField(),
+			return new ResultFieldList(true, fieldList, schemaFieldList.getUniqueField(),
 					schemaFieldList.getDefaultField());
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
@@ -192,20 +182,34 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 	}
 
 	@Override
-	public ResultField getFieldList(String use, String login, String key,
-			String field) {
+	public ResultField getFieldList(String use, String login, String key, String field) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			com.jaeksoft.searchlib.schema.Schema schema = client.getSchema();
 			SchemaField schemaField = schema.getFieldList().get(field);
 			if (schemaField == null)
-				throw new CommonServiceException(Status.NOT_FOUND,
-						"Field not found: " + field);
+				throw new CommonServiceException(Status.NOT_FOUND, "Field not found: " + field);
 			return new ResultField(true, schemaField);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
+	public ResultTermList getTermList(String index, String login, String key, String field, String prefix,
+			Integer start, Integer rows) {
+		try {
+			Client client = getLoggedClient(index, login, key, Role.INDEX_SCHEMA);
+			ClientFactory.INSTANCE.properties.checkApi();
+			return new ResultTermList(client, field, prefix, start, rows);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}
