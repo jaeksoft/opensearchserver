@@ -70,22 +70,18 @@ import com.jaeksoft.searchlib.util.StringUtils;
 
 public class HtmlParser extends Parser {
 
-	public static final String[] DEFAULT_MIMETYPES = { "text/html",
-			"application/xhtml+xml" };
+	public static final String[] DEFAULT_MIMETYPES = { "text/html", "application/xhtml+xml" };
 
 	public static final String[] DEFAULT_EXTENSIONS = { "html", "xhtml" };
 
 	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
-			ParserFieldEnum.title, ParserFieldEnum.generated_title,
-			ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
-			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots,
-			ParserFieldEnum.internal_link,
-			ParserFieldEnum.internal_link_nofollow,
-			ParserFieldEnum.external_link,
-			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang,
-			ParserFieldEnum.htmlProvider, ParserFieldEnum.htmlSource };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name, ParserFieldEnum.title,
+			ParserFieldEnum.generated_title, ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
+			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots, ParserFieldEnum.internal_link,
+			ParserFieldEnum.internal_link_nofollow, ParserFieldEnum.external_link,
+			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang, ParserFieldEnum.htmlProvider,
+			ParserFieldEnum.htmlSource };
 
 	private class BoostTag {
 		private final Float boost;
@@ -144,22 +140,20 @@ public class HtmlParser extends Parser {
 		super.initProperties();
 		addProperty(ClassPropertyEnum.SIZE_LIMIT, "0", null, 20, 1);
 		addProperty(ClassPropertyEnum.DEFAULT_CHARSET, "UTF-8", null, 20, 1);
-		addProperty(ClassPropertyEnum.HTML_PARSER,
-				HtmlParserEnum.BestScoreParser.getLabel(),
+		addProperty(ClassPropertyEnum.HTML_PARSER, HtmlParserEnum.BestScoreParser.getLabel(),
 				HtmlParserEnum.getLabelArray(), 0, 0);
-		addProperty(ClassPropertyEnum.URL_FRAGMENT,
-				ClassPropertyEnum.KEEP_REMOVE_LIST[0],
+		addProperty(ClassPropertyEnum.URL_FRAGMENT, ClassPropertyEnum.KEEP_REMOVE_LIST[0],
 				ClassPropertyEnum.KEEP_REMOVE_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.IGNORE_LINK_NOFOLLOW,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS,
-				Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL,
-				Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.IGNORE_META_NOINDEX, Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0,
+				0);
+		addProperty(ClassPropertyEnum.IGNORE_META_NOFOLLOW, Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0,
+				0);
+		addProperty(ClassPropertyEnum.IGNORE_LINK_NOFOLLOW, Boolean.FALSE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0,
+				0);
+		addProperty(ClassPropertyEnum.IGNORE_UNTITLED_DOCUMENTS, Boolean.FALSE.toString(),
+				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.IGNORE_NON_CANONICAL, Boolean.TRUE.toString(), ClassPropertyEnum.BOOLEAN_LIST, 0,
+				0);
 		addProperty(ClassPropertyEnum.TITLE_BOOST, "2", null, 10, 1);
 		addProperty(ClassPropertyEnum.H1_BOOST, "1.8", null, 10, 1);
 		addProperty(ClassPropertyEnum.H2_BOOST, "1.6", null, 10, 1);
@@ -172,12 +166,10 @@ public class HtmlParser extends Parser {
 
 	private final static String OPENSEARCHSERVER_FIELD = "opensearchserver.field.";
 	private final static String OPENSEARCHSERVER_IGNORE = "opensearchserver.ignore";
-	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD
-			.length();
+	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD.length();
 
-	private void getBodyTextContent(ParserResultItem result, StringBuilder sb,
-			HtmlNodeAbstract<?> node, boolean bAddBlock, String[] directFields,
-			int recursion, Set<Object> nodeExclusionsSet) {
+	private void getBodyTextContent(ParserResultItem result, StringBuilder sb, HtmlNodeAbstract<?> node,
+			boolean bAddBlock, String[] directFields, int recursion, Set<Object> nodeExclusionsSet) {
 		if (recursion == 0) {
 			Logging.warn("Max recursion reached (getBodyTextContent)");
 			return;
@@ -206,15 +198,13 @@ public class HtmlParser extends Parser {
 		boolean bEnterDirectField = false;
 		String classNameAttribute = node.getAttribute("class");
 		if (classNameAttribute != null) {
-			String[] classNames = org.apache.commons.lang.StringUtils
-					.split(classNameAttribute);
+			String[] classNames = org.apache.commons.lang.StringUtils.split(classNameAttribute);
 			if (classNames != null) {
 				for (String className : classNames) {
 					if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(className))
 						return;
 					if (className.startsWith(OPENSEARCHSERVER_FIELD)) {
-						String directField = classNameAttribute
-								.substring(OPENSEARCHSERVER_FIELD_LENGTH);
+						String directField = classNameAttribute.substring(OPENSEARCHSERVER_FIELD_LENGTH);
 						if (directField.length() > 0) {
 							directFields = directField.split("\\.");
 							bEnterDirectField = directFields.length > 0;
@@ -240,13 +230,11 @@ public class HtmlParser extends Parser {
 		List<HtmlNodeAbstract<?>> children = node.getChildNodes();
 		if (children != null)
 			for (HtmlNodeAbstract<?> htmlNode : children)
-				getBodyTextContent(result, sb, htmlNode, bAddBlock,
-						directFields, recursion, nodeExclusionsSet);
+				getBodyTextContent(result, sb, htmlNode, bAddBlock, directFields, recursion, nodeExclusionsSet);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
 			String currentTag = nodeName.toLowerCase();
-			boolean bForSentence = sb.charAt(sb.length() - 1) != '.'
-					&& sentenceTagSet.contains(currentTag);
+			boolean bForSentence = sb.charAt(sb.length() - 1) != '.' && sentenceTagSet.contains(currentTag);
 			if (bForSentence || bEnterDirectField) {
 				if (directFields != null)
 					result.addDirectFields(directFields, sb.toString());
@@ -261,8 +249,7 @@ public class HtmlParser extends Parser {
 		result.addField(ParserFieldEnum.title, value, titleBoost);
 	}
 
-	protected void addFieldBody(ParserResultItem result, String tag,
-			String value) {
+	protected void addFieldBody(ParserResultItem result, String tag, String value) {
 		BoostTag boostTag = boostTagMap.get(tag);
 		Float boost = null;
 		if (boostTag != null) {
@@ -294,21 +281,17 @@ public class HtmlParser extends Parser {
 				break;
 		}
 		if (Logging.isDebug)
-			Logging.debug("SelectedCharset : " + first + " (" + selected + '/'
-					+ position + ')');
+			Logging.debug("SelectedCharset : " + first + " (" + selected + '/' + position + ')');
 		return first;
 	}
 
-	private final HtmlDocumentProvider getHtmlDocumentProvider(
-			HtmlParserEnum htmlParserEnum, String charset,
-			StreamLimiter streamLimiter, String xPathExclusions,
-			Set<Object> xPathExclusionSet) throws LimitException, IOException,
-			SearchLibException {
+	private final HtmlDocumentProvider getHtmlDocumentProvider(HtmlParserEnum htmlParserEnum, String charset,
+			StreamLimiter streamLimiter, String xPathExclusions, Set<Object> xPathExclusionSet)
+					throws LimitException, IOException, SearchLibException {
 
 		HtmlDocumentProvider htmlProvider;
 		try {
-			htmlProvider = htmlParserEnum.getHtmlParser(charset, streamLimiter,
-					xPathExclusionSet != null);
+			htmlProvider = htmlParserEnum.getHtmlParser(charset, streamLimiter, xPathExclusionSet != null);
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
@@ -334,8 +317,8 @@ public class HtmlParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter,
-			LanguageEnum forcedLang) throws IOException, SearchLibException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum forcedLang)
+			throws IOException, SearchLibException {
 
 		titleBoost = getFloatProperty(ClassPropertyEnum.TITLE_BOOST);
 		boostTagMap = new TreeMap<String, BoostTag>();
@@ -358,13 +341,12 @@ public class HtmlParser extends Parser {
 		IndexDocument sourceDocument = getSourceDocument();
 
 		if (sourceDocument != null) {
-			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
-					UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
+			FieldValueItem fieldValueItem = sourceDocument
+					.getFieldValue(UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
 				headerCharset = fieldValueItem.getValue();
 			if (headerCharset == null) {
-				fieldValueItem = sourceDocument.getFieldValue(
-						UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), 0);
+				fieldValueItem = sourceDocument.getFieldValue(UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), 0);
 				if (fieldValueItem != null)
 					headerCharset = fieldValueItem.getValue();
 			}
@@ -377,22 +359,18 @@ public class HtmlParser extends Parser {
 		}
 
 		if (currentCharset == null) {
-			currentCharset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET)
-					.getValue();
+			currentCharset = getProperty(ClassPropertyEnum.DEFAULT_CHARSET).getValue();
 		}
 
-		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION)
-				.getValue();
+		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION).getValue();
 		Set<Object> xPathExclusionsSet = null;
 		if (!StringUtils.isEmpty(xPathExclusions))
 			xPathExclusionsSet = new HashSet<Object>();
 
-		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(
-				ClassPropertyEnum.HTML_PARSER).getValue());
+		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(ClassPropertyEnum.HTML_PARSER).getValue());
 
-		HtmlDocumentProvider htmlProvider = getHtmlDocumentProvider(
-				htmlParserEnum, currentCharset, streamLimiter, xPathExclusions,
-				xPathExclusionsSet);
+		HtmlDocumentProvider htmlProvider = getHtmlDocumentProvider(htmlParserEnum, currentCharset, streamLimiter,
+				xPathExclusions, xPathExclusionsSet);
 		if (htmlProvider == null)
 			return;
 
@@ -403,8 +381,7 @@ public class HtmlParser extends Parser {
 			if (currentURL == null && !StringUtils.isEmpty(streamOriginalUrl))
 				currentURL = LinkUtils.newEncodedURL(streamOriginalUrl);
 			if (currentURL == null && srcDoc != null) {
-				FieldValueItem fvi = srcDoc.getFieldValue(
-						UrlItemFieldEnum.INSTANCE.url.getName(), 0);
+				FieldValueItem fvi = srcDoc.getFieldValue(UrlItemFieldEnum.INSTANCE.url.getName(), 0);
 				if (fvi != null)
 					currentURL = LinkUtils.newEncodedURL(fvi.getValue());
 			}
@@ -440,14 +417,12 @@ public class HtmlParser extends Parser {
 		// Check ContentType charset in meta http-equiv
 		String metaCharset = htmlProvider.getMetaCharset();
 
-		String selectedCharset = selectCharset(headerCharset, metaCharset,
-				detectedCharset);
+		String selectedCharset = selectCharset(headerCharset, metaCharset, detectedCharset);
 
 		if (selectedCharset != null) {
 			if (!selectedCharset.equals(currentCharset)) {
 				currentCharset = selectedCharset;
-				htmlProvider = getHtmlDocumentProvider(htmlParserEnum,
-						currentCharset, streamLimiter, xPathExclusions,
+				htmlProvider = getHtmlDocumentProvider(htmlParserEnum, currentCharset, streamLimiter, xPathExclusions,
 						xPathExclusionsSet);
 			}
 		}
@@ -464,8 +439,7 @@ public class HtmlParser extends Parser {
 		for (HtmlNodeAbstract<?> metaNode : htmlProvider.getMetas()) {
 			String metaName = metaNode.getAttributeText("name");
 			if (metaName != null && metaName.startsWith(OPENSEARCHSERVER_FIELD)) {
-				String field = metaName
-						.substring(OPENSEARCHSERVER_FIELD_LENGTH);
+				String field = metaName.substring(OPENSEARCHSERVER_FIELD_LENGTH);
 				String[] fields = field.split("\\.");
 				if (fields != null) {
 					String content = metaNode.getAttributeText("content");
@@ -486,11 +460,9 @@ public class HtmlParser extends Parser {
 			String attr_name = node.getAttributeText("name");
 			String attr_http_equiv = node.getAttributeText("http-equiv");
 			if ("keywords".equalsIgnoreCase(attr_name))
-				result.addField(ParserFieldEnum.meta_keywords,
-						HtmlDocumentProvider.getMetaContent(node));
+				result.addField(ParserFieldEnum.meta_keywords, HtmlDocumentProvider.getMetaContent(node));
 			else if ("description".equalsIgnoreCase(attr_name))
-				result.addField(ParserFieldEnum.meta_description,
-						HtmlDocumentProvider.getMetaContent(node));
+				result.addField(ParserFieldEnum.meta_description, HtmlDocumentProvider.getMetaContent(node));
 			else if ("robots".equalsIgnoreCase(attr_name))
 				metaRobots = HtmlDocumentProvider.getMetaContent(node);
 			else if ("dc.language".equalsIgnoreCase(attr_name))
@@ -516,11 +488,9 @@ public class HtmlParser extends Parser {
 		UrlFilterItem[] urlFilterList = getUrlFilterList();
 
 		boolean removeFragment = ClassPropertyEnum.KEEP_REMOVE_LIST[1]
-				.equalsIgnoreCase(getProperty(ClassPropertyEnum.URL_FRAGMENT)
-						.getValue());
+				.equalsIgnoreCase(getProperty(ClassPropertyEnum.URL_FRAGMENT).getValue());
 
-		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame",
-				"img");
+		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame", "img");
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			for (HtmlNodeAbstract<?> node : nodes) {
 				String href = null;
@@ -541,8 +511,7 @@ public class HtmlParser extends Parser {
 					if (!href.startsWith("javascript:"))
 						if (currentURL != null) {
 							href = StringEscapeUtils.unescapeXml(href);
-							newUrl = LinkUtils.getLink(currentURL, href,
-									urlFilterList, removeFragment);
+							newUrl = LinkUtils.getLink(currentURL, href, urlFilterList, removeFragment);
 						}
 				if (newUrl != null) {
 					ParserFieldEnum field = null;
@@ -571,8 +540,7 @@ public class HtmlParser extends Parser {
 				nodes = rootNode.getNodes("html");
 			if (nodes != null && nodes.size() > 0) {
 				StringBuilder sb = new StringBuilder();
-				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024,
-						xPathExclusionsSet);
+				getBodyTextContent(result, sb, nodes.get(0), true, null, 1024, xPathExclusionsSet);
 				result.addField(ParserFieldEnum.body, sb);
 			}
 		}
@@ -626,10 +594,8 @@ public class HtmlParser extends Parser {
 				final String FIELD_TITLE = "contents";
 
 				MemoryIndex bodyMemoryIndex = new MemoryIndex();
-				Analyzer bodyAnalyzer = new WhitespaceAnalyzer(
-						Version.LUCENE_36);
-				String bodyText = result.getMergedBodyText(100000, " ",
-						ParserFieldEnum.body);
+				Analyzer bodyAnalyzer = new WhitespaceAnalyzer(Version.LUCENE_36);
+				String bodyText = result.getMergedBodyText(100000, " ", ParserFieldEnum.body);
 				bodyMemoryIndex.addField(FIELD_TITLE, bodyText, bodyAnalyzer);
 
 				IndexSearcher indexSearcher = bodyMemoryIndex.createSearcher();

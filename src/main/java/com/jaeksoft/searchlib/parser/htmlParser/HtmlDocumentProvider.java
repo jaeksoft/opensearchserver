@@ -47,8 +47,7 @@ import com.jaeksoft.searchlib.util.MimeUtils;
 public abstract class HtmlDocumentProvider {
 
 	public static interface XPath {
-		public abstract void xPath(String xPath, Collection<Object> nodes)
-				throws XPathExpressionException;
+		public abstract void xPath(String xPath, Collection<Object> nodes) throws XPathExpressionException;
 	}
 
 	private final HtmlParserEnum parserEnum;
@@ -70,13 +69,11 @@ public abstract class HtmlDocumentProvider {
 	}
 
 	public void init(String charset, StreamLimiter streamLimiter)
-			throws SAXException, IOException, ParserConfigurationException,
-			SearchLibException {
+			throws SAXException, IOException, ParserConfigurationException, SearchLibException {
 		rootNode = getDocument(charset, streamLimiter);
 	}
 
-	public void init(String htmlSource) throws IOException,
-			ParserConfigurationException, SAXException {
+	public void init(String htmlSource) throws IOException, ParserConfigurationException, SAXException {
 		rootNode = getDocument(htmlSource);
 	}
 
@@ -88,13 +85,11 @@ public abstract class HtmlDocumentProvider {
 		return parserEnum.getLabel();
 	}
 
-	protected abstract HtmlNodeAbstract<?> getDocument(String charset,
-			InputStream inputStream) throws SAXException, IOException,
-			ParserConfigurationException;
+	protected abstract HtmlNodeAbstract<?> getDocument(String charset, InputStream inputStream)
+			throws SAXException, IOException, ParserConfigurationException;
 
-	protected HtmlNodeAbstract<?> getDocument(String charset,
-			StreamLimiter streamLimiter) throws SAXException, IOException,
-			ParserConfigurationException, SearchLibException {
+	protected HtmlNodeAbstract<?> getDocument(String charset, StreamLimiter streamLimiter)
+			throws SAXException, IOException, ParserConfigurationException, SearchLibException {
 		return getDocument(charset, streamLimiter.getNewInputStream());
 	}
 
@@ -185,8 +180,7 @@ public abstract class HtmlDocumentProvider {
 	}
 
 	final public URL getBaseHref() {
-		List<HtmlNodeAbstract<?>> list = rootNode.getNodes("html", "head",
-				"base");
+		List<HtmlNodeAbstract<?>> list = rootNode.getNodes("html", "head", "base");
 		if (list == null)
 			return null;
 		if (list.size() == 0)
@@ -208,8 +202,7 @@ public abstract class HtmlDocumentProvider {
 		}
 	}
 
-	final public static HtmlDocumentProvider bestScore(
-			List<HtmlDocumentProvider> providers) {
+	final public static HtmlDocumentProvider bestScore(List<HtmlDocumentProvider> providers) {
 		HtmlDocumentProvider bestProvider = null;
 		for (HtmlDocumentProvider provider : providers) {
 			provider.score();
@@ -223,8 +216,7 @@ public abstract class HtmlDocumentProvider {
 
 	public abstract boolean isXPathSupported();
 
-	public void xPath(String xPath, Collection<Object> nodes)
-			throws XPathExpressionException {
+	public void xPath(String xPath, Collection<Object> nodes) throws XPathExpressionException {
 		((XPath) rootNode).xPath(xPath, nodes);
 	}
 

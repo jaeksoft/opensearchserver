@@ -44,10 +44,11 @@ public enum HtmlParserEnum {
 
 	FirefoxParser("Firefox", FirefoxParser.class),
 
+	PhantomJS("PhantomJS", PhantomJSParser.class),
+
 	HtmlUnitParser("HtmlUnit", HtmlUnitParser.class),
 
-	HtmlUnitJSParser("HtmlUnit (with Javascript)",
-			HtmlUnitJavaScriptParser.class),
+	HtmlUnitJSParser("HtmlUnit (with Javascript)", HtmlUnitJavaScriptParser.class),
 
 	HtmlCleanerParser("HtmlCleaner", HtmlCleanerParser.class),
 
@@ -65,11 +66,9 @@ public enum HtmlParserEnum {
 
 	private final Class<? extends HtmlDocumentProvider> classDef;
 
-	private static HtmlParserEnum[] bestScoreOrder = { TagSoupParser,
-			NekoHtmlParser, HtmlCleanerParser, JSoupParser };
+	private static HtmlParserEnum[] bestScoreOrder = { TagSoupParser, NekoHtmlParser, HtmlCleanerParser, JSoupParser };
 
-	private HtmlParserEnum(String label,
-			Class<? extends HtmlDocumentProvider> classDef) {
+	private HtmlParserEnum(String label, Class<? extends HtmlDocumentProvider> classDef) {
 		this.label = label;
 		this.classDef = classDef;
 	}
@@ -78,28 +77,25 @@ public enum HtmlParserEnum {
 		return label;
 	}
 
-	private static HtmlDocumentProvider findBestProvider(String charset,
-			StreamLimiter streamLimiter, boolean requireXPath)
-			throws LimitException, InstantiationException,
-			IllegalAccessException, IOException, ParserConfigurationException {
+	private static HtmlDocumentProvider findBestProvider(String charset, StreamLimiter streamLimiter,
+			boolean requireXPath) throws LimitException, InstantiationException, IllegalAccessException, IOException,
+					ParserConfigurationException {
 
 		List<Exception> errors = new ArrayList<Exception>();
 
 		try {
-			HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser
-					.getHtmlParser(charset, streamLimiter, requireXPath);
+			HtmlDocumentProvider provider = HtmlParserEnum.StrictXhtmlParser.getHtmlParser(charset, streamLimiter,
+					requireXPath);
 			if (provider.getRootNode() != null)
 				return provider;
 		} catch (Exception e) {
 			errors.add(e);
 		}
 
-		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(
-				bestScoreOrder.length);
+		List<HtmlDocumentProvider> providerList = new ArrayList<HtmlDocumentProvider>(bestScoreOrder.length);
 		for (HtmlParserEnum htmlParserEnum : bestScoreOrder) {
 			try {
-				providerList.add(htmlParserEnum.getHtmlParser(charset,
-						streamLimiter, requireXPath));
+				providerList.add(htmlParserEnum.getHtmlParser(charset, streamLimiter, requireXPath));
 			} catch (XPathNotSupported e) {
 				errors.add(e);
 			} catch (SAXException e) {
@@ -109,19 +105,16 @@ public enum HtmlParserEnum {
 			}
 		}
 		if (CollectionUtils.isEmpty(providerList)) {
-			Logging.error(StringUtils.fastConcat("No HTML provider found for: "
-					+ streamLimiter.getOriginURL()));
+			Logging.error(StringUtils.fastConcat("No HTML provider found for: " + streamLimiter.getOriginURL()));
 			for (Exception e : errors)
 				Logging.error(e);
 		}
 		return HtmlDocumentProvider.bestScore(providerList);
 	}
 
-	public HtmlDocumentProvider getHtmlParser(String charset,
-			StreamLimiter streamLimiter, boolean requireXPath)
-			throws LimitException, IOException, InstantiationException,
-			IllegalAccessException, SAXException, ParserConfigurationException,
-			SearchLibException {
+	public HtmlDocumentProvider getHtmlParser(String charset, StreamLimiter streamLimiter, boolean requireXPath)
+			throws LimitException, IOException, InstantiationException, IllegalAccessException, SAXException,
+			ParserConfigurationException, SearchLibException {
 		if (this == BestScoreParser)
 			return findBestProvider(charset, streamLimiter, requireXPath);
 		HtmlDocumentProvider htmlParser = classDef.newInstance();
@@ -141,8 +134,7 @@ public enum HtmlParserEnum {
 
 	public static HtmlParserEnum find(String value) {
 		for (HtmlParserEnum htmlParserEnum : values())
-			if (htmlParserEnum.name().equalsIgnoreCase(value)
-					|| htmlParserEnum.label.equalsIgnoreCase(value))
+			if (htmlParserEnum.name().equalsIgnoreCase(value) || htmlParserEnum.label.equalsIgnoreCase(value))
 				return htmlParserEnum;
 		return BestScoreParser;
 	}

@@ -102,12 +102,11 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return type;
 	}
 
-	public Object javascript(String javascript, boolean faultTolerant,
-			Object... objects) throws IOException, SearchLibException {
+	public Object javascript(String javascript, boolean faultTolerant, Object... objects)
+			throws IOException, SearchLibException {
 		try {
 			if (!(driver instanceof JavascriptExecutor))
-				throw new IOException(
-						"The Web driver don't support javascript execution");
+				throw new IOException("The Web driver don't support javascript execution");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			return js.executeScript(javascript, objects);
 		} catch (IOException e) {
@@ -122,18 +121,13 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return null;
 	}
 
-	public List<?> getElementByTag(String tag, boolean faultTolerant)
-			throws IOException, SearchLibException {
-		List<?> result = (List<?>) javascript(
-				"return document.getElementsByTagName(arguments[0])",
-				faultTolerant, tag);
+	public List<?> getElementByTag(String tag, boolean faultTolerant) throws IOException, SearchLibException {
+		List<?> result = (List<?>) javascript("return document.getElementsByTagName(arguments[0])", faultTolerant, tag);
 		return result;
 	}
 
-	public String getJavascriptInnerHtml() throws IOException,
-			SearchLibException {
-		String source = (String) javascript(
-				"document.getElementsByTagName('body')[0].innerHTML", false);
+	public String getJavascriptInnerHtml() throws IOException, SearchLibException {
+		String source = (String) javascript("document.getElementsByTagName('body')[0].innerHTML", false);
 		return source;
 	}
 
@@ -142,8 +136,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	private final synchronized static String getXPath() throws IOException {
 		if (XPATH_SCRIPT != null)
 			return XPATH_SCRIPT;
-		URL url = Resources
-				.getResource("/com/jaeksoft/searchlib/crawler/web/browser/get_xpath.js");
+		URL url = Resources.getResource("/com/jaeksoft/searchlib/crawler/web/browser/get_xpath.js");
 		String content = Resources.toString(url, Charsets.UTF_8);
 		BufferedReader br = new BufferedReader(new StringReader(content));
 		StringBuilder sb = new StringBuilder();
@@ -155,10 +148,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return XPATH_SCRIPT;
 	}
 
-	public String getXPath(WebElement webElement, boolean faultTolerant)
-			throws IOException, SearchLibException {
-		String xPath = (String) javascript(getXPath(), faultTolerant,
-				webElement);
+	public String getXPath(WebElement webElement, boolean faultTolerant) throws IOException, SearchLibException {
+		String xPath = (String) javascript(getXPath(), faultTolerant, webElement);
 		if (xPath == null)
 			Logging.warn("XPATH extraction failed on " + webElement);
 		return xPath;
@@ -166,8 +157,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	final public BufferedImage getScreenshot() throws IOException {
 		if (!(driver instanceof TakesScreenshot))
-			throw new IOException(
-					"This browser driver does not support screenshot");
+			throw new IOException("This browser driver does not support screenshot");
 		TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
 		byte[] data = takesScreenshot.getScreenshotAs(OutputType.BYTES);
 		return ImageIO.read(new ByteArrayInputStream(data));
@@ -176,19 +166,26 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	final public Rectangle getRectangle(WebElement element) {
 		if (element == null)
 			return null;
-		Rectangle box = new Rectangle(element.getLocation().x,
-				element.getLocation().y, element.getSize().width,
+		Rectangle box = new Rectangle(element.getLocation().x, element.getLocation().y, element.getSize().width,
 				element.getSize().height);
 		return box;
 	}
 
-	public String getSourceCode() {
+	public String getSourceCode() throws IOException, SearchLibException {
 		return driver.getPageSource();
 	}
 
 	final public String getSourceCode(String sUrl) {
 		get(sUrl);
 		return driver.getPageSource();
+	}
+
+	final public String getJavascriptBody() {
+		try {
+			return driver.findElement(By.tagName("body")).getText();
+		} catch (NoSuchElementException e) {
+			return null;
+		}
 	}
 
 	final public String getTitle() {
@@ -214,8 +211,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		return driver.findElements(by);
 	}
 
-	final public int locateBy(By by, Collection<WebElement> elements,
-			boolean faultTolerant) throws SearchLibException {
+	final public int locateBy(By by, Collection<WebElement> elements, boolean faultTolerant) throws SearchLibException {
 		try {
 			List<WebElement> list = driver.findElements(by);
 			if (list == null)
@@ -224,48 +220,42 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			return list.size();
 		} catch (Exception e) {
 			if (!faultTolerant)
-				throw new SearchLibException("Web element location failed: "
-						+ by);
+				throw new SearchLibException("Web element location failed: " + by);
 			Logging.warn(e);
 			return 0;
 		}
 	}
 
-	public final List<WebElement> locateBy(WebElement originElement, By by,
-			boolean faultTolerant) throws SearchLibException {
+	public final List<WebElement> locateBy(WebElement originElement, By by, boolean faultTolerant)
+			throws SearchLibException {
 		try {
 			if (originElement == null)
 				return null;
 			return originElement.findElements(by);
 		} catch (Exception e) {
 			if (!faultTolerant)
-				throw new SearchLibException("Web element location failed: "
-						+ by);
+				throw new SearchLibException("Web element location failed: " + by);
 			Logging.warn(e);
 			return null;
 		}
 	}
 
-	final public HtmlArchiver saveArchive(HttpDownloader httpDownloader,
-			File parentDirectory, Collection<Selector> selectors)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException, SAXException,
-			ParserConfigurationException, ClassCastException,
-			ClassNotFoundException, InstantiationException,
-			IllegalAccessException, XPatherException {
+	final public HtmlArchiver saveArchive(HttpDownloader httpDownloader, File parentDirectory,
+			Collection<Selector> selectors)
+					throws ClientProtocolException, IllegalStateException, IOException, SearchLibException,
+					URISyntaxException, SAXException, ParserConfigurationException, ClassCastException,
+					ClassNotFoundException, InstantiationException, IllegalAccessException, XPatherException {
 
 		URL currentURL = new URL(driver.getCurrentUrl());
 		StringReader reader = null;
 		try {
-			HtmlArchiver archiver = new HtmlArchiver(this, parentDirectory,
-					httpDownloader, currentURL);
+			HtmlArchiver archiver = new HtmlArchiver(this, parentDirectory, httpDownloader, currentURL);
 			Set<WebElement> disableScriptWebElements = new HashSet<WebElement>();
 			Set<String> xPathDisableScriptSet = new HashSet<String>();
 			if (selectors != null)
 				for (Selector selector : selectors)
 					if (selector.disableScript)
-						locateBy(selector.getBy(), disableScriptWebElements,
-								true);
+						locateBy(selector.getBy(), disableScriptWebElements, true);
 			for (WebElement webElement : disableScriptWebElements) {
 				String xPath = getXPath(webElement, true);
 				if (xPath != null)
@@ -294,8 +284,8 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 		driver.switchTo().defaultContent();
 	}
 
-	final public void getFrameSource(WebElement frameWebelement,
-			File captureDirectory) throws IOException {
+	final public void getFrameSource(WebElement frameWebelement, File captureDirectory)
+			throws IOException, SearchLibException {
 		if (!captureDirectory.exists())
 			captureDirectory.mkdir();
 		File sourceFile = new File(captureDirectory, "source.html");
@@ -343,8 +333,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			return null;
 		List<CookieItem> cookieList = new ArrayList<CookieItem>(cookies.size());
 		for (Cookie cookie : cookies) {
-			BasicClientCookie basicCookie = new BasicClientCookie(
-					cookie.getName(), cookie.getValue());
+			BasicClientCookie basicCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
 			basicCookie.setDomain(cookie.getDomain());
 			basicCookie.setExpiryDate(cookie.getExpiry());
 			basicCookie.setPath(cookie.getPath());
