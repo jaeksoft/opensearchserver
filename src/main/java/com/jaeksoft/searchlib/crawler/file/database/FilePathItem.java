@@ -55,6 +55,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 */
 	private String domain;
 	private SmbSecurityPermissions smbSecurityPermissions;
+	private String keyTabPath;
+	private String krb5IniPath;
 
 	/**
 	 * For SWIFT
@@ -81,6 +83,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		host = null;
 		path = null;
 		domain = null;
+		keyTabPath = null;
+		krb5IniPath = null;
 		username = null;
 		password = null;
 		withSub = false;
@@ -106,6 +110,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.host = host;
 		destFilePath.path = path;
 		destFilePath.domain = domain;
+		destFilePath.keyTabPath = keyTabPath;
+		destFilePath.krb5IniPath = krb5IniPath;
 		destFilePath.smbSecurityPermissions = smbSecurityPermissions;
 		destFilePath.username = username;
 		destFilePath.password = password;
@@ -164,6 +170,42 @@ public class FilePathItem implements Comparable<FilePathItem> {
 			if (domain.length() == 0)
 				domain = null;
 		this.domain = domain;
+	}
+
+	/**
+	 * @return the krb5IniPath
+	 */
+	public String getKrb5IniPath() {
+		return krb5IniPath;
+	}
+
+	/**
+	 * @param krb5IniPath
+	 *            the krb5IniPath to set
+	 */
+	public void setKrb5IniPath(String krb5IniPath) {
+		if (krb5IniPath != null)
+			if (krb5IniPath.length() == 0)
+				krb5IniPath = null;
+		this.krb5IniPath = krb5IniPath;
+	}
+
+	/**
+	 * @return the keyTabPath
+	 */
+	public String getKeyTabPath() {
+		return keyTabPath;
+	}
+
+	/**
+	 * @param keyTabPath
+	 *            the keyTabPath to set
+	 */
+	public void setKeyTabPath(String keyTabPath) {
+		if (keyTabPath != null)
+			if (keyTabPath.length() == 0)
+				keyTabPath = null;
+		this.keyTabPath = keyTabPath;
 	}
 
 	/**
@@ -287,6 +329,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (type != null)
 			filePathItem.setType(FileInstanceType.findByName(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
+		filePathItem.setKeyTabPath(DomUtils.getAttributeText(node, "keyTabPath"));
+		filePathItem.setKrb5IniPath(DomUtils.getAttributeText(node, "krb5IniPath"));
+
 		filePathItem.setSmbSecurityPermissions(
 				SmbSecurityPermissions.find(DomUtils.getAttributeText(node, "smbSecurityPermissions")));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
@@ -325,7 +370,8 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 *             inherited error
 	 */
 	public void writeXml(XmlWriter xmlWriter, String nodeName) throws SAXException, UnsupportedEncodingException {
-		xmlWriter.startElement(nodeName, "type", type.getName(), "domain", domain, "smbSecurityPermissions",
+		xmlWriter.startElement(nodeName, "type", type.getName(), "domain", domain, "krb5IniPath", krb5IniPath,
+				"keyTabPath", keyTabPath, "smbSecurityPermissions",
 				smbSecurityPermissions != null ? smbSecurityPermissions.name() : null, "username", username, "password",
 				password == null ? null : StringUtils.base64encode(password), "host", host, "withSub",
 				withSub ? "yes" : "no", "ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no", "enabled",
@@ -364,6 +410,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (domain != null)
 			if ((c = domain.compareTo(fpi.domain)) != 0)
 				return c;
+		if ((c = StringUtils.compareNullValues(krb5IniPath, fpi.krb5IniPath)) != 0)
+			return c;
+		if ((c = StringUtils.compareNullValues(keyTabPath, fpi.keyTabPath)) != 0)
+			return c;
 		if ((c = StringUtils.compareNullValues(username, fpi.username)) != 0)
 			return c;
 		if (username != null)
