@@ -167,7 +167,7 @@ public class TaskFileCrawlerEvent extends TaskAbstract {
 				} catch (ClassNotFoundException e) {
 					throw new SearchLibException(e);
 				} catch (SmbException e) {
-					new SearchLibException(e);
+					throw new SearchLibException(e);
 				} catch (HttpException e) {
 					throw new SearchLibException(e);
 				} finally {
