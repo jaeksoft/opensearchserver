@@ -214,10 +214,10 @@ public abstract class HttpAbstract {
 					return null;
 				return httpUri.getURI();
 			} catch (ProtocolException e) {
-				Logging.error(e);
+				Logging.info(e);
 				return null;
 			} catch (URISyntaxException e) {
-				Logging.error(e);
+				Logging.info(e);
 				return null;
 			}
 		}
