@@ -31,8 +31,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,6 +49,7 @@ import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.sun.security.auth.module.Krb5LoginModule;
 
 import jcifs.smb.ACE;
 import jcifs.smb.Kerb5Authenticator;
@@ -59,13 +65,13 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 	static {
 		if (StringUtils.isEmpty(System.getProperty("java.protocol.handler.pkgs")))
 			System.setProperty("java.protocol.handler.pkgs", "jcifs");
-		if (StringUtils.isEmpty("jicfs.resolveOrder"))
+		if (StringUtils.isEmpty(System.getProperty("jicfs.resolveOrder")))
 			System.setProperty("jicfs.resolveOrder", "LMHOSTS,DNS,WINS");
-		if (StringUtils.isEmpty("jcifs.smb.client.capabilities"))
+		if (StringUtils.isEmpty(System.getProperty("jcifs.smb.client.capabilities")))
 			System.setProperty("jcifs.smb.client.capabilities", Kerb5Authenticator.CAPABILITIES);
-		if (StringUtils.isEmpty("jcifs.smb.client.flags2"))
+		if (StringUtils.isEmpty(System.getProperty("jcifs.smb.client.flags2")))
 			System.setProperty("jcifs.smb.client.flags2", Kerb5Authenticator.FLAGS2);
-		if (StringUtils.isEmpty("jcifs.smb.client.signingPreferred"))
+		if (StringUtils.isEmpty(System.getProperty("jcifs.smb.client.signingPreferred")))
 			System.setProperty("jcifs.smb.client.signingPreferred", "true");
 	}
 
@@ -112,20 +118,47 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 		return new URI("smb", filePathItem.getHost(), getPath(), null);
 	}
 
-	protected SmbFile getSmbFile() throws MalformedURLException {
+	protected SmbFile getSmbFile() throws MalformedURLException, LoginException {
 		if (smbFileStore != null)
 			return smbFileStore;
 		String context = StringUtils.fastConcat("smb://", getFilePathItem().getHost());
 		if (filePathItem.isGuest()) {
 			smbFileStore = new SmbFile(context, getPath());
+		} else if (filePathItem.getKeyTabPath() != null) {
+			Subject subject = new Subject();
+			login(subject, filePathItem);
+			Kerb5Authenticator auth = new Kerb5Authenticator(subject);
+			smbFileStore = new SmbFile(getURI().toURL(), auth);
 		} else {
 			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(filePathItem.getDomain(),
 					filePathItem.getUsername(), filePathItem.getPassword());
 			smbFileStore = new SmbFile(context, getPath(), auth);
 		}
 		if (Logging.isDebug)
-			Logging.debug("SMB Connect to (without auth) " + smbFileStore.getURL().toString());
+			Logging.debug("SMB Connect to " + smbFileStore.getURL().toString());
 		return smbFileStore;
+
+	}
+
+	public static void login(Subject subject, FilePathItem filePathItem) throws LoginException {
+
+		Map<String, Object> state = new HashMap<String, Object>();
+		state.put("java.security.krb5.conf", filePathItem.getKrb5IniPath());
+
+		Map<String, Object> option = new HashMap<String, Object>();
+		option.put("debug", "true");
+		// option.put("principal", PRINCIPAL);
+		option.put("useKeyTab", "true");
+		option.put("keyTab", filePathItem.getKeyTabPath());
+		option.put("refreshKrb5Config", "true");
+		option.put("doNotPrompt", "true");
+		option.put("storeKey", "true");
+
+		Krb5LoginModule login = new Krb5LoginModule();
+		login.initialize(subject, null, state, option);
+
+		if (login.login())
+			login.commit();
 	}
 
 	@Override
@@ -141,6 +174,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			throw new SearchLibException("URL error on " + getPath(), e);
 		} catch (SmbException e) {
 			throw new SearchLibException("SMB Error on " + getPath(), e);
+		} catch (LoginException e) {
+			throw new SearchLibException("Login Error on " + getPath(), e);
 		}
 	}
 
@@ -153,6 +188,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			return smbFile.getName();
 		} catch (MalformedURLException e) {
 			throw new SearchLibException("URL error on " + getPath(), e);
+		} catch (LoginException e) {
+			throw new SearchLibException("Login error on " + getPath(), e);
 		}
 	}
 
@@ -185,6 +222,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 		} catch (SmbException e) {
 			throw new SearchLibException(e);
 		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
+		} catch (LoginException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -227,6 +266,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			throw new SearchLibException(e);
 		} catch (SmbException e) {
 			throw new SearchLibException(e);
+		} catch (LoginException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -236,6 +277,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			SmbFile smbFile = getSmbFile();
 			return smbFile.getLastModified();
 		} catch (MalformedURLException e) {
+			throw new SearchLibException(e);
+		} catch (LoginException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -247,12 +290,18 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			return (long) smbFile.getContentLength();
 		} catch (MalformedURLException e) {
 			throw new SearchLibException(e);
+		} catch (LoginException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
 	@Override
 	public void delete() throws IOException {
-		getSmbFile().delete();
+		try {
+			getSmbFile().delete();
+		} catch (LoginException e) {
+			throw new IOException(e);
+		}
 	}
 
 	@Override
@@ -262,6 +311,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			return smbFile.getInputStream();
 		} catch (IOException e) {
 			throw new IOException("I/O error on SMB path: " + getPath(), e);
+		} catch (LoginException e) {
+			throw new IOException("Login error on SMB path: " + getPath(), e);
 		}
 	}
 
@@ -334,23 +385,27 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 
 	@Override
 	public List<SecurityAccess> getSecurity() throws IOException {
-		SmbFile smbFile = getSmbFile();
-		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
-		SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();
-		if (smbSecurityPermissions == null)
-			smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
-		switch (smbSecurityPermissions) {
-		case FILE_PERMISSIONS:
-			fillSecurity(getSecurity(smbFile), accesses);
-			break;
-		case SHARE_PERMISSIONS:
-			fillSecurity(getShareSecurity(smbFile), accesses);
-			break;
-		case FILE_SHARE_PERMISSIONS:
-			fillSecurity(getSecurity(smbFile), accesses);
-			fillSecurity(getShareSecurity(smbFile), accesses);
-			break;
+		try {
+			SmbFile smbFile = getSmbFile();
+			List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+			SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();
+			if (smbSecurityPermissions == null)
+				smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
+			switch (smbSecurityPermissions) {
+			case FILE_PERMISSIONS:
+				fillSecurity(getSecurity(smbFile), accesses);
+				break;
+			case SHARE_PERMISSIONS:
+				fillSecurity(getShareSecurity(smbFile), accesses);
+				break;
+			case FILE_SHARE_PERMISSIONS:
+				fillSecurity(getSecurity(smbFile), accesses);
+				fillSecurity(getShareSecurity(smbFile), accesses);
+				break;
+			}
+			return accesses.isEmpty() ? null : accesses;
+		} catch (LoginException e) {
+			throw new IOException("Login error on SMB path: " + getPath(), e);
 		}
-		return accesses.isEmpty() ? null : accesses;
 	}
 }
