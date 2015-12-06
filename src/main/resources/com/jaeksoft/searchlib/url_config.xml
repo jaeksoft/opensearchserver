@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
-<!-- Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- OpenSearchServer is free software: you can redistribute it and/or modify 
@@ -54,6 +54,7 @@
 			<field name="headers" indexed="yes" stored="no" termVector="no" />
 			<field name="backlinkCount" indexed="yes" stored="no"
 				termVector="no" />
+			<field name="depth" indexed="yes" stored="no" termVector="no" />
 			<field name="urlWhen" indexed="yes" stored="no" termVector="no" />
 		</fields>
 	</schema>
@@ -65,7 +66,7 @@
 				url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
 				lang,langMethod,when,responseCode,
 				robotsTxtStatus,parserStatus,fetchStatus,indexStatus,
-				md5size,lastModifiedDate,parentUrl,origin,headers,backlinkCount
+				md5size,lastModifiedDate,parentUrl,origin,headers,backlinkCount,depth
 			</returnFields>
 		</request>
 		<request name="urlExport" defaultOperator="and" start="0"

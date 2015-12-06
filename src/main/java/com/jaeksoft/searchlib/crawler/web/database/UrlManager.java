@@ -95,45 +95,37 @@ public class UrlManager extends AbstractManager {
 	public UrlManager() {
 	}
 
-	public void init(Client client, File dataDir) throws SearchLibException,
-			URISyntaxException, FileNotFoundException {
+	public void init(Client client, File dataDir) throws SearchLibException, URISyntaxException, FileNotFoundException {
 		dataDir = new File(dataDir, "web_crawler_url");
 		if (!dataDir.exists())
 			dataDir.mkdir();
-		Client dbClient = new Client(dataDir,
-				"/com/jaeksoft/searchlib/url_config.xml", true);
+		Client dbClient = new Client(dataDir, "/com/jaeksoft/searchlib/url_config.xml", true);
 		super.init(client, dbClient);
 	}
 
-	public void deleteUrls(Collection<String> workDeleteUrlList)
-			throws SearchLibException {
-		String targetField = findIndexedFieldOfTargetIndex(
-				targetClient.getWebCrawlerFieldMap(),
+	public void deleteUrls(Collection<String> workDeleteUrlList) throws SearchLibException {
+		String targetField = findIndexedFieldOfTargetIndex(targetClient.getWebCrawlerFieldMap(),
 				UrlItemFieldEnum.INSTANCE.url.getName());
 		if (targetField != null)
 			targetClient.deleteDocuments(targetField, workDeleteUrlList);
-		dbClient.deleteDocuments(UrlItemFieldEnum.INSTANCE.url.getName(),
-				workDeleteUrlList);
+		dbClient.deleteDocuments(UrlItemFieldEnum.INSTANCE.url.getName(), workDeleteUrlList);
 	}
 
 	public boolean exists(String sUrl) throws SearchLibException {
-		AbstractSearchRequest request = (AbstractSearchRequest) dbClient
-				.getNewRequest(SearchTemplate.urlExport.name());
+		AbstractSearchRequest request = (AbstractSearchRequest) dbClient.getNewRequest(SearchTemplate.urlExport.name());
 		request.getReturnFieldList().clear();
 		request.setQueryString("url:\"" + sUrl + '"');
 		return (getUrlList(request, 0, 0, null) > 0);
 	}
 
-	public void removeExisting(List<LinkItem> linkList)
-			throws SearchLibException {
+	public void removeExisting(List<LinkItem> linkList) throws SearchLibException {
 		Iterator<LinkItem> it = linkList.iterator();
 		while (it.hasNext())
 			if (exists(it.next().getUrl()))
 				it.remove();
 	}
 
-	public void inject(List<String> urls, InfoCallback infoCallback)
-			throws SearchLibException {
+	public void inject(List<String> urls, InfoCallback infoCallback) throws SearchLibException {
 		try {
 			int already = 0;
 			int injected = 0;
@@ -154,15 +146,13 @@ public class UrlManager extends AbstractManager {
 					dbClient.reload();
 			}
 			if (infoCallback != null)
-				infoCallback.setInfo("Injected: " + injected + " - Already: "
-						+ already);
+				infoCallback.setInfo("Injected: " + injected + " - Already: " + already);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
 	}
 
-	public void injectPrefix(List<PatternItem> patternList)
-			throws SearchLibException {
+	public void injectPrefix(List<PatternItem> patternList) throws SearchLibException {
 		Iterator<PatternItem> it = patternList.iterator();
 		List<String> urlList = new ArrayList<String>(0);
 		while (it.hasNext()) {
@@ -176,8 +166,8 @@ public class UrlManager extends AbstractManager {
 		inject(urlList, null);
 	}
 
-	private void filterQueryToFetch(AbstractSearchRequest request,
-			NamedItem.Selection selection) throws ParseException {
+	private void filterQueryToFetch(AbstractSearchRequest request, NamedItem.Selection selection)
+			throws ParseException {
 		if (selection == null)
 			return;
 		if (selection.fetchStatus != null) {
@@ -202,20 +192,14 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	private int getFacetLimit(ItemField field,
-			AbstractSearchRequest searchRequest, int urlLimit,
-			int maxUrlPerHost, NamedItem.Selection selection,
-			List<NamedItem> list, Set<String> hostSet)
-			throws SearchLibException {
-		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-				.request(searchRequest);
-		List<Map.Entry<String, FacetCounter>> facetItems = result
-				.getFacetList().getByField(field.getName()).getList();
+	private int getFacetLimit(ItemField field, AbstractSearchRequest searchRequest, int urlLimit, int maxUrlPerHost,
+			NamedItem.Selection selection, List<NamedItem> list, Set<String> hostSet) throws SearchLibException {
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
+		List<Map.Entry<String, FacetCounter>> facetItems = result.getFacetList().getByField(field.getName()).getList();
 		while (facetItems != null && facetItems.size() > 0) {
 			if (urlLimit <= 0)
 				break;
-			Map.Entry<String, FacetCounter> facetItem = facetItems
-					.remove(RandomUtils.nextInt(0, facetItems.size()));
+			Map.Entry<String, FacetCounter> facetItem = facetItems.remove(RandomUtils.nextInt(0, facetItems.size()));
 			long nbURL = facetItem.getValue().count;
 			if (nbURL == 0)
 				continue;
@@ -241,14 +225,12 @@ public class UrlManager extends AbstractManager {
 		AbstractSearchRequest searchRequest = new SearchPatternRequest(dbClient);
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
-		searchRequest.getFacetFieldList().put(
-				new FacetField("host", 1, false, false, null, null, null));
+		searchRequest.getFacetFieldList().put(new FacetField("host", 1, false, false, null, null, null));
 		return searchRequest;
 	}
 
-	public int getHostToFetch(NamedItem.Selection selection, int urlLimit,
-			int maxUrlPerHost, List<NamedItem> hostList, Set<String> hostSet)
-			throws SearchLibException {
+	public int getHostToFetch(NamedItem.Selection selection, int urlLimit, int maxUrlPerHost, List<NamedItem> hostList,
+			Set<String> hostSet) throws SearchLibException {
 		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
 		searchRequest.setEmptyReturnsAll(true);
 		try {
@@ -256,23 +238,19 @@ public class UrlManager extends AbstractManager {
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest,
-				urlLimit, maxUrlPerHost, selection, hostList, hostSet);
+		return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest, urlLimit, maxUrlPerHost, selection,
+				hostList, hostSet);
 	}
 
-	public void getStartingWith(String queryString, ItemField field,
-			String start, int urlLimit, int maxUrlPerHost, List<NamedItem> list)
-			throws ParseException, IOException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, InstantiationException, IllegalAccessException {
-		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-				.getNewRequest(field + "Facet");
+	public void getStartingWith(String queryString, ItemField field, String start, int urlLimit, int maxUrlPerHost,
+			List<NamedItem> list)
+					throws ParseException, IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
+					InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(field + "Facet");
 		searchRequest.setQueryString(queryString);
-		searchRequest.getFilterList().add(
-				new QueryFilter(field + ":" + start + "*", false,
-						FilterAbstract.Source.REQUEST, null));
-		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, null,
-				list, null);
+		searchRequest.getFilterList()
+				.add(new QueryFilter(field + ":" + start + "*", false, FilterAbstract.Source.REQUEST, null));
+		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, null, list, null);
 	}
 
 	public final UrlItem getNewUrlItem(LinkItem linkItem) {
@@ -280,6 +258,7 @@ public class UrlManager extends AbstractManager {
 		ui.setUrl(linkItem.getUrl());
 		ui.setParentUrl(linkItem.getParentUrl());
 		ui.setOrigin(linkItem.getOrigin());
+		ui.setDepth(linkItem.getDepth());
 		return ui;
 	}
 
@@ -303,68 +282,54 @@ public class UrlManager extends AbstractManager {
 		return ui;
 	}
 
-	public void getUrlToFetch(NamedItem host, long urlLimit,
-			List<UrlItem> urlList) throws SearchLibException {
-		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-				.getNewRequest("urlSearch");
+	public void getUrlToFetch(NamedItem host, long urlLimit, List<UrlItem> urlList) throws SearchLibException {
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest("urlSearch");
 		try {
-			searchRequest.addFilter(
-					"host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"",
-					false);
+			searchRequest.addFilter("host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"", false);
 			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, host.selection);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
 		searchRequest.setRows((int) urlLimit);
-		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-				.request(searchRequest);
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 		for (ResultDocument item : result)
 			urlList.add(getNewUrlItem(item));
 	}
 
 	public UrlItem getUrlToFetch(URL url) throws SearchLibException {
-		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-				.getNewRequest("urlSearch");
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest("urlSearch");
 		return getUrl(searchRequest, url.toExternalForm());
 	}
 
-	public AbstractSearchRequest getSearchRequest(
-			SearchTemplate urlSearchTemplate) throws SearchLibException {
-		return (AbstractSearchRequest) dbClient.getNewRequest(urlSearchTemplate
-				.name());
+	public AbstractSearchRequest getSearchRequest(SearchTemplate urlSearchTemplate) throws SearchLibException {
+		return (AbstractSearchRequest) dbClient.getNewRequest(urlSearchTemplate.name());
 	}
 
 	public int countBackLinks(String url) throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-					.getNewRequest("urlExport");
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest("urlExport");
 			StringBuilder sb = new StringBuilder();
 			UrlItemFieldEnum.INSTANCE.inlink.addQuery(sb, url, true);
 			sb.append(" OR");
 			UrlItemFieldEnum.INSTANCE.outlink.addQuery(sb, url, true);
-			UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(
-					searchRequest, ParserStatus.PARSED.value, false, false);
+			UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(searchRequest, ParserStatus.PARSED.value, false,
+					false);
 			searchRequest.setQueryString(sb.toString());
 			searchRequest.setRows(0);
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-					.request(searchRequest);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 			return result.getNumFound();
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
 	}
 
-	public AbstractSearchRequest getSearchRequest(
-			SearchTemplate urlSearchTemplate, String like, String host,
-			boolean includingSubDomain, String lang, String langMethod,
-			String contentBaseType, String contentTypeCharset,
-			String contentEncoding, Integer minContentLength,
-			Integer maxContentLength, RobotsTxtStatus robotsTxtStatus,
-			FetchStatus fetchStatus, Integer responseCode,
-			ParserStatus parserStatus, IndexStatus indexStatus, Date startDate,
-			Date endDate, Date startModifiedDate, Date endModifiedDate)
-			throws SearchLibException {
+	public AbstractSearchRequest getSearchRequest(SearchTemplate urlSearchTemplate, String like, String host,
+			boolean includingSubDomain, String lang, String langMethod, String contentBaseType,
+			String contentTypeCharset, String contentEncoding, Integer minContentLength, Integer maxContentLength,
+			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus, Integer responseCode, ParserStatus parserStatus,
+			IndexStatus indexStatus, Date startDate, Date endDate, Date startModifiedDate, Date endModifiedDate)
+					throws SearchLibException {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest(urlSearchTemplate.name());
@@ -372,11 +337,9 @@ public class UrlManager extends AbstractManager {
 			if (like != null) {
 				like = like.trim();
 				if (like.length() > 0) {
-					like = QueryUtils.escapeQuery(like,
-							QueryUtils.CONTROL_CHARS);
+					like = QueryUtils.escapeQuery(like, QueryUtils.CONTROL_CHARS);
 					like = QueryUtils.escapeQuery(like, QueryUtils.RANGE_CHARS);
-					like = QueryUtils.escapeQuery(like,
-							QueryUtils.AND_OR_NOT_CHARS);
+					like = QueryUtils.escapeQuery(like, QueryUtils.AND_OR_NOT_CHARS);
 					UrlItemFieldEnum.INSTANCE.url.addQuery(query, like, false);
 				}
 			}
@@ -384,69 +347,54 @@ public class UrlManager extends AbstractManager {
 				host = host.trim();
 				if (host.length() > 0)
 					if (includingSubDomain)
-						UrlItemFieldEnum.INSTANCE.subhost.addFilterQuery(
-								searchRequest, QueryUtils.escapeQuery(host),
+						UrlItemFieldEnum.INSTANCE.subhost.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host),
 								false, false);
 					else
-						UrlItemFieldEnum.INSTANCE.host.addFilterQuery(
-								searchRequest, QueryUtils.escapeQuery(host),
+						UrlItemFieldEnum.INSTANCE.host.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host),
 								false, false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					UrlItemFieldEnum.INSTANCE.lang.addFilterQuery(
-							searchRequest, QueryUtils.escapeQuery(lang), false,
+					UrlItemFieldEnum.INSTANCE.lang.addFilterQuery(searchRequest, QueryUtils.escapeQuery(lang), false,
 							false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					UrlItemFieldEnum.INSTANCE.langMethod.addFilterQuery(
-							searchRequest, QueryUtils.escapeQuery(langMethod),
-							true, false);
+					UrlItemFieldEnum.INSTANCE.langMethod.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(langMethod), true, false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentBaseType.addFilterQuery(
-							searchRequest,
-							QueryUtils.escapeQuery(contentBaseType), true,
-							false);
+					UrlItemFieldEnum.INSTANCE.contentBaseType.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(contentBaseType), true, false);
 			}
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
 				if (contentTypeCharset.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentTypeCharset
-							.addFilterQuery(searchRequest,
-									QueryUtils.escapeQuery(contentTypeCharset),
-									false, false);
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(contentTypeCharset), false, false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentEncoding.addFilterQuery(
-							searchRequest,
-							QueryUtils.escapeQuery(contentEncoding), true,
-							false);
+					UrlItemFieldEnum.INSTANCE.contentEncoding.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(contentEncoding), true, false);
 			}
 
-			if (robotsTxtStatus != null
-					&& robotsTxtStatus != RobotsTxtStatus.ALL)
-				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.addFilterQuery(
-						searchRequest, robotsTxtStatus.value, false, false);
+			if (robotsTxtStatus != null && robotsTxtStatus != RobotsTxtStatus.ALL)
+				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.addFilterQuery(searchRequest, robotsTxtStatus.value, false,
+						false);
 			if (responseCode != null)
-				UrlItemFieldEnum.INSTANCE.responseCode.addFilterQuery(
-						searchRequest, responseCode, false, false);
+				UrlItemFieldEnum.INSTANCE.responseCode.addFilterQuery(searchRequest, responseCode, false, false);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
-				UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(
-						searchRequest, fetchStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest, fetchStatus.value, false, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
-				UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(
-						searchRequest, parserStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(searchRequest, parserStatus.value, false, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
-				UrlItemFieldEnum.INSTANCE.indexStatus.addFilterQuery(
-						searchRequest, indexStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.indexStatus.addFilterQuery(searchRequest, indexStatus.value, false, false);
 
 			if (minContentLength != null || maxContentLength != null) {
 				String from, to;
@@ -458,8 +406,7 @@ public class UrlManager extends AbstractManager {
 					to = UrlItem.longFormat.format(Integer.MAX_VALUE);
 				else
 					to = UrlItem.longFormat.format(maxContentLength);
-				UrlItemFieldEnum.INSTANCE.contentLength.addQueryRange(query,
-						from, to, false);
+				UrlItemFieldEnum.INSTANCE.contentLength.addQueryRange(query, from, to, false);
 			}
 
 			if (startDate != null || endDate != null) {
@@ -472,8 +419,7 @@ public class UrlManager extends AbstractManager {
 					to = "99999999999999";
 				else
 					to = UrlItem.whenDateFormat.format(endDate);
-				UrlItemFieldEnum.INSTANCE.when.addFilterRange(searchRequest,
-						from, to, false, false);
+				UrlItemFieldEnum.INSTANCE.when.addFilterRange(searchRequest, from, to, false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -486,8 +432,7 @@ public class UrlManager extends AbstractManager {
 					to = "99999999999999";
 				else
 					to = UrlItem.whenDateFormat.format(endModifiedDate);
-				UrlItemFieldEnum.INSTANCE.lastModifiedDate.addFilterRange(
-						searchRequest, from, to, false, false);
+				UrlItemFieldEnum.INSTANCE.lastModifiedDate.addFilterRange(searchRequest, from, to, false, false);
 			}
 
 			searchRequest.setEmptyReturnsAll(true);
@@ -498,19 +443,16 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	private UrlItem getUrl(AbstractSearchRequest request, String sUrl)
-			throws SearchLibException {
+	private UrlItem getUrl(AbstractSearchRequest request, String sUrl) throws SearchLibException {
 		if (request == null)
-			request = (AbstractSearchRequest) dbClient
-					.getNewRequest(SearchTemplate.urlSearch.name());
+			request = (AbstractSearchRequest) dbClient.getNewRequest(SearchTemplate.urlSearch.name());
 		else
 			request.reset();
 		request.setQueryString("url:\"" + QueryUtils.escapeQuery(sUrl) + '"');
 		request.setStart(0);
 		request.setRows(1);
 		try {
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-					.request(request);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(request);
 			for (ResultDocument doc : result)
 				return getNewUrlItem(doc);
 			return null;
@@ -519,14 +461,13 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public long getUrlList(AbstractSearchRequest searchRequest, long start,
-			long rows, List<UrlItem> list) throws SearchLibException {
+	public long getUrlList(AbstractSearchRequest searchRequest, long start, long rows, List<UrlItem> list)
+			throws SearchLibException {
 		searchRequest.reset();
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-					.request(searchRequest);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
 					list.add(getNewUrlItem(doc));
@@ -541,17 +482,14 @@ public class UrlManager extends AbstractManager {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
 			searchRequest.setEmptyReturnsAll(true);
-			FacetField facetField = searchRequest.getFacetFieldList().get(
-					UrlItemFieldEnum.INSTANCE.host.getName());
+			FacetField facetField = searchRequest.getFacetFieldList().get(UrlItemFieldEnum.INSTANCE.host.getName());
 			if (minCount < 0)
 				minCount = 0;
 			facetField.setMinCount(minCount);
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-					.request(searchRequest);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 			if (result == null)
 				return null;
-			return result.getFacetList().getByField(
-					UrlItemFieldEnum.INSTANCE.host.getName());
+			return result.getFacetList().getByField(UrlItemFieldEnum.INSTANCE.host.getName());
 		} catch (RuntimeException e) {
 			throw new SearchLibException(e);
 		}
@@ -567,13 +505,11 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public void updateUrlItems(List<UrlItem> urlItems)
-			throws SearchLibException {
+	public void updateUrlItems(List<UrlItem> urlItems) throws SearchLibException {
 		try {
 			if (urlItems == null)
 				return;
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(
-					urlItems.size());
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(urlItems.size());
 			for (UrlItem urlItem : urlItems) {
 				if (urlItem == null)
 					continue;
@@ -594,16 +530,13 @@ public class UrlManager extends AbstractManager {
 	 * @param crawls
 	 * @throws SearchLibException
 	 */
-	public void updateCrawlTarget(List<Crawl> crawls, boolean propagateDeletion)
-			throws SearchLibException {
+	public void updateCrawlTarget(List<Crawl> crawls, boolean propagateDeletion) throws SearchLibException {
 		try {
 			if (crawls == null)
 				return;
 			// Update target index
-			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
-					crawls.size());
-			List<String> documentsToDelete = new ArrayList<String>(
-					crawls.size());
+			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(crawls.size());
+			List<String> documentsToDelete = new ArrayList<String>(crawls.size());
 			String uniqueField = targetClient.getSchema().getUniqueField();
 			for (Crawl crawl : crawls) {
 				if (crawl == null)
@@ -611,22 +544,18 @@ public class UrlManager extends AbstractManager {
 				if (crawl.getHostUrlList().getListType() == ListType.DBCRAWL)
 					continue;
 				UrlItem currentUrlItem = crawl.getUrlItem();
-				List<IndexDocument> indexDocuments = crawl
-						.getTargetIndexDocuments();
+				List<IndexDocument> indexDocuments = crawl.getTargetIndexDocuments();
 				TargetStatus targetStatus = currentUrlItem.getIndexStatus().targetStatus;
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
 					if (CollectionUtils.isEmpty(indexDocuments)) {
-						currentUrlItem
-								.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
+						currentUrlItem.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
 						continue;
 					}
 					for (IndexDocument indexDocument : indexDocuments) {
 						if (indexDocument == null)
 							continue;
-						if (uniqueField != null
-								&& !indexDocument.hasContent(uniqueField)) {
-							currentUrlItem
-									.setIndexStatus(IndexStatus.INDEX_ERROR);
+						if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
+							currentUrlItem.setIndexStatus(IndexStatus.INDEX_ERROR);
 						} else
 							documentsToUpdate.add(indexDocument);
 					}
@@ -638,18 +567,15 @@ public class UrlManager extends AbstractManager {
 				for (Crawl crawl : crawls) {
 					UrlItem currentUrlItem = crawl.getUrlItem();
 					IndexStatus indexStatus = currentUrlItem.getIndexStatus();
-					if (indexStatus == IndexStatus.TO_INDEX
-							|| indexStatus == IndexStatus.NOT_INDEXED)
+					if (indexStatus == IndexStatus.TO_INDEX || indexStatus == IndexStatus.NOT_INDEXED)
 						currentUrlItem.setIndexStatus(IndexStatus.INDEXED);
 				}
 			}
 			if (documentsToDelete.size() > 0 && propagateDeletion) {
-				String targetField = findIndexedFieldOfTargetIndex(
-						targetClient.getWebCrawlerFieldMap(),
+				String targetField = findIndexedFieldOfTargetIndex(targetClient.getWebCrawlerFieldMap(),
 						UrlItemFieldEnum.INSTANCE.url.getName());
 				if (targetField != null)
-					targetClient
-							.deleteDocuments(targetField, documentsToDelete);
+					targetClient.deleteDocuments(targetField, documentsToDelete);
 				targetClient.getScreenshotManager().delete(documentsToDelete);
 			}
 		} catch (IOException e) {
@@ -659,8 +585,7 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public File exportURLs(AbstractSearchRequest searchRequest)
-			throws SearchLibException {
+	public File exportURLs(AbstractSearchRequest searchRequest) throws SearchLibException {
 		PrintWriter pw = null;
 		File tempFile = null;
 		try {
@@ -669,8 +594,7 @@ public class UrlManager extends AbstractManager {
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
 			for (;;) {
-				int totalSize = (int) getUrlList(searchRequest, currentPos,
-						1000, uList);
+				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				for (UrlItem u : uList)
 					pw.println(u.getUrl());
 				if (uList.size() == 0)
@@ -692,31 +616,26 @@ public class UrlManager extends AbstractManager {
 		return tempFile;
 	}
 
-	public File exportCrawlCache(AbstractSearchRequest searchRequest)
-			throws IOException, SearchLibException {
+	public File exportCrawlCache(AbstractSearchRequest searchRequest) throws IOException, SearchLibException {
 		File tempFile = null;
 		ZipArchiveOutputStream zipOutput = null;
-		CrawlCacheManager crawlCacheManager = CrawlCacheManager
-				.getInstance(targetClient);
+		CrawlCacheManager crawlCacheManager = CrawlCacheManager.getInstance(targetClient);
 		if (crawlCacheManager.isDisabled())
 			throw new SearchLibException("The crawlCache is disabled.");
 		try {
-			tempFile = File
-					.createTempFile("OSS_web_crawler_crawlcache", ".zip");
+			tempFile = File.createTempFile("OSS_web_crawler_crawlcache", ".zip");
 			zipOutput = new ZipArchiveOutputStream(tempFile);
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
 			for (;;) {
-				int totalSize = (int) getUrlList(searchRequest, currentPos,
-						1000, uList);
+				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				if (uList.size() == 0)
 					break;
 				for (UrlItem u : uList) {
 					URL url = u.getURL();
 					if (url == null)
 						continue;
-					DownloadItem downloadItem = crawlCacheManager.loadCache(url
-							.toURI());
+					DownloadItem downloadItem = crawlCacheManager.loadCache(url.toURI());
 					if (downloadItem == null)
 						continue;
 					downloadItem.writeToZip(zipOutput);
@@ -739,29 +658,24 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public File exportSiteMap(AbstractSearchRequest searchRequest)
-			throws SearchLibException {
+	public File exportSiteMap(AbstractSearchRequest searchRequest) throws SearchLibException {
 		PrintWriter pw = null;
 		File tempFile = null;
 		try {
 			tempFile = File.createTempFile("OSS_web_crawler_URLs", ".xml");
 			pw = new PrintWriter(tempFile);
-			ThreadSafeDateFormat dateformat = new ThreadSafeSimpleDateFormat(
-					"yyyy-MM-dd");
+			ThreadSafeDateFormat dateformat = new ThreadSafeSimpleDateFormat("yyyy-MM-dd");
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			xmlWriter.startElement("urlset", "xmlns",
-					"http://www.sitemaps.org/schemas/sitemap/0.9");
+			xmlWriter.startElement("urlset", "xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9");
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
 			for (;;) {
-				int totalSize = (int) getUrlList(searchRequest, currentPos,
-						1000, uList);
+				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				for (UrlItem u : uList) {
 					xmlWriter.startElement("url");
 					xmlWriter.writeSubTextNodeIfAny("loc", u.getUrl());
 					if (u.getLastModifiedDate() != null)
-						xmlWriter.writeSubTextNodeIfAny("lastmod",
-								dateformat.format(u.getLastModifiedDate()));
+						xmlWriter.writeSubTextNodeIfAny("lastmod", dateformat.format(u.getLastModifiedDate()));
 					xmlWriter.endElement();
 				}
 				if (uList.size() == 0)
@@ -788,8 +702,8 @@ public class UrlManager extends AbstractManager {
 		return tempFile;
 	}
 
-	public long deleteUrls(AbstractSearchRequest searchRequest, int bufferSize,
-			TaskLog taskLog) throws SearchLibException {
+	public long deleteUrls(AbstractSearchRequest searchRequest, int bufferSize, TaskLog taskLog)
+			throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
 			long total = 0;
@@ -801,16 +715,14 @@ public class UrlManager extends AbstractManager {
 				if (urlItemList.size() == 0)
 					break;
 				if (len == last) {
-					Logging.warn("URLManager loop redundancy (deleteUrls): "
-							+ len + "/" + total);
+					Logging.warn("URLManager loop redundancy (deleteUrls): " + len + "/" + total);
 					break;
 				}
 				last = len;
 				List<String> urlList = new ArrayList<String>(urlItemList.size());
 				for (UrlItem urlItem : urlItemList)
 					urlList.add(urlItem.getUrl());
-				dbClient.deleteDocuments(
-						UrlItemFieldEnum.INSTANCE.url.getName(), urlList);
+				dbClient.deleteDocuments(UrlItemFieldEnum.INSTANCE.url.getName(), urlList);
 				total += urlItemList.size();
 				taskLog.setInfo(total + " URL(s) deleted");
 				if (taskLog.isAbortRequested())
@@ -823,23 +735,20 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public long synchronizeIndex(AbstractSearchRequest searchRequest,
-			int bufferSize, TaskLog taskLog) throws SearchLibException {
-		String targetField = findIndexedFieldOfTargetIndex(
-				targetClient.getWebCrawlerFieldMap(),
+	public long synchronizeIndex(AbstractSearchRequest searchRequest, int bufferSize, TaskLog taskLog)
+			throws SearchLibException {
+		String targetField = findIndexedFieldOfTargetIndex(targetClient.getWebCrawlerFieldMap(),
 				UrlItemFieldEnum.INSTANCE.url.getName());
-		return synchronizeIndex(searchRequest, targetField,
-				UrlItemFieldEnum.INSTANCE.url.getName(), bufferSize, taskLog);
+		return synchronizeIndex(searchRequest, targetField, UrlItemFieldEnum.INSTANCE.url.getName(), bufferSize,
+				taskLog);
 	}
 
-	public long updateFetchStatus(AbstractSearchRequest searchRequest,
-			FetchStatus fetchStatus, int bufferSize, TaskLog taskLog)
-			throws SearchLibException, IOException {
+	public long updateFetchStatus(AbstractSearchRequest searchRequest, FetchStatus fetchStatus, int bufferSize,
+			TaskLog taskLog) throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		try {
 			long total = 0;
-			UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest,
-					fetchStatus.value, false, true);
+			UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest, fetchStatus.value, false, true);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			long last = 0;
 			for (;;) {
@@ -848,8 +757,7 @@ public class UrlManager extends AbstractManager {
 				if (urlItemList.size() == 0)
 					break;
 				if (len == last) {
-					Logging.warn("URLManager loop redundancy (updateFetchStatus): "
-							+ len + "/" + total);
+					Logging.warn("URLManager loop redundancy (updateFetchStatus): " + len + "/" + total);
 					break;
 				}
 				last = len;
@@ -881,20 +789,17 @@ public class UrlManager extends AbstractManager {
 			long setToFetchFirst = 0;
 			int everyTen = 0;
 			targetClient.getSiteMapList();
-			httpDownloader = targetClient.getWebCrawlMaster()
-					.getNewHttpDownloader(true);
+			httpDownloader = targetClient.getWebCrawlMaster().getNewHttpDownloader(true);
 			Set<SiteMapUrl> siteMapUrlSet = new HashSet<SiteMapUrl>(0);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>(0);
 			long now = System.currentTimeMillis();
-			for (SiteMapItem siteMapItem : targetClient.getSiteMapList()
-					.getArray()) {
+			for (SiteMapItem siteMapItem : targetClient.getSiteMapList().getArray()) {
 				taskLog.setInfo("Loading " + siteMapItem.getUri());
 				siteMapUrlSet.clear();
 				urlItemList.clear();
 				siteMapItem.load(httpDownloader, siteMapUrlSet);
 				for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
-					UrlItem urlItem = getUrl(request, siteMapUrl.getLoc()
-							.toString());
+					UrlItem urlItem = getUrl(request, siteMapUrl.getLoc().toString());
 					if (urlItem == null) {
 						urlItemList.add(getNewUrlItem(siteMapUrl));
 						inserted++;
@@ -902,10 +807,8 @@ public class UrlManager extends AbstractManager {
 						existing++;
 						long timeDistanceMs = now - urlItem.getWhen().getTime();
 						FetchStatus fetchStatus = urlItem.getFetchStatus();
-						if (fetchStatus == FetchStatus.UN_FETCHED
-								|| (fetchStatus == FetchStatus.FETCHED && siteMapUrl
-										.getChangeFreq().needUpdate(
-												timeDistanceMs))) {
+						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED
+								&& siteMapUrl.getChangeFreq().needUpdate(timeDistanceMs))) {
 							if (fetchStatus != FetchStatus.FETCH_FIRST) {
 								urlItem.setFetchStatus(FetchStatus.FETCH_FIRST);
 								urlItemList.add(urlItem);
@@ -917,16 +820,14 @@ public class UrlManager extends AbstractManager {
 						if (taskLog.isAbortRequested())
 							throw new SearchLibException.AbortException();
 						everyTen = 0;
-						taskLog.setInfo(inserted + "/" + existing
-								+ " URL(s) inserted/existing");
+						taskLog.setInfo(inserted + "/" + existing + " URL(s) inserted/existing");
 					} else
 						everyTen++;
 				}
 				if (urlItemList.size() > 0)
 					updateUrlItems(urlItemList);
 			}
-			taskLog.setInfo(inserted + "/" + existing + "/" + setToFetchFirst
-					+ " URL(s) inserted/existing/fetchFirst");
+			taskLog.setInfo(inserted + "/" + existing + "/" + setToFetchFirst + " URL(s) inserted/existing/fetchFirst");
 			Logging.info(taskLog.getInfo());
 			return inserted + existing;
 		} finally {

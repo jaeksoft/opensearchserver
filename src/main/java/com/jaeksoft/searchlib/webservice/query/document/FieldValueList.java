@@ -49,7 +49,7 @@ public class FieldValueList {
 	public final String fieldName;
 
 	@XmlElement(name = "value")
-	public final List<String> values;
+	public final ArrayList<String> values;
 
 	public FieldValueList() {
 		fieldName = null;
@@ -81,8 +81,7 @@ public class FieldValueList {
 			values = null;
 	}
 
-	public static final void addFieldValue(JSONObject json,
-			List<FieldValueList> list) throws JSONException {
+	public static final void addFieldValue(JSONObject json, List<FieldValueList> list) throws JSONException {
 		if (!json.has("value"))
 			return;
 		String fieldName = json.getString("name");
@@ -97,16 +96,14 @@ public class FieldValueList {
 		list.add(fieldValueList);
 	}
 
-	public static final FieldValueList getField(
-			List<? extends FieldValueList> fields, String name) {
+	public static final FieldValueList getField(List<? extends FieldValueList> fields, String name) {
 		for (FieldValueList field : fields)
 			if (name.equals(field.fieldName))
 				return field;
 		return null;
 	}
 
-	public static final ArrayList<FieldValueList> getNewList(
-			IndexDocument indexDocument) {
+	public static final ArrayList<FieldValueList> getNewList(IndexDocument indexDocument) {
 		if (indexDocument == null)
 			return null;
 		ArrayList<FieldValueList> fields = new ArrayList<FieldValueList>();
