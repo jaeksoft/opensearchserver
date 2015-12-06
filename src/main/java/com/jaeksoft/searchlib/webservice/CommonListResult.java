@@ -50,7 +50,8 @@ public class CommonListResult<T> extends CommonResult {
 	@XmlElements({ @XmlElement(name = "item", type = String.class),
 			@XmlElement(name = "item", type = NameLinkItem.class),
 			@XmlElement(name = "item", type = ReplicationResult.class),
-			@XmlElement(name = "item", type = FilePathResult.class) })
+			@XmlElement(name = "item", type = FilePathResult.class),
+			@XmlElement(name = "item", type = ArrayList.class) })
 	public final Collection<T> items;
 
 	public CommonListResult() {
@@ -68,8 +69,7 @@ public class CommonListResult<T> extends CommonResult {
 	}
 
 	public CommonListResult(T[] items) {
-		super(true, items == null ? "No items" : items.length
-				+ " item(s) found");
+		super(true, items == null ? "No items" : items.length + " item(s) found");
 		this.items = items == null ? null : Arrays.asList(items);
 	}
 

@@ -35,8 +35,7 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField parentUrl = new ItemField(this, "parentUrl");
 
-	final public ItemField redirectionUrl = new ItemField(this,
-			"redirectionUrl");
+	final public ItemField redirectionUrl = new ItemField(this, "redirectionUrl");
 
 	final public ItemField origin = new ItemField(this, "origin");
 
@@ -44,17 +43,13 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField langMethod = new ItemField(this, "langMethod");
 
-	final public ItemField contentDispositionFilename = new ItemField(this,
-			"contentDispositionFilename");
+	final public ItemField contentDispositionFilename = new ItemField(this, "contentDispositionFilename");
 
-	final public ItemField contentBaseType = new ItemField(this,
-			"contentBaseType");
+	final public ItemField contentBaseType = new ItemField(this, "contentBaseType");
 
-	final public ItemField contentTypeCharset = new ItemField(this,
-			"contentTypeCharset");
+	final public ItemField contentTypeCharset = new ItemField(this, "contentTypeCharset");
 
-	final public ItemField contentEncoding = new ItemField(this,
-			"contentEncoding");
+	final public ItemField contentEncoding = new ItemField(this, "contentEncoding");
 
 	final public ItemField contentLength = new ItemField(this, "contentLength");
 
@@ -70,8 +65,7 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField responseCode = new ItemField(this, "responseCode");
 
-	final public ItemField robotsTxtStatus = new ItemField(this,
-			"robotsTxtStatus");
+	final public ItemField robotsTxtStatus = new ItemField(this, "robotsTxtStatus");
 
 	final public ItemField parserStatus = new ItemField(this, "parserStatus");
 
@@ -81,17 +75,17 @@ public class UrlItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	final public ItemField md5size = new ItemField(this, "md5size");
 
-	final public ItemField lastModifiedDate = new ItemField(this,
-			"lastModifiedDate");
+	final public ItemField lastModifiedDate = new ItemField(this, "lastModifiedDate");
 
-	final public ItemField contentUpdateDate = new ItemField(this,
-			"contentUpdateDate");
+	final public ItemField contentUpdateDate = new ItemField(this, "contentUpdateDate");
 
 	final public ItemField reponseCode = new ItemField(this, "responseCode");
 
 	final public ItemField headers = new ItemField(this, "headers");
 
 	final public ItemField backlinkCount = new ItemField(this, "backlinkCount");
+
+	final public ItemField depth = new ItemField(this, "depth");
 
 	final public ItemField instanceId = new ItemField(this, "instanceId");
 

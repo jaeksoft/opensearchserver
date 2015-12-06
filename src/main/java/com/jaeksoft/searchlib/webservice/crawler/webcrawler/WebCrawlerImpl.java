@@ -68,14 +68,12 @@ import com.jaeksoft.searchlib.webservice.RestApplication;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 
-public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
-		RestWebCrawler {
+public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, RestWebCrawler {
 
 	@Override
 	public CommonResult run(String use, String login, String key, Boolean once) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
+			Client client = getLoggedClient(use, login, key, Role.WEB_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (once)
 				return CrawlerUtils.runOnce(client.getWebCrawlMaster());
@@ -95,8 +93,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	@Override
 	public CommonResult stop(String use, String login, String key) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
+			Client client = getLoggedClient(use, login, key, Role.WEB_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getWebPropertyManager().getCrawlEnabled().setValue(false);
 			return CrawlerUtils.stop(client.getWebCrawlMaster());
@@ -112,8 +109,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	@Override
 	public CommonResult status(String use, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.status(client.getWebCrawlMaster());
 		} catch (SearchLibException e) {
@@ -127,8 +123,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	private AbstractSearchRequest getRequest(UrlManager urlManager, String host)
 			throws SearchLibException, ParseException {
-		AbstractSearchRequest searchRequest = urlManager
-				.getSearchRequest(SearchTemplate.urlExport);
+		AbstractSearchRequest searchRequest = urlManager.getSearchRequest(SearchTemplate.urlExport);
 		searchRequest.setQueryString("*:*");
 		if (host != null && host.length() > 0)
 			searchRequest.addFilter("host:\"" + host + '"', false);
@@ -138,11 +133,9 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	@Override
 	public byte[] exportURLs(String use, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
-			File file = client.getUrlManager().exportURLs(
-					getRequest(client.getUrlManager(), null));
+			File file = client.getUrlManager().exportURLs(getRequest(client.getUrlManager(), null));
 			return IOUtils.toByteArray(new FileInputStream(file));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -158,14 +151,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public byte[] exportSiteMap(String use, String host, String login,
-			String key) {
+	public byte[] exportSiteMap(String use, String host, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
-			File file = client.getUrlManager().exportSiteMap(
-					getRequest(client.getUrlManager(), host));
+			File file = client.getUrlManager().exportSiteMap(getRequest(client.getUrlManager(), host));
 			return IOUtils.toByteArray(new FileInputStream(file));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -180,25 +170,20 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		}
 	}
 
-	private CommonResult injectPatterns(String index, String login, String key,
-			Boolean replaceAll, Boolean injectUrls, List<String> patterns,
-			boolean inclusion) {
+	private CommonResult injectPatterns(String index, String login, String key, Boolean replaceAll, Boolean injectUrls,
+			List<String> patterns, boolean inclusion) {
 		try {
 			if (injectUrls == null)
 				injectUrls = false;
 			if (replaceAll == null)
 				replaceAll = false;
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
-			List<PatternItem> patternList = PatternManager
-					.getPatternList(patterns);
-			PatternManager patternManager = inclusion ? client
-					.getInclusionPatternManager() : client
-					.getExclusionPatternManager();
+			List<PatternItem> patternList = PatternManager.getPatternList(patterns);
+			PatternManager patternManager = inclusion ? client.getInclusionPatternManager()
+					: client.getExclusionPatternManager();
 			patternManager.addList(patternList, replaceAll);
-			int count = PatternManager.countStatus(patternList,
-					PatternItem.Status.INJECTED);
+			int count = PatternManager.countStatus(patternList, PatternItem.Status.INJECTED);
 			if (injectUrls && inclusion)
 				client.getUrlManager().injectPrefix(patternList);
 			return new CommonResult(true, count + " patterns injected");
@@ -212,38 +197,30 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult injectPatternsInclusion(String index, String login,
-			String key, Boolean replaceAll, Boolean injectURLS,
-			List<String> patterns) {
-		return injectPatterns(index, login, key, replaceAll, injectURLS,
-				patterns, true);
+	public CommonResult injectPatternsInclusion(String index, String login, String key, Boolean replaceAll,
+			Boolean injectURLS, List<String> patterns) {
+		return injectPatterns(index, login, key, replaceAll, injectURLS, patterns, true);
 	}
 
 	@Override
-	public CommonResult injectPatternsExclusion(String index, String login,
-			String key, Boolean replaceAll, List<String> patterns) {
-		return injectPatterns(index, login, key, replaceAll, false, patterns,
-				false);
+	public CommonResult injectPatternsExclusion(String index, String login, String key, Boolean replaceAll,
+			List<String> patterns) {
+		return injectPatterns(index, login, key, replaceAll, false, patterns, false);
 	}
 
-	private CommonResult getPatternStatusResult(
-			WebPropertyManager webPropertyManager) {
+	private CommonResult getPatternStatusResult(WebPropertyManager webPropertyManager) {
 		CommonResult commonResult = new CommonResult(true, null);
-		commonResult.addDetail("inclusion_enabled", webPropertyManager
-				.getInclusionEnabled().getValue());
-		commonResult.addDetail("exclusion_enabled", webPropertyManager
-				.getExclusionEnabled().getValue());
+		commonResult.addDetail("inclusion_enabled", webPropertyManager.getInclusionEnabled().getValue());
+		commonResult.addDetail("exclusion_enabled", webPropertyManager.getExclusionEnabled().getValue());
 		return commonResult;
 	}
 
 	@Override
 	public CommonResult getPatternStatus(String index, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
-			WebPropertyManager webPropertyManager = client
-					.getWebPropertyManager();
+			WebPropertyManager webPropertyManager = client.getWebPropertyManager();
 			return getPatternStatusResult(webPropertyManager);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -255,14 +232,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult setPatternStatus(String index, String login,
-			String key, Boolean inclusion, Boolean exclusion) {
+	public CommonResult setPatternStatus(String index, String login, String key, Boolean inclusion, Boolean exclusion) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
-			WebPropertyManager webPropertyManager = client
-					.getWebPropertyManager();
+			WebPropertyManager webPropertyManager = client.getWebPropertyManager();
 			if (inclusion != null)
 				webPropertyManager.getInclusionEnabled().setValue(inclusion);
 			if (exclusion != null)
@@ -278,15 +252,13 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 
 	}
 
-	private CommonResult deletePatterns(String index, String login, String key,
-			List<String> patterns, boolean inclusion) {
+	private CommonResult deletePatterns(String index, String login, String key, List<String> patterns,
+			boolean inclusion) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
-			PatternManager patternManager = inclusion ? client
-					.getInclusionPatternManager() : client
-					.getExclusionPatternManager();
+			PatternManager patternManager = inclusion ? client.getInclusionPatternManager()
+					: client.getExclusionPatternManager();
 			int count = patternManager.delPattern(patterns);
 			return new CommonResult(true, count + " patterns deleted");
 		} catch (SearchLibException e) {
@@ -299,26 +271,22 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult deletePatternsInclusion(String index, String login,
-			String key, List<String> deleteList) {
+	public CommonResult deletePatternsInclusion(String index, String login, String key, List<String> deleteList) {
 		return deletePatterns(index, login, key, deleteList, true);
 	}
 
 	@Override
-	public CommonResult deletePatternsExclusion(String index, String login,
-			String key, List<String> deleteList) {
+	public CommonResult deletePatternsExclusion(String index, String login, String key, List<String> deleteList) {
 		return deletePatterns(index, login, key, deleteList, false);
 	}
 
-	public CommonListResult<String> extractPatterns(String index, String login,
-			String key, String startsWith, boolean inclusion) {
+	public CommonListResult<String> extractPatterns(String index, String login, String key, String startsWith,
+			boolean inclusion) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
-			PatternManager patternManager = inclusion ? client
-					.getInclusionPatternManager() : client
-					.getExclusionPatternManager();
+			PatternManager patternManager = inclusion ? client.getInclusionPatternManager()
+					: client.getExclusionPatternManager();
 			List<String> patterns = new ArrayList<String>();
 			patternManager.getPatterns(startsWith, patterns);
 			return new CommonListResult<String>(patterns);
@@ -332,27 +300,24 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonListResult<String> extractPatternsInclusion(String index,
-			String login, String key, String startsWith) {
+	public CommonListResult<String> extractPatternsInclusion(String index, String login, String key,
+			String startsWith) {
 		return extractPatterns(index, login, key, startsWith, true);
 	}
 
 	@Override
-	public CommonListResult<String> extractPatternsExclusion(String index,
-			String login, String key, String startsWith) {
+	public CommonListResult<String> extractPatternsExclusion(String index, String login, String key,
+			String startsWith) {
 		return extractPatterns(index, login, key, startsWith, false);
 	}
 
 	@Override
-	public CommonResult crawl(String use, String login, String key, String url,
-			Boolean returnData) {
+	public CommonResult crawl(String use, String login, String key, String url, Boolean returnData) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.WEB_CRAWLER_START_STOP);
+			Client client = getLoggedClient(use, login, key, Role.WEB_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
-			WebCrawlThread webCrawlThread = client.getWebCrawlMaster()
-					.manualCrawl(LinkUtils.newEncodedURL(url),
-							HostUrlList.ListType.MANUAL);
+			WebCrawlThread webCrawlThread = client.getWebCrawlMaster().manualCrawl(LinkUtils.newEncodedURL(url),
+					HostUrlList.ListType.MANUAL);
 			if (!webCrawlThread.waitForStart(120))
 				throw new WebServiceException("Time out reached (120 seconds)");
 			if (!webCrawlThread.waitForEnd(3600))
@@ -362,14 +327,12 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 			if (BooleanUtils.isTrue(returnData)) {
 				Crawl crawl = webCrawlThread.getCurrentCrawl();
 				if (crawl != null) {
-					List<IndexDocument> indexDocuments = crawl
-							.getTargetIndexDocuments();
+					List<IndexDocument> indexDocuments = crawl.getTargetIndexDocuments();
 					if (CollectionUtils.isNotEmpty(indexDocuments)) {
-						CommonListResult<List<FieldValueList>> clr = new CommonListResult<List<FieldValueList>>(
+						CommonListResult<ArrayList<FieldValueList>> clr = new CommonListResult<ArrayList<FieldValueList>>(
 								indexDocuments.size());
 						for (IndexDocument indexDocument : indexDocuments) {
-							List<FieldValueList> list = FieldValueList
-									.getNewList(indexDocument);
+							ArrayList<FieldValueList> list = FieldValueList.getNewList(indexDocument);
 							if (list != null)
 								clr.items.add(list);
 						}
@@ -378,10 +341,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 				}
 			}
 
-			String message = urlItem != null ? "Result: "
-					+ urlItem.getFetchStatus() + " - "
-					+ urlItem.getParserStatus() + " - "
-					+ urlItem.getIndexStatus() : null;
+			String message = urlItem != null ? "Result: " + urlItem.getFetchStatus() + " - " + urlItem.getParserStatus()
+					+ " - " + urlItem.getIndexStatus() : null;
 			if (cr == null)
 				cr = new CommonResult(true, message);
 			cr.addDetail("URL", urlItem.getUrl());
@@ -419,23 +380,18 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult crawlPost(String use, String login, String key,
-			String url, Boolean returnData) {
+	public CommonResult crawlPost(String use, String login, String key, String url, Boolean returnData) {
 		return crawl(use, login, key, url, returnData);
 	}
 
 	@Override
-	public CommonResult captureScreenshot(String use, String login, String key,
-			String url) {
+	public CommonResult captureScreenshot(String use, String login, String key, String url) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
-			CredentialManager credentialManager = client
-					.getWebCredentialManager();
-			ScreenshotServlet.doCapture(null, screenshotManager,
-					credentialManager, LinkUtils.newEncodedURL(url));
+			CredentialManager credentialManager = client.getWebCredentialManager();
+			ScreenshotServlet.doCapture(null, screenshotManager, credentialManager, LinkUtils.newEncodedURL(url));
 			String message = "Captured URL " + url;
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
@@ -452,15 +408,12 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult checkScreenshot(String use, String login, String key,
-			String url) {
+	public CommonResult checkScreenshot(String use, String login, String key, String url) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
-			String message = ScreenshotServlet.doCheck(screenshotManager,
-					LinkUtils.newEncodedURL(url));
+			String message = ScreenshotServlet.doCheck(screenshotManager, LinkUtils.newEncodedURL(url));
 			return new CommonResult(true, message);
 		} catch (MalformedURLException e) {
 			throw new CommonServiceException(e);
@@ -475,24 +428,18 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 		}
 	}
 
-	public static String getCrawlXML(User user, Client client, String url)
-			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl",
-				user, client, "url", url);
+	public static String getCrawlXML(User user, Client client, String url) throws UnsupportedEncodingException {
+		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl", user, client, "url", url);
 	}
 
-	public static String getCrawlJSON(User user, Client client, String url)
-			throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl",
-				user, client, "url", url);
+	public static String getCrawlJSON(User user, Client client, String url) throws UnsupportedEncodingException {
+		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl", user, client, "url", url);
 	}
 
 	@Override
-	public CommonResult injectUrls(String index, String login, String key,
-			Boolean replaceAll, List<String> urls) {
+	public CommonResult injectUrls(String index, String login, String key, Boolean replaceAll, List<String> urls) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			UrlManager urlManager = client.getUrlManager();
 			CommonResult result = new CommonResult(true, null);
@@ -523,18 +470,14 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public CommonResult robotstxt(String index, String login, String key,
-			Boolean enabled) {
+	public CommonResult robotstxt(String index, String login, String key, Boolean enabled) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.WEB_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (enabled == null)
-				enabled = client.getWebPropertyManager().getRobotsTxtEnabled()
-						.getValue();
+				enabled = client.getWebPropertyManager().getRobotsTxtEnabled().getValue();
 			else
-				client.getWebPropertyManager().getRobotsTxtEnabled()
-						.setValue(enabled);
+				client.getWebPropertyManager().getRobotsTxtEnabled().setValue(enabled);
 			return new CommonResult(true, "Robots.txt status: " + enabled);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -546,16 +489,13 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler,
 	}
 
 	@Override
-	public HostnamesResult getHostnames(String index, String login, String key,
-			Integer minCount) {
+	public HostnamesResult getHostnames(String index, String login, String key, Integer minCount) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_WEB_CRAWLER);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (minCount == null)
 				minCount = 0;
-			return new HostnamesResult(client.getUrlManager().getHostFacetList(
-					minCount));
+			return new HostnamesResult(client.getUrlManager().getHostFacetList(minCount));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
