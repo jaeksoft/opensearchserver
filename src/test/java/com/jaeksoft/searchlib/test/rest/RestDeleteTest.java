@@ -38,12 +38,12 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
