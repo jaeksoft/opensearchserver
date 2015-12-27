@@ -97,6 +97,7 @@ public class Crawl {
 	private Config config;
 	private Parser parser;
 	private String error;
+	private final boolean linkDetectionEnabled;
 	private List<LinkItem> discoverLinks;
 	private FieldMap urlFieldMap;
 	private URI redirectUrlLocation;
@@ -117,6 +118,7 @@ public class Crawl {
 		this.urlFieldMap = config.getWebCrawlerFieldMap();
 		this.urlManager = config.getUrlManager();
 		this.urlFilterList = config.getUrlFilterList().getArray();
+		this.linkDetectionEnabled = propertyManager.getLinkDetectionEnabled().getValue();
 		this.discoverLinks = null;
 		this.urlItem = urlItem;
 		this.urlItem.setWhenNow();
@@ -477,6 +479,8 @@ public class Crawl {
 
 	public List<LinkItem> getDiscoverLinks()
 			throws NoSuchAlgorithmException, IOException, SearchLibException, URISyntaxException {
+		if (!linkDetectionEnabled)
+			return null;
 		synchronized (this) {
 			if (discoverLinks != null)
 				return discoverLinks;

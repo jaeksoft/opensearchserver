@@ -92,8 +92,10 @@
 				<cell />
 			</row>
 			<row>
-				<cell />
-				<cell />
+				<label value="Enable URLs detection: " />
+				<checkbox label="detect links"
+					disabled="@load(crawlProcess.refresh)"
+					checked="@bind(crawlProcess.properties.linkDetectionEnabled.value)" />
 				<label value="Propagate deletion: " />
 				<checkbox label="propagate"
 					disabled="@load(crawlProcess.refresh)"
