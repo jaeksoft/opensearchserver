@@ -62,8 +62,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	public void add(CrawlStatistics currentStats, Crawl crawl)
-			throws NoSuchAlgorithmException, IOException, SearchLibException,
-			URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, SearchLibException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			updateCrawlList.add(crawl);
@@ -156,9 +155,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	@Override
-	protected void indexWork() throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	protected void indexWork() throws SearchLibException, IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		UrlManager urlManager = getConfig().getUrlManager();
 		boolean needReload = false;
 		CrawlStatistics sessionStats = getSessionStats();
@@ -172,8 +170,8 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 			urlManager.reload(false, null);
 	}
 
-	private boolean deleteCollection(List<String> workDeleteUrlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	private boolean deleteCollection(List<String> workDeleteUrlList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();
@@ -183,21 +181,21 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 		return true;
 	}
 
-	private boolean updateCrawls(List<Crawl> workUpdateCrawlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	private boolean updateCrawls(List<Crawl> workUpdateCrawlList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();
-		urlManager.updateCrawlTarget(workUpdateCrawlList, getConfig()
-				.getWebPropertyManager().getPropagateDeletion().getValue());
+		urlManager.updateCrawlTarget(workUpdateCrawlList,
+				getConfig().getWebPropertyManager().getPropagateDeletion().getValue());
 		urlManager.updateCrawlUrlDb(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
 		return true;
 	}
 
-	private boolean insertCollection(List<UrlItem> workInsertUrlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	private boolean insertCollection(List<UrlItem> workInsertUrlList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();

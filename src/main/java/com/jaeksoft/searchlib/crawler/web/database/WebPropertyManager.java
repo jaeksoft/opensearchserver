@@ -34,8 +34,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 
-public class WebPropertyManager extends AbstractPropertyManager implements
-		PropertyItemListener {
+public class WebPropertyManager extends AbstractPropertyManager implements PropertyItemListener {
 
 	final private PropertyItem<Integer> delayBetweenAccesses;
 	final private PropertyItem<Integer> fetchInterval;
@@ -46,6 +45,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	final private PropertyItem<Boolean> exclusionEnabled;
 	final private PropertyItem<Boolean> inclusionEnabled;
 	final private PropertyItem<Boolean> robotsTxtEnabled;
+	final private PropertyItem<Boolean> linkDetectionEnabled;
 	final private PropertyItem<String> screenshotBrowser;
 	final private PropertyItem<String> screenshotMethod;
 	final private PropertyItem<Integer> screenshotCaptureWidth;
@@ -68,22 +68,18 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		fetchInterval = newIntegerProperty("fetchInterval", 30, 1, null);
 		fetchIntervalUnit = newStringProperty("fechIntervalUnit", "days");
 		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100, 1, null);
-		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1,
-				null);
+		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1, null);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
+		linkDetectionEnabled = newBooleanProperty("linkDetectionEnabled", true);
 		screenshotMethod = newStringProperty("screenshotMethod", "");
 		screenshotBrowser = newStringProperty("screenshotBrowser", "");
-		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth",
-				1024, 1, null);
-		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight",
-				768, 1, null);
-		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth",
-				240, 1, null);
-		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight",
-				180, 1, null);
+		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth", 1024, 1, null);
+		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight", 768, 1, null);
+		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth", 240, 1, null);
+		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight", 180, 1, null);
 		proxyHost = newStringProperty("proxyHost", "");
 		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
 		proxyExclusion = newStringProperty("proxyExclusion", "");
@@ -158,6 +154,10 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		return robotsTxtEnabled;
 	}
 
+	public PropertyItem<Boolean> getLinkDetectionEnabled() {
+		return linkDetectionEnabled;
+	}
+
 	public PropertyItem<String> getScreenshotMethod() {
 		return screenshotMethod;
 	}
@@ -185,8 +185,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	@Override
 	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
 		synchronized (this) {
-			if (prop == proxyHost || prop == proxyPort
-					|| prop == proxyExclusion || prop == proxyUsername
+			if (prop == proxyHost || prop == proxyPort || prop == proxyExclusion || prop == proxyUsername
 					|| prop == proxyPassword)
 				proxyHandler = null;
 		}

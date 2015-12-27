@@ -44,66 +44,52 @@ public class RestJsonClient {
 	public final String oss_key;
 	private final HttpDownloader downloader;
 
-	public RestJsonClient(HttpDownloader downloader, String oss_url,
-			String oss_login, String oss_key) {
-		this.downloader = downloader == null ? new HttpDownloader(
-				"RestJsonOssClient", false, null) : downloader;
+	public RestJsonClient(HttpDownloader downloader, String oss_url, String oss_login, String oss_key)
+			throws SearchLibException {
+		this.downloader = downloader == null ? new HttpDownloader("RestJsonOssClient", false, null) : downloader;
 		this.oss_url = oss_url;
 		this.oss_login = oss_login;
 		this.oss_key = oss_key;
 	}
 
-	public RestJsonClient(String oss_url, String oss_login, String oss_key) {
+	public RestJsonClient(String oss_url, String oss_login, String oss_key) throws SearchLibException {
 		this(null, oss_url, oss_login, oss_key);
 	}
 
-	public RestJsonClient(String oss_url) {
+	public RestJsonClient(String oss_url) throws SearchLibException {
 		this(null, oss_url, null, null);
 	}
 
-	public boolean checkIndexExists(String indexName)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException, JSONException {
-		JsonTransaction transaction = new JsonTransaction(this,
-				"/index/exists/json", null);
+	public boolean checkIndexExists(String indexName) throws ClientProtocolException, IllegalStateException,
+			IOException, SearchLibException, URISyntaxException, JSONException {
+		JsonTransaction transaction = new JsonTransaction(this, "/index/exists/json", null);
 		transaction.addParam("name", indexName);
-		return transaction.get(downloader).getJSONObject("result")
-				.getBoolean("info");
+		return transaction.get(downloader).getJSONObject("result").getBoolean("info");
 	}
 
-	public void createIndex(String indexName, String templateName)
-			throws URISyntaxException, ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			JSONException {
-		JsonTransaction transaction = new JsonTransaction(this,
-				"/index/create/json", null);
+	public void createIndex(String indexName, String templateName) throws URISyntaxException, ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException, JSONException {
+		JsonTransaction transaction = new JsonTransaction(this, "/index/create/json", null);
 		transaction.addParam("name", indexName);
 		transaction.addParam("template", templateName);
 		transaction.post(downloader);
 	}
 
-	public void fileCrawlerRunOnce(String indexName)
-			throws ClientProtocolException, IllegalStateException, IOException,
+	public void fileCrawlerRunOnce(String indexName) throws ClientProtocolException, IllegalStateException, IOException,
 			SearchLibException, URISyntaxException, JSONException {
-		JsonTransaction transaction = new JsonTransaction(this,
-				"/crawler/file/run/once/{index}/json", indexName);
+		JsonTransaction transaction = new JsonTransaction(this, "/crawler/file/run/once/{index}/json", indexName);
 		transaction.get(downloader);
 	}
 
-	public void injectSwiftRepository(HttpDownloader downloader,
-			String indexName, String authURL, AuthType authType,
-			String username, String password, String tenant, String container,
-			String path, boolean ignoreHiddenFile, boolean includeSubDirectory,
-			boolean enabled, int delay) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException, JSONException {
-		JsonTransaction transaction = new JsonTransaction(this,
-				"/crawler/file/repository/inject/swift/{index}/json", indexName);
+	public void injectSwiftRepository(HttpDownloader downloader, String indexName, String authURL, AuthType authType,
+			String username, String password, String tenant, String container, String path, boolean ignoreHiddenFile,
+			boolean includeSubDirectory, boolean enabled, int delay) throws ClientProtocolException,
+					IllegalStateException, IOException, SearchLibException, URISyntaxException, JSONException {
+		JsonTransaction transaction = new JsonTransaction(this, "/crawler/file/repository/inject/swift/{index}/json",
+				indexName);
 		transaction.addParam("path", "");
-		transaction.addParam("ignoreHiddenFile",
-				Boolean.toString(ignoreHiddenFile));
-		transaction.addParam("includeSubDirectory",
-				Boolean.toString(includeSubDirectory));
+		transaction.addParam("ignoreHiddenFile", Boolean.toString(ignoreHiddenFile));
+		transaction.addParam("includeSubDirectory", Boolean.toString(includeSubDirectory));
 		transaction.addParam("enabled", Boolean.toString(enabled));
 		transaction.addParam("delay", Integer.toString(delay));
 		transaction.addParam("username", username);
@@ -115,13 +101,10 @@ public class RestJsonClient {
 		transaction.put(downloader);
 	}
 
-	public JSONObject search(String indexName, String template, String query,
-			Integer start, Integer rows, LanguageEnum lang, List<String> sorts,
-			List<String> filters) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException, JSONException {
-		JsonTransaction transaction = new JsonTransaction(this,
-				"/select/search/{index}/json", indexName);
+	public JSONObject search(String indexName, String template, String query, Integer start, Integer rows,
+			LanguageEnum lang, List<String> sorts, List<String> filters) throws ClientProtocolException,
+					IllegalStateException, IOException, SearchLibException, URISyntaxException, JSONException {
+		JsonTransaction transaction = new JsonTransaction(this, "/select/search/{index}/json", indexName);
 		transaction.addParam("template", template);
 		transaction.addParam("query", query);
 		if (start != null)
@@ -139,11 +122,9 @@ public class RestJsonClient {
 		return transaction.get(downloader);
 	}
 
-	public JSONObject autocompletion_query(String indexName, String prefix,
-			Long rows) throws ClientProtocolException, IllegalStateException,
-			IOException, SearchLibException, URISyntaxException, JSONException {
-		JsonTransaction transaction = new JsonTransaction(this,
-				"/autocompletion/query/{index}/json", indexName);
+	public JSONObject autocompletion_query(String indexName, String prefix, Long rows) throws ClientProtocolException,
+			IllegalStateException, IOException, SearchLibException, URISyntaxException, JSONException {
+		JsonTransaction transaction = new JsonTransaction(this, "/autocompletion/query/{index}/json", indexName);
 		transaction.addParam("prefix", prefix);
 		if (rows != null)
 			transaction.addParam("rows", Long.toString(rows));

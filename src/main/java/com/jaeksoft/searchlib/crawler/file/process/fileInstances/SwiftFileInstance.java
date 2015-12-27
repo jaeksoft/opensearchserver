@@ -154,8 +154,8 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		HttpDownloader downloader = new HttpDownloader(null, false, null);
 		try {
+			HttpDownloader downloader = new HttpDownloader(null, false, null);
 			authentication(downloader);
 			return SwiftProtocol.getObject(downloader, getFilePathItem().getSwiftContainer(), token, object);
 		} catch (URISyntaxException e) {
