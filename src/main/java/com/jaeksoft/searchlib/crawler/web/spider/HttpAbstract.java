@@ -95,6 +95,7 @@ import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
 public abstract class HttpAbstract {
 
 	private final boolean followRedirect;
+	private final PoolingHttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
 	private HttpResponse httpResponse = null;
@@ -150,8 +151,8 @@ public abstract class HttpAbstract {
 
 		// now, we create connection-manager using our Registry.
 		// -- allows multi-threaded use
-		PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		builder.setConnectionManager(connMgr);
+		connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		builder.setConnectionManager(connectionManager);
 
 		redirectStrategy = new DefaultRedirectStrategy();
 
@@ -220,11 +221,9 @@ public abstract class HttpAbstract {
 
 		// No more than one 1 minute to establish the connection
 		// No more than 10 minutes to establish the socket
-		// Enable stales connection checking
 		// Cookies uses best match policy
 		RequestConfig.Builder configBuilder = RequestConfig.custom().setSocketTimeout(1000 * 60 * 10)
-				.setConnectTimeout(1000 * 60).setCookieSpec(CookieSpecs.DEFAULT).setStaleConnectionCheckEnabled(true)
-				.setRedirectsEnabled(followRedirect);
+				.setConnectTimeout(1000 * 60).setCookieSpec(CookieSpecs.DEFAULT).setRedirectsEnabled(followRedirect);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
@@ -445,12 +444,11 @@ public abstract class HttpAbstract {
 
 	public void release() {
 		synchronized (this) {
-			try {
-				reset();
+			reset();
+			if (httpClient != null)
 				IOUtils.close(httpClient);
-			} catch (Exception e) {
-				Logging.warn(e.getMessage(), e);
-			}
+			if (connectionManager != null)
+				IOUtils.close(connectionManager);
 		}
 	}
 
