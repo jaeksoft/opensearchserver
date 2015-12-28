@@ -62,8 +62,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.cookie.Cookie;
@@ -78,7 +76,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
@@ -95,7 +92,6 @@ import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
 public abstract class HttpAbstract {
 
 	private final boolean followRedirect;
-	private final PoolingHttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
 	private HttpResponse httpResponse = null;
@@ -115,8 +111,6 @@ public abstract class HttpAbstract {
 
 		HttpClientBuilder builder = HttpClients.custom();
 
-		// setup a Trust Strategy that allows all certificates.
-		//
 		SSLContext sslContext;
 		try {
 			sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
@@ -134,25 +128,9 @@ public abstract class HttpAbstract {
 			throw new SearchLibException(e);
 		}
 
-		// don't check Hostnames, either.
-		// -- use SSLConnectionSocketFactory.getDefaultHostnameVerifier(), if
-		// you don't want to weaken
 		HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;
-
-		// here's the special part:
-		// -- need to create an SSL Socket Factory, to use our weakened "trust
-		// strategy";
-		// -- and create a Registry, to register it.
-		//
 		SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
-		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
-				.register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory)
-				.build();
-
-		// now, we create connection-manager using our Registry.
-		// -- allows multi-threaded use
-		connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		builder.setConnectionManager(connectionManager);
+		builder.setSSLSocketFactory(sslSocketFactory);
 
 		redirectStrategy = new DefaultRedirectStrategy();
 
@@ -447,8 +425,6 @@ public abstract class HttpAbstract {
 			reset();
 			if (httpClient != null)
 				IOUtils.close(httpClient);
-			if (connectionManager != null)
-				IOUtils.close(connectionManager);
 		}
 	}
 
