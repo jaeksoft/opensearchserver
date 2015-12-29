@@ -71,11 +71,9 @@ public class QueryReportsController extends ReportsController {
 		ReportsManager reports = getReportsManager();
 		Facet facetReportsList = null;
 		if ("topqueries".equals(queryType)) {
-			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
-					endDate, true, numberOfQuery);
+			facetReportsList = reports.getSearchReport(topKeywords, beginDate, endDate, true, numberOfQuery);
 		} else if ("topqueriesnoresult".equals(queryType)) {
-			facetReportsList = reports.getSearchReport(topKeywords, beginDate,
-					endDate, false, numberOfQuery);
+			facetReportsList = reports.getSearchReport(topKeywords, beginDate, endDate, false, numberOfQuery);
 		}
 
 		reportList = facetReportsList.getList();
@@ -86,7 +84,7 @@ public class QueryReportsController extends ReportsController {
 		return reportList;
 	}
 
-	public boolean isReportSetExists() {
+	public boolean isReportListExists() {
 		return reportList != null;
 	}
 
@@ -105,8 +103,7 @@ public class QueryReportsController extends ReportsController {
 			}
 			pw.close();
 			pw = null;
-			Filedownload.save(new FileInputStream(tempFile),
-					"text/csv; charset-UTF-8", "OSS_Query_Reports.csv");
+			Filedownload.save(new FileInputStream(tempFile), "text/csv; charset-UTF-8", "OSS_Query_Reports.csv");
 		} finally {
 			IOUtils.close(pw);
 		}
