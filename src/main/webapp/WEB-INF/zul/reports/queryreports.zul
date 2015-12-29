@@ -62,8 +62,8 @@
 		</hbox>
 	</vbox>
 	<listbox mold="paging" pageSize="10"
-		model="@load(queryReports.reportSet)"
-		visible="@load(queryReports.reportSetExists)">
+		model="@load(queryReports.reportList)"
+		visible="@load(queryReports.reportListExists)">
 		<listhead>
 			<listheader label="Keywords" />
 			<listheader label="Frequency" />
