@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.ReturnFieldList;
 import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
 
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DocumentsQuery extends QueryAbstract {
 

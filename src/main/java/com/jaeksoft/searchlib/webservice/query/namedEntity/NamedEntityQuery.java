@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.NamedEntityExtractionRequest;
 import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
 
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NamedEntityQuery extends QueryAbstract {
 
@@ -56,7 +56,7 @@ public class NamedEntityQuery extends QueryAbstract {
 
 	final public List<String> returnedFields;
 
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.NON_NULL)
 	public static class StopWords {
 
 		final public String listName;
@@ -87,11 +87,9 @@ public class NamedEntityQuery extends QueryAbstract {
 		searchRequest = request.getSearchRequest();
 		namedEntityField = request.getNamedEntityField();
 		Collection<String> rfList = request.getReturnedFields();
-		returnedFields = CollectionUtils.isEmpty(rfList) ? null
-				: new ArrayList<String>(rfList);
+		returnedFields = CollectionUtils.isEmpty(rfList) ? null : new ArrayList<String>(rfList);
 		Map<String, Boolean> stopWordsMap = request.getStopWordsMap();
-		stopWords = MapUtils.isEmpty(stopWordsMap) ? null
-				: new ArrayList<StopWords>(stopWordsMap.size());
+		stopWords = MapUtils.isEmpty(stopWordsMap) ? null : new ArrayList<StopWords>(stopWordsMap.size());
 		if (stopWordsMap != null)
 			for (Map.Entry<String, Boolean> entry : stopWordsMap.entrySet())
 				stopWords.add(new StopWords(entry.getKey(), entry.getValue()));

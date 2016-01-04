@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class CommonResult implements InfoCallback {
 
 	protected final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
@@ -61,8 +61,7 @@ public class CommonResult implements InfoCallback {
 	protected CommonResult(CommonResult result) {
 		successful = result.successful;
 		info = result.info;
-		details = result.details == null ? null : new TreeMap<String, String>(
-				result.details);
+		details = result.details == null ? null : new TreeMap<String, String>(result.details);
 	}
 
 	public CommonResult(Boolean successful, String info) {
