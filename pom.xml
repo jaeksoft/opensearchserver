@@ -489,7 +489,7 @@
 		<poi.version>3.12</poi.version>
 		<selenium.version>2.48.2</selenium.version>
 		<zk.version>6.5.4</zk.version>
-		<jackson.version>2.6.3</jackson.version>
+		<jackson.version>2.6.4</jackson.version>
 		<tomcat.version>7.0.67</tomcat.version>
 	</properties>
 	<description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and Linux/Unix/BSD.</description>
