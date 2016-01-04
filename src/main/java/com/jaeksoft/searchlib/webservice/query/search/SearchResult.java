@@ -33,6 +33,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetList;
@@ -47,6 +49,7 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_NULL)
 public class SearchResult extends CommonResult {
 
 	@XmlElement(name = "document")
@@ -94,8 +97,8 @@ public class SearchResult extends CommonResult {
 			AbstractSearchRequest searchRequest = result.getRequest();
 			documents = new ArrayList<DocumentResult>(0);
 			facets = new ArrayList<FacetResult>(0);
-			query = searchRequest instanceof AbstractLocalSearchRequest ? ((AbstractLocalSearchRequest) searchRequest)
-					.getQueryParsed() : searchRequest.getQueryString();
+			query = searchRequest instanceof AbstractLocalSearchRequest
+					? ((AbstractLocalSearchRequest) searchRequest).getQueryParsed() : searchRequest.getQueryString();
 			start = searchRequest.getStart();
 			rows = searchRequest.getRows();
 			numFound = result.getNumFound();

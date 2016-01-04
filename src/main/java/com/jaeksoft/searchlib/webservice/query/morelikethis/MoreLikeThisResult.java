@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class MoreLikeThisResult extends CommonResult {
 
 	final public String query;
@@ -55,10 +55,8 @@ public class MoreLikeThisResult extends CommonResult {
 		query = null;
 	}
 
-	public MoreLikeThisResult(ResultMoreLikeThis result)
-			throws SearchLibException, IOException {
+	public MoreLikeThisResult(ResultMoreLikeThis result) throws SearchLibException, IOException {
 		query = result.getRequest().getQuery().toString();
-		documents = DocumentResult.populateDocumentList(result,
-				new ArrayList<DocumentResult>(1));
+		documents = DocumentResult.populateDocumentList(result, new ArrayList<DocumentResult>(1));
 	}
 }

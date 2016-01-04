@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class ResultIndexList extends CommonResult {
 
 	@XmlElement(name = "index")
@@ -51,10 +51,8 @@ public class ResultIndexList extends CommonResult {
 		indexMap = null;
 	}
 
-	public ResultIndexList(Boolean successful, List<String> indexList,
-			Map<String, IndexInfo> indexMap) {
-		super(successful, (indexList != null ? indexList.size() : indexMap
-				.size()) + " index(es)");
+	public ResultIndexList(Boolean successful, List<String> indexList, Map<String, IndexInfo> indexMap) {
+		super(successful, (indexList != null ? indexList.size() : indexMap.size()) + " index(es)");
 		this.indexList = indexList;
 		this.indexMap = indexMap;
 	}

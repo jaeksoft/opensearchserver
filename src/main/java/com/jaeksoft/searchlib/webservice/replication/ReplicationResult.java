@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class ReplicationResult extends CommonResult {
 
 	public final String name;
@@ -59,7 +59,7 @@ public class ReplicationResult extends CommonResult {
 	public final ThreadResult lastThread;
 
 	@XmlAccessorType(XmlAccessType.FIELD)
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.NON_NULL)
 	public static class ThreadResult {
 
 		public final String info;
@@ -109,15 +109,13 @@ public class ReplicationResult extends CommonResult {
 		lastThread = lt == null ? null : new ThreadResult(lt);
 	}
 
-	static List<ReplicationResult> toArray(
-			ReplicationItem[] replicationItemArray)
+	static List<ReplicationResult> toArray(ReplicationItem[] replicationItemArray)
 			throws MalformedURLException, URISyntaxException {
 		List<ReplicationResult> replicationResultList = new ArrayList<ReplicationResult>();
 		if (replicationItemArray == null)
 			return replicationResultList;
 		for (ReplicationItem replicationItem : replicationItemArray)
-			replicationResultList.add(new ReplicationResult(null,
-					replicationItem));
+			replicationResultList.add(new ReplicationResult(null, replicationItem));
 		return replicationResultList;
 	}
 

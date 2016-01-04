@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.parser.ParserType;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class ParserItemResult extends CommonResult {
 
@@ -69,8 +69,7 @@ public class ParserItemResult extends CommonResult {
 			properties = new HashMap<String, PropertyDefinition>();
 			for (ClassProperty prop : props) {
 				ClassPropertyEnum propEnum = prop.getClassPropertyEnum();
-				properties.put(propEnum.getName(), new PropertyDefinition(prop,
-						propEnum));
+				properties.put(propEnum.getName(), new PropertyDefinition(prop, propEnum));
 			}
 		} else
 			properties = null;
@@ -85,7 +84,7 @@ public class ParserItemResult extends CommonResult {
 		}
 	}
 
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.NON_NULL)
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 	public static class PropertyDefinition {
 

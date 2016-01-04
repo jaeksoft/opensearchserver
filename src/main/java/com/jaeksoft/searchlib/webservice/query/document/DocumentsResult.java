@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class DocumentsResult {
 
 	@XmlElement(name = "document")
@@ -57,16 +57,15 @@ public class DocumentsResult {
 		uniqueKeys = null;
 	}
 
-	public DocumentsResult(ResultDocumentsInterface<?> result,
-			boolean indexDocument) throws SearchLibException, IOException {
+	public DocumentsResult(ResultDocumentsInterface<?> result, boolean indexDocument)
+			throws SearchLibException, IOException {
 		uniqueKeys = null;
 		if (indexDocument) {
 			documents = null;
 			indexDocuments = new ArrayList<IndexDocumentResult>(1);
 			result.populate(indexDocuments);
 		} else {
-			documents = DocumentResult.populateDocumentList(result,
-					new ArrayList<DocumentResult>(1));
+			documents = DocumentResult.populateDocumentList(result, new ArrayList<DocumentResult>(1));
 			indexDocuments = null;
 		}
 	}

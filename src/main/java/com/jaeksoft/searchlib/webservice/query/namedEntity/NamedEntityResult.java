@@ -39,7 +39,7 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class NamedEntityResult {
 
 	@XmlElement(name = "document")
@@ -51,8 +51,7 @@ public class NamedEntityResult {
 		enrichedText = null;
 	}
 
-	public NamedEntityResult(ResultNamedEntityExtraction result)
-			throws SearchLibException {
+	public NamedEntityResult(ResultNamedEntityExtraction result) throws SearchLibException {
 		documents = new ArrayList<DocumentResult>(1);
 		DocumentResult.populateDocumentList(result, documents);
 		enrichedText = result.getEnrichedText();
