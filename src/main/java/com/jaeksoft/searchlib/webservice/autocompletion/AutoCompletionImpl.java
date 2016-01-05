@@ -40,21 +40,18 @@ import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class AutoCompletionImpl extends CommonServices implements
-		SoapAutoCompletion, RestAutoCompletion {
+public class AutoCompletionImpl extends CommonServices implements SoapAutoCompletion, RestAutoCompletion {
 
-	private AutoCompletionItem getAutoCompItem(AutoCompletionManager manager,
-			String name) throws SearchLibException, IOException {
+	private AutoCompletionItem getAutoCompItem(AutoCompletionManager manager, String name)
+			throws SearchLibException, IOException {
 		AutoCompletionItem autoCompItem = manager.getItem(name);
 		if (autoCompItem == null)
-			throw new CommonServiceException(Status.NOT_FOUND,
-					"Autocompletion item not found: " + name);
+			throw new CommonServiceException(Status.NOT_FOUND, "Autocompletion item not found: " + name);
 		return autoCompItem;
 	}
 
 	@Override
-	public CommonResult set(String index, String login, String key,
-			String name, List<String> fields, Integer rows) {
+	public CommonResult set(String index, String login, String key, String name, List<String> fields, Integer rows) {
 		if ((fields == null || fields.size() == 0) && rows == null)
 			return build(index, login, key, name);
 		try {
@@ -62,9 +59,8 @@ public class AutoCompletionImpl extends CommonServices implements
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			AutoCompletionItem updateCompItem = manager.getItem(name);
-			@SuppressWarnings("resource")
-			AutoCompletionItem autoCompItem = updateCompItem == null ? new AutoCompletionItem(
-					client, name) : updateCompItem;
+			AutoCompletionItem autoCompItem = updateCompItem == null ? new AutoCompletionItem(client, name)
+					: updateCompItem;
 			if (fields != null)
 				autoCompItem.setFields(fields);
 			if (rows != null)
@@ -87,14 +83,11 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public CommonResult build(String index, String login, String key,
-			String name) {
+	public CommonResult build(String index, String login, String key, String name) {
 		try {
-			Client client = getLoggedClient(index, login, key,
-					Role.INDEX_UPDATE);
+			Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
-			AutoCompletionItem autoCompItem = getAutoCompItem(
-					client.getAutoCompletionManager(), name);
+			AutoCompletionItem autoCompItem = getAutoCompItem(client.getAutoCompletionManager(), name);
 			CommonResult result = new CommonResult(true, null);
 			autoCompItem.build(86400, 1000, result);
 			return result;
@@ -108,13 +101,12 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public AutoCompletionResult query(String index, String login, String key,
-			String name, String prefix, Integer rows) {
+	public AutoCompletionResult query(String index, String login, String key, String name, String prefix,
+			Integer rows) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
-			AutoCompletionItem autoCompItem = getAutoCompItem(
-					client.getAutoCompletionManager(), name);
+			AutoCompletionItem autoCompItem = getAutoCompItem(client.getAutoCompletionManager(), name);
 			return new AutoCompletionResult(autoCompItem.search(prefix, rows));
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
@@ -126,22 +118,20 @@ public class AutoCompletionImpl extends CommonServices implements
 	}
 
 	@Override
-	public AutoCompletionResult queryPost(String index, String login,
-			String key, String name, String prefix, Integer rows) {
+	public AutoCompletionResult queryPost(String index, String login, String key, String name, String prefix,
+			Integer rows) {
 		return query(index, login, key, name, prefix, rows);
 	}
 
 	@Override
-	public CommonResult delete(String index, String login, String key,
-			String name) {
+	public CommonResult delete(String index, String login, String key, String name) {
 		try {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_QUERY);
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			AutoCompletionItem autoCompItem = getAutoCompItem(manager, name);
 			manager.delete(autoCompItem);
-			return new CommonResult(true, "Autocompletion item " + name
-					+ " deleted");
+			return new CommonResult(true, "Autocompletion item " + name + " deleted");
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -158,8 +148,7 @@ public class AutoCompletionImpl extends CommonServices implements
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			Collection<AutoCompletionItem> items = manager.getItems();
-			CommonListResult<String> result = new CommonListResult<String>(
-					items.size());
+			CommonListResult<String> result = new CommonListResult<String>(items.size());
 			for (AutoCompletionItem item : items)
 				result.items.add(item.getName());
 			result.computeInfos();
