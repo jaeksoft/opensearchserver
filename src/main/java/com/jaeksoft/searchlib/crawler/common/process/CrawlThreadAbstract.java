@@ -37,8 +37,8 @@ public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M
 
 	protected volatile CrawlStatistics currentStats;
 
-	protected CrawlThreadAbstract(Config config, M crawlMaster,
-			ThreadItem<?, T> uniqueThreadItem, InfoCallback infoCallback) {
+	protected CrawlThreadAbstract(Config config, M crawlMaster, ThreadItem<?, T> uniqueThreadItem,
+			InfoCallback infoCallback) {
 		super(config, crawlMaster, uniqueThreadItem, infoCallback);
 		currentStats = null;
 		setStatus(CrawlStatus.NOT_RUNNING);
@@ -104,7 +104,7 @@ public abstract class CrawlThreadAbstract<T extends CrawlThreadAbstract<T, M>, M
 	}
 
 	@Override
-	protected void sleepMs(long ms) {
+	protected void sleepMs(long ms) throws InterruptedException {
 		setStatus(CrawlStatus.WAITING);
 		super.sleepMs(ms);
 	}

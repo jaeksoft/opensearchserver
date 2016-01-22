@@ -52,17 +52,15 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 
 	private final DatabaseCrawlMongoDb databaseCrawl;
 
-	public DatabaseCrawlMongoDbThread(Client client,
-			DatabaseCrawlMaster crawlMaster,
-			DatabaseCrawlMongoDb databaseCrawl, Variables variables,
-			InfoCallback infoCallback) {
+	public DatabaseCrawlMongoDbThread(Client client, DatabaseCrawlMaster crawlMaster,
+			DatabaseCrawlMongoDb databaseCrawl, Variables variables, InfoCallback infoCallback) {
 		super(client, crawlMaster, databaseCrawl, infoCallback);
 		this.databaseCrawl = (DatabaseCrawlMongoDb) databaseCrawl.duplicate();
 		this.databaseCrawl.applyVariables(variables);
 	}
 
 	private boolean index(List<IndexDocument> indexDocumentList, int limit)
-			throws IOException, SearchLibException {
+			throws IOException, SearchLibException, InterruptedException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -76,17 +74,14 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		}
 		indexDocumentList.clear();
 		if (infoCallback != null)
-			infoCallback.setInfo(updatedIndexDocumentCount
-					+ " document(s) indexed");
+			infoCallback.setInfo(updatedIndexDocumentCount + " document(s) indexed");
 		sleepMs(databaseCrawl.getMsSleep());
 		return true;
 	}
 
 	final private void runner_update(DBCursor cursor)
-			throws SearchLibException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException, IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			InterruptedException {
+			throws SearchLibException, ClassNotFoundException, InstantiationException, IllegalAccessException,
+			IOException, ParseException, SyntaxError, URISyntaxException, InterruptedException {
 		final int limit = databaseCrawl.getBufferSize();
 		cursor.batchSize(limit);
 		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
@@ -97,8 +92,7 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		while (cursor.hasNext() && !isAborted()) {
 
 			String json = JSON.serialize(cursor.next());
-			Object document = Configuration.defaultConfiguration()
-					.jsonProvider().parse(json);
+			Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
 			IndexDocument indexDocument = new IndexDocument(lang);
 			databaseFieldMap.mapJson(fieldMapContext, document, indexDocument);
 			if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
@@ -132,9 +126,7 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		try {
 			mongoClient = databaseCrawl.getMongoClient();
 			DBCollection collection = databaseCrawl.getCollection(mongoClient);
-			DBCursor cursor = collection.find(
-					databaseCrawl.getCriteriaObject(),
-					databaseCrawl.getProjectionObject());
+			DBCursor cursor = collection.find(databaseCrawl.getCriteriaObject(), databaseCrawl.getProjectionObject());
 			try {
 				setStatus(CrawlStatus.CRAWL);
 				if (cursor != null)

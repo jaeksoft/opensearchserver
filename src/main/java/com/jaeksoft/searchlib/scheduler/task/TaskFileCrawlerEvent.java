@@ -103,7 +103,7 @@ public class TaskFileCrawlerEvent extends TaskAbstract {
 
 	@Override
 	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
-			throws SearchLibException, IOException {
+			throws SearchLibException, IOException, InterruptedException {
 		taskLog.setInfo("File crawler event started");
 
 		String filePath = properties.getValue(propFilePathItem);

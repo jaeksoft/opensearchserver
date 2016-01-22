@@ -67,7 +67,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	private boolean index(Transaction transaction, List<IndexDocument> indexDocumentList, int limit,
 			List<String> pkList) throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
-					InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+					InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException,
+					InterruptedException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -92,7 +93,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	private boolean delete(Transaction transaction, List<String> deleteDocumentList, int limit)
 			throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+			InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, InterruptedException {
 		int i = deleteDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -186,7 +187,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	final private void runner_delete(Transaction transaction, ResultSet resultSet, TreeSet<String> columns)
 			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException, ClassNotFoundException {
+			InstantiationException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		List<String> deleteKeyList = new ArrayList<String>(0);
 		String uniqueKeyDeleteField = databaseCrawl.getUniqueKeyDeleteField();
 		int bf = databaseCrawl.getBufferSize();
