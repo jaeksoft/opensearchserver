@@ -123,7 +123,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlF
 
 	public void crawlDirectory(FilePathItem filePathItem, String path)
 			throws SearchLibException, NoSuchAlgorithmException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, URISyntaxException, IOException, HttpException {
+			ClassNotFoundException, URISyntaxException, IOException, HttpException, InterruptedException {
 		Config config = getConfig();
 		FilePropertyManager propertyManager = config.getFilePropertyManager();
 		fileCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());

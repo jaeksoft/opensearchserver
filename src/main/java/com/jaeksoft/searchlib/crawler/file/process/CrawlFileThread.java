@@ -74,7 +74,7 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 		this.currentFileItem = null;
 	}
 
-	private void sleepInterval(long max) {
+	private void sleepInterval(long max) throws InterruptedException {
 		long c = System.currentTimeMillis();
 		long ms = nextTimeTarget - c;
 		nextTimeTarget = c + delayBetweenAccesses;
@@ -85,9 +85,9 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 		sleepMs(ms);
 	}
 
-	void browse(FileInstanceAbstract fileInstance, boolean recursive)
-			throws SearchLibException, URISyntaxException, NoSuchAlgorithmException, IOException,
-			InstantiationException, IllegalAccessException, ClassNotFoundException, HttpException {
+	void browse(FileInstanceAbstract fileInstance, boolean recursive) throws SearchLibException, URISyntaxException,
+			NoSuchAlgorithmException, IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException, InterruptedException {
 		if (isAborted() || crawlMaster.isAborted())
 			return;
 		if (fileInstance == null)
@@ -135,7 +135,8 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 		crawlQueue.index(!crawlMaster.isRunning());
 	}
 
-	private CrawlFile crawl(FileInstanceAbstract fileInstance, FileItem fileItem) throws SearchLibException {
+	private CrawlFile crawl(FileInstanceAbstract fileInstance, FileItem fileItem)
+			throws SearchLibException, InterruptedException {
 
 		long startTime = System.currentTimeMillis();
 

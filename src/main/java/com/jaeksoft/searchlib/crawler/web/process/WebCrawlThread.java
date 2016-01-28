@@ -50,8 +50,7 @@ import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 
-public class WebCrawlThread extends
-		CrawlThreadAbstract<WebCrawlThread, WebCrawlMaster> {
+public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawlMaster> {
 
 	private UrlItem currentUrlItem;
 	private long delayBetweenAccesses;
@@ -65,31 +64,28 @@ public class WebCrawlThread extends
 	private UrlCrawlQueue crawlQueue;
 	private final WebScriptManager webScriptManager;
 
-	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster,
-			CrawlStatistics sessionStats, HostUrlList hostUrlList)
-			throws SearchLibException {
+	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster, CrawlStatistics sessionStats,
+			HostUrlList hostUrlList) throws SearchLibException {
 		super(config, crawlMaster, null, null);
 		this.crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 		this.currentUrlItem = null;
 		this.currentCrawl = null;
 		currentStats = new CrawlStatistics(sessionStats);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses()
-				.getValue();
+		delayBetweenAccesses = propertyManager.getDelayBetweenAccesses().getValue();
 		nextTimeTarget = 0;
 		this.hostUrlList = hostUrlList;
 		httpDownloader = crawlMaster.getNewHttpDownloader(false);
-		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager
-				.getUserAgent().getValue(), true,
+		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager.getUserAgent().getValue(), true,
 				propertyManager.getProxyHandler());
-		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ? config
-				.getExclusionPatternManager().getPatternListMatcher() : null;
-		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ? config
-				.getInclusionPatternManager().getPatternListMatcher() : null;
+		exclusionMatcher = propertyManager.getExclusionEnabled().getValue()
+				? config.getExclusionPatternManager().getPatternListMatcher() : null;
+		inclusionMatcher = propertyManager.getInclusionEnabled().getValue()
+				? config.getInclusionPatternManager().getPatternListMatcher() : null;
 		webScriptManager = config.getWebScriptManager();
 	}
 
-	private void sleepInterval() {
+	private void sleepInterval() throws InterruptedException {
 		long ms = nextTimeTarget - System.currentTimeMillis();
 		if (ms < 0)
 			return;
@@ -105,8 +101,7 @@ public class WebCrawlThread extends
 		Iterator<UrlItem> iterator = urlList.iterator();
 		WebCrawlMaster crawlMaster = (WebCrawlMaster) getThreadMaster();
 
-		List<WebScriptItem> scriptList = webScriptManager.getItems("http://"
-				+ hostUrlList.getNamedItem().getName());
+		List<WebScriptItem> scriptList = webScriptManager.getItems("http://" + hostUrlList.getNamedItem().getName());
 		if (scriptList != null)
 			for (WebScriptItem scriptItem : scriptList)
 				scriptItem.exec(httpDownloader);
@@ -139,7 +134,7 @@ public class WebCrawlThread extends
 		urlList.clear();
 	}
 
-	private Crawl crawl() throws SearchLibException {
+	private Crawl crawl() throws SearchLibException, InterruptedException {
 
 		Config config = getConfig();
 
@@ -154,17 +149,13 @@ public class WebCrawlThread extends
 
 			// Check if url is allowed by pattern list
 			if (url != null)
-				if (inclusionMatcher != null
-						&& !inclusionMatcher.matchPattern(url, null)) {
-					currentUrlItem
-							.setFetchStatus(FetchStatus.NOT_IN_INCLUSION_LIST);
+				if (inclusionMatcher != null && !inclusionMatcher.matchPattern(url, null)) {
+					currentUrlItem.setFetchStatus(FetchStatus.NOT_IN_INCLUSION_LIST);
 					url = null;
 				}
 			if (url != null)
-				if (exclusionMatcher != null
-						&& exclusionMatcher.matchPattern(url, null)) {
-					currentUrlItem
-							.setFetchStatus(FetchStatus.BLOCKED_BY_EXCLUSION_LIST);
+				if (exclusionMatcher != null && exclusionMatcher.matchPattern(url, null)) {
+					currentUrlItem.setFetchStatus(FetchStatus.BLOCKED_BY_EXCLUSION_LIST);
 					url = null;
 				}
 
@@ -192,8 +183,7 @@ public class WebCrawlThread extends
 					&& currentUrlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 				currentUrlItem.setIndexStatus(IndexStatus.TO_INDEX);
 				currentStats.incParsedCount();
-				config.getScreenshotManager().capture(url,
-						crawl.getCredentialItem(), true, 120);
+				config.getScreenshotManager().capture(url, crawl.getCredentialItem(), true, 120);
 			} else
 				currentStats.incIgnoredCount();
 
