@@ -35,6 +35,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.util.JsonUtils;
@@ -62,9 +63,8 @@ public abstract class StatisticsAbstract {
 
 	private boolean hasBeenUpdated;
 
-	public StatisticsAbstract(StatisticTypeEnum type, boolean writeToLog,
-			int maxRetention, File statDir) throws IOException,
-			ClassNotFoundException {
+	public StatisticsAbstract(StatisticTypeEnum type, boolean writeToLog, int maxRetention, File statDir)
+			throws IOException, ClassNotFoundException {
 		this.type = type;
 		this.writeToLog = writeToLog;
 		hasBeenUpdated = false;
@@ -90,11 +90,9 @@ public abstract class StatisticsAbstract {
 		rwl.w.lock();
 		try {
 			long startTime = timer.getStartTime();
-			if (currentAggregate == null
-					|| startTime >= currentAggregate.nextStart) {
+			if (currentAggregate == null || startTime >= currentAggregate.nextStart) {
 				if (currentAggregate != null && writeToLog)
-					Logging.info(type + " - " + getPeriod().getName() + " - "
-							+ currentAggregate);
+					Logging.info(type + " - " + getPeriod().getName() + " - " + currentAggregate);
 				currentAggregate = newAggregate(timer.getStartTime());
 				addAggregateNoLock(currentAggregate);
 			}
@@ -121,30 +119,23 @@ public abstract class StatisticsAbstract {
 		}
 	}
 
-	final protected static StatisticsAbstract fromXmlConfig(XPathParser xpp,
-			Node node, File statDir) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException,
-			XPathExpressionException, DOMException, IOException {
+	final protected static StatisticsAbstract fromXmlConfig(XPathParser xpp, Node node, File statDir)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, XPathExpressionException,
+			DOMException, IOException {
 
 		if (node == null)
 			return null;
 
-		StatisticTypeEnum type = StatisticTypeEnum.valueOf(XPathParser
-				.getAttributeString(node, "type"));
+		StatisticTypeEnum type = StatisticTypeEnum.valueOf(XPathParser.getAttributeString(node, "type"));
 		if (type == null)
-			throw new XPathExpressionException(
-					"Wrong type name. Must be SEARCH, UPDATE, DELETE, RELOAD or OPTIMIZE");
-		StatisticPeriodEnum period = StatisticPeriodEnum.valueOf(XPathParser
-				.getAttributeString(node, "period"));
+			throw new XPathExpressionException("Wrong type name. Must be SEARCH, UPDATE, DELETE, RELOAD or OPTIMIZE");
+		StatisticPeriodEnum period = StatisticPeriodEnum.valueOf(XPathParser.getAttributeString(node, "period"));
 		if (period == null)
-			throw new XPathExpressionException(
-					"Wrong periode name. Must be MONTH, DAY, HOUR or MINUTE");
-		boolean writeToLog = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(node, "writeToLog"));
+			throw new XPathExpressionException("Wrong periode name. Must be MONTH, DAY, HOUR or MINUTE");
+		boolean writeToLog = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "writeToLog"));
 		int maxRetention = XPathParser.getAttributeValue(node, "maxRetention");
 		if (maxRetention == 0)
-			throw new XPathExpressionException(
-					"maxRetention must be greater than 0.");
+			throw new XPathExpressionException("maxRetention must be greater than 0.");
 		if (period == StatisticPeriodEnum.MONTH)
 			return new MonthStatistics(type, writeToLog, maxRetention, statDir);
 		else if (period == StatisticPeriodEnum.DAY)
@@ -154,35 +145,38 @@ public abstract class StatisticsAbstract {
 		else if (period == StatisticPeriodEnum.MINUTE)
 			return new MinuteStatistics(type, writeToLog, maxRetention, statDir);
 		else
-			throw new XPathExpressionException(
-					"Wrong periode name. Should be day, hour, or minute.");
+			throw new XPathExpressionException("Wrong periode name. Should be day, hour, or minute.");
 	}
 
 	final protected void writeXmlConfig(XmlWriter writer) throws SAXException {
-		writer.startElement("statistic", "type", type.name(), "period", this
-				.getPeriod().name(), "maxRetention", Integer
-				.toString(maxRetention), "writeToLog", writeToLog ? "yes"
-				: "no");
+		writer.startElement("statistic", "type", type.name(), "period", this.getPeriod().name(), "maxRetention",
+				Integer.toString(maxRetention), "writeToLog", writeToLog ? "yes" : "no");
 		writer.endElement();
 	}
 
 	private File getStatFile(File statDir) {
-		return new File(statDir, StringUtils.fastConcat(
-				type.name().replace(' ', '_'), "_", getPeriod().getName()
-						.replace(' ', '_'), ".json"));
+		return new File(statDir, StringUtils.fastConcat(type.name().replace(' ', '_'), "_",
+				getPeriod().getName().replace(' ', '_'), ".json"));
 	}
 
 	public final static TypeReference<List<Aggregate>> AggregateListTypeRef = new TypeReference<List<Aggregate>>() {
 	};
 
-	public void load(File statDir) throws IOException, ClassNotFoundException {
+	public void load(File statDir) throws IOException {
 		File file = getStatFile(statDir);
 		if (!file.exists())
 			return;
-		List<Aggregate> aggrList = JsonUtils.getObject(file,
-				AggregateListTypeRef);
-		if (aggrList == null)
+		if (file.length() == 0)
 			return;
+		final List<Aggregate> aggrList;
+		try {
+			aggrList = JsonUtils.getObject(file, AggregateListTypeRef);
+			if (aggrList == null)
+				return;
+		} catch (JsonProcessingException e) {
+			Logging.warn("Statistic file is corrupted: " + file, e);
+			return;
+		}
 		rwl.w.lock();
 		try {
 			for (Aggregate aggr : aggrList)
