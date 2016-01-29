@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.jaeksoft</groupId>
 	<artifactId>opensearchserver</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>OpenSearchServer</name>
 	<url>http://www.open-search-server.com</url>
 	<licenses>
@@ -143,6 +143,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>args4j</groupId>
+			<artifactId>args4j</artifactId>
+			<version>2.32</version>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
@@ -478,6 +483,71 @@
 			<artifactId>RoaringBitmap</artifactId>
 			<version>0.5.15</version>
 		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.38</version>
+		</dependency>
+		<dependency>
+			<groupId>jcifs</groupId>
+			<artifactId>jcifs-krb5</artifactId>
+			<version>1.3.17.15</version>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.4.1207</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.12.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ingres.jdbc</groupId>
+			<artifactId>iijdbc</artifactId>
+			<version>10.0-4.0.6</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.jtds</groupId>
+			<artifactId>jtds</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.8.11.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-logging-log4j</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-websocket</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-el</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -533,8 +603,85 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+										<excludes>META-INF/LICENSE</excludes>
+										<excludes>META-INF/LICENSE.txt</excludes>
+									</excludes>
+								</filter>
+							</filters>
+							<artifactSet>
+								<includes>
+									<include>org.apache.tomcat.embed:*</include>
+									<include>commons-io:commons-io</include>
+								</includes>
+							</artifactSet>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.jaeksoft.searchlib.Server</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>war</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<archiveClasses>true</archiveClasses>
 					<archive>
@@ -559,118 +706,6 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
-				<configuration>
-					<failOnError>false</failOnError>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
-				<executions>
-					<execution>
-						<id>library-package</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<phase>package</phase>
-					</execution>
-				</executions>
-				<configuration>
-					<classifier>library</classifier>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>tomcat-package</id>
-						<goals>
-							<goal>exec-war-only</goal>
-						</goals>
-						<phase>package</phase>
-						<configuration>
-							<path>/</path>
-							<extraDependencies>
-								<extraDependency>
-									<groupId>mysql</groupId>
-									<artifactId>mysql-connector-java</artifactId>
-									<version>5.1.38</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>jcifs</groupId>
-									<artifactId>jcifs-krb5</artifactId>
-									<version>1.3.17.15</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>org.postgresql</groupId>
-									<artifactId>postgresql</artifactId>
-									<version>9.4.1207</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>org.hsqldb</groupId>
-									<artifactId>hsqldb</artifactId>
-									<version>2.3.3</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>org.apache.derby</groupId>
-									<artifactId>derby</artifactId>
-									<version>10.12.1.1</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>com.ingres.jdbc</groupId>
-									<artifactId>iijdbc</artifactId>
-									<version>10.0-4.0.6</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>net.sourceforge.jtds</groupId>
-									<artifactId>jtds</artifactId>
-									<version>1.3.1</version>
-								</extraDependency>
-								<extraDependency>
-									<groupId>org.xerial</groupId>
-									<artifactId>sqlite-jdbc</artifactId>
-									<version>3.8.11.2</version>
-								</extraDependency>
-							</extraDependencies>
-						</configuration>
-					</execution>
-					<execution>
-						<id>tomcat-run</id>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<phase>pre-integration-test</phase>
-						<configuration>
-							<path>/</path>
-							<uriEncoding>UTF-8</uriEncoding>
-							<port>9090</port>
-							<fork>true</fork>
-						</configuration>
-					</execution>
-					<execution>
-						<id>tomcat-shutdown</id>
-						<goals>
-							<goal>shutdown</goal>
-						</goals>
-						<phase>post-integration-test</phase>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
 				<version>1.4</version>
@@ -685,8 +720,19 @@
 							<controlDir>${basedir}/src/deb/control</controlDir>
 							<dataSet>
 								<data>
-									<src>${project.build.directory}/${project.build.finalName}-war-exec.jar</src>
+									<src>${project.build.directory}/${project.build.finalName}.jar</src>
 									<dst>opensearchserver.jar</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/opensearchserver</prefix>
+										<user>daemon</user>
+										<group>daemon</group>
+									</mapper>
+								</data>
+								<data>
+									<src>${project.build.directory}/${project.build.finalName}.war</src>
+									<dst>opensearchserver.war</dst>
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
@@ -770,8 +816,13 @@
 							<groupname>daemon</groupname>
 							<sources>
 								<source>
-									<location>${project.build.directory}/${project.build.finalName}-war-exec.jar</location>
+									<location>${project.build.directory}/${project.build.finalName}.jar</location>
 									<destination>opensearchserver.jar</destination>
+								</source>
+								<source>
+									<location>${project.build.directory}/${project.build.finalName}.war</location>
+									<destination>
+										opensearchserver.war</destination>
 								</source>
 								<source>
 									<location>src/deb/init.d/opensearchserver</location>
@@ -889,107 +940,5 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.tomcat.maven</groupId>
-					<artifactId>tomcat7-maven-plugin</artifactId>
-					<version>2.3-SNAPSHOT</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.apache.tomcat.embed</groupId>
-							<artifactId>tomcat-embed-core</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-util</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-coyote</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-api</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-jdbc</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-dbcp</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-servlet-api</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-jsp-api</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-jasper</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-jasper-el</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-el-api</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-catalina</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-tribes</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-catalina-ha</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-annotations-api</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat</groupId>
-							<artifactId>tomcat-juli</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat.embed</groupId>
-							<artifactId>tomcat-embed-logging-juli</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.apache.tomcat.embed</groupId>
-							<artifactId>tomcat-embed-logging-log4j</artifactId>
-							<version>${tomcat.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 </project>

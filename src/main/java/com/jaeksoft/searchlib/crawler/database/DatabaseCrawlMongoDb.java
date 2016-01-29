@@ -29,11 +29,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -41,14 +41,12 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.mongodb.util.JSON;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
 
 public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 
@@ -57,8 +55,7 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 	private String criteria;
 	private String projection;
 
-	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
-			DatabasePropertyManager propertyManager, String name) {
+	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager, String name) {
 		super(crawlMaster, propertyManager, name);
 		databaseName = null;
 		collectionName = null;
@@ -75,8 +72,7 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		projection = variables.replace(projection);
 	}
 
-	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
-			DatabasePropertyManager propertyManager) {
+	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager) {
 		this(crawlMaster, propertyManager, null);
 	}
 
@@ -110,14 +106,11 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 	protected final static String DBCRAWL_NODE_NAME_CRITERIA = "criteria";
 	protected final static String DBCRAWL_NODE_NAME_PROJECTION = "projection";
 
-	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster,
-			DatabasePropertyManager propertyManager, XPathParser xpp, Node item)
-			throws XPathExpressionException {
+	public DatabaseCrawlMongoDb(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager,
+			XPathParser xpp, Node item) throws XPathExpressionException {
 		super(crawlMaster, propertyManager, xpp, item);
-		setDatabaseName(XPathParser.getAttributeString(item,
-				DBCRAWL_ATTR_DB_NAME));
-		setCollectionName(XPathParser.getAttributeString(item,
-				DBCRAWL_ATTR_COLLECTION_NAME));
+		setDatabaseName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_DB_NAME));
+		setCollectionName(XPathParser.getAttributeString(item, DBCRAWL_ATTR_COLLECTION_NAME));
 		Node sqlNode = xpp.getNode(item, DBCRAWL_NODE_NAME_CRITERIA);
 		if (sqlNode != null)
 			setCriteria(xpp.getNodeString(sqlNode, true));
@@ -128,15 +121,11 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 
 	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(),
-				DBCRAWL_ATTR_TYPE, getType().name(), DBCRAWL_ATTR_USER,
-				getUser(), DBCRAWL_ATTR_PASSWORD, getPassword(),
-				DBCRAWL_ATTR_URL, getUrl(), DBCRAWL_ATTR_LANG, getLang()
-						.getCode(), DBCRAWL_ATTR_BUFFER_SIZE, Integer
-						.toString(getBufferSize()), DBCRAWL_ATTR_MSSLEEP,
-				Integer.toString(getMsSleep()), DBCRAWL_ATTR_DB_NAME,
-				getDatabaseName(), DBCRAWL_ATTR_COLLECTION_NAME,
-				getCollectionName());
+		xmlWriter.startElement(DBCRAWL_NODE_NAME, DBCRAWL_ATTR_NAME, getName(), DBCRAWL_ATTR_TYPE, getType().name(),
+				DBCRAWL_ATTR_USER, getUser(), DBCRAWL_ATTR_PASSWORD, getPassword(), DBCRAWL_ATTR_URL, getUrl(),
+				DBCRAWL_ATTR_LANG, getLang().getCode(), DBCRAWL_ATTR_BUFFER_SIZE, Integer.toString(getBufferSize()),
+				DBCRAWL_ATTR_MSSLEEP, Integer.toString(getMsSleep()), DBCRAWL_ATTR_DB_NAME, getDatabaseName(),
+				DBCRAWL_ATTR_COLLECTION_NAME, getCollectionName());
 		xmlWriter.startElement(DBCRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
@@ -215,40 +204,37 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		this.collectionName = collectionName;
 	}
 
-	MongoClient getMongoClient() throws URISyntaxException,
-			UnknownHostException {
+	MongoClient getMongoClient() throws URISyntaxException, UnknownHostException {
 		String user = getUser();
 		String password = getPassword();
 		URI uri = new URI(getUrl());
 		MongoCredential credential = null;
 		if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
-			credential = MongoCredential.createMongoCRCredential(user,
-					databaseName, password.toCharArray());
-			return new MongoClient(new ServerAddress(uri.getHost(),
-					uri.getPort()), Arrays.asList(credential));
+			credential = MongoCredential.createMongoCRCredential(user, databaseName, password.toCharArray());
+			return new MongoClient(new ServerAddress(uri.getHost(), uri.getPort()), Arrays.asList(credential));
 		}
 		return new MongoClient(new ServerAddress(uri.getHost(), uri.getPort()));
 	}
 
-	DBCollection getCollection(MongoClient mongoClient) throws IOException {
+	MongoCollection<Document> getCollection(MongoClient mongoClient) throws IOException {
 		if (StringUtils.isEmpty(databaseName))
 			throw new IOException("No database name.");
-		DB db = mongoClient.getDB(databaseName);
+		MongoDatabase db = mongoClient.getDatabase(databaseName);
 		if (StringUtils.isEmpty(collectionName))
 			throw new IOException("No collection name.");
 		return db.getCollection(collectionName);
 	}
 
-	DBObject getCriteriaObject() {
+	Document getCriteriaObject() {
 		if (StringUtils.isEmpty(criteria))
 			return null;
-		return (DBObject) JSON.parse(criteria);
+		return Document.parse(criteria);
 	}
 
-	DBObject getProjectionObject() {
+	Document getProjectionObject() {
 		if (StringUtils.isEmpty(projection))
 			return null;
-		return (DBObject) JSON.parse(projection);
+		return Document.parse(projection);
 	}
 
 	@Override
@@ -256,19 +242,18 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		URI uri = new URI(getUrl());
 		StringBuilder sb = new StringBuilder();
 		if (!"mongodb".equals(uri.getScheme()))
-			throw new SearchLibException("Wrong scheme: " + uri.getScheme()
-					+ ". The URL should start with: mongodb://");
+			throw new SearchLibException(
+					"Wrong scheme: " + uri.getScheme() + ". The URL should start with: mongodb://");
 		MongoClient mongoClient = null;
 		try {
 			mongoClient = getMongoClient();
 			sb.append("Connection established.");
 			sb.append(StringUtils.LF);
 			if (!StringUtils.isEmpty(databaseName)) {
-				DB db = mongoClient.getDB(databaseName);
+				MongoDatabase db = mongoClient.getDatabase(databaseName);
 				if (db == null)
-					throw new SearchLibException("Database not found: "
-							+ databaseName);
-				Set<String> collections = db.getCollectionNames();
+					throw new SearchLibException("Database not found: " + databaseName);
+				MongoIterable<String> collections = db.listCollectionNames();
 				if (collections == null)
 					throw new SearchLibException("No collection found.");
 				sb.append("Collections found:");
@@ -278,24 +263,15 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 					sb.append(StringUtils.LF);
 				}
 				if (!StringUtils.isEmpty(collectionName)) {
-					DBCollection dbCollection = db
-							.getCollection(collectionName);
+					MongoCollection<?> dbCollection = db.getCollection(collectionName);
 					if (dbCollection == null)
-						throw new SearchLibException("Collection "
-								+ collectionName + " not found.");
-					sb.append("Collection " + collectionName + " contains "
-							+ dbCollection.count() + " document(s).");
+						throw new SearchLibException("Collection " + collectionName + " not found.");
+					sb.append("Collection " + collectionName + " contains " + dbCollection.count() + " document(s).");
 					sb.append(StringUtils.LF);
 					if (!StringUtils.isEmpty(criteria)) {
-						DBCursor cursor = dbCollection.find(
-								getCriteriaObject(), getProjectionObject());
-						try {
-							sb.append("Query returns " + cursor.count()
-									+ " document(s).");
-							sb.append(StringUtils.LF);
-						} finally {
-							cursor.close();
-						}
+						long count = dbCollection.count(getCriteriaObject());
+						sb.append("Query returns " + count + " document(s).");
+						sb.append(StringUtils.LF);
 					}
 				}
 			}

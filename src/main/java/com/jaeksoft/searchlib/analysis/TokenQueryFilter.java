@@ -24,10 +24,6 @@
 
 package com.jaeksoft.searchlib.analysis;
 
-import it.unimi.dsi.fastutil.Arrays;
-import it.unimi.dsi.fastutil.Swapper;
-import it.unimi.dsi.fastutil.ints.IntComparator;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,8 +37,11 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.analysis.filter.AbstractTermFilter;
+
+import it.unimi.dsi.fastutil.Arrays;
+import it.unimi.dsi.fastutil.Swapper;
+import it.unimi.dsi.fastutil.ints.IntComparator;
 
 public abstract class TokenQueryFilter extends AbstractTermFilter {
 
@@ -50,8 +49,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 	public final String field;
 	public final float boost;
 
-	public TokenQueryFilter(final CompiledAnalyzer analyzer,
-			final String field, final float boost, TokenStream input) {
+	public TokenQueryFilter(final CompiledAnalyzer analyzer, final String field, final float boost, TokenStream input) {
 		super(input);
 		this.analyzer = analyzer;
 		this.field = field;
@@ -142,34 +140,28 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		 * @param occur
 		 * @param querySet
 		 */
-		private final void addBoolean(final BooleanQuery parent,
-				final Query child, final Occur occur) {
+		private final void addBoolean(final BooleanQuery parent, final Query child, final Occur occur) {
 			// TODO Should not occur. Design issue ?
-			if (System.identityHashCode(parent) != System
-					.identityHashCode(child))
+			if (System.identityHashCode(parent) != System.identityHashCode(child))
 				parent.add(child, occur);
 			else
 				// TODO
 				;// Logging.info("Risk of loop on boolean query");
 		}
 
-		public final Query getQuery(BooleanQuery parentBooleanQuery,
-				final Occur occur) throws IOException {
+		public final Query getQuery(BooleanQuery parentBooleanQuery, final Occur occur) throws IOException {
 			Query localQuery = getTermOrPhraseQuery();
 			if (children == null && brothers == null)
 				return localQuery;
-			BooleanQuery booleanQuery = parentBooleanQuery == null ? new BooleanQuery()
-					: parentBooleanQuery;
+			BooleanQuery booleanQuery = parentBooleanQuery == null ? new BooleanQuery() : parentBooleanQuery;
 			addBoolean(booleanQuery, localQuery, Occur.SHOULD);
 			if (brothers != null)
 				for (TermQueryItem brother : brothers)
-					addBoolean(booleanQuery,
-							brother.getQuery(booleanQuery, occur), Occur.SHOULD);
+					addBoolean(booleanQuery, brother.getQuery(booleanQuery, occur), Occur.SHOULD);
 			if (children != null) {
 				BooleanQuery childrenBooleanQuery = new BooleanQuery();
 				for (TermQueryItem child : children) {
-					Query childQuery = child.getQuery(childrenBooleanQuery,
-							occur);
+					Query childQuery = child.getQuery(childrenBooleanQuery, occur);
 					addBoolean(childrenBooleanQuery, childQuery, occur);
 				}
 				addBoolean(booleanQuery, childrenBooleanQuery, Occur.SHOULD);
@@ -186,13 +178,12 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		}
 	}
 
-	public static class TermQueryFilter extends TokenQueryFilter implements
-			IntComparator, Swapper {
+	public static class TermQueryFilter extends TokenQueryFilter implements IntComparator, Swapper {
 
 		public final List<TermQueryItem> termQueryItems;
 
-		public TermQueryFilter(final CompiledAnalyzer analyzer,
-				final String field, final float boost, TokenStream input) {
+		public TermQueryFilter(final CompiledAnalyzer analyzer, final String field, final float boost,
+				TokenStream input) {
 			super(analyzer, field, boost, input);
 			termQueryItems = new ArrayList<TermQueryItem>();
 		}
@@ -201,8 +192,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		public final boolean incrementToken() throws IOException {
 			if (!input.incrementToken())
 				return false;
-			termQueryItems.add(new TermQueryItem(termAtt.toString(), offsetAtt
-					.startOffset(), offsetAtt.endOffset()));
+			termQueryItems.add(new TermQueryItem(termAtt.toString(), offsetAtt.startOffset(), offsetAtt.endOffset()));
 			return true;
 		}
 
@@ -236,8 +226,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 			return item1.start - item2.start;
 		}
 
-		public final static void includeChildrenBrothers(
-				List<TermQueryItem> termQueryItems) {
+		public final static void includeChildrenBrothers(List<TermQueryItem> termQueryItems) {
 			Iterator<TermQueryItem> iterator = termQueryItems.iterator();
 			if (!iterator.hasNext())
 				return;
@@ -261,8 +250,8 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 		public final BooleanQuery booleanQuery;
 		public final Occur occur;
 
-		public BooleanQueryFilter(BooleanQuery booleanQuery, Occur occur,
-				String field, float boost, TokenStream input) {
+		public BooleanQueryFilter(BooleanQuery booleanQuery, Occur occur, String field, float boost,
+				TokenStream input) {
 			super(null, field, boost, input);
 			this.booleanQuery = booleanQuery;
 			this.occur = occur;
@@ -284,8 +273,7 @@ public abstract class TokenQueryFilter extends AbstractTermFilter {
 
 		public final PhraseQuery query;
 
-		public PhraseQueryFilter(PhraseQuery query, String field, float boost,
-				TokenStream input) {
+		public PhraseQueryFilter(PhraseQuery query, String field, float boost, TokenStream input) {
 			super(null, field, boost, input);
 			this.query = query;
 		}
