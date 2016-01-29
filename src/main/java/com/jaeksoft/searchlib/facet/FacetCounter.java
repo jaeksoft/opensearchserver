@@ -24,14 +24,14 @@
 
 package com.jaeksoft.searchlib.facet;
 
-import it.unimi.dsi.fastutil.Swapper;
-import it.unimi.dsi.fastutil.ints.IntComparator;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Facet.OrderByEnum;
+
+import it.unimi.dsi.fastutil.Swapper;
+import it.unimi.dsi.fastutil.ints.IntComparator;
 
 public class FacetCounter implements Comparable<FacetCounter> {
 
@@ -88,8 +88,7 @@ public class FacetCounter implements Comparable<FacetCounter> {
 			facetList.set(a, facetList.set(b, entry));
 		}
 
-		public static FacetSorter getSorter(
-				List<Entry<String, FacetCounter>> list, OrderByEnum orderBy) {
+		public static FacetSorter getSorter(List<Entry<String, FacetCounter>> list, OrderByEnum orderBy) {
 			if (orderBy == null)
 				return null;
 			switch (orderBy) {
@@ -116,14 +115,12 @@ public class FacetCounter implements Comparable<FacetCounter> {
 
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			return Long.compare(facetList.get(o2).getValue().count, facetList
-					.get(o1).getValue().count);
+			return Long.compare(facetList.get(o2).getValue().count, facetList.get(o1).getValue().count);
 		}
 
 		@Override
 		public int compare(int k1, int k2) {
-			return Long.compare(facetList.get(k2).getValue().count, facetList
-					.get(k1).getValue().count);
+			return Long.compare(facetList.get(k2).getValue().count, facetList.get(k1).getValue().count);
 		}
 	}
 
@@ -135,14 +132,12 @@ public class FacetCounter implements Comparable<FacetCounter> {
 
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			return Long.compare(facetList.get(o1).getValue().count, facetList
-					.get(o2).getValue().count);
+			return Long.compare(facetList.get(o1).getValue().count, facetList.get(o2).getValue().count);
 		}
 
 		@Override
 		public int compare(int k1, int k2) {
-			return Long.compare(facetList.get(k1).getValue().count, facetList
-					.get(k2).getValue().count);
+			return Long.compare(facetList.get(k1).getValue().count, facetList.get(k2).getValue().count);
 		}
 	}
 
@@ -154,14 +149,12 @@ public class FacetCounter implements Comparable<FacetCounter> {
 
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			return facetList.get(o2).getKey()
-					.compareTo(facetList.get(o1).getKey());
+			return facetList.get(o2).getKey().compareTo(facetList.get(o1).getKey());
 		}
 
 		@Override
 		public int compare(int k1, int k2) {
-			return facetList.get(k2).getKey()
-					.compareTo(facetList.get(k1).getKey());
+			return facetList.get(k2).getKey().compareTo(facetList.get(k1).getKey());
 		}
 	}
 
@@ -173,14 +166,12 @@ public class FacetCounter implements Comparable<FacetCounter> {
 
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			return facetList.get(o1).getKey()
-					.compareTo(facetList.get(o2).getKey());
+			return facetList.get(o1).getKey().compareTo(facetList.get(o2).getKey());
 		}
 
 		@Override
 		public int compare(int k1, int k2) {
-			return facetList.get(k1).getKey()
-					.compareTo(facetList.get(k2).getKey());
+			return facetList.get(k1).getKey().compareTo(facetList.get(k2).getKey());
 		}
 	}
 

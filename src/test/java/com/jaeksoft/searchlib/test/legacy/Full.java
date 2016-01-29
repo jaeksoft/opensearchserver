@@ -32,21 +32,17 @@ public class Full {
 	private Client client;
 
 	@Before
-	public void getInstance() throws SearchLibException,
-			NoSuchAlgorithmException, XPathExpressionException, IOException,
-			URISyntaxException, ParserConfigurationException, SAXException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, NamingException, HttpException,
-			DOMException {
+	public void getInstance() throws SearchLibException, NoSuchAlgorithmException, XPathExpressionException,
+			IOException, URISyntaxException, ParserConfigurationException, SAXException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, NamingException, HttpException, DOMException {
 		File configFile = new File("resources/test_config.xml");
 		assertTrue(configFile.exists());
 		client = ClientCatalog.getClient("web_crawler");
 		populate();
 	}
 
-	public void populate() throws SearchLibException, NoSuchAlgorithmException,
-			IOException, URISyntaxException, XPathExpressionException,
-			ParserConfigurationException, SAXException, InstantiationException,
+	public void populate() throws SearchLibException, NoSuchAlgorithmException, IOException, URISyntaxException,
+			XPathExpressionException, ParserConfigurationException, SAXException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {
 		File contentFile = new File("resources/content_sample.xml");
 		assertTrue(contentFile.exists());
@@ -59,8 +55,7 @@ public class Full {
 	public void matchAllDocs() throws Exception {
 		AbstractSearchRequest searchRequest = new SearchPatternRequest(client);
 		searchRequest.setQueryString("*:*");
-		AbstractResultSearch result = (AbstractResultSearch) client
-				.request(searchRequest);
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client.request(searchRequest);
 		assertTrue(result.getDocumentCount() > 0);
 	}
 }
