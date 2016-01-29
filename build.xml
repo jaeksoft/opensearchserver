@@ -2,7 +2,7 @@
 <!--   
 	License Agreement for OpenSearchServer
 	
-	Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
 	
 	http://www.open-search-server.com
 	
@@ -59,7 +59,7 @@
 	<target name="start" description="Starts OpenSearchServer">
 		<mkdir dir="${temp}" />
 		<mkdir dir="${temp}/data" />
-		<java fork="true" jar="target/${productsrc}-war-exec.jar" dir="${temp}" spawn="true">
+		<java fork="true" jar="target/${productsrc}.jar" dir="${temp}" spawn="true">
 			<env key="OPENSEARCHSERVER_DATA" value="${temp}/data" />
 			<arg line="-httpPort 9090 -uriEncoding UTF-8" />
 		</java>
@@ -74,7 +74,7 @@
 		<loadfile srcfile="${temp}/jps.out" property="oss_pid">
 			<filterchain>
 				<linecontainsregexp>
-					<regexp pattern="[0-9]+ ${productsrc}-war-exec.jar" />
+					<regexp pattern="[0-9]+ ${productsrc}.jar" />
 				</linecontainsregexp>
 				<replaceregex pattern="([0-9]+) ${productsrc}-war-exec.jar" replace="\1" />
 				<prefixlines prefix=" " />
@@ -104,7 +104,7 @@
 		<mkdir dir="${dist}/${product}/lib" />
 
 		<copy tofile="${dist}/${product}/${product}.jar">
-			<fileset file="target/${productsrc}-war-exec.jar" />
+			<fileset file="target/${productsrc}.jar" />
 		</copy>
 
 		<copy tofile="${dist}/${productdest}.deb">
