@@ -12,3 +12,4 @@
 /src/cc/*.bak
 .idea
 opensearchserver.iml
+dependency-reduced-pom.xml

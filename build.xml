@@ -76,7 +76,7 @@
 				<linecontainsregexp>
 					<regexp pattern="[0-9]+ ${productsrc}.jar" />
 				</linecontainsregexp>
-				<replaceregex pattern="([0-9]+) ${productsrc}-war-exec.jar" replace="\1" />
+				<replaceregex pattern="([0-9]+) ${productsrc}.jar" replace="\1" />
 				<prefixlines prefix=" " />
 				<striplinebreaks />
 				<trim />
@@ -107,6 +107,10 @@
 			<fileset file="target/${productsrc}.jar" />
 		</copy>
 
+		<copy tofile="${dist}/${product}/${product}.war">
+			<fileset file="target/${productsrc}.war" />
+		</copy>
+		
 		<copy tofile="${dist}/${productdest}.deb">
 			<fileset file="target/${productsrc}.deb" />
 		</copy>
