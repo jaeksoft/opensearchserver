@@ -29,11 +29,11 @@ public class Server {
 			baseDir.mkdir();
 		tomcat = new Tomcat();
 		tomcat.setPort(httpPort == null ? 9090 : httpPort);
-		tomcat.getConnector().setURIEncoding(uriEncoding == null ? "UTF-8" : uriEncoding);
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
 		tomcat.getHost().setAppBase(baseDir.getAbsolutePath());
 		tomcat.getHost().setAutoDeploy(true);
 		tomcat.getHost().setDeployOnStartup(true);
+		tomcat.getConnector().setURIEncoding(uriEncoding == null ? "UTF-8" : uriEncoding);
 	}
 
 	private void start() throws IOException, URISyntaxException {

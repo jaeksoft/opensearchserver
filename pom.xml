@@ -195,11 +195,6 @@
 			<version>4.2</version>
 		</dependency>
 		<dependency>
-			<groupId>jcifs</groupId>
-			<artifactId>jcifs-krb5</artifactId>
-			<version>1.3.17.15</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>fluent-hc</artifactId>
 			<version>${httpclient.version}</version>
