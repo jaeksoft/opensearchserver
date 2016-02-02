@@ -210,7 +210,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 		return sb.toString();
 	}
 
-	final private synchronized void initStart() {
+	final private void initStart() {
 		exception = null;
 		abort.set(false);
 		info = null;
@@ -294,7 +294,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 		return threadItem;
 	}
 
-	final public synchronized void execute(int secTimeOut) {
+	final public void execute(int secTimeOut) {
 		startTime = 0;
 		config.getThreadPool().execute(this);
 		waitForStart(secTimeOut);
