@@ -106,7 +106,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			throws IOException, SearchLibException {
 		try {
 			if (!(driver instanceof JavascriptExecutor))
-				throw new IOException("The Web driver don't support javascript execution");
+				throw new IOException("The Web driver does not support javascript execution");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			return js.executeScript(javascript, objects);
 		} catch (IOException e) {
