@@ -25,6 +25,8 @@
 package com.jaeksoft.searchlib.crawler.web.browser;
 
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriverService;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 public class PhantomDriver extends BrowserDriver<PhantomJSDriver> {
 
@@ -34,7 +36,10 @@ public class PhantomDriver extends BrowserDriver<PhantomJSDriver> {
 
 	@Override
 	public PhantomJSDriver initialize() {
-		return new PhantomJSDriver();
+		DesiredCapabilities capabilities = new DesiredCapabilities();
+		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS,
+				new String[] { "--webdriver-loglevel=NONE", "--ignore-ssl-errors=true" });
+		return new PhantomJSDriver(capabilities);
 	}
 
 }
