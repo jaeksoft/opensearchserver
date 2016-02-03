@@ -36,7 +36,6 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.util.ExceptionUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.ExceptionCatchThread;
 import com.jaeksoft.searchlib.util.Timer;
@@ -53,9 +52,8 @@ public class FilterListExecutor {
 	private final FilterHits finalFilterHits;
 	private final List<FilterThread> threads;
 
-	public FilterListExecutor(AbstractLocalSearchRequest searchRequest,
-			Timer timer) throws SearchLibException, ParseException,
-			IOException, SyntaxError {
+	public FilterListExecutor(AbstractLocalSearchRequest searchRequest, Timer timer)
+			throws SearchLibException, ParseException, IOException, SyntaxError {
 		Config config = searchRequest.getConfig();
 		Schema schema = config.getSchema();
 		defaultField = schema.getFieldList().getDefaultField();
@@ -64,8 +62,7 @@ public class FilterListExecutor {
 		threadGroup = config.getThreadGroup();
 		this.timer = timer;
 		FilterList filterList = searchRequest.getFilterList();
-		this.defaultOperator = filterList == null ? null : filterList
-				.getDefaultOperator();
+		this.defaultOperator = filterList == null ? null : filterList.getDefaultOperator();
 		int size = filterList == null ? 0 : filterList.size();
 		switch (size) {
 		case 0:
@@ -73,32 +70,19 @@ public class FilterListExecutor {
 			threads = null;
 			return;
 		case 1:
-			finalFilterHits = filterList.first().getFilterHits(defaultField,
-					analyzer, request, timer);
+			finalFilterHits = filterList.first().getFilterHits(defaultField, analyzer, request, timer);
 			threads = null;
 			return;
 		}
 		threads = new ArrayList<FilterThread>();
 		finalFilterHits = new FilterHits(true);
-		for (FilterAbstract<?> filter : filterList) {
-			FilterThread thread = new FilterThread(filter);
-			thread.start();
-			threads.add(thread);
-		}
-		join();
+		for (FilterAbstract<?> filter : filterList)
+			threads.add(new FilterThread(filter));
+		ThreadUtils.invokeAndJoin(config.getThreadPool(), threads);
 	}
 
 	final public FilterHits getFilterHits() {
 		return finalFilterHits;
-	}
-
-	private void join() throws SearchLibException {
-		try {
-			ThreadUtils.join(threads);
-		} catch (Exception e) {
-			ExceptionUtils.<SearchLibException> throwException(e,
-					SearchLibException.class);
-		}
 	}
 
 	public class FilterThread extends ExceptionCatchThread {
@@ -106,18 +90,14 @@ public class FilterListExecutor {
 		private final FilterAbstract<?> filter;
 
 		public FilterThread(FilterAbstract<?> filter) {
-			super(threadGroup, "FilterThread");
 			this.filter = filter;
 		}
 
 		@Override
-		public void runner() throws ParseException, IOException,
-				SearchLibException, SyntaxError {
-			FilterHits filterHits = filter.getFilterHits(defaultField,
-					analyzer, request, timer);
+		public void runner() throws ParseException, IOException, SearchLibException, SyntaxError {
+			FilterHits filterHits = filter.getFilterHits(defaultField, analyzer, request, timer);
 			synchronized (finalFilterHits) {
-				finalFilterHits.operate(filterHits,
-						filter.getOperator(defaultOperator));
+				finalFilterHits.operate(filterHits, filter.getOperator(defaultOperator));
 			}
 		}
 	}

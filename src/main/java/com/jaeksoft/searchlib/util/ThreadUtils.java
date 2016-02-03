@@ -25,8 +25,11 @@ package com.jaeksoft.searchlib.util;
 
 import java.lang.Thread.State;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
@@ -101,8 +104,7 @@ public class ThreadUtils {
 		return threads;
 	}
 
-	public static List<ThreadInfo> getInfos(ThreadGroup... groups)
-			throws SearchLibException, NamingException {
+	public static List<ThreadInfo> getInfos(ThreadGroup... groups) throws SearchLibException, NamingException {
 		if (groups == null)
 			return null;
 		int count = 0;
@@ -196,51 +198,50 @@ public class ThreadUtils {
 
 	}
 
-	public static abstract class ExceptionCatchThread extends Thread {
+	public static abstract class ExceptionCatchThread implements Callable<Exception> {
 
 		protected Exception exception;
 
 		public ExceptionCatchThread() {
-			exception = null;
-		}
-
-		public ExceptionCatchThread(ThreadGroup threadGroup, String threadName) {
-			super(threadGroup, threadName);
+			this.exception = null;
 		}
 
 		public abstract void runner() throws Exception;
 
 		@Override
-		public void run() {
+		final public Exception call() {
 			try {
 				runner();
+				return null;
 			} catch (Exception e) {
 				exception = e;
+				return exception;
 			}
 		}
 	}
 
-	public static void join(
-			List<? extends ExceptionCatchThread> exceptionThreads)
-			throws Exception {
+	public static void invokeAndJoin(ExecutorService executor,
+			Collection<? extends ExceptionCatchThread> exceptionThreads) throws SearchLibException {
+		try {
+			executor.invokeAll(exceptionThreads);
+			checkException(exceptionThreads);
+		} catch (Exception e) {
+			ExceptionUtils.<SearchLibException> throwException(e, SearchLibException.class);
+		}
+	}
+
+	public static void checkException(Collection<? extends ExceptionCatchThread> exceptionThreads) throws Exception {
 		if (exceptionThreads == null)
 			return;
 		Exception exception = null;
-		for (ExceptionCatchThread thread : exceptionThreads) {
-			try {
-				thread.join();
-				if (exception == null && thread.exception != null)
-					exception = thread.exception;
-			} catch (InterruptedException e) {
-				Logging.warn(e);
-			}
-		}
+		for (ExceptionCatchThread thread : exceptionThreads)
+			if (exception == null && thread.exception != null)
+				exception = thread.exception;
 		if (exception != null)
 			throw exception;
 	}
 
-	public static <T> void done(List<Future<T>> futures)
-			throws ExecutionException {
+	public static <T> void done(List<Future<T>> futures) throws ExecutionException {
 		ExecutionException exception = null;
 		for (Future<?> future : futures) {
 			try {
