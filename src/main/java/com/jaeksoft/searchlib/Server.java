@@ -9,7 +9,6 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.kohsuke.args4j.CmdLineException;
 
 import com.github.jankroken.commandline.CommandLineParser;
 import com.github.jankroken.commandline.OptionStyle;
@@ -22,7 +21,7 @@ public class Server {
 
 	private final Tomcat tomcat;
 
-	private Server(Arguments arguments) throws CmdLineException {
+	private Server(Arguments arguments) {
 		File baseDir = new File(arguments.extractDirectory == null ? "server" : arguments.extractDirectory);
 		if (!baseDir.exists())
 			baseDir.mkdir();
@@ -95,7 +94,7 @@ public class Server {
 	}
 
 	public static void main(String[] args) throws IllegalAccessException, InstantiationException,
-			InvocationTargetException, IOException, URISyntaxException, CmdLineException {
+			InvocationTargetException, IOException, URISyntaxException {
 		Arguments arguments = CommandLineParser.parse(Arguments.class, args, OptionStyle.SIMPLE);
 		new Server(arguments).start();
 	}
