@@ -57,8 +57,8 @@ public class Server {
 		}
 
 		@Option
-		@LongSwitch("extractDirectory")
-		@ShortSwitch("e")
+		@LongSwitch("uriEncoding")
+		@ShortSwitch("u")
 		@SingleArgument
 		public void setUriEncoding(String uriEncoding) {
 			this.uriEncoding = uriEncoding;
