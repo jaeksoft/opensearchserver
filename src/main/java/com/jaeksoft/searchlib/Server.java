@@ -2,6 +2,7 @@ package com.jaeksoft.searchlib;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 import org.apache.catalina.LifecycleException;
@@ -9,35 +10,61 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
+
+import com.github.jankroken.commandline.CommandLineParser;
+import com.github.jankroken.commandline.OptionStyle;
+import com.github.jankroken.commandline.annotations.LongSwitch;
+import com.github.jankroken.commandline.annotations.Option;
+import com.github.jankroken.commandline.annotations.ShortSwitch;
+import com.github.jankroken.commandline.annotations.SingleArgument;
 
 public class Server {
 
 	private final Tomcat tomcat;
 
-	@Option(name = "-extractDirectory", usage = "The server directory")
-	public String extractDirectory;
-
-	@Option(name = "-httpPort", usage = "The listening TCP port")
-	public Integer httpPort;
-
-	@Option(name = "-uriEncoding", usage = "The URI encoding of the TCP connector")
-	public String uriEncoding;
-
-	private Server(String[] args) throws CmdLineException {
-		CmdLineParser parser = new CmdLineParser(this);
-		parser.parseArgument(args);
-		File baseDir = new File(extractDirectory == null ? "server" : extractDirectory);
+	private Server(Arguments arguments) throws CmdLineException {
+		File baseDir = new File(arguments.extractDirectory == null ? "server" : arguments.extractDirectory);
 		if (!baseDir.exists())
 			baseDir.mkdir();
 		tomcat = new Tomcat();
-		tomcat.setPort(httpPort == null ? 9090 : httpPort);
+		tomcat.setPort(arguments.httpPort == null ? 9090 : arguments.httpPort);
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
 		tomcat.getHost().setAppBase(baseDir.getAbsolutePath());
 		tomcat.getHost().setAutoDeploy(true);
 		tomcat.getHost().setDeployOnStartup(true);
-		tomcat.getConnector().setURIEncoding(uriEncoding == null ? "UTF-8" : uriEncoding);
+		tomcat.getConnector().setURIEncoding(arguments.uriEncoding == null ? "UTF-8" : arguments.uriEncoding);
+	}
+
+	public static class Arguments {
+
+		private String extractDirectory = null;
+		private Integer httpPort = null;
+		private String uriEncoding = null;
+
+		@Option
+		@LongSwitch("extractDirectory")
+		@ShortSwitch("e")
+		@SingleArgument
+		public void setExtractDirectory(String extractDirectory) {
+			this.extractDirectory = extractDirectory;
+		}
+
+		@Option
+		@LongSwitch("httpPort")
+		@ShortSwitch("p")
+		@SingleArgument
+		public void setHttpPort(String port) {
+			this.httpPort = port == null ? null : Integer.parseInt(port);
+		}
+
+		@Option
+		@LongSwitch("extractDirectory")
+		@ShortSwitch("e")
+		@SingleArgument
+		public void setUriEncoding(String uriEncoding) {
+			this.uriEncoding = uriEncoding;
+		}
+
 	}
 
 	private void start() throws IOException, URISyntaxException {
@@ -67,7 +94,9 @@ public class Server {
 		tomcat.getServer().await();
 	}
 
-	public static void main(String[] args) throws IOException, URISyntaxException, CmdLineException {
-		new Server(args).start();
+	public static void main(String[] args) throws IllegalAccessException, InstantiationException,
+			InvocationTargetException, IOException, URISyntaxException, CmdLineException {
+		Arguments arguments = CommandLineParser.parse(Arguments.class, args, OptionStyle.SIMPLE);
+		new Server(arguments).start();
 	}
 }
