@@ -53,8 +53,7 @@ public class TargetField implements Comparable<TargetField> {
 
 	private String boostedName;
 
-	public TargetField(String name, String analyzer, Float queryBoost,
-			String boostedName) {
+	public TargetField(String name, String analyzer, Float queryBoost, String boostedName) {
 		this.name = name == null ? null : name.intern();
 		this.analyzer = analyzer == null ? null : analyzer.intern();
 		this.cachedAnalyzer = null;
@@ -67,8 +66,7 @@ public class TargetField implements Comparable<TargetField> {
 	}
 
 	public TargetField(String name, Node node) {
-		this(name, DomUtils.getAttributeText(node, "analyzer"), DomUtils
-				.getAttributeFloat(node, "boost"), null);
+		this(name, DomUtils.getAttributeText(node, "analyzer"), DomUtils.getAttributeFloat(node, "boost"), null);
 	}
 
 	/**
@@ -142,8 +140,7 @@ public class TargetField implements Comparable<TargetField> {
 		this.boostedName = null;
 	}
 
-	final public void setCachedAnalyzer(AnalyzerList analyzerList,
-			LanguageEnum lang) throws SearchLibException {
+	final public void setCachedAnalyzer(AnalyzerList analyzerList, LanguageEnum lang) throws SearchLibException {
 		cachedAnalyzer = null;
 		if (analyzer == null)
 			return;
@@ -155,8 +152,7 @@ public class TargetField implements Comparable<TargetField> {
 		cachedAnalyzer = a.getIndexAnalyzer();
 	}
 
-	public void addFieldValueItems(List<FieldValueItem> fieldValueItems,
-			IndexDocument document) throws IOException {
+	public void addFieldValueItems(List<FieldValueItem> fieldValueItems, IndexDocument document) throws IOException {
 		if (fieldValueItems == null)
 			return;
 		FieldContent fc = document.getFieldContent(getBoostedName());
@@ -169,27 +165,23 @@ public class TargetField implements Comparable<TargetField> {
 		}
 	}
 
-	public void addValue(String value, IndexDocument document)
-			throws IOException {
+	public void addValue(String value, IndexDocument document) throws IOException {
 		if (value == null)
 			return;
 		FieldContent fc = document.getFieldContent(getBoostedName());
 		if (cachedAnalyzer == null)
-			fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
-					null));
+			fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value, null));
 		else
 			cachedAnalyzer.populate(value, fc);
 	}
 
-	public void addValues(List<String> values, IndexDocument document)
-			throws IOException {
+	public void addValues(List<String> values, IndexDocument document) throws IOException {
 		if (values == null)
 			return;
 		FieldContent fc = document.getFieldContent(getBoostedName());
 		if (cachedAnalyzer == null) {
 			for (String value : values)
-				fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
-						null));
+				fc.add(new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value, null));
 		} else {
 			for (String value : values)
 				cachedAnalyzer.populate(value, fc);

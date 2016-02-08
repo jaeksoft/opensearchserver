@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,27 +25,28 @@
 package com.jaeksoft.searchlib.crawler.common.process;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CrawlStatistics {
 
-	private CrawlStatistics parent;
+	private final CrawlStatistics parent;
 	private volatile Date startDate;
 	private volatile long startTime;
 	private volatile float fetchRate;
-	private volatile long fetchedCount;
-	private volatile long fromCacheCount;
-	private volatile long pendingDeleteCount;
-	private volatile long deletedCount;
-	private volatile long parsedCount;
-	private volatile long pendingUpdatedCount;
-	private volatile long updatedCount;
-	private volatile long pendingNewUrlCount;
-	private volatile long newUrlCount;
-	private volatile long ignoredCount;
-	private volatile long urlListSize;
-	private volatile long urlCount;
-	private volatile long hostListSize;
-	private volatile long hostCount;
+	private final AtomicLong fetchedCount = new AtomicLong();
+	private final AtomicLong fromCacheCount = new AtomicLong();
+	private final AtomicLong pendingDeleteCount = new AtomicLong();
+	private final AtomicLong deletedCount = new AtomicLong();
+	private final AtomicLong parsedCount = new AtomicLong();
+	private final AtomicLong pendingUpdatedCount = new AtomicLong();
+	private final AtomicLong updatedCount = new AtomicLong();
+	private final AtomicLong pendingNewUrlCount = new AtomicLong();
+	private final AtomicLong newUrlCount = new AtomicLong();
+	private final AtomicLong ignoredCount = new AtomicLong();
+	private final AtomicLong urlListSize = new AtomicLong();
+	private final AtomicLong urlCount = new AtomicLong();
+	private final AtomicLong hostListSize = new AtomicLong();
+	private final AtomicLong hostCount = new AtomicLong();
 
 	public CrawlStatistics() {
 		this(null);
@@ -56,154 +57,120 @@ public class CrawlStatistics {
 		reset();
 	}
 
-	public void reset() {
-		synchronized (this) {
-			startTime = System.currentTimeMillis();
-			startDate = new Date(startTime);
-			hostListSize = 0;
-			fetchedCount = 0;
-			fromCacheCount = 0;
-			pendingDeleteCount = 0;
-			deletedCount = 0;
-			parsedCount = 0;
-			pendingUpdatedCount = 0;
-			updatedCount = 0;
-			pendingNewUrlCount = 0;
-			newUrlCount = 0;
-			ignoredCount = 0;
-			fetchRate = 0;
-			hostCount = 0;
-			urlListSize = 0;
-			urlCount = 0;
-		}
+	public synchronized void reset() {
+		startTime = System.currentTimeMillis();
+		startDate = new Date(startTime);
+		hostListSize.set(0);
+		fetchedCount.set(0);
+		fromCacheCount.set(0);
+		pendingDeleteCount.set(0);
+		deletedCount.set(0);
+		parsedCount.set(0);
+		pendingUpdatedCount.set(0);
+		updatedCount.set(0);
+		pendingNewUrlCount.set(0);
+		newUrlCount.set(0);
+		ignoredCount.set(0);
+		fetchRate = 0;
+		hostCount.set(0);
+		urlListSize.set(0);
+		urlCount.set(0);
 	}
 
-	public void resetPending() {
-		synchronized (this) {
-			pendingDeleteCount = 0;
-			pendingUpdatedCount = 0;
-			pendingNewUrlCount = 0;
-		}
+	public synchronized void resetPending() {
+		pendingDeleteCount.set(0);
+		pendingUpdatedCount.set(0);
+		pendingNewUrlCount.set(0);
 		if (parent != null)
 			parent.resetPending();
 	}
 
-	public void addDeletedCount(long value) {
-		synchronized (this) {
-			this.deletedCount += value;
-		}
+	public synchronized void addDeletedCount(long value) {
+		this.deletedCount.addAndGet(value);
 		if (parent != null)
 			parent.addDeletedCount(value);
 	}
 
-	public void incPendingUpdateCount() {
-		synchronized (this) {
-			this.pendingUpdatedCount++;
-		}
+	public synchronized void incPendingUpdateCount() {
+		this.pendingUpdatedCount.incrementAndGet();
 		if (parent != null)
 			parent.incPendingUpdateCount();
 	}
 
-	public void incPendingDeleteCount() {
-		synchronized (this) {
-			this.pendingDeleteCount++;
-		}
+	public synchronized void incPendingDeleteCount() {
+		this.pendingDeleteCount.incrementAndGet();
 		if (parent != null)
 			parent.incPendingDeleteCount();
 	}
 
-	public void addPendingNewUrlCount(long value) {
-		synchronized (this) {
-			this.pendingNewUrlCount += value;
-		}
+	public synchronized void addPendingNewUrlCount(long value) {
+		this.pendingNewUrlCount.addAndGet(value);
 		if (parent != null)
 			parent.addPendingNewUrlCount(value);
 	}
 
-	public void addNewUrlCount(long value) {
-		synchronized (this) {
-			this.newUrlCount += value;
-		}
+	public synchronized void addNewUrlCount(long value) {
+		this.newUrlCount.addAndGet(value);
 		if (parent != null)
 			parent.addNewUrlCount(value);
 	}
 
-	public void incFetchedCount() {
-		synchronized (this) {
-			fetchedCount++;
-			fetchRate = (float) fetchedCount
-					/ ((float) (System.currentTimeMillis() - startTime) / 60000);
-		}
+	public synchronized void incFetchedCount() {
+		fetchRate = (float) fetchedCount.incrementAndGet() / ((float) (System.currentTimeMillis() - startTime) / 60000);
 		if (parent != null)
 			parent.incFetchedCount();
 	}
 
-	public void incFromCacheCount() {
-		synchronized (this) {
-			fromCacheCount++;
-		}
+	public synchronized void incFromCacheCount() {
+		fromCacheCount.incrementAndGet();
 		if (parent != null)
 			parent.incFromCacheCount();
 	}
 
-	public void incParsedCount() {
-		synchronized (this) {
-			parsedCount++;
-		}
+	public synchronized void incParsedCount() {
+		parsedCount.incrementAndGet();
 		if (parent != null)
 			parent.incParsedCount();
 	}
 
-	public void addUpdatedCount(long value) {
-		synchronized (this) {
-			this.updatedCount += value;
-		}
+	public synchronized void addUpdatedCount(long value) {
+		this.updatedCount.addAndGet(value);
 		if (parent != null)
 			parent.addUpdatedCount(value);
 	}
 
-	public void addListSize(long value) {
-		synchronized (this) {
-			this.urlListSize += value;
-		}
+	public synchronized void addListSize(long value) {
+		this.urlListSize.addAndGet(value);
 		if (parent != null)
 			parent.addListSize(value);
 	}
 
-	public void incIgnoredCount() {
-		synchronized (this) {
-			ignoredCount++;
-		}
+	public synchronized void incIgnoredCount() {
+		ignoredCount.incrementAndGet();
 		if (parent != null)
 			parent.incIgnoredCount();
 	}
 
-	public void incUrlCount() {
-		synchronized (this) {
-			urlCount++;
-		}
+	public synchronized void incUrlCount() {
+		urlCount.incrementAndGet();
 		if (parent != null)
 			parent.incUrlCount();
 	}
 
-	public void addHostListSize(long value) {
-		synchronized (this) {
-			hostListSize += value;
-		}
+	public synchronized void addHostListSize(long value) {
+		hostListSize.addAndGet(value);
 		if (parent != null)
 			parent.addHostListSize(value);
 	}
 
-	public void incHostCount() {
-		synchronized (this) {
-			hostCount++;
-		}
+	public synchronized void incHostCount() {
+		hostCount.incrementAndGet();
 		if (parent != null)
 			parent.incHostCount();
 	}
 
 	public long getHostListSize() {
-		return hostListSize;
+		return hostListSize.get();
 	}
 
 	public Date getStartDate() {
@@ -211,11 +178,11 @@ public class CrawlStatistics {
 	}
 
 	public long getFetchedCount() {
-		return fetchedCount;
+		return fetchedCount.get();
 	}
 
 	public long getFromCacheCount() {
-		return fromCacheCount;
+		return fromCacheCount.get();
 	}
 
 	public double getFetchRate() {
@@ -223,47 +190,47 @@ public class CrawlStatistics {
 	}
 
 	public long getPendingDeletedCount() {
-		return pendingDeleteCount;
+		return pendingDeleteCount.get();
 	}
 
 	public long getDeletedCount() {
-		return deletedCount;
+		return deletedCount.get();
 	}
 
 	public long getParsedCount() {
-		return parsedCount;
+		return parsedCount.get();
 	}
 
 	public long getPendingUpdatedCount() {
-		return pendingUpdatedCount;
+		return pendingUpdatedCount.get();
 	}
 
 	public long getUpdatedCount() {
-		return updatedCount;
+		return updatedCount.get();
 	}
 
 	public long getPendingNewUrlCount() {
-		return pendingNewUrlCount;
+		return pendingNewUrlCount.get();
 	}
 
 	public long getNewUrlCount() {
-		return newUrlCount;
+		return newUrlCount.get();
 	}
 
 	public long getIgnoredCount() {
-		return ignoredCount;
+		return ignoredCount.get();
 	}
 
 	public long getHostCount() {
-		return hostCount;
+		return hostCount.get();
 	}
 
 	public long getUrlCount() {
-		return urlCount;
+		return urlCount.get();
 	}
 
 	public long getUrlListSize() {
-		return urlListSize;
+		return urlListSize.get();
 	}
 
 }
