@@ -245,7 +245,7 @@ public class Analyzer {
 	 * @param lang
 	 *            the lang to set
 	 */
-	public synchronized void setLang(LanguageEnum lang) {
+	public void setLang(LanguageEnum lang) {
 		rwl.w.lock();
 		try {
 			this.lang = lang;

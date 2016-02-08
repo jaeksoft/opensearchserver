@@ -94,8 +94,7 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		Date dt = getLastModifiedDate();
 		if (dt == null)
 			return null;
-		return DateFormat.getDateTimeInstance(DateFormat.SHORT,
-				DateFormat.MEDIUM).format(dt);
+		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(dt);
 	}
 
 	public File getLastModifiedFile() {
@@ -104,12 +103,16 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return lastModifiedAndSize.getLastModifiedFile();
 	}
 
-	public String getOptimizationStatus() throws IOException,
-			SearchLibException {
+	public String getOptimizationStatus() throws IOException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		return client.getOptimizationStatus();
+	}
+
+	@Override
+	public int hashCode() {
+		return indexName.hashCode();
 	}
 
 	@Override

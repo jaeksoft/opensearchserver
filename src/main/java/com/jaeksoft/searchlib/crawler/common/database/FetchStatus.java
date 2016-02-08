@@ -50,11 +50,9 @@ public enum FetchStatus {
 
 	URL_ERROR(9, "Url error", TargetStatus.TARGET_DELETE),
 
-	NOT_IN_INCLUSION_LIST(10, "Not in inclusion list",
-			TargetStatus.TARGET_DELETE),
+	NOT_IN_INCLUSION_LIST(10, "Not in inclusion list", TargetStatus.TARGET_DELETE),
 
-	BLOCKED_BY_EXCLUSION_LIST(11, "Blocked by exclusion list",
-			TargetStatus.TARGET_DELETE),
+	BLOCKED_BY_EXCLUSION_LIST(11, "Blocked by exclusion list", TargetStatus.TARGET_DELETE),
 
 	ALL(99, "All", null);
 
@@ -95,7 +93,7 @@ public enum FetchStatus {
 
 	private static String[] names = null;
 
-	public final static String[] getNames() {
+	public final static synchronized String[] getNames() {
 		if (names != null)
 			return names;
 		int i = 0;

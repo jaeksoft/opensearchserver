@@ -640,8 +640,10 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			for (String fieldName : fieldNameSet) {
 				List<FieldValueItem> fieldValueItemList = new ArrayList<FieldValueItem>();
 				TermEnum termEnum = indexReader.terms(new Term(fieldName, ""));
+				if (termEnum == null)
+					continue;
 				Term term = termEnum.term();
-				if (termEnum == null || !term.field().equals(fieldName))
+				if (!term.field().equals(fieldName))
 					continue;
 				do {
 					term = termEnum.term();

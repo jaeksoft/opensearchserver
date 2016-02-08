@@ -345,16 +345,18 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 					+ " - " + urlItem.getIndexStatus() : null;
 			if (cr == null)
 				cr = new CommonResult(true, message);
-			cr.addDetail("URL", urlItem.getUrl());
-			cr.addDetail("HttpResponseCode", urlItem.getResponseCode());
-			cr.addDetail("RobotsTxtStatus", urlItem.getRobotsTxtStatus());
-			cr.addDetail("FetchStatus", urlItem.getFetchStatus());
-			cr.addDetail("ParserStatus", urlItem.getParserStatus());
-			cr.addDetail("IndexStatus", urlItem.getIndexStatus());
-			cr.addDetail("RedirectionURL", urlItem.getRedirectionUrl());
-			cr.addDetail("ContentBaseType", urlItem.getContentBaseType());
-			cr.addDetail("ContentTypeCharset", urlItem.getContentTypeCharset());
-			cr.addDetail("ContentLength", urlItem.getContentLength());
+			if (urlItem != null) {
+				cr.addDetail("URL", urlItem.getUrl());
+				cr.addDetail("HttpResponseCode", urlItem.getResponseCode());
+				cr.addDetail("RobotsTxtStatus", urlItem.getRobotsTxtStatus());
+				cr.addDetail("FetchStatus", urlItem.getFetchStatus());
+				cr.addDetail("ParserStatus", urlItem.getParserStatus());
+				cr.addDetail("IndexStatus", urlItem.getIndexStatus());
+				cr.addDetail("RedirectionURL", urlItem.getRedirectionUrl());
+				cr.addDetail("ContentBaseType", urlItem.getContentBaseType());
+				cr.addDetail("ContentTypeCharset", urlItem.getContentTypeCharset());
+				cr.addDetail("ContentLength", urlItem.getContentLength());
+			}
 			return cr;
 		} catch (MalformedURLException e) {
 			throw new CommonServiceException(e);

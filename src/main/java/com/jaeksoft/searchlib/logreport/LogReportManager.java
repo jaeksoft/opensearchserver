@@ -57,8 +57,7 @@ public class LogReportManager {
 		dirLog = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs");
 		if (!dirLog.exists())
 			dirLog.mkdir();
-		logger = new DailyLogger(getLogDirectory(), "report." + indexName,
-				timeStampFormat);
+		logger = new DailyLogger(getLogDirectory(), "report." + indexName, timeStampFormat);
 	}
 
 	public void close() {
@@ -95,8 +94,7 @@ public class LogReportManager {
 			fis.close();
 			fis = null;
 			if (!sourceFile.delete())
-				throw new IOException("Unable to delete original file "
-						+ sourceFile.getAbsolutePath());
+				throw new IOException("Unable to delete original file " + sourceFile.getAbsolutePath());
 		} finally {
 			if (zos != null)
 				zos.closeEntry();
@@ -109,24 +107,21 @@ public class LogReportManager {
 		if (!logFile.exists())
 			return;
 		if (!logFile.delete())
-			throw new IOException("Unable to delete "
-					+ logFile.getAbsolutePath());
+			throw new IOException("Unable to delete " + logFile.getAbsolutePath());
 	}
 
-	final public void log(AbstractRequest request, Timer timer,
-			AbstractResult<?> result) throws SearchLibException {
+	final public void log(AbstractRequest request, Timer timer, AbstractResult<?> result) throws SearchLibException {
 		if (request == null)
 			return;
 		if (!request.isLogReport())
 			return;
 		try {
-			AbstractSearchRequest searchRequest = request instanceof AbstractSearchRequest ? (AbstractSearchRequest) request
-					: null;
+			AbstractSearchRequest searchRequest = request instanceof AbstractSearchRequest
+					? (AbstractSearchRequest) request : null;
 			StringBuilder sb = new StringBuilder();
 			sb.append('\u0009');
 			if (searchRequest != null)
-				sb.append(URLEncoder.encode(searchRequest.getQueryString(),
-						"UTF-8"));
+				sb.append(URLEncoder.encode(searchRequest.getQueryString(), "UTF-8"));
 			sb.append('\u0009');
 			if (timer != null)
 				sb.append(timer.getDuration());
@@ -134,13 +129,14 @@ public class LogReportManager {
 			if (result != null && result instanceof AbstractResultSearch)
 				sb.append(((AbstractResultSearch<?>) result).getNumFound());
 			sb.append('\u0009');
-			if (searchRequest != null)
+			if (searchRequest != null) {
 				sb.append(searchRequest.getStart());
-			List<String> customLogs = searchRequest.getCustomLogs();
-			if (customLogs != null) {
-				for (String customLog : customLogs) {
-					sb.append('\u0009');
-					sb.append(URLEncoder.encode(customLog, "UTF-8"));
+				List<String> customLogs = searchRequest.getCustomLogs();
+				if (customLogs != null) {
+					for (String customLog : customLogs) {
+						sb.append('\u0009');
+						sb.append(URLEncoder.encode(customLog, "UTF-8"));
+					}
 				}
 			}
 			logger.log(sb.toString());
