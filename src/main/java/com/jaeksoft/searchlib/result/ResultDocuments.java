@@ -58,6 +58,7 @@ import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.schema.TermVector;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
@@ -127,13 +128,16 @@ public class ResultDocuments extends AbstractResult<AbstractRequest>
 		for (String uniqueKey : uniqueKeys) {
 			TermDocs termDocs = reader.getTermDocs(new Term(fieldName, uniqueKey));
 			if (termDocs != null) {
-				while (termDocs.next()) {
-					int doc = termDocs.doc();
-					if (!reader.isDeletedNoLock(doc))
-						docIDs[i++] = doc;
+				try {
+					while (termDocs.next()) {
+						int doc = termDocs.doc();
+						if (!reader.isDeletedNoLock(doc))
+							docIDs[i++] = doc;
+					}
+				} finally {
+					IOUtils.close(termDocs);
 				}
 			}
-			termDocs.close();
 		}
 		if (i == docIDs.length)
 			return docIDs;
@@ -147,14 +151,17 @@ public class ResultDocuments extends AbstractResult<AbstractRequest>
 		for (String uniqueKey : uniqueKeys) {
 			TermDocs termDocs = reader.getTermDocs(new Term(fieldName, uniqueKey));
 			if (termDocs != null) {
-				while (termDocs.next()) {
-					int doc = termDocs.doc();
-					if (doc > higher)
-						higher = doc;
-					bitSet.add(doc);
+				try {
+					while (termDocs.next()) {
+						int doc = termDocs.doc();
+						if (doc > higher)
+							higher = doc;
+						bitSet.add(doc);
+					}
+				} finally {
+					IOUtils.close(termDocs);
 				}
 			}
-			termDocs.close();
 		}
 		bitSet.flip(0, higher + 1);
 		IntBufferedArrayInterface intBufferArray = IntBufferedArrayFactory.INSTANCE

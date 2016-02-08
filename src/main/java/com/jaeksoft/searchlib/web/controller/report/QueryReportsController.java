@@ -75,8 +75,8 @@ public class QueryReportsController extends ReportsController {
 		} else if ("topqueriesnoresult".equals(queryType)) {
 			facetReportsList = reports.getSearchReport(topKeywords, beginDate, endDate, false, numberOfQuery);
 		}
-
-		reportList = facetReportsList.getList();
+		if (facetReportsList != null)
+			reportList = facetReportsList.getList();
 		reload();
 	}
 

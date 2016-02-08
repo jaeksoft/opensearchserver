@@ -61,18 +61,12 @@ public class NumberFormatFilter extends FilterFactory {
 	@Override
 	public void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.INPUT_NUMBER_FORMAT,
-				INPUT_DEFAULT_FORMAT, null, 20, 1);
-		addProperty(ClassPropertyEnum.INPUT_DECIMAL_SEPARATOR,
-				DEFAULT_DECIMAL_SEP, null, 20, 1);
-		addProperty(ClassPropertyEnum.INPUT_GROUP_SEPARATOR, DEFAULT_GROUP_SEP,
-				null, 10, 1);
-		addProperty(ClassPropertyEnum.OUTPUT_NUMBER_FORMAT,
-				OUTPUT_DEFAULT_FORMAT, null, 20, 1);
-		addProperty(ClassPropertyEnum.OUTPUT_DECIMAL_SEPARATOR,
-				DEFAULT_DECIMAL_SEP, null, 20, 1);
-		addProperty(ClassPropertyEnum.OUTPUT_GROUP_SEPARATOR,
-				DEFAULT_GROUP_SEP, null, 10, 1);
+		addProperty(ClassPropertyEnum.INPUT_NUMBER_FORMAT, INPUT_DEFAULT_FORMAT, null, 20, 1);
+		addProperty(ClassPropertyEnum.INPUT_DECIMAL_SEPARATOR, DEFAULT_DECIMAL_SEP, null, 20, 1);
+		addProperty(ClassPropertyEnum.INPUT_GROUP_SEPARATOR, DEFAULT_GROUP_SEP, null, 10, 1);
+		addProperty(ClassPropertyEnum.OUTPUT_NUMBER_FORMAT, OUTPUT_DEFAULT_FORMAT, null, 20, 1);
+		addProperty(ClassPropertyEnum.OUTPUT_DECIMAL_SEPARATOR, DEFAULT_DECIMAL_SEP, null, 20, 1);
+		addProperty(ClassPropertyEnum.OUTPUT_GROUP_SEPARATOR, DEFAULT_GROUP_SEP, null, 10, 1);
 		addProperty(ClassPropertyEnum.DEFAULT_VALUE, "", null, 30, 1);
 	}
 
@@ -83,8 +77,7 @@ public class NumberFormatFilter extends FilterFactory {
 	}
 
 	@Override
-	public void checkValue(ClassPropertyEnum prop, String value)
-			throws SearchLibException {
+	public void checkValue(ClassPropertyEnum prop, String value) throws SearchLibException {
 		if (value == null || value.length() == 0)
 			return;
 		if (prop == ClassPropertyEnum.INPUT_NUMBER_FORMAT) {
@@ -103,20 +96,16 @@ public class NumberFormatFilter extends FilterFactory {
 			output_group_sep = getSeparatorChar(value);
 		} else if (prop == ClassPropertyEnum.DEFAULT_VALUE) {
 			defaultValue = value;
-			if (defaultValue != null && defaultValue.length() == 0)
-				defaultValue = null;
 		}
 	}
 
 	@Override
 	public TokenStream create(TokenStream tokenStream) {
-		return new NumberFormatTermFilter(tokenStream, input_format,
-				input_decimal_sep, input_group_sep, output_format,
+		return new NumberFormatTermFilter(tokenStream, input_format, input_decimal_sep, input_group_sep, output_format,
 				output_decimal_sep, output_group_sep);
 	}
 
-	private static DecimalFormat newDecimalFormat(String formatPattern,
-			Character decimalSep, Character groupSel) {
+	private static DecimalFormat newDecimalFormat(String formatPattern, Character decimalSep, Character groupSel) {
 		DecimalFormat format = new DecimalFormat(formatPattern);
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols();
 		if (decimalSep != null)
@@ -136,15 +125,11 @@ public class NumberFormatFilter extends FilterFactory {
 		private final DecimalFormat inputNumberFormat;
 		private final DecimalFormat outputNumberFormat;
 
-		public NumberFormatTermFilter(TokenStream input, String inputFormat,
-				Character inputDecimalSep, Character inputGroupSep,
-				String outputFormat, Character outputDecimalSep,
-				Character outputGroupSep) {
+		public NumberFormatTermFilter(TokenStream input, String inputFormat, Character inputDecimalSep,
+				Character inputGroupSep, String outputFormat, Character outputDecimalSep, Character outputGroupSep) {
 			super(input);
-			inputNumberFormat = newDecimalFormat(inputFormat, inputDecimalSep,
-					inputGroupSep);
-			outputNumberFormat = newDecimalFormat(outputFormat,
-					outputDecimalSep, outputGroupSep);
+			inputNumberFormat = newDecimalFormat(inputFormat, inputDecimalSep, inputGroupSep);
+			outputNumberFormat = newDecimalFormat(outputFormat, outputDecimalSep, outputGroupSep);
 		}
 
 		@Override

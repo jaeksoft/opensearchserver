@@ -43,31 +43,26 @@ import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 public class DocumentsImpl extends CommonQuery implements RestDocuments {
 
 	@Override
-	public QueryTemplateResultList documentsTemplateList(String index,
-			String login, String key) {
-		return super.queryTemplateList(index, login, key,
-				RequestTypeEnum.DocumentsRequest);
+	public QueryTemplateResultList documentsTemplateList(String index, String login, String key) {
+		return super.queryTemplateList(index, login, key, RequestTypeEnum.DocumentsRequest);
 	}
 
 	@Override
-	public DocumentsTemplateResult documentsTemplateGet(String index,
-			String login, String key, String template) {
-		DocumentsRequest request = (DocumentsRequest) super.queryTemplateGet(
-				index, login, key, template, RequestTypeEnum.DocumentsRequest);
+	public DocumentsTemplateResult documentsTemplateGet(String index, String login, String key, String template) {
+		DocumentsRequest request = (DocumentsRequest) super.queryTemplateGet(index, login, key, template,
+				RequestTypeEnum.DocumentsRequest);
 		return new DocumentsTemplateResult(request);
 	}
 
 	@Override
-	public DocumentsResult documentsTemplate(String index, String login,
-			String key, String template, DocumentsQuery query) {
+	public DocumentsResult documentsTemplate(String index, String login, String key, String template,
+			DocumentsQuery query) {
 		try {
-			DocumentsRequest request = (DocumentsRequest) super
-					.queryTemplateGet(index, login, key, template,
-							RequestTypeEnum.DocumentsRequest);
+			DocumentsRequest request = (DocumentsRequest) super.queryTemplateGet(index, login, key, template,
+					RequestTypeEnum.DocumentsRequest);
 			if (query != null)
 				query.apply(request);
-			return new DocumentsResult(
-					(ResultDocuments) client.request(request), false);
+			return new DocumentsResult((ResultDocuments) client.request(request), false);
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -76,30 +71,25 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 	}
 
 	@Override
-	public CommonResult documentsTemplateSet(String index, String login,
-			String key, String template, DocumentsQuery query) {
+	public CommonResult documentsTemplateSet(String index, String login, String key, String template,
+			DocumentsQuery query) {
 		Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
 		DocumentsRequest request = new DocumentsRequest(client);
-		return queryTemplateSet(client, index, login, key, template, query,
-				request);
+		return queryTemplateSet(client, index, login, key, template, query, request);
 	}
 
 	@Override
-	public DocumentsResult documentsSearch(String index, String login,
-			String key, DocumentsQuery query) {
+	public DocumentsResult documentsSearch(String index, String login, String key, DocumentsQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_INDEX);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			DocumentsRequest request = new DocumentsRequest(client);
 			if (query != null)
 				query.apply(request);
-			if (CollectionUtils.isEmpty(query.returnedFields)
-					&& CollectionUtils.isEmpty(query.values))
-				return new DocumentsResult(client.getIndexAbstract()
-						.getDocTerms(client.getSchema().getUniqueField()));
-			return new DocumentsResult(
-					(ResultDocuments) client.request(request),
+			if (query == null
+					|| (CollectionUtils.isEmpty(query.returnedFields) && CollectionUtils.isEmpty(query.values)))
+				return new DocumentsResult(client.getIndexAbstract().getDocTerms(client.getSchema().getUniqueField()));
+			return new DocumentsResult((ResultDocuments) client.request(request),
 					CollectionUtils.isEmpty(query.returnedFields));
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
@@ -111,18 +101,15 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 	}
 
 	@Override
-	public CommonResult documentsDelete(String index, String login, String key,
-			DocumentsQuery query) {
+	public CommonResult documentsDelete(String index, String login, String key, DocumentsQuery query) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.INDEX_UPDATE);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			DocumentsRequest request = new DocumentsRequest(client);
 			if (query != null)
 				query.apply(request);
 			int count = client.deleteDocuments(request);
-			return new CommonResult(true, count + " document(s) deleted")
-					.addDetail(DocumentImpl.DELETED_COUNT, count);
+			return new CommonResult(true, count + " document(s) deleted").addDetail(DocumentImpl.DELETED_COUNT, count);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -133,10 +120,8 @@ public class DocumentsImpl extends CommonQuery implements RestDocuments {
 	}
 
 	@Override
-	public CommonResult documentsTemplateDelete(String index, String login,
-			String key, String template) {
-		return queryTemplateDelete(index, login, key, template,
-				RequestTypeEnum.DocumentsRequest);
+	public CommonResult documentsTemplateDelete(String index, String login, String key, String template) {
+		return queryTemplateDelete(index, login, key, template, RequestTypeEnum.DocumentsRequest);
 	}
 
 }

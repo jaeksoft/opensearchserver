@@ -100,7 +100,7 @@ public class TokenTerm {
 		this.end = offsetAtt != null ? offsetAtt.endOffset() : 0;
 		this.increment = posIncrAtt != null ? posIncrAtt.getPositionIncrement() : 0;
 		this.type = typeAtt != null ? typeAtt.type() : null;
-		this.flags = flagsAtt != null ? flagsAtt.getFlags() : null;
+		this.flags = flagsAtt != null ? flagsAtt.getFlags() : 0;
 	}
 
 	@Override

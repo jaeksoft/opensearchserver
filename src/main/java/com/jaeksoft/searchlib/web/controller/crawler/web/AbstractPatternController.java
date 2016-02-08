@@ -89,8 +89,6 @@ public abstract class AbstractPatternController extends CrawlerController {
 	}
 
 	public void setLike(String v) {
-		if (v == like)
-			return;
 		like = v;
 	}
 

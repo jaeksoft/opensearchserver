@@ -81,7 +81,7 @@ public enum ParserStatus {
 
 	private static String[] names = null;
 
-	public final static String[] getNames() {
+	public final static synchronized String[] getNames() {
 		if (names != null)
 			return names;
 		int i = 0;

@@ -24,12 +24,12 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import it.unimi.dsi.fastutil.Swapper;
-
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.roaringbitmap.RoaringBitmap;
+
+import it.unimi.dsi.fastutil.Swapper;
 
 public class DocIdCollector implements DocIdInterface, Swapper {
 
@@ -85,7 +85,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 
 	@Override
 	final public void doSwap(final int a, final int b) {
-		doSwap(a, b);
+		swap(a, b);
 	}
 
 	@Override
@@ -109,8 +109,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	@Override
-	public <T extends CollectorInterface> T getCollector(
-			final Class<T> collectorType) {
+	public <T extends CollectorInterface> T getCollector(final Class<T> collectorType) {
 		return null;
 	}
 

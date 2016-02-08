@@ -79,8 +79,8 @@ public class SearchField implements Cloneable {
 		this.booleanGroup = searchField.booleanGroup;
 	}
 
-	public SearchField(String field, Mode mode, Double termBoost,
-			Double phraseBoost, Integer phraseSlop, Integer booleanGroup) {
+	public SearchField(String field, Mode mode, Double termBoost, Double phraseBoost, Integer phraseSlop,
+			Integer booleanGroup) {
 		this.field = field;
 		this.mode = mode == null ? Mode.TERM : mode;
 		this.termBoost = termBoost == null ? 1.0F : termBoost;
@@ -90,24 +90,17 @@ public class SearchField implements Cloneable {
 	}
 
 	public SearchField(Node fieldNode) {
-		this.field = DomUtils.getAttributeText(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_FIELD_NAME);
-		String modeAttr = DomUtils.getAttributeText(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_MODE);
+		this.field = DomUtils.getAttributeText(fieldNode, SEARCHFIELD_ATTRIBUTE_FIELD_NAME);
+		String modeAttr = DomUtils.getAttributeText(fieldNode, SEARCHFIELD_ATTRIBUTE_MODE);
 		if (modeAttr == null) {
-			boolean phrase = Boolean.parseBoolean(DomUtils.getAttributeText(
-					fieldNode, SEARCHFIELD_ATTRIBUTE_PHRASE));
+			boolean phrase = Boolean.parseBoolean(DomUtils.getAttributeText(fieldNode, SEARCHFIELD_ATTRIBUTE_PHRASE));
 			mode = phrase ? Mode.TERM_AND_PHRASE : Mode.TERM;
 		} else
 			mode = Mode.find(modeAttr);
-		this.termBoost = DomUtils.getAttributeDouble(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_TERM_BOOST, 1.0);
-		this.phraseBoost = DomUtils.getAttributeDouble(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, this.termBoost);
-		this.phraseSlop = DomUtils.getAttributeInteger(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, this.phraseSlop);
-		this.booleanGroup = DomUtils.getAttributeInteger(fieldNode,
-				SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP, this.booleanGroup);
+		this.termBoost = DomUtils.getAttributeDouble(fieldNode, SEARCHFIELD_ATTRIBUTE_TERM_BOOST, 1.0);
+		this.phraseBoost = DomUtils.getAttributeDouble(fieldNode, SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, this.termBoost);
+		this.phraseSlop = DomUtils.getAttributeInteger(fieldNode, SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, null);
+		this.booleanGroup = DomUtils.getAttributeInteger(fieldNode, SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP, null);
 	}
 
 	@Override
@@ -206,16 +199,11 @@ public class SearchField implements Cloneable {
 	}
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement(SEARCHFIELD_NODE_NAME,
-				SEARCHFIELD_ATTRIBUTE_FIELD_NAME, field,
-				SEARCHFIELD_ATTRIBUTE_MODE, mode == null ? null : mode.name(),
-				SEARCHFIELD_ATTRIBUTE_TERM_BOOST, Double.toString(termBoost),
-				SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, Double
-						.toString(phraseBoost),
-				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, phraseSlop == null ? null
-						: Integer.toString(phraseSlop),
-				SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP,
-				booleanGroup == null ? null : Integer.toString(booleanGroup));
+		xmlWriter.startElement(SEARCHFIELD_NODE_NAME, SEARCHFIELD_ATTRIBUTE_FIELD_NAME, field,
+				SEARCHFIELD_ATTRIBUTE_MODE, mode == null ? null : mode.name(), SEARCHFIELD_ATTRIBUTE_TERM_BOOST,
+				Double.toString(termBoost), SEARCHFIELD_ATTRIBUTE_PHRASE_BOOST, Double.toString(phraseBoost),
+				SEARCHFIELD_ATTRIBUTE_PHRASE_SLOP, phraseSlop == null ? null : Integer.toString(phraseSlop),
+				SEARCHFIELD_ATTRIBUTE_BOOLEAN_GROUP, booleanGroup == null ? null : Integer.toString(booleanGroup));
 		xmlWriter.endElement();
 	}
 
@@ -239,27 +227,21 @@ public class SearchField implements Cloneable {
 		return sb.toString();
 	}
 
-	final private Query getPatternQuery(final Set<String> fields,
-			final CompiledAnalyzer analyzer, final Occur occur,
+	final private Query getPatternQuery(final Set<String> fields, final CompiledAnalyzer analyzer, final Occur occur,
 			final int phraseSlop, final String queryString) throws IOException {
-		QueryParser queryParser = new QueryParser(field, fields, occur,
-				analyzer, this.phraseSlop != null ? this.phraseSlop
-						: phraseSlop, termBoost, phraseBoost);
+		QueryParser queryParser = new QueryParser(field, fields, occur, analyzer,
+				this.phraseSlop != null ? this.phraseSlop : phraseSlop, termBoost, phraseBoost);
 		return queryParser.parse(queryString);
 	}
 
-	final private List<TermQueryItem> getTermQueryFilter(
-			final PerFieldAnalyzer perFieldAnalyzer,
-			CompiledAnalyzer compiledAnalyzer, final String queryString)
-			throws IOException {
+	final private List<TermQueryItem> getTermQueryFilter(final PerFieldAnalyzer perFieldAnalyzer,
+			CompiledAnalyzer compiledAnalyzer, final String queryString) throws IOException {
 		TokenStream ts = null;
 		TokenQueryFilter.TermQueryFilter tqf = null;
-		Analyzer analyzer = compiledAnalyzer != null ? compiledAnalyzer
-				: perFieldAnalyzer.getKeywordAnalyzer();
+		Analyzer analyzer = compiledAnalyzer != null ? compiledAnalyzer : perFieldAnalyzer.getKeywordAnalyzer();
 		try {
 			ts = analyzer.tokenStream(field, new StringReader(queryString));
-			tqf = new TermQueryFilter(compiledAnalyzer, field,
-					(float) termBoost, ts);
+			tqf = new TermQueryFilter(compiledAnalyzer, field, (float) termBoost, ts);
 			while (tqf.incrementToken())
 				;
 			ts.end();
@@ -276,8 +258,7 @@ public class SearchField implements Cloneable {
 		}
 	}
 
-	final private Query getTermQuery(final List<TermQueryItem> termQueryItems,
-			final Occur occur) throws IOException {
+	final private Query getTermQuery(final List<TermQueryItem> termQueryItems, final Occur occur) throws IOException {
 		BooleanQuery booleanQuery = new BooleanQuery();
 		for (TermQueryItem termQueryItem : termQueryItems)
 			if (termQueryItem.parent == null)
@@ -285,8 +266,7 @@ public class SearchField implements Cloneable {
 		return booleanQuery;
 	}
 
-	final private void phraseAddLeaf(TermQueryItem termQueryItem,
-			PhraseQuery phraseQuery) {
+	final private void phraseAddLeaf(TermQueryItem termQueryItem, PhraseQuery phraseQuery) {
 		if (termQueryItem.children != null) {
 			for (TermQueryItem child : termQueryItem.children)
 				phraseAddLeaf(child, phraseQuery);
@@ -294,22 +274,18 @@ public class SearchField implements Cloneable {
 			phraseQuery.add(new Term(field, termQueryItem.term));
 	}
 
-	final private Query getPhraseQuery(
-			final List<TermQueryItem> termQueryItems, final int phraseSlop,
+	final private Query getPhraseQuery(final List<TermQueryItem> termQueryItems, final int phraseSlop,
 			final Occur occur) throws IOException {
 		PhraseQuery phraseQuery = new PhraseQuery();
 		for (TermQueryItem termQueryItem : termQueryItems)
 			phraseAddLeaf(termQueryItem, phraseQuery);
 		phraseQuery.setBoost((float) phraseBoost);
-		phraseQuery.setSlop(this.phraseSlop != null ? this.phraseSlop
-				: phraseSlop);
+		phraseQuery.setSlop(this.phraseSlop != null ? this.phraseSlop : phraseSlop);
 		return phraseQuery;
 	}
 
-	final public void addQuery(Set<String> fields,
-			PerFieldAnalyzer perFieldAnalyzer, String queryString,
-			Collection<Query> queries, int phraseSlop, Occur occur)
-			throws IOException {
+	final public void addQuery(Set<String> fields, PerFieldAnalyzer perFieldAnalyzer, String queryString,
+			Collection<Query> queries, int phraseSlop, Occur occur) throws IOException {
 		CompiledAnalyzer compiledAnalyzer = null;
 		try {
 			if (StringUtils.isEmpty(queryString))
@@ -317,12 +293,10 @@ public class SearchField implements Cloneable {
 			compiledAnalyzer = perFieldAnalyzer.getCompiledAnalyzer(field);
 
 			if (mode == Mode.PATTERN) {
-				queries.add(getPatternQuery(fields, compiledAnalyzer, occur,
-						phraseSlop, queryString));
+				queries.add(getPatternQuery(fields, compiledAnalyzer, occur, phraseSlop, queryString));
 				return;
 			}
-			List<TermQueryItem> termQueryItems = getTermQueryFilter(
-					perFieldAnalyzer, compiledAnalyzer, queryString);
+			List<TermQueryItem> termQueryItems = getTermQueryFilter(perFieldAnalyzer, compiledAnalyzer, queryString);
 			switch (mode) {
 			case TERM:
 				queries.add(getTermQuery(termQueryItems, occur));

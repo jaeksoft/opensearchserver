@@ -75,8 +75,8 @@ public class WriterLocal extends WriterAbstract {
 
 	private IndexSingle indexSingle;
 
-	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle,
-			IndexDirectory indexDirectory) throws IOException {
+	protected WriterLocal(IndexConfig indexConfig, IndexSingle indexSingle, IndexDirectory indexDirectory)
+			throws IOException {
 		super(indexConfig);
 		this.indexSingle = indexSingle;
 		this.indexDirectory = indexDirectory;
@@ -94,8 +94,8 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	public final void create() throws CorruptIndexException,
-			LockObtainFailedException, IOException, SearchLibException {
+	public final void create()
+			throws CorruptIndexException, LockObtainFailedException, IOException, SearchLibException {
 		IndexWriter indexWriter = null;
 		lock.rl.lock();
 		try {
@@ -109,10 +109,8 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private final IndexWriter open(boolean create)
-			throws CorruptIndexException, LockObtainFailedException,
-			IOException, SearchLibException {
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36,
-				null);
+			throws CorruptIndexException, LockObtainFailedException, IOException, SearchLibException {
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36, null);
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
 		config.setWriteLockTimeout(indexConfig.getWriteLockTimeout());
@@ -129,8 +127,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Deprecated
-	public void addDocument(Document document) throws IOException,
-			SearchLibException {
+	public void addDocument(Document document) throws IOException, SearchLibException {
 		IndexWriter indexWriter = null;
 		lock.rl.lock();
 		try {
@@ -144,9 +141,8 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	final private boolean updateDocNoLock(SchemaField uniqueField,
-			IndexWriter indexWriter, Schema schema, IndexDocument document)
-			throws IOException, NoSuchAlgorithmException, SearchLibException {
+	final private boolean updateDocNoLock(SchemaField uniqueField, IndexWriter indexWriter, Schema schema,
+			IndexDocument document) throws IOException, NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
 
@@ -155,35 +151,30 @@ public class WriterLocal extends WriterAbstract {
 				beforeUpdate.update(schema, document);
 
 		Document doc = getLuceneDocument(schema, document);
-		PerFieldAnalyzer pfa = schema.getIndexPerFieldAnalyzer(document
-				.getLang());
+		PerFieldAnalyzer pfa = schema.getIndexPerFieldAnalyzer(document.getLang());
 
 		updateDocNoLock(uniqueField, indexWriter, pfa, doc);
 		return true;
 	}
 
-	final private void updateDocNoLock(SchemaField uniqueField,
-			IndexWriter indexWriter, AbstractAnalyzer analyzer, Document doc)
-			throws UniqueKeyMissing, CorruptIndexException, IOException {
+	final private void updateDocNoLock(SchemaField uniqueField, IndexWriter indexWriter, AbstractAnalyzer analyzer,
+			Document doc) throws UniqueKeyMissing, CorruptIndexException, IOException {
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
 			String uniqueFieldValue = doc.get(uniqueFieldName);
 			if (uniqueFieldValue == null)
 				throw new UniqueKeyMissing(uniqueFieldName);
-			indexWriter.updateDocument(new Term(uniqueFieldName,
-					uniqueFieldValue), doc, analyzer);
+			indexWriter.updateDocument(new Term(uniqueFieldName, uniqueFieldValue), doc, analyzer);
 		} else
 			indexWriter.addDocument(doc, analyzer);
 	}
 
-	private boolean updateDocumentNoLock(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	private boolean updateDocumentNoLock(Schema schema, IndexDocument document) throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = open();
 			SchemaField uniqueField = schema.getFieldList().getUniqueField();
-			boolean updated = updateDocNoLock(uniqueField, indexWriter, schema,
-					document);
+			boolean updated = updateDocNoLock(uniqueField, indexWriter, schema, document);
 			close(indexWriter);
 			indexWriter = null;
 			if (updated) {
@@ -203,8 +194,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	public boolean updateDocument(Schema schema, IndexDocument document) throws SearchLibException {
 		lock.rl.lock();
 		try {
 			return updateDocumentNoLock(schema, document);
@@ -213,8 +203,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private int updateDocumentsNoLock(Schema schema,
-			Collection<IndexDocument> documents) throws SearchLibException {
+	private int updateDocumentsNoLock(Schema schema, Collection<IndexDocument> documents) throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
 			int count = 0;
@@ -242,8 +231,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents) throws SearchLibException {
+	public int updateDocuments(Schema schema, Collection<IndexDocument> documents) throws SearchLibException {
 		lock.rl.lock();
 		try {
 			return updateDocumentsNoLock(schema, documents);
@@ -252,8 +240,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private int updateIndexDocumentsNoLock(Schema schema,
-			Collection<IndexDocumentResult> documents)
+	private int updateIndexDocumentsNoLock(Schema schema, Collection<IndexDocumentResult> documents)
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
@@ -262,8 +249,7 @@ public class WriterLocal extends WriterAbstract {
 			SchemaField uniqueField = schema.getFieldList().getUniqueField();
 			for (IndexDocumentResult document : documents) {
 				Document doc = getLuceneDocument(schema, document);
-				IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(
-						document);
+				IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(document);
 				updateDocNoLock(uniqueField, indexWriter, analyzer, doc);
 				count++;
 			}
@@ -280,8 +266,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public int updateIndexDocuments(Schema schema,
-			Collection<IndexDocumentResult> documents)
+	public int updateIndexDocuments(Schema schema, Collection<IndexDocumentResult> documents)
 			throws SearchLibException {
 		lock.rl.lock();
 		try {
@@ -291,45 +276,41 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	final private static Document getLuceneDocument(Schema schema,
-			IndexDocument document) throws IOException, SearchLibException {
+	final private static Document getLuceneDocument(Schema schema, IndexDocument document)
+			throws IOException, SearchLibException {
 		schema.getIndexPerFieldAnalyzer(document.getLang());
 		Document doc = new Document();
 		LanguageEnum lang = document.getLang();
 		SchemaFieldList schemaFieldList = schema.getFieldList();
 		for (FieldContent fieldContent : document) {
+			if (fieldContent == null)
+				continue;
 			String fieldName = fieldContent.getField();
 			SchemaField field = schemaFieldList.get(fieldName);
-			if (field != null) {
-				Analyzer analyzer = schema.getAnalyzer(field, lang);
-				@SuppressWarnings("resource")
-				CompiledAnalyzer compiledAnalyzer = (analyzer == null) ? null
-						: analyzer.getIndexAnalyzer();
-				if (fieldContent != null) {
-					List<FieldValueItem> valueItems = fieldContent.getValues();
-					if (valueItems != null) {
-						for (FieldValueItem valueItem : valueItems) {
-							if (valueItem == null)
-								continue;
-							String value = valueItem.getValue();
-							if (value == null)
-								continue;
-							if (compiledAnalyzer != null)
-								if (!compiledAnalyzer.isAnyToken(fieldName,
-										value))
-									continue;
-							doc.add(field.getLuceneField(value,
-									valueItem.getBoost()));
-						}
-					}
-				}
+			if (field == null)
+				continue;
+			Analyzer analyzer = schema.getAnalyzer(field, lang);
+			@SuppressWarnings("resource")
+			CompiledAnalyzer compiledAnalyzer = (analyzer == null) ? null : analyzer.getIndexAnalyzer();
+			List<FieldValueItem> valueItems = fieldContent.getValues();
+			if (valueItems == null)
+				continue;
+			for (FieldValueItem valueItem : valueItems) {
+				if (valueItem == null)
+					continue;
+				String value = valueItem.getValue();
+				if (value == null)
+					continue;
+				if (compiledAnalyzer != null)
+					if (!compiledAnalyzer.isAnyToken(fieldName, value))
+						continue;
+				doc.add(field.getLuceneField(value, valueItem.getBoost()));
 			}
 		}
 		return doc;
 	}
 
-	final private static Document getLuceneDocument(Schema schema,
-			IndexDocumentResult document) {
+	final private static Document getLuceneDocument(Schema schema, IndexDocumentResult document) {
 		if (CollectionUtils.isEmpty(document.fields))
 			return null;
 		SchemaFieldList schemaFieldList = schema.getFieldList();
@@ -350,6 +331,7 @@ public class WriterLocal extends WriterAbstract {
 		return doc;
 	}
 
+	@Deprecated
 	private void optimizeNoLock() throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
@@ -369,23 +351,24 @@ public class WriterLocal extends WriterAbstract {
 		lock.rl.lock();
 		try {
 			setOptimizing(true);
-			optimizeNoLock();
+			try {
+				optimizeNoLock();
+			} finally {
+				setOptimizing(false);
+			}
 		} finally {
-			setOptimizing(false);
 			lock.rl.unlock();
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	private int deleteDocumentsNoLock(int[] ids) throws IOException,
-			SearchLibException {
+	private int deleteDocumentsNoLock(int[] ids) throws IOException, SearchLibException {
 		if (ids == null || ids.length == 0)
 			return 0;
 		IndexReader indexReader = null;
 		try {
 			int l = indexSingle.getStatistics().getNumDocs();
-			indexReader = IndexReader
-					.open(indexDirectory.getDirectory(), false);
+			indexReader = IndexReader.open(indexDirectory.getDirectory(), false);
 			for (int id : ids)
 				if (!indexReader.isDeleted(id))
 					indexReader.deleteDocument(id);
@@ -399,18 +382,15 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private int deleteDocumentsNoLock(AbstractRequest request)
-			throws SearchLibException {
+	private int deleteDocumentsNoLock(AbstractRequest request) throws SearchLibException {
 		try {
 			int[] ids = null;
 			if (request instanceof AbstractLocalSearchRequest) {
-				DocSetHits dsh = indexSingle.searchDocSet(
-						(AbstractLocalSearchRequest) request, null);
+				DocSetHits dsh = indexSingle.searchDocSet((AbstractLocalSearchRequest) request, null);
 				if (dsh != null)
 					ids = dsh.getIds();
 			} else if (request instanceof DocumentsRequest) {
-				ResultDocuments result = (ResultDocuments) indexSingle
-						.request(request);
+				ResultDocuments result = (ResultDocuments) indexSingle.request(request);
 				if (result != null)
 					ids = result.getDocIdArray();
 			}
@@ -425,8 +405,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	@Override
-	public int deleteDocuments(AbstractRequest request)
-			throws SearchLibException {
+	public int deleteDocuments(AbstractRequest request) throws SearchLibException {
 		lock.rl.lock();
 		try {
 			return deleteDocumentsNoLock(request);
@@ -464,8 +443,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private void mergeNoLock(IndexDirectory directory)
-			throws SearchLibException {
+	private void mergeNoLock(IndexDirectory directory) throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = open();
@@ -489,18 +467,21 @@ public class WriterLocal extends WriterAbstract {
 		sourceWriter = (WriterLocal) source;
 		lock.rl.lock();
 		try {
-			sourceWriter.lock.rl.lock();
-			sourceWriter.setMergingSource(true);
-			setMergingTarget(true);
 			try {
-				mergeNoLock(sourceWriter.indexDirectory);
+				sourceWriter.lock.rl.lock();
+				try {
+					sourceWriter.setMergingSource(true);
+					setMergingTarget(true);
+					mergeNoLock(sourceWriter.indexDirectory);
+				} finally {
+					sourceWriter.lock.rl.unlock();
+				}
 			} finally {
-				sourceWriter.lock.rl.unlock();
+				if (sourceWriter != null)
+					sourceWriter.setMergingSource(false);
+				setMergingTarget(false);
 			}
 		} finally {
-			if (sourceWriter != null)
-				sourceWriter.setMergingSource(false);
-			setMergingTarget(false);
 			lock.rl.unlock();
 		}
 	}
