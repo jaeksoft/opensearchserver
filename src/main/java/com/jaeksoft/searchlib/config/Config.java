@@ -231,24 +231,21 @@ public abstract class Config implements ThreadFactory {
 
 	private boolean isClosed = false;
 
-	protected Config(File indexDirectory, String configXmlResourceName,
-			boolean createIndexIfNotExists, boolean disableCrawler)
-			throws SearchLibException {
+	protected Config(File indexDirectory, String configXmlResourceName, boolean createIndexIfNotExists,
+			boolean disableCrawler) throws SearchLibException {
 
 		try {
 			indexDir = indexDirectory;
 			if (!indexDir.exists())
-				throw new SearchLibException("Index \"" + indexDir.getName()
-						+ "\" not found. The index directory does not exist");
-			if (!indexDir.isDirectory())
 				throw new SearchLibException(
-						"Indx not found. The index path is not a directory.");
+						"Index \"" + indexDir.getName() + "\" not found. The index directory does not exist");
+			if (!indexDir.isDirectory())
+				throw new SearchLibException("Indx not found. The index path is not a directory.");
 
 			File configFile = new File(indexDirectory, "config.xml");
 
 			if (configXmlResourceName != null) {
-				InputStream is = getClass().getResourceAsStream(
-						configXmlResourceName);
+				InputStream is = Config.class.getResourceAsStream(configXmlResourceName);
 				try {
 					FileUtils.copyInputStreamToFile(is, configFile);
 				} finally {
@@ -259,13 +256,11 @@ public abstract class Config implements ThreadFactory {
 			xppConfig = new XPathParser(configFile);
 
 			index = newIndex(indexDir, xppConfig, createIndexIfNotExists);
-			schema = Schema.fromXmlConfig(this,
-					xppConfig.getNode("/configuration/schema"), xppConfig);
+			schema = Schema.fromXmlConfig(this, xppConfig.getNode("/configuration/schema"), xppConfig);
 
 			configFiles = new ConfigFiles();
 
-			urlManagerClass = xppConfig.getAttributeString(
-					"/configuration/urlManager", "class");
+			urlManagerClass = xppConfig.getAttributeString("/configuration/urlManager", "class");
 			if (urlManagerClass == null)
 				urlManagerClass = "UrlManager";
 
@@ -304,13 +299,11 @@ public abstract class Config implements ThreadFactory {
 		return indexDir;
 	}
 
-	private void saveConfigWithoutLock() throws IOException,
-			TransformerConfigurationException, SAXException,
+	private void saveConfigWithoutLock() throws IOException, TransformerConfigurationException, SAXException,
 			SearchLibException, XPathExpressionException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "config.xml");
 		try {
-			XmlWriter xmlWriter = new XmlWriter(
-					cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 			xmlWriter.startElement("configuration");
 			getIndexAbstract().writeXmlConfig(xmlWriter);
 			getSchema().writeXmlConfig(xmlWriter);
@@ -339,8 +332,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			parsersLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getParserSelector().writeXmlConfig(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -369,8 +361,7 @@ public abstract class Config implements ThreadFactory {
 			JobList jobList = getJobList();
 			jobsLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				jobList.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -392,8 +383,8 @@ public abstract class Config implements ThreadFactory {
 
 	private final ReadWriteLock replicationsLock = new ReadWriteLock();
 
-	public void saveReplicationList() throws IOException,
-			TransformerConfigurationException, SAXException, SearchLibException {
+	public void saveReplicationList()
+			throws IOException, TransformerConfigurationException, SAXException, SearchLibException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "replication.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
@@ -468,16 +459,14 @@ public abstract class Config implements ThreadFactory {
 		PushEvent.eventSchemaChange.publish((Client) this);
 	}
 
-	private IndexAbstract newIndex(File indexDir, XPathParser xpp,
-			boolean createIndexIfNotExists) throws XPathExpressionException,
-			IOException, URISyntaxException, SearchLibException, JSONException {
+	private IndexAbstract newIndex(File indexDir, XPathParser xpp, boolean createIndexIfNotExists)
+			throws XPathExpressionException, IOException, URISyntaxException, SearchLibException, JSONException {
 		NodeList nodeList = xpp.getNodeList("/configuration/indices/index");
 		switch (nodeList.getLength()) {
 		default:
 			return null;
 		case 1:
-			return new IndexConfig(nodeList.item(0)).getNewIndex(indexDir,
-					createIndexIfNotExists);
+			return new IndexConfig(nodeList.item(0)).getNewIndex(indexDir, createIndexIfNotExists);
 		}
 	}
 
@@ -501,8 +490,7 @@ public abstract class Config implements ThreadFactory {
 			if (threadPool != null)
 				return threadPool;
 			if (threadGroup == null)
-				threadGroup = new ThreadGroup(ClientCatalog.getThreadGroup(),
-						getIndexName());
+				threadGroup = new ThreadGroup(ClientCatalog.getThreadGroup(), getIndexName());
 			threadPool = Executors.newCachedThreadPool(this);
 			return threadPool;
 		} finally {
@@ -544,8 +532,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (classifierManager != null)
 				return classifierManager;
-			classifierManager = new ClassifierManager((Client) this,
-					getClassifierDirectory());
+			classifierManager = new ClassifierManager((Client) this, getClassifierDirectory());
 			return classifierManager;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -564,8 +551,7 @@ public abstract class Config implements ThreadFactory {
 
 	private final ReadWriteLock crawlCacheLock = new ReadWriteLock();
 
-	public final CrawlCacheManager getCrawlCacheManager()
-			throws SearchLibException {
+	public final CrawlCacheManager getCrawlCacheManager() throws SearchLibException {
 		crawlCacheLock.r.lock();
 		try {
 			if (crawlCacheManager != null)
@@ -613,8 +599,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (learnerManager != null)
 				return learnerManager;
-			learnerManager = new LearnerManager((Client) this,
-					getLearnerDirectory());
+			learnerManager = new LearnerManager((Client) this, getLearnerDirectory());
 			return learnerManager;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -684,8 +669,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveClassifier(Classifier classifier)
-			throws SearchLibException, UnsupportedEncodingException {
+	public void saveClassifier(Classifier classifier) throws SearchLibException, UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
@@ -693,8 +677,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			classifiersLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				classifier.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -714,8 +697,7 @@ public abstract class Config implements ThreadFactory {
 
 	}
 
-	public void deleteClassifier(Classifier classifier)
-			throws SearchLibException, IOException {
+	public void deleteClassifier(Classifier classifier) throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
 				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
@@ -733,8 +715,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void saveLearner(Learner learner) throws SearchLibException,
-			UnsupportedEncodingException {
+	public void saveLearner(Learner learner) throws SearchLibException, UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
@@ -742,8 +723,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			learnersLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				learner.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -763,8 +743,7 @@ public abstract class Config implements ThreadFactory {
 
 	}
 
-	public void deleteLearner(Learner learner) throws SearchLibException,
-			IOException {
+	public void deleteLearner(Learner learner) throws SearchLibException, IOException {
 		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
 				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
@@ -796,8 +775,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (databaseCrawlList != null)
 				return databaseCrawlList;
-			databaseCrawlList = DatabaseCrawlList.fromXml(
-					getDatabaseCrawlMaster(), getDatabasePropertyManager(),
+			databaseCrawlList = DatabaseCrawlList.fromXml(getDatabaseCrawlMaster(), getDatabasePropertyManager(),
 					new File(indexDir, "databaseCrawlList.xml"));
 			return databaseCrawlList;
 		} catch (ParserConfigurationException e) {
@@ -814,15 +792,13 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveDatabaseCrawlList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
-				"databaseCrawlList.xml");
+		ConfigFileRotation cfr = configFiles.get(indexDir, "databaseCrawlList.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			databaseLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getDatabaseCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -855,8 +831,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (restCrawlList != null)
 				return restCrawlList;
-			restCrawlList = RestCrawlList.fromXml(getRestCrawlMaster(),
-					new File(indexDir, "restCrawlList.xml"));
+			restCrawlList = RestCrawlList.fromXml(getRestCrawlMaster(), new File(indexDir, "restCrawlList.xml"));
 			return restCrawlList;
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
@@ -878,8 +853,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			restCrawlLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getRestCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -912,9 +886,8 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (mailboxCrawlList != null)
 				return mailboxCrawlList;
-			mailboxCrawlList = MailboxCrawlList.fromXml(
-					getMailboxCrawlMaster(), new File(indexDir,
-							"mailboxCrawlList.xml"));
+			mailboxCrawlList = MailboxCrawlList.fromXml(getMailboxCrawlMaster(),
+					new File(indexDir, "mailboxCrawlList.xml"));
 			return mailboxCrawlList;
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
@@ -930,15 +903,13 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveMailboxCrawlList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
-				"mailboxCrawlList.xml");
+		ConfigFileRotation cfr = configFiles.get(indexDir, "mailboxCrawlList.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			mailboxCrawlLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getMailboxCrawlList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -1002,8 +973,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public DatabaseCrawlMaster getDatabaseCrawlMaster()
-			throws SearchLibException {
+	public DatabaseCrawlMaster getDatabaseCrawlMaster() throws SearchLibException {
 		databaseLock.r.lock();
 		try {
 			if (databaseCrawlMaster != null)
@@ -1076,8 +1046,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	protected ParserSelector getNewParserSelector(XPathParser xpp, Node node)
-			throws XPathExpressionException, DOMException, IOException,
-			SearchLibException {
+			throws XPathExpressionException, DOMException, IOException, SearchLibException {
 		return new ParserSelector(this, xpp, node);
 	}
 
@@ -1096,8 +1065,7 @@ public abstract class Config implements ThreadFactory {
 			File parserFile = new File(indexDir, "parsers.xml");
 			if (parserFile.exists()) {
 				XPathParser xpp = new XPathParser(parserFile);
-				parserSelector = getNewParserSelector(xpp,
-						xpp.getNode("/parsers"));
+				parserSelector = getNewParserSelector(xpp, xpp.getNode("/parsers"));
 			} else {
 				Node node = xppConfig.getNode("/configuration/parsers");
 				if (node != null)
@@ -1177,9 +1145,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (replicationList != null)
 				return replicationList;
-			return replicationList = new ReplicationList(
-					getReplicationMaster(), new File(indexDir,
-							"replication.xml"));
+			return replicationList = new ReplicationList(getReplicationMaster(), new File(indexDir, "replication.xml"));
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -1224,8 +1190,7 @@ public abstract class Config implements ThreadFactory {
 
 	private final ReadWriteLock apiLock = new ReadWriteLock();
 
-	public ApiManager getApiManager() throws SearchLibException,
-			TransformerConfigurationException {
+	public ApiManager getApiManager() throws SearchLibException, TransformerConfigurationException {
 		apiLock.r.lock();
 		try {
 			if (apiManager != null)
@@ -1265,8 +1230,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (rendererManager != null)
 				return rendererManager;
-			return rendererManager = new RendererManager(this,
-					getRendererDirectory());
+			return rendererManager = new RendererManager(this, getRendererDirectory());
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -1280,8 +1244,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void save(Renderer renderer) throws SearchLibException,
-			UnsupportedEncodingException {
+	public void save(Renderer renderer) throws SearchLibException, UnsupportedEncodingException {
 		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
 				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
@@ -1289,8 +1252,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			rendererLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				renderer.writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -1317,10 +1279,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			rendererLock.w.lock();
 			try {
-				cfr = configFiles
-						.get(getRendererDirectory(),
-								URLEncoder.encode(renderer.getName(), "UTF-8")
-										+ ".xml");
+				cfr = configFiles.get(getRendererDirectory(), URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
 				cfr.delete();
 			} catch (IOException e) {
 				throw new SearchLibException(e);
@@ -1348,8 +1307,7 @@ public abstract class Config implements ThreadFactory {
 
 	private final ReadWriteLock pluginLock = new ReadWriteLock();
 
-	public IndexPluginTemplateList getIndexPluginTemplateList()
-			throws SearchLibException {
+	public IndexPluginTemplateList getIndexPluginTemplateList() throws SearchLibException {
 		pluginLock.r.lock();
 		try {
 			if (indexPluginTemplateList != null)
@@ -1364,8 +1322,7 @@ public abstract class Config implements ThreadFactory {
 			Node node = xppConfig.getNode("/configuration/indexPlugins");
 			if (node == null)
 				return null;
-			return indexPluginTemplateList = IndexPluginTemplateList
-					.fromXmlConfig(xppConfig, node);
+			return indexPluginTemplateList = IndexPluginTemplateList.fromXmlConfig(xppConfig, node);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
@@ -1394,8 +1351,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (statisticsList != null)
 				return statisticsList;
-			statisticsList = StatisticsList.fromXmlConfig(xppConfig,
-					xppConfig.getNode("/configuration/statistics"),
+			statisticsList = StatisticsList.fromXmlConfig(xppConfig, xppConfig.getNode("/configuration/statistics"),
 					getStatStorage());
 			return statisticsList;
 		} catch (XPathExpressionException e) {
@@ -1437,8 +1393,7 @@ public abstract class Config implements ThreadFactory {
 
 	private final ReadWriteLock autocompletionLock = new ReadWriteLock();
 
-	public AutoCompletionManager getAutoCompletionManager()
-			throws SearchLibException {
+	public AutoCompletionManager getAutoCompletionManager() throws SearchLibException {
 		autocompletionLock.r.lock();
 		try {
 			if (autoCompletionManager != null)
@@ -1460,8 +1415,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public AbstractRequest getNewRequest(String requestName)
-			throws SearchLibException {
+	public AbstractRequest getNewRequest(String requestName) throws SearchLibException {
 		if (requestName == null)
 			throw new SearchLibException("No request name given");
 		AbstractRequest request = getRequestMap().get(requestName);
@@ -1493,11 +1447,9 @@ public abstract class Config implements ThreadFactory {
 			File requestFile = new File(indexDir, "requests.xml");
 			if (requestFile.exists()) {
 				XPathParser xpp = new XPathParser(requestFile);
-				requests = RequestMap.fromXmlConfig(this, xpp,
-						xpp.getNode("/requests"));
+				requests = RequestMap.fromXmlConfig(this, xpp, xpp.getNode("/requests"));
 			} else
-				requests = RequestMap.fromXmlConfig(this, xppConfig,
-						xppConfig.getNode("/configuration/requests"));
+				requests = RequestMap.fromXmlConfig(this, xppConfig, xppConfig.getNode("/configuration/requests"));
 			return requests;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -1523,8 +1475,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	protected UrlManager getNewUrlManagerInstance()
-			throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		return new UrlManager();
 	}
 
@@ -1574,8 +1525,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (scriptManager != null)
 				return scriptManager;
-			return scriptManager = new ScriptManager(this, new File(indexDir,
-					"scripts"));
+			return scriptManager = new ScriptManager(this, new File(indexDir, "scripts"));
 		} finally {
 			scriptLock.w.unlock();
 		}
@@ -1595,8 +1545,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (stopWordsManager != null)
 				return stopWordsManager;
-			return stopWordsManager = new StopWordsManager(this, new File(
-					indexDir, "stopwords"));
+			return stopWordsManager = new StopWordsManager(this, new File(indexDir, "stopwords"));
 		} finally {
 			stopWordsLock.w.unlock();
 		}
@@ -1616,8 +1565,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (synonymsManager != null)
 				return synonymsManager;
-			return synonymsManager = new SynonymsManager(this, new File(
-					indexDir, "synonyms"));
+			return synonymsManager = new SynonymsManager(this, new File(indexDir, "synonyms"));
 		} finally {
 			synonymsLock.w.unlock();
 		}
@@ -1625,8 +1573,7 @@ public abstract class Config implements ThreadFactory {
 
 	public final ReadWriteLock inclusionLock = new ReadWriteLock();
 
-	public PatternManager getInclusionPatternManager()
-			throws SearchLibException {
+	public PatternManager getInclusionPatternManager() throws SearchLibException {
 		inclusionLock.r.lock();
 		try {
 			if (inclusionPatternManager != null)
@@ -1638,8 +1585,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (inclusionPatternManager != null)
 				return inclusionPatternManager;
-			return inclusionPatternManager = new PatternManager(indexDir,
-					"patterns.xml");
+			return inclusionPatternManager = new PatternManager(indexDir, "patterns.xml");
 		} finally {
 			inclusionLock.w.unlock();
 		}
@@ -1647,8 +1593,7 @@ public abstract class Config implements ThreadFactory {
 
 	public final ReadWriteLock exclusionLock = new ReadWriteLock();
 
-	public PatternManager getExclusionPatternManager()
-			throws SearchLibException {
+	public PatternManager getExclusionPatternManager() throws SearchLibException {
 		exclusionLock.r.lock();
 		try {
 			if (exclusionPatternManager != null)
@@ -1660,8 +1605,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (exclusionPatternManager != null)
 				return exclusionPatternManager;
-			return exclusionPatternManager = new PatternManager(indexDir,
-					"patterns_exclusion.xml");
+			return exclusionPatternManager = new PatternManager(indexDir, "patterns_exclusion.xml");
 		} finally {
 			exclusionLock.w.unlock();
 		}
@@ -1669,8 +1613,7 @@ public abstract class Config implements ThreadFactory {
 
 	public final ReadWriteLock credentialLock = new ReadWriteLock();
 
-	public CredentialManager getWebCredentialManager()
-			throws SearchLibException {
+	public CredentialManager getWebCredentialManager() throws SearchLibException {
 		credentialLock.r.lock();
 		try {
 			if (webCredentialManager != null)
@@ -1682,8 +1625,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (webCredentialManager != null)
 				return webCredentialManager;
-			return webCredentialManager = new CredentialManager(indexDir,
-					"web_credentials.xml");
+			return webCredentialManager = new CredentialManager(indexDir, "web_credentials.xml");
 		} finally {
 			credentialLock.w.unlock();
 		}
@@ -1703,8 +1645,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (webCookieManager != null)
 				return webCookieManager;
-			return webCookieManager = new CookieManager(indexDir,
-					"web_cookies.xml");
+			return webCookieManager = new CookieManager(indexDir, "web_cookies.xml");
 		} finally {
 			cookieLock.w.unlock();
 		}
@@ -1724,8 +1665,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (webScriptManager != null)
 				return webScriptManager;
-			return webScriptManager = new WebScriptManager(indexDir,
-					"web_scripts.xml");
+			return webScriptManager = new WebScriptManager(indexDir, "web_scripts.xml");
 		} finally {
 			webScriptLock.w.unlock();
 		}
@@ -1745,8 +1685,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (webHeaderManager != null)
 				return webHeaderManager;
-			return webHeaderManager = new HeaderManager(indexDir,
-					"web_headers.xml");
+			return webHeaderManager = new HeaderManager(indexDir, "web_headers.xml");
 		} finally {
 			headerLock.w.unlock();
 		}
@@ -1766,23 +1705,20 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (siteMapList != null)
 				return siteMapList;
-			return siteMapList = new SiteMapList(indexDir,
-					"webcrawler-sitemap.xml");
+			return siteMapList = new SiteMapList(indexDir, "webcrawler-sitemap.xml");
 		} finally {
 			siteMapLock.w.unlock();
 		}
 	}
 
 	public void saveSiteMapList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
-				"webcrawler-sitemap.xml");
+		ConfigFileRotation cfr = configFiles.get(indexDir, "webcrawler-sitemap.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			siteMapLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getSiteMapList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -1815,23 +1751,20 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (urlFilterList != null)
 				return urlFilterList;
-			return urlFilterList = new UrlFilterList(indexDir,
-					"webcrawler-urlfilter.xml");
+			return urlFilterList = new UrlFilterList(indexDir, "webcrawler-urlfilter.xml");
 		} finally {
 			urlFilterLock.w.unlock();
 		}
 	}
 
 	public void saveUrlFilterList() throws SearchLibException {
-		ConfigFileRotation cfr = configFiles.get(indexDir,
-				"webcrawler-urlfilter.xml");
+		ConfigFileRotation cfr = configFiles.get(indexDir, "webcrawler-urlfilter.xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
 			urlFilterLock.w.lock();
 			try {
-				XmlWriter xmlWriter = new XmlWriter(
-						cfr.getTempPrintWriter("UTF-8"), "UTF-8");
+				XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
 				getUrlFilterList().writeXml(xmlWriter);
 				xmlWriter.endDocument();
 				cfr.rotate();
@@ -1850,8 +1783,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public void push(ReplicationThread replicationThread)
-			throws SearchLibException {
+	public void push(ReplicationThread replicationThread) throws SearchLibException {
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -1880,8 +1812,7 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	protected FileManager getNewFileManagerInstance()
-			throws FileNotFoundException, SearchLibException,
-			URISyntaxException {
+			throws FileNotFoundException, SearchLibException, URISyntaxException {
 		return new FileManager((Client) this, indexDir);
 	}
 
@@ -1907,8 +1838,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public DatabasePropertyManager getDatabasePropertyManager()
-			throws SearchLibException {
+	public DatabasePropertyManager getDatabasePropertyManager() throws SearchLibException {
 		databaseLock.r.lock();
 		try {
 			if (databasePropertyManager != null)
@@ -1941,8 +1871,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (webPropertyManager != null)
 				return webPropertyManager;
-			return webPropertyManager = new WebPropertyManager(new File(
-					indexDir, "webcrawler-properties.xml"));
+			return webPropertyManager = new WebPropertyManager(new File(indexDir, "webcrawler-properties.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -1950,8 +1879,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public FilePropertyManager getFilePropertyManager()
-			throws SearchLibException {
+	public FilePropertyManager getFilePropertyManager() throws SearchLibException {
 		fileCrawlLock.r.lock();
 		try {
 			if (filePropertyManager != null)
@@ -1963,8 +1891,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (filePropertyManager != null)
 				return filePropertyManager;
-			return filePropertyManager = new FilePropertyManager(new File(
-					indexDir, "filecrawler-properties.xml"));
+			return filePropertyManager = new FilePropertyManager(new File(indexDir, "filecrawler-properties.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {
@@ -1972,9 +1899,8 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	final public AbstractRequest getNewRequest(
-			final ServletTransaction transaction) throws ParseException,
-			SyntaxError, SearchLibException {
+	final public AbstractRequest getNewRequest(final ServletTransaction transaction)
+			throws ParseException, SyntaxError, SearchLibException {
 
 		String requestName = transaction.getParameterString("qt");
 		AbstractRequest request = null;
@@ -1988,8 +1914,7 @@ public abstract class Config implements ThreadFactory {
 
 	private ReadWriteLock robotsLock = new ReadWriteLock();
 
-	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException,
-			ClassNotFoundException {
+	public RobotsTxtCache getRobotsTxtCache() throws SearchLibException, ClassNotFoundException {
 		robotsLock.r.lock();
 		try {
 			if (robotsTxtCache != null)
@@ -2020,8 +1945,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (webCrawlerFieldMap != null)
 				return webCrawlerFieldMap;
-			return webCrawlerFieldMap = new FieldMap(new File(indexDir,
-					"webcrawler-mapping.xml"));
+			return webCrawlerFieldMap = new FieldMap(new File(indexDir, "webcrawler-mapping.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {
@@ -2047,8 +1971,7 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (fileCrawlerFieldMap != null)
 				return fileCrawlerFieldMap;
-			return fileCrawlerFieldMap = new FieldMap(new File(indexDir,
-					"filecrawler-mapping.xml"));
+			return fileCrawlerFieldMap = new FieldMap(new File(indexDir, "filecrawler-mapping.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (XPathExpressionException e) {

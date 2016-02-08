@@ -227,6 +227,11 @@ public class User implements Comparable<User> {
 	}
 
 	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		User u = (User) o;
 		if (u == null)

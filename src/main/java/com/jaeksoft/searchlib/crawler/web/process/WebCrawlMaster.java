@@ -33,10 +33,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Logging;
@@ -257,7 +257,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		synchronized (hostList) {
 			int s = hostList.size();
 			if (s > 0) {
-				NamedItem host = hostList.remove(new Random().nextInt(s));
+				NamedItem host = hostList.remove(RandomUtils.nextInt(0, s));
 				if (host != null) {
 					currentStats.incHostCount();
 					return host;
