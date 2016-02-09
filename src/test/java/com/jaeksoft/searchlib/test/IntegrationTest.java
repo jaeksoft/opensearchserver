@@ -24,10 +24,16 @@
 
 package com.jaeksoft.searchlib.test;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.jaeksoft.searchlib.Server;
 import com.jaeksoft.searchlib.test.rest.RestDeleteIndexTest;
 import com.jaeksoft.searchlib.test.rest.RestDeleteTest;
 import com.jaeksoft.searchlib.test.rest.RestFacetTest;
@@ -37,15 +43,19 @@ import com.jaeksoft.searchlib.test.rest.RestSearchTest;
 import com.jaeksoft.searchlib.test.rest.RestUpdateTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class,
-		RestUpdateTest.class, RestSearchTest.class, RestDeleteTest.class,
-		RestFacetTest.class, RestDeleteIndexTest.class })
+@SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class, RestUpdateTest.class, RestSearchTest.class,
+		RestDeleteTest.class, RestFacetTest.class, RestDeleteIndexTest.class })
 /* RestAutocompletionTest */
 public class IntegrationTest {
 
 	public final static String INDEX_NAME = "oss_testing_suite";
-	public final static String SERVER_URL = System
-			.getProperty("OSS_TESTING_INSTANCE") == null ? "http://localhost:8080"
+	public final static String SERVER_URL = System.getProperty("OSS_TESTING_INSTANCE") == null ? "http://localhost:9090"
 			: System.getProperty("OSS_TESTING_INSTANCE");
+
+	@BeforeClass
+	public static void beforeClass() throws IllegalAccessException, InstantiationException, InvocationTargetException,
+			IOException, URISyntaxException {
+		Server.start(null, false);
+	}
 
 }
