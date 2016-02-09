@@ -16,6 +16,8 @@ import com.github.jankroken.commandline.annotations.LongSwitch;
 import com.github.jankroken.commandline.annotations.Option;
 import com.github.jankroken.commandline.annotations.ShortSwitch;
 import com.github.jankroken.commandline.annotations.SingleArgument;
+import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class Server {
 
@@ -66,7 +68,7 @@ public class Server {
 
 	}
 
-	private void start() throws IOException, URISyntaxException {
+	private void start(boolean await) throws IOException, URISyntaxException {
 		final File srcFile = new File(
 				Server.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 		if (!srcFile.exists())
@@ -90,12 +92,23 @@ public class Server {
 		}
 		System.out.println("Loading WebApplication: " + webFile);
 		tomcat.addWebapp(tomcat.getHost(), StringUtils.EMPTY, webFile.getAbsolutePath());
-		tomcat.getServer().await();
+
+		ThreadUtils.waitUntil(120, new StartStopListener.StartedWaitInterface());
+		if (await)
+			tomcat.getServer().await();
+	}
+
+	public static void start(String[] args, boolean await) throws IllegalAccessException, InstantiationException,
+			InvocationTargetException, IOException, URISyntaxException {
+		if (args == null)
+			args = new String[] {};
+		Arguments arguments = CommandLineParser.parse(Arguments.class, args, OptionStyle.SIMPLE);
+		Server server = new Server(arguments);
+		server.start(await);
 	}
 
 	public static void main(String[] args) throws IllegalAccessException, InstantiationException,
 			InvocationTargetException, IOException, URISyntaxException {
-		Arguments arguments = CommandLineParser.parse(Arguments.class, args, OptionStyle.SIMPLE);
-		new Server(arguments).start();
+		start(args, true);
 	}
 }
