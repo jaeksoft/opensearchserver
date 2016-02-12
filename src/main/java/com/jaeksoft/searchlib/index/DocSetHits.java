@@ -64,48 +64,42 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 	final ScoreBufferCollector scoreBufferCollector;
 	final DocSetHitCollectorInterface lastCollector;
 
-	DocSetHits(ReaderAbstract reader, AbstractSearchRequest searchRequest,
-			FilterHits filterHits) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
+	DocSetHits(ReaderAbstract reader, AbstractSearchRequest searchRequest, FilterHits filterHits)
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		this.reader = reader;
 		this.filterHits = filterHits;
 		this.query = searchRequest.getQuery();
 		this.queryKey = query == null ? null : query.toString();
 		ScoreBufferCollector sc = null;
-		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(
-				reader.maxDoc(), searchRequest.isForFilter());
+		DocSetHitCollectorInterface last = docSetHitCollector = new DocSetHitBaseCollector(reader.maxDoc(),
+				searchRequest.isForFilter());
 		if (searchRequest.isScoreRequired())
 			last = sc = new ScoreBufferCollector(docSetHitCollector);
 		if (searchRequest.isDistanceRequired()) {
 			geoParameters = searchRequest.getGeoParameters();
-			last = distanceCollector = new DistanceCollector(
-					docSetHitCollector, reader, geoParameters);
+			last = distanceCollector = new DistanceCollector(docSetHitCollector, reader, geoParameters);
 		} else {
 			distanceCollector = null;
 			geoParameters = null;
 		}
 		AdvancedScore advancedScore = searchRequest.getAdvancedScore();
 		if (advancedScore != null && !advancedScore.isEmpty()) {
-			last = sc = new ScoreBufferAdvancedCollector(reader, advancedScore,
-					docSetHitCollector, sc, distanceCollector);
+			last = sc = new ScoreBufferAdvancedCollector(reader, advancedScore, docSetHitCollector, sc,
+					distanceCollector);
 		}
 		advancedScoringKey = AdvancedScore.getCacheKey(advancedScore);
 		if (searchRequest.isDocIdRequired())
-			last = docIdBufferCollector = new DocIdBufferCollector(
-					docSetHitCollector);
+			last = docIdBufferCollector = new DocIdBufferCollector(docSetHitCollector);
 		else
 			docIdBufferCollector = null;
-		boostQueryKey = BoostQuery.getCacheKey(searchRequest
-				.getBoostingQueries());
+		boostQueryKey = BoostQuery.getCacheKey(searchRequest.getBoostingQueries());
 		lastCollector = last;
 		scoreBufferCollector = sc;
 	}
 
 	@Override
-	protected void populate(Timer timer) throws IOException, ParseException,
-			SyntaxError, SearchLibException {
-		Timer t = (timer == null) ? null : new Timer(timer, "DocSetHits: "
-				+ queryKey);
+	protected void populate(Timer timer) throws IOException, ParseException, SyntaxError, SearchLibException {
+		Timer t = (timer == null) ? null : new Timer(timer, "DocSetHits: " + queryKey);
 		if (reader.numDocs() > 0)
 			reader.search(query, filterHits, docSetHitCollector.collector);
 		if (t != null)
@@ -143,14 +137,13 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 		return scoreBufferCollector.getMaxScore();
 	}
 
-	final public <T extends CollectorInterface> T getCollector(
-			Class<T> collectorType) {
+	final public <T extends CollectorInterface> T getCollector(Class<T> collectorType) {
 		return lastCollector.getCollector(collectorType);
 	}
 
 	final public FilterHitsCollector getFilterHitsCollector() {
-		return (FilterHitsCollector) (docSetHitCollector.collector instanceof FilterHitsCollector ? docSetHitCollector.collector
-				: null);
+		return (FilterHitsCollector) (docSetHitCollector.collector instanceof FilterHitsCollector
+				? docSetHitCollector.collector : null);
 	}
 
 	final public static int compare(CollectorInterface c1, CollectorInterface c2) {
@@ -179,11 +172,9 @@ public class DocSetHits extends LRUItemAbstract<DocSetHits> {
 			return c;
 		if ((c = GeoParameters.compare(geoParameters, dsh.geoParameters)) != 0)
 			return c;
-		if ((c = StringUtils
-				.compareNullString(boostQueryKey, dsh.boostQueryKey)) != 0)
+		if ((c = StringUtils.compareNullString(boostQueryKey, dsh.boostQueryKey)) != 0)
 			return c;
-		if ((c = StringUtils.compareNullString(advancedScoringKey,
-				dsh.advancedScoringKey)) != 0)
+		if ((c = StringUtils.compareNullString(advancedScoringKey, dsh.advancedScoringKey)) != 0)
 			return c;
 		return StringUtils.compareNullHashCode(filterHits, dsh.filterHits);
 	}

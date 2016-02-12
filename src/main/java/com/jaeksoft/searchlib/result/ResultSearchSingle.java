@@ -55,6 +55,8 @@ public class ResultSearchSingle extends AbstractResultSearch<AbstractLocalSearch
 	transient private DocSetHits docSetHits;
 	transient private final LinkedHashSet<String> fieldNameSet;
 
+	private final ResultDocument[] resultDocuments;
+
 	/**
 	 * The constructor executes the request using the searcher provided and
 	 * computes the facets.
@@ -153,6 +155,17 @@ public class ResultSearchSingle extends AbstractResultSearch<AbstractLocalSearch
 		fieldNameSet = new LinkedHashSet<String>();
 		searchRequest.getReturnFieldList().populate(fieldNameSet);
 		searchRequest.getSnippetFieldList().populate(fieldNameSet);
+
+		int rows = docs.getSize() - request.getStart();
+		rows = Math.min(rows, request.getRows());
+		if (rows <= 0) {
+			resultDocuments = null;
+			return;
+		}
+		resultDocuments = new ResultDocument[rows];
+		int pos = request.getStart();
+		for (int i = 0; i < rows; i++)
+			resultDocuments[i] = getLazyDocument(pos++, timer);
 	}
 
 	/**
@@ -174,8 +187,15 @@ public class ResultSearchSingle extends AbstractResultSearch<AbstractLocalSearch
 	}
 
 	@Override
-	public ResultDocument getDocument(final int pos, final Timer timer) throws SearchLibException {
-		if (docs == null || pos < 0 || pos > docs.getSize())
+	public ResultDocument getDocument(int pos, final Timer timer) throws SearchLibException {
+		pos = pos - request.getStart();
+		if (resultDocuments == null || pos < 0 || pos >= resultDocuments.length)
+			return null;
+		return resultDocuments[pos];
+	}
+
+	public ResultDocument getLazyDocument(final int pos, final Timer timer) throws SearchLibException {
+		if (docs == null || pos < 0 || pos >= docs.getSize())
 			return null;
 		try {
 			int docId = docs.getIds()[pos];

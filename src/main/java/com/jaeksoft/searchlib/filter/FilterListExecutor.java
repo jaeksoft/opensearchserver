@@ -43,7 +43,6 @@ import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Operat
 
 public class FilterListExecutor {
 
-	private final ThreadGroup threadGroup;
 	private final SchemaField defaultField;
 	private final PerFieldAnalyzer analyzer;
 	private final AbstractLocalSearchRequest request;
@@ -59,7 +58,6 @@ public class FilterListExecutor {
 		defaultField = schema.getFieldList().getDefaultField();
 		analyzer = searchRequest.getAnalyzer();
 		request = searchRequest;
-		threadGroup = config.getThreadGroup();
 		this.timer = timer;
 		FilterList filterList = searchRequest.getFilterList();
 		this.defaultOperator = filterList == null ? null : filterList.getDefaultOperator();

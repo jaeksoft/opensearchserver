@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.index;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,11 +36,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
 import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
@@ -62,7 +63,6 @@ import org.apache.lucene.util.ReaderUtil;
 import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
@@ -78,39 +78,26 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 
-public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
-
-	final private ReadWriteLock rwl = new ReadWriteLock();
+public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Closeable {
 
 	private final IndexDirectory indexDirectory;
-	private IndexSearcher indexSearcher;
-	private IndexReader indexReader;
-	private IndexDirectory[] indexDirectories;
-	private IndexReader[] indexReaders;
-
 	private final SpellCheckCache spellCheckCache;
 	private final DocSetHitsCache docSetHitsCache;
 
-	public ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory, boolean bOnline)
-			throws IOException, SearchLibException {
+	private IndexSearcher indexSearcher;
+	private IndexReader indexReader;
+	private IndexReader[] indexReaders;
+	private IndexDirectory[] indexDirectories;
+	final AtomicInteger references;
+
+	ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory) throws IOException, SearchLibException {
 		super(indexConfig);
 		spellCheckCache = new SpellCheckCache(100);
 		docSetHitsCache = new DocSetHitsCache(indexConfig);
-		indexSearcher = null;
-		indexReader = null;
-		indexDirectories = null;
-		indexReaders = null;
 		this.indexDirectory = indexDirectory;
-		if (bOnline)
-			openNoLock();
-	}
-
-	private void openNoLock() throws IOException, SearchLibException {
-		if (indexReader != null && indexSearcher != null)
-			return;
+		references = new AtomicInteger();
 		Directory directory = indexDirectory.getDirectory();
 		if (directory == null)
 			throw new IOException("The directory is closed");
@@ -133,153 +120,21 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			indexSearcher.setSimilarity(similarity);
-		spellCheckCache.clear();
-		docSetHitsCache.clear();
+	}
+
+	synchronized ReaderLocal acquire() {
+		references.incrementAndGet();
+		if (indexSearcher == null)
+			throw new NullPointerException("IndexSearcher is null");
+		return this;
+	}
+
+	synchronized void release() {
+		references.decrementAndGet();
 	}
 
 	@Override
-	public long getVersion() {
-		rwl.r.lock();
-		try {
-			if (indexConfig.isMulti())
-				return 0L;
-			return indexReader.getVersion();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public TermDocs getTermDocs(Term term) throws IOException {
-		rwl.r.lock();
-		try {
-			return indexReader.termDocs(term);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public TermPositions getTermPositions() throws IOException {
-		rwl.r.lock();
-		try {
-			return indexReader.termPositions();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public TermFreqVector getTermFreqVector(final int docId, final String field) throws IOException {
-		rwl.r.lock();
-		try {
-			return indexReader.getTermFreqVector(docId, field);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	final public boolean isDeletedNoLock(final int docId) {
-		return indexReader.isDeleted(docId);
-	}
-
-	public void putTermFreqVectors(final int[] docIds, final String field,
-			final Collection<TermFreqVector> termFreqVectors) throws IOException {
-		if (termFreqVectors == null || docIds == null || docIds.length == 0)
-			return;
-		rwl.r.lock();
-		try {
-			for (int docId : docIds)
-				termFreqVectors.add(indexReader.getTermFreqVector(docId, field));
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public void putTermVectors(int[] docIds, String field, Collection<String[]> termVectors) throws IOException {
-		if (docIds == null || docIds.length == 0 || field == null || termVectors == null)
-			return;
-		rwl.r.lock();
-		try {
-			List<TermFreqVector> termFreqVectors = new ArrayList<TermFreqVector>(docIds.length);
-			putTermFreqVectors(docIds, field, termFreqVectors);
-			for (TermFreqVector termFreqVector : termFreqVectors)
-				termVectors.add(termFreqVector.getTerms());
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public int getDocFreq(Term term) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			return indexSearcher.docFreq(term);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public TermEnum getTermEnum() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			return indexReader.terms();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public TermEnum getTermEnum(Term term) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			return indexReader.terms(term);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public Collection<?> getFieldNames() {
-		rwl.r.lock();
-		try {
-			return ReaderUtil.getIndexedFields(indexReader);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public MoreLikeThis getMoreLikeThis() {
-		rwl.r.lock();
-		try {
-			return new MoreLikeThis(indexReader);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public Query rewrite(Query query) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			return query.rewrite(indexReader);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	private void closeNoLock() throws IOException {
+	public synchronized void close() throws IOException {
 		if (indexSearcher != null) {
 			indexSearcher.close();
 			indexSearcher = null;
@@ -304,40 +159,107 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 	}
 
 	@Override
-	public void close() {
-		rwl.w.lock();
+	public long getVersion() {
+		if (indexConfig.isMulti())
+			return 0L;
+		return indexReader.getVersion();
+	}
+
+	@Override
+	public TermDocs getTermDocs(Term term) throws IOException {
+		return indexReader.termDocs(term);
+	}
+
+	@Override
+	public TermPositions getTermPositions() throws IOException {
+		return indexReader.termPositions();
+	}
+
+	@Override
+	public TermFreqVector getTermFreqVector(final int docId, final String field) throws IOException {
+		return indexReader.getTermFreqVector(docId, field);
+	}
+
+	final public boolean isDeletedNoLock(final int docId) {
+		return indexReader.isDeleted(docId);
+	}
+
+	public void putTermFreqVectors(final int[] docIds, final String field,
+			final Collection<TermFreqVector> termFreqVectors) throws IOException {
+		if (termFreqVectors == null || docIds == null || docIds.length == 0)
+			return;
+		for (int docId : docIds)
+			termFreqVectors.add(indexReader.getTermFreqVector(docId, field));
+	}
+
+	@Override
+	public void putTermVectors(int[] docIds, String field, Collection<String[]> termVectors) throws IOException {
+		if (docIds == null || docIds.length == 0 || field == null || termVectors == null)
+			return;
+		List<TermFreqVector> termFreqVectors = new ArrayList<TermFreqVector>(docIds.length);
+		putTermFreqVectors(docIds, field, termFreqVectors);
+		for (TermFreqVector termFreqVector : termFreqVectors)
+			termVectors.add(termFreqVector.getTerms());
+	}
+
+	@Override
+	public int getDocFreq(Term term) throws SearchLibException {
 		try {
-			closeNoLock();
+			return indexSearcher.docFreq(term);
 		} catch (IOException e) {
-			Logging.warn(e.getMessage(), e);
-		} finally {
-			rwl.w.unlock();
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public TermEnum getTermEnum() throws SearchLibException {
+		try {
+			return indexReader.terms();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public TermEnum getTermEnum(Term term) throws SearchLibException {
+		try {
+			return indexReader.terms(term);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
+	}
+
+	@Override
+	public Collection<?> getFieldNames() {
+		return ReaderUtil.getIndexedFields(indexReader);
+	}
+
+	@Override
+	public MoreLikeThis getMoreLikeThis() {
+		return new MoreLikeThis(indexReader);
+	}
+
+	@Override
+	public Query rewrite(Query query) throws SearchLibException {
+		try {
+			return query.rewrite(indexReader);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
 	@Override
 	public int maxDoc() throws IOException {
-		rwl.r.lock();
-		try {
-			return indexSearcher.maxDoc();
-		} finally {
-			rwl.r.unlock();
-		}
+		return indexSearcher.maxDoc();
 	}
 
 	@Override
 	public int numDocs() {
-		rwl.r.lock();
-		try {
-			return indexReader.numDocs();
-		} finally {
-			rwl.r.unlock();
-		}
+		return indexReader.numDocs();
 	}
 
 	@Override
 	public String explain(AbstractRequest request, int docId, boolean bHtml) throws SearchLibException {
-		rwl.r.lock();
 		try {
 			Query query = request.getQuery();
 			if (query == null)
@@ -353,63 +275,38 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 			throw new SearchLibException(e);
 		} catch (SyntaxError e) {
 			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	public void search(Query query, Filter filter, Collector collector) throws IOException {
-		rwl.r.lock();
-		try {
-			if (filter == null)
-				indexSearcher.search(query, collector);
-			else
-				indexSearcher.search(query, filter, collector);
-		} finally {
-			rwl.r.unlock();
-		}
+		if (filter == null)
+			indexSearcher.search(query, collector);
+		else
+			indexSearcher.search(query, filter, collector);
 	}
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField, PerFieldAnalyzer analyzer,
 			AbstractLocalSearchRequest request, FilterAbstract<?> filter, Timer timer)
 					throws ParseException, IOException, SearchLibException, SyntaxError {
-		rwl.r.lock();
-		try {
-			return filter.getFilterHits(defaultField, analyzer, request, timer);
-		} finally {
-			rwl.r.unlock();
-		}
+		return filter.getFilterHits(defaultField, analyzer, request, timer);
 	}
 
 	final public Document getDocFields(final int docId, final Set<String> fieldNameSet) throws IOException {
-		rwl.r.lock();
-		try {
-			FieldSelector selector = new FieldSelectors.SetFieldSelector(fieldNameSet);
-			return indexReader.document(docId, selector);
-		} catch (IllegalArgumentException e) {
-			throw e;
-		} finally {
-			rwl.r.unlock();
-		}
+		FieldSelector selector = new FieldSelectors.SetFieldSelector(fieldNameSet);
+		return indexReader.document(docId, selector);
 	}
 
 	final public List<Document> getDocFields(final int[] docIds, final Set<String> fieldNameSet) throws IOException {
 		if (docIds == null || docIds.length == 0)
 			return null;
 		List<Document> documents = new ArrayList<Document>(docIds.length);
-		rwl.r.lock();
-		try {
-			FieldSelector selector = new FieldSelectors.SetFieldSelector(fieldNameSet);
-			for (int docId : docIds)
-				documents.add(indexReader.document(docId, selector));
-			return documents;
-		} catch (IllegalArgumentException e) {
-			throw e;
-		} finally {
-			rwl.r.unlock();
-		}
+		FieldSelector selector = new FieldSelectors.SetFieldSelector(fieldNameSet);
+		for (int docId : docIds)
+			documents.add(indexReader.document(docId, selector));
+		return documents;
+
 	}
 
 	final private StringIndex getStringIndexNoLock(String fieldName) throws IOException {
@@ -418,311 +315,219 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface {
 
 	@Override
 	final public FieldCacheIndex getStringIndex(final String fieldName) throws IOException {
-		rwl.r.lock();
-		try {
-			StringIndex si = getStringIndexNoLock(fieldName);
-			return new FieldCacheIndex(si.lookup, si.order);
-		} finally {
-			rwl.r.unlock();
-		}
+		StringIndex si = getStringIndexNoLock(fieldName);
+		return new FieldCacheIndex(si.lookup, si.order);
 	}
 
 	@Override
 	public String[] getDocTerms(final String fieldName) throws SearchLibException, IOException {
-		rwl.r.lock();
-		try {
-			StringIndex si = getStringIndexNoLock(fieldName);
-			RoaringBitmap bitSet = new RoaringBitmap();
-			for (int doc = 0; doc < si.order.length; doc++) {
-				if (!indexReader.isDeleted(doc)) {
-					bitSet.add(si.order[doc]);
-				}
+		StringIndex si = getStringIndexNoLock(fieldName);
+		RoaringBitmap bitSet = new RoaringBitmap();
+		for (int doc = 0; doc < si.order.length; doc++) {
+			if (!indexReader.isDeleted(doc)) {
+				bitSet.add(si.order[doc]);
 			}
-			String[] result = new String[bitSet.getCardinality()];
-			int i = 0;
-			int j = 0;
-			for (String term : si.lookup)
-				if (bitSet.contains(i++))
-					result[j++] = term;
-			return result;
-		} finally {
-			rwl.r.unlock();
 		}
+		String[] result = new String[bitSet.getCardinality()];
+		int i = 0;
+		int j = 0;
+		for (String term : si.lookup)
+			if (bitSet.contains(i++))
+				result[j++] = term;
+		return result;
 	}
 
 	public LuceneDictionary getLuceneDirectionary(String fieldName) {
-		rwl.r.lock();
-		try {
-			return new LuceneDictionary(indexReader, fieldName);
-		} finally {
-			rwl.r.unlock();
-		}
+		return new LuceneDictionary(indexReader, fieldName);
 	}
 
 	public void xmlInfo(PrintWriter writer) {
-		rwl.r.lock();
-		try {
-			writer.println("<index  path=\"" + indexDirectory.getDirectory() + "\"/>");
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public void reload() throws SearchLibException {
-		rwl.w.lock();
-		try {
-			closeNoLock();
-			openNoLock();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} finally {
-			rwl.w.unlock();
-		}
+		writer.println("<index  path=\"" + indexDirectory.getDirectory() + "\"/>");
 	}
 
 	@Override
 	public DocSetHits searchDocSet(AbstractLocalSearchRequest searchRequest, Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
-		rwl.r.lock();
 		try {
 			FilterHits filterHits = new FilterListExecutor(searchRequest, timer).getFilterHits();
 			DocSetHits dsh = new DocSetHits(this, searchRequest, filterHits);
 			return docSetHitsCache.getAndJoin(dsh, timer);
 		} catch (Exception e) {
 			throw new SearchLibException(e);
-		} finally {
-			rwl.r.unlock();
 		}
 	}
 
 	@Override
 	final public LinkedHashMap<String, FieldValue> getDocumentStoredField(final int docId) throws IOException {
-		rwl.r.lock();
-		try {
-			LinkedHashMap<String, FieldValue> documentFields = new LinkedHashMap<String, FieldValue>();
-			Document doc = indexReader.document(docId, FieldSelectors.LoadFieldSelector.INSTANCE);
-			String currentFieldName = null;
-			FieldValue currentFieldValue = null;
-			for (Fieldable field : doc.getFields()) {
-				if (!field.isStored())
-					continue;
-				FieldValue fieldValue = null;
-				String fieldName = field.name();
-				if (currentFieldName != null && currentFieldName.equals(fieldName))
-					fieldValue = currentFieldValue;
-				else {
-					fieldValue = documentFields.get(fieldName);
-					if (fieldValue == null) {
-						fieldValue = new FieldValue(fieldName);
-						documentFields.put(fieldName, fieldValue);
-					}
-					currentFieldName = fieldName;
-					currentFieldValue = fieldValue;
+		LinkedHashMap<String, FieldValue> documentFields = new LinkedHashMap<String, FieldValue>();
+		Document doc = indexReader.document(docId, FieldSelectors.LoadFieldSelector.INSTANCE);
+		String currentFieldName = null;
+		FieldValue currentFieldValue = null;
+		for (Fieldable field : doc.getFields()) {
+			if (!field.isStored())
+				continue;
+			FieldValue fieldValue = null;
+			String fieldName = field.name();
+			if (currentFieldName != null && currentFieldName.equals(fieldName))
+				fieldValue = currentFieldValue;
+			else {
+				fieldValue = documentFields.get(fieldName);
+				if (fieldValue == null) {
+					fieldValue = new FieldValue(fieldName);
+					documentFields.put(fieldName, fieldValue);
 				}
-				currentFieldValue.addValue(new FieldValueItem(FieldValueOriginEnum.STORAGE, field.stringValue()));
+				currentFieldName = fieldName;
+				currentFieldValue = fieldValue;
 			}
-			return documentFields;
-		} catch (IllegalArgumentException e) {
-			throw e;
-		} finally {
-			rwl.r.unlock();
+			currentFieldValue.addValue(new FieldValueItem(FieldValueOriginEnum.STORAGE, field.stringValue()));
 		}
+		return documentFields;
 	}
 
 	@Override
 	final public LinkedHashMap<String, FieldValue> getDocumentFields(final int docId,
 			final LinkedHashSet<String> fieldNameSet, final Timer timer)
 					throws IOException, ParseException, SyntaxError {
-		rwl.r.lock();
-		try {
 
-			LinkedHashMap<String, FieldValue> documentFields = new LinkedHashMap<String, FieldValue>();
-			Set<String> vectorField = null;
-			Set<String> indexedField = null;
-			Set<String> missingField = null;
+		LinkedHashMap<String, FieldValue> documentFields = new LinkedHashMap<String, FieldValue>();
+		Set<String> vectorField = null;
+		Set<String> indexedField = null;
+		Set<String> missingField = null;
 
-			Timer t = new Timer(timer, "Field from store");
+		Timer t = new Timer(timer, "Field from store");
 
-			// Check missing fields from store
-			if (fieldNameSet != null && fieldNameSet.size() > 0) {
-				vectorField = new TreeSet<String>();
-				Document document = getDocFields(docId, fieldNameSet);
-				for (String fieldName : fieldNameSet) {
-					Fieldable[] fieldables = document.getFieldables(fieldName);
-					if (fieldables != null && fieldables.length > 0) {
-						FieldValueItem[] valueItems = FieldValueItem.buildArray(fieldables);
-						documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
-					} else
-						vectorField.add(fieldName);
-				}
+		// Check missing fields from store
+		if (fieldNameSet != null && fieldNameSet.size() > 0) {
+			vectorField = new TreeSet<String>();
+			Document document = getDocFields(docId, fieldNameSet);
+			for (String fieldName : fieldNameSet) {
+				Fieldable[] fieldables = document.getFieldables(fieldName);
+				if (fieldables != null && fieldables.length > 0) {
+					FieldValueItem[] valueItems = FieldValueItem.buildArray(fieldables);
+					documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
+				} else
+					vectorField.add(fieldName);
 			}
-
-			t.end(null);
-
-			t = new Timer(timer, "Field from vector");
-
-			// Check missing fields from vector
-			if (vectorField != null && vectorField.size() > 0) {
-				indexedField = new TreeSet<String>();
-				for (String fieldName : vectorField) {
-					TermFreqVector tfv = getTermFreqVector(docId, fieldName);
-					if (tfv != null) {
-						FieldValueItem[] valueItems = FieldValueItem.buildArray(FieldValueOriginEnum.TERM_VECTOR,
-								tfv.getTerms());
-						documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
-					} else
-						indexedField.add(fieldName);
-				}
-			}
-
-			t.end(null);
-
-			t = new Timer(timer, "Field from StringIndex");
-
-			// Check missing fields from StringIndex
-			if (indexedField != null && indexedField.size() > 0) {
-				missingField = new TreeSet<String>();
-				for (String fieldName : indexedField) {
-					FieldCacheIndex stringIndex = getStringIndex(fieldName);
-					if (stringIndex != null) {
-						String term = stringIndex.lookup[stringIndex.order[docId]];
-						if (term != null) {
-							FieldValueItem[] valueItems = FieldValueItem.buildArray(FieldValueOriginEnum.STRING_INDEX,
-									term);
-							documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
-							continue;
-						}
-					}
-					missingField.add(fieldName);
-				}
-			}
-
-			t.end(null);
-
-			if (missingField != null && missingField.size() > 0)
-				for (String fieldName : missingField)
-					documentFields.put(fieldName, new FieldValue(fieldName));
-			return documentFields;
-		} finally {
-			rwl.r.unlock();
 		}
+
+		t.end(null);
+
+		t = new Timer(timer, "Field from vector");
+
+		// Check missing fields from vector
+		if (vectorField != null && vectorField.size() > 0) {
+			indexedField = new TreeSet<String>();
+			for (String fieldName : vectorField) {
+				TermFreqVector tfv = getTermFreqVector(docId, fieldName);
+				if (tfv != null) {
+					FieldValueItem[] valueItems = FieldValueItem.buildArray(FieldValueOriginEnum.TERM_VECTOR,
+							tfv.getTerms());
+					documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
+				} else
+					indexedField.add(fieldName);
+			}
+		}
+
+		t.end(null);
+
+		t = new Timer(timer, "Field from StringIndex");
+
+		// Check missing fields from StringIndex
+		if (indexedField != null && indexedField.size() > 0) {
+			missingField = new TreeSet<String>();
+			for (String fieldName : indexedField) {
+				FieldCacheIndex stringIndex = getStringIndex(fieldName);
+				if (stringIndex != null) {
+					String term = stringIndex.lookup[stringIndex.order[docId]];
+					if (term != null) {
+						FieldValueItem[] valueItems = FieldValueItem.buildArray(FieldValueOriginEnum.STRING_INDEX,
+								term);
+						documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
+						continue;
+					}
+				}
+				missingField.add(fieldName);
+			}
+		}
+
+		t.end(null);
+
+		if (missingField != null && missingField.size() > 0)
+			for (String fieldName : missingField)
+				documentFields.put(fieldName, new FieldValue(fieldName));
+		return documentFields;
 	}
 
 	public Set<FieldValue> getTermsVectorFields(int docId, Set<String> fieldNameSet) throws IOException {
-		rwl.r.lock();
-		try {
-			Set<FieldValue> fieldValueList = new HashSet<FieldValue>();
-			for (String fieldName : fieldNameSet) {
-				TermFreqVector termFreqVector = indexReader.getTermFreqVector(docId, fieldName);
-				if (termFreqVector == null)
-					continue;
-				String[] terms = termFreqVector.getTerms();
-				if (terms == null)
-					continue;
-				FieldValueItem[] fieldValueItem = new FieldValueItem[terms.length];
-				int i = 0;
-				for (String term : terms)
-					fieldValueItem[i++] = new FieldValueItem(FieldValueOriginEnum.TERM_VECTOR, term);
-				fieldValueList.add(new FieldValue(fieldName, fieldValueItem));
-			}
-			return fieldValueList;
-		} finally {
-			rwl.r.unlock();
+		Set<FieldValue> fieldValueList = new HashSet<FieldValue>();
+		for (String fieldName : fieldNameSet) {
+			TermFreqVector termFreqVector = indexReader.getTermFreqVector(docId, fieldName);
+			if (termFreqVector == null)
+				continue;
+			String[] terms = termFreqVector.getTerms();
+			if (terms == null)
+				continue;
+			FieldValueItem[] fieldValueItem = new FieldValueItem[terms.length];
+			int i = 0;
+			for (String term : terms)
+				fieldValueItem[i++] = new FieldValueItem(FieldValueOriginEnum.TERM_VECTOR, term);
+			fieldValueList.add(new FieldValue(fieldName, fieldValueItem));
 		}
+		return fieldValueList;
 	}
 
 	public Set<FieldValue> getTerms(int docId, Set<String> fieldNameSet) throws IOException {
-		rwl.r.lock();
-		try {
-			TermPositions termPosition = indexReader.termPositions();
-			Set<FieldValue> fieldValueSet = new HashSet<FieldValue>();
-			for (String fieldName : fieldNameSet) {
-				List<FieldValueItem> fieldValueItemList = new ArrayList<FieldValueItem>();
-				TermEnum termEnum = indexReader.terms(new Term(fieldName, ""));
-				if (termEnum == null)
-					continue;
-				Term term = termEnum.term();
+		TermPositions termPosition = indexReader.termPositions();
+		Set<FieldValue> fieldValueSet = new HashSet<FieldValue>();
+		for (String fieldName : fieldNameSet) {
+			List<FieldValueItem> fieldValueItemList = new ArrayList<FieldValueItem>();
+			TermEnum termEnum = indexReader.terms(new Term(fieldName, ""));
+			if (termEnum == null)
+				continue;
+			Term term = termEnum.term();
+			if (!term.field().equals(fieldName))
+				continue;
+			do {
+				term = termEnum.term();
 				if (!term.field().equals(fieldName))
+					break;
+				termPosition.seek(term);
+				if (!termPosition.skipTo(docId) || termPosition.doc() != docId)
 					continue;
-				do {
-					term = termEnum.term();
-					if (!term.field().equals(fieldName))
-						break;
-					termPosition.seek(term);
-					if (!termPosition.skipTo(docId) || termPosition.doc() != docId)
-						continue;
-					fieldValueItemList.add(new FieldValueItem(FieldValueOriginEnum.TERM_ENUM, term.text()));
-				} while (termEnum.next());
-				termEnum.close();
-				if (fieldValueItemList.size() > 0)
-					fieldValueSet.add(new FieldValue(fieldName, fieldValueItemList));
-			}
-			return fieldValueSet;
-		} finally {
-			rwl.r.unlock();
+				fieldValueItemList.add(new FieldValueItem(FieldValueOriginEnum.TERM_ENUM, term.text()));
+			} while (termEnum.next());
+			termEnum.close();
+			if (fieldValueItemList.size() > 0)
+				fieldValueSet.add(new FieldValue(fieldName, fieldValueItemList));
 		}
+		return fieldValueSet;
 	}
 
 	@Override
 	public boolean sameIndex(ReaderInterface reader) {
-		rwl.r.lock();
-		try {
-			if (reader == this)
-				return true;
-			if (reader == null)
-				return true;
-			return reader.sameIndex(this);
-		} finally {
-			rwl.r.unlock();
-		}
+		if (reader == this)
+			return true;
+		if (reader == null)
+			return true;
+		return reader.sameIndex(this);
 	}
 
 	@Override
 	public IndexStatistics getStatistics() {
-		rwl.r.lock();
-		try {
-			return new IndexStatistics(indexReader);
-		} finally {
-			rwl.r.unlock();
-		}
+		return new IndexStatistics(indexReader);
 	}
 
 	public SpellChecker getSpellChecker(String fieldName) throws IOException, SearchLibException {
-		rwl.r.lock();
-		try {
-			return spellCheckCache.get(this, fieldName);
-		} finally {
-			rwl.r.unlock();
-		}
+		return spellCheckCache.get(this, fieldName);
 	}
 
 	protected DocSetHitsCache getDocSetHitsCache() {
-		rwl.r.lock();
-		try {
-			return docSetHitsCache;
-		} finally {
-			rwl.r.unlock();
-		}
+		return docSetHitsCache;
 	}
 
 	@Override
 	public AbstractResult<?> request(AbstractRequest request) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			return request.execute(this);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public boolean isCurrent() throws CorruptIndexException, IOException {
-		rwl.r.lock();
-		try {
-			return indexReader.isCurrent();
-		} finally {
-			rwl.r.unlock();
-		}
+		return request.execute(this);
 	}
 
 }

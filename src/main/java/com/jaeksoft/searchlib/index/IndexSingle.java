@@ -29,13 +29,14 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
 import org.apache.lucene.index.TermEnum;
@@ -58,6 +59,7 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -69,23 +71,24 @@ public class IndexSingle extends IndexAbstract {
 
 	final private IndexDirectory indexDirectory;
 
-	private List<ReaderLocal> readerDepends;
-	private final ReaderLocal reader;
+	private volatile ReaderLocal _reader;
 	private final WriterInterface writer;
 
 	private volatile boolean online;
+
+	private final Set<ReaderLocal> closeableReaders;
 
 	public IndexSingle(File configDir, IndexConfig indexConfig, boolean createIfNotExists)
 			throws IOException, URISyntaxException, SearchLibException, JSONException {
 		super(indexConfig);
 		this.online = true;
-		this.readerDepends = null;
+		closeableReaders = new HashSet<ReaderLocal>();
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
 		if (!indexDir.exists()) {
 			if (!createIfNotExists) {
 				indexDirectory = null;
-				reader = null;
+				_reader = null;
 				writer = null;
 				return;
 			}
@@ -103,7 +106,7 @@ public class IndexSingle extends IndexAbstract {
 		} else {
 			writer = null;
 		}
-		reader = new ReaderLocal(indexConfig, indexDirectory, true);
+		_reader = new ReaderLocal(indexConfig, indexDirectory);
 	}
 
 	/**
@@ -125,8 +128,9 @@ public class IndexSingle extends IndexAbstract {
 	public void close() {
 		rwl.w.lock();
 		try {
-			if (reader != null)
-				reader.close();
+			if (_reader != null)
+				IOUtils.close(_reader);
+			_reader = null;
 			indexDirectory.close();
 		} finally {
 			rwl.w.unlock();
@@ -136,14 +140,6 @@ public class IndexSingle extends IndexAbstract {
 	private void checkOnline(boolean online) throws SearchLibException {
 		if (this.online != online)
 			throw new SearchLibException("Index is offline");
-		try {
-			if (!reader.isCurrent())
-				reader.reload();
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
 	}
 
 	@Override
@@ -154,8 +150,7 @@ public class IndexSingle extends IndexAbstract {
 			if (writer == null)
 				return;
 			writer.optimize();
-			if (reader != null)
-				reader.reload();
+			reload();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -176,8 +171,10 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (writer != null)
-				writer.deleteAll();
+			if (writer == null)
+				return;
+			writer.deleteAll();
+			reload();
 		} finally {
 			rwl.r.unlock();
 		}
@@ -188,7 +185,11 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			return writer.deleteDocuments(request);
+			if (writer == null)
+				return 0;
+			int res = writer.deleteDocuments(request);
+			reload();
+			return res;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -210,10 +211,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (writer != null)
-				return writer.updateDocument(schema, document);
-			else
+			if (writer == null)
 				return false;
+			if (!writer.updateDocument(schema, document))
+				return false;
+			reload();
+			return true;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -224,10 +227,11 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (writer != null)
-				return writer.updateDocuments(schema, documents);
-			else
+			if (writer == null)
 				return 0;
+			int res = writer.updateDocuments(schema, documents);
+			reload();
+			return res;
 		} finally {
 			rwl.r.unlock();
 		}
@@ -239,12 +243,26 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (writer != null)
-				return writer.updateIndexDocuments(schema, documents);
-			else
+			if (writer == null)
 				return 0;
+			int res = writer.updateIndexDocuments(schema, documents);
+			reload();
+			return res;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	private void reloadNoLock() throws SearchLibException {
+		synchronized (closeableReaders) {
+			if (_reader != null)
+				closeableReaders.add(_reader);
+		}
+		try {
+			_reader = new ReaderLocal(indexConfig, indexDirectory);
+			closeCloseables();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		}
 	}
 
@@ -253,10 +271,24 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			reader.reload();
+			ReaderLocal reader = acquire();
+			try {
+				reloadNoLock();
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	private synchronized ReaderLocal acquire() {
+		return _reader.acquire();
+	}
+
+	private synchronized void release(ReaderLocal reader) {
+		reader.release();
+		closeCloseables();
 	}
 
 	@Override
@@ -264,9 +296,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.request(request);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -277,9 +312,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.explain(request, docId, bHtml);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -291,7 +329,7 @@ public class IndexSingle extends IndexAbstract {
 		try {
 			if (reader == this)
 				return true;
-			if (reader == this.reader)
+			if (reader == this._reader)
 				return true;
 			return false;
 		} finally {
@@ -304,9 +342,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getStatistics();
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -322,9 +363,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getDocFreq(term);
-			return 0;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -335,9 +379,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getTermEnum();
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -348,9 +395,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getTermEnum(term);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -361,9 +411,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getTermDocs(term);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -374,9 +427,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getTermPositions();
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -388,9 +444,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getTermFreqVector(docId, field);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -402,8 +461,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				reader.putTermVectors(docIds, field, termVectors);
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -414,9 +477,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getStringIndex(fieldName);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -430,9 +496,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getFilterHits(defaultField, analyzer, request, filter, timer);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -444,9 +513,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.searchDocSet(searchRequest, timer);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -477,9 +549,11 @@ public class IndexSingle extends IndexAbstract {
 				return;
 			online = v;
 			if (v)
-				reader.reload();
-			else
-				reader.close();
+				reload();
+			else {
+				IOUtils.close(_reader);
+				_reader = null;
+			}
 		} finally {
 			rwl.w.unlock();
 		}
@@ -490,9 +564,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader == null)
-				return 0;
-			return reader.getVersion();
+			ReaderLocal reader = acquire();
+			try {
+				return reader.getVersion();
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -502,10 +579,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
-				if (reader instanceof ReaderLocal)
-					return ((ReaderLocal) reader).getDocSetHitsCache();
-			return null;
+			ReaderLocal reader = acquire();
+			try {
+				return reader.getDocSetHitsCache();
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -516,9 +595,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getDocTerms(field);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -534,9 +616,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getFieldNames();
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -549,9 +634,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getDocumentFields(docId, fieldNameSet, timer);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -563,9 +651,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getDocumentStoredField(docId);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -576,9 +667,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.rewrite(query);
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -589,9 +683,12 @@ public class IndexSingle extends IndexAbstract {
 		rwl.r.lock();
 		try {
 			checkOnline(true);
-			if (reader != null)
+			ReaderLocal reader = acquire();
+			try {
 				return reader.getMoreLikeThis();
-			return null;
+			} finally {
+				release(reader);
+			}
 		} finally {
 			rwl.r.unlock();
 		}
@@ -602,20 +699,19 @@ public class IndexSingle extends IndexAbstract {
 		if (!(source instanceof IndexSingle))
 			throw new SearchLibException("Unsupported operation");
 		IndexSingle sourceIndex = (IndexSingle) source;
-		rwl.r.lock();
+		rwl.w.lock();
 		try {
 			if (writer == null)
 				return;
 			sourceIndex.rwl.r.lock();
 			try {
 				writer.mergeData(sourceIndex.writer);
-				if (reader != null)
-					reader.reload();
+				reloadNoLock();
 			} finally {
 				sourceIndex.rwl.r.unlock();
 			}
 		} finally {
-			rwl.r.unlock();
+			rwl.w.unlock();
 		}
 	}
 
@@ -626,6 +722,21 @@ public class IndexSingle extends IndexAbstract {
 			return writer != null ? writer.isMerging() : false;
 		} finally {
 			rwl.r.unlock();
+		}
+	}
+
+	private void closeCloseables() {
+		synchronized (closeableReaders) {
+			if (closeableReaders.isEmpty())
+				return;
+			final ArrayList<ReaderLocal> list = new ArrayList<ReaderLocal>();
+			for (ReaderLocal readerLocal : closeableReaders)
+				if (readerLocal.references.get() == 0)
+					list.add(readerLocal);
+			for (ReaderLocal readerLocal : list) {
+				closeableReaders.remove(readerLocal);
+				IOUtils.close(readerLocal);
+			}
 		}
 	}
 

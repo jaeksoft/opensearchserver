@@ -45,10 +45,11 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 
 	public abstract boolean isOnline();
 
+	public abstract void reload() throws SearchLibException;
+
 	public abstract void setOnline(boolean v) throws SearchLibException;
 
-	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter)
-			throws SAXException;
+	protected abstract void writeXmlConfigIndex(XmlWriter xmlWriter) throws SAXException;
 
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("indices");
