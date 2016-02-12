@@ -40,9 +40,7 @@ import com.jaeksoft.searchlib.util.Geospatial;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArrayFactory;
 import com.jaeksoft.searchlib.util.array.FloatBufferedArrayInterface;
 
-public class DistanceCollector
-		extends
-		AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
+public class DistanceCollector extends AbstractExtendsCollector<DocSetHitCollectorInterface, DocSetHitBaseCollector>
 		implements DocSetHitCollectorInterface, DistanceInterface {
 
 	private final FloatBufferedArrayInterface distancesBuffer;
@@ -62,17 +60,13 @@ public class DistanceCollector
 	float currentDistance;
 	private int currentDoc;
 
-	public DistanceCollector(final DocSetHitBaseCollector base,
-			final ReaderAbstract reader, final GeoParameters geoParams)
-			throws IOException {
+	public DistanceCollector(final DocSetHitBaseCollector base, final ReaderAbstract reader,
+			final GeoParameters geoParams) throws IOException {
 		super(base);
-		this.distancesBuffer = FloatBufferedArrayFactory.INSTANCE
-				.newInstance(base.getMaxDoc());
+		this.distancesBuffer = FloatBufferedArrayFactory.INSTANCE.newInstance(base.getMaxDoc());
 		radius = DistanceReturn.getRadius(geoParams.getDistanceReturn());
-		latitudeProvider = reader.getDocValueInterface(
-				geoParams.getLatitudeField(), DocValueType.RADIANS);
-		longitudeProvider = reader.getDocValueInterface(
-				geoParams.getLongitudeField(), DocValueType.RADIANS);
+		latitudeProvider = reader.getDocValueInterface(geoParams.getLatitudeField(), DocValueType.RADIANS);
+		longitudeProvider = reader.getDocValueInterface(geoParams.getLongitudeField(), DocValueType.RADIANS);
 		latitude = geoParams.getLatitudeRadian();
 		longitude = geoParams.getLongitudeRadian();
 		distances = null;
@@ -82,8 +76,7 @@ public class DistanceCollector
 		minDistance = Float.MAX_VALUE;
 	}
 
-	private DistanceCollector(final DocSetHitBaseCollector base,
-			final DistanceCollector src) {
+	private DistanceCollector(final DocSetHitBaseCollector base, final DistanceCollector src) {
 		super(base);
 		distancesBuffer = null;
 		distances = ArrayUtils.clone(src.distances);
@@ -104,8 +97,8 @@ public class DistanceCollector
 	final public void collectDoc(final int doc) throws IOException {
 		parent.collectDoc(doc);
 		currentDoc = doc;
-		double dist = Geospatial.distance(latitudeProvider.getFloat(doc),
-				longitudeProvider.getFloat(doc), latitude, longitude, radius);
+		double dist = Geospatial.distance(latitudeProvider.getFloat(doc), longitudeProvider.getFloat(doc), latitude,
+				longitude, radius);
 		currentDistance = (float) dist;
 		if (currentDistance > maxDistance)
 			maxDistance = currentDistance;
@@ -134,8 +127,7 @@ public class DistanceCollector
 		@Override
 		final public float getFloat(final int doc) {
 			if (currentDoc != doc)
-				throw new RuntimeException("Unexpected doc value: " + doc + "/"
-						+ currentDoc);
+				throw new RuntimeException("Unexpected doc value: " + doc + "/" + currentDoc);
 			return currentDistance;
 		}
 

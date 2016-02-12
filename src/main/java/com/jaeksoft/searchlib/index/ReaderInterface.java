@@ -54,7 +54,7 @@ public interface ReaderInterface {
 
 	public abstract boolean sameIndex(ReaderInterface reader);
 
-	public void close();
+	public void close() throws IOException;
 
 	public Collection<?> getFieldNames() throws SearchLibException;
 
@@ -102,7 +102,5 @@ public interface ReaderInterface {
 	public IndexStatistics getStatistics() throws IOException, SearchLibException;
 
 	public long getVersion() throws SearchLibException;
-
-	public void reload() throws SearchLibException;
 
 }
