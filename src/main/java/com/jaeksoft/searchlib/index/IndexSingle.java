@@ -198,7 +198,7 @@ public class IndexSingle extends IndexAbstract {
 			int[] ids = getIds(request);
 			if (ids == null || ids.length == 0)
 				return 0;
-			int res = writer.deleteDocuments(request);
+			int res = writer.deleteDocuments(ids);
 			reloadNoLock();
 			return res;
 		} catch (IOException | ParseException | SyntaxError e) {
