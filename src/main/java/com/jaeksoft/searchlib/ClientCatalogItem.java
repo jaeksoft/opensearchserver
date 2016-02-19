@@ -103,13 +103,6 @@ public class ClientCatalogItem implements Comparable<ClientCatalogItem> {
 		return lastModifiedAndSize.getLastModifiedFile();
 	}
 
-	public String getOptimizationStatus() throws IOException, SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return null;
-		return client.getOptimizationStatus();
-	}
-
 	@Override
 	public int hashCode() {
 		return indexName.hashCode();

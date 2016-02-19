@@ -336,7 +336,7 @@ public class Crawl {
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
-				Logging.error(e.getMessage(), e);
+				Logging.warn(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			} catch (IllegalArgumentException e) {

@@ -157,17 +157,10 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	@Override
 	protected void indexWork() throws SearchLibException, IOException, URISyntaxException, InstantiationException,
 			IllegalAccessException, ClassNotFoundException, HttpException {
-		UrlManager urlManager = getConfig().getUrlManager();
-		boolean needReload = false;
 		CrawlStatistics sessionStats = getSessionStats();
-		if (deleteCollection(workingDeleteUrlList, sessionStats))
-			needReload = true;
-		if (updateCrawls(workingUpdateCrawlList, sessionStats))
-			needReload = true;
-		if (insertCollection(workingInsertUrlList, sessionStats))
-			needReload = true;
-		if (needReload)
-			urlManager.reload(false, null);
+		deleteCollection(workingDeleteUrlList, sessionStats);
+		updateCrawls(workingUpdateCrawlList, sessionStats);
+		insertCollection(workingInsertUrlList, sessionStats);
 	}
 
 	private boolean deleteCollection(List<String> workDeleteUrlList, CrawlStatistics sessionStats)

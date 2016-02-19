@@ -35,27 +35,12 @@ public interface WriterInterface {
 
 	public void deleteAll() throws SearchLibException;
 
-	public int deleteDocuments(AbstractRequest request)
-			throws SearchLibException;
+	public int deleteDocuments(AbstractRequest request) throws SearchLibException;
 
-	public void addUpdateInterface(UpdateInterfaces updateInterface)
-			throws SearchLibException;
+	public boolean updateDocument(Schema schema, IndexDocument document) throws SearchLibException;
 
-	public boolean updateDocument(Schema schema, IndexDocument document)
-			throws SearchLibException;
+	public int updateDocuments(Schema schema, Collection<IndexDocument> documents) throws SearchLibException;
 
-	public int updateDocuments(Schema schema,
-			Collection<IndexDocument> documents) throws SearchLibException;
+	public int updateIndexDocuments(Schema schema, Collection<IndexDocumentResult> documents) throws SearchLibException;
 
-	public int updateIndexDocuments(Schema schema,
-			Collection<IndexDocumentResult> documents)
-			throws SearchLibException;
-
-	public void optimize() throws SearchLibException;
-
-	public boolean isOptimizing();
-
-	public void mergeData(WriterInterface source) throws SearchLibException;
-
-	public boolean isMerging();
 }

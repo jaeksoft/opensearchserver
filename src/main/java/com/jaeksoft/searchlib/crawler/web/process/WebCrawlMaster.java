@@ -149,8 +149,6 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 			}
 			setStatus(CrawlStatus.INDEXATION);
 			urlCrawlQueue.index(true);
-			if (currentStats.getUrlCount() > 0)
-				config.getUrlManager().reload(false, null);
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
 				TaskManager.getInstance().executeJob(config.getIndexName(), schedulerJobName);
@@ -169,7 +167,6 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		Config config = getConfig();
 		UrlManager urlManager = config.getUrlManager();
-		urlManager.reload(false, null);
 		setStatus(CrawlStatus.EXTRACTING_HOSTLIST);
 
 		Set<String> hostSet = new TreeSet<String>();

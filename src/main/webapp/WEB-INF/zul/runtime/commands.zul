@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -36,24 +36,6 @@
 						label="XML" />
 					<button target="_blank"
 						href="@load(commands.reloadJsonApi)" label="JSON" />
-				</cell>
-			</row>
-			<row>
-				<label value="Optimization: " />
-				<button label="Optimize"
-					onClick="@command('onOptimize')"
-					disabled="@load(commands.offline)" />
-				<cell>
-					<label value="@load(commands.optimizeStatus)" />
-					<space />
-					<image visible="@load(commands.runningOptimize)"
-						src="/images/ajax-loader.gif" />
-				</cell>
-				<cell>
-					<button target="_blank"
-						href="@load(commands.optimizeXmlApi)" label="XML" />
-					<button target="_blank"
-						href="@load(commands.optimizeJsonApi)" label="JSON" />
 				</cell>
 			</row>
 			<row>
@@ -103,33 +85,6 @@
 						href="@load(commands.truncateXmlApi)" label="XML" />
 					<button target="_blank"
 						href="@load(commands.truncateJsonApi)" label="JSON" />
-				</cell>
-			</row>
-			<row>
-				<label value="Merge data: " />
-				<cell>
-					<label value="Source index: " />
-					<listbox mold="select"
-						selectedItem="@bind(commands.mergeIndex)"
-						model="@load(commands.indexList)">
-						<template name="model">
-							<listitem label="@load(each)" />
-						</template>
-					</listbox>
-					<button label="Merge"
-						onClick="@command('onMergeData')" />
-				</cell>
-				<cell>
-					<label value="@load(commands.mergeStatus)" />
-					<space />
-					<image visible="@load(commands.runningMerge)"
-						src="/images/ajax-loader.gif" />
-				</cell>
-				<cell>
-					<button target="_blank"
-						href="@load(commands.mergeXmlApi)" label="XML" />
-					<button target="_blank"
-						href="@load(commands.mergeJsonApi)" label="JSON" />
 				</cell>
 			</row>
 		</rows>

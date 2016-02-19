@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -55,26 +56,29 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractRequest;
+import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
+import com.jaeksoft.searchlib.result.ResultDocuments;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 
 public class IndexSingle extends IndexAbstract {
 
-	final private ReadWriteLock rwl = new ReadWriteLock();
-
 	final private IndexDirectory indexDirectory;
 
 	private volatile ReaderLocal _reader;
-	private final WriterInterface writer;
+	private final WriterLocal writer;
 
 	private volatile boolean online;
+
+	protected List<UpdateInterfaces.Before> beforeUpdateList = null;
+	protected List<UpdateInterfaces.After> afterUpdateList = null;
+	protected List<UpdateInterfaces.Delete> afterDeleteList = null;
 
 	private final Set<ReaderLocal> closeableReaders;
 
@@ -100,13 +104,34 @@ public class IndexSingle extends IndexAbstract {
 		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir) : new IndexDirectory(remoteURI);
 		bCreate = bCreate || indexDirectory.isEmpty();
 		if (!indexConfig.isMulti()) {
-			writer = new WriterLocal(indexConfig, this, indexDirectory);
+			writer = new WriterLocal(indexConfig, indexDirectory);
 			if (bCreate)
 				((WriterLocal) writer).create();
 		} else {
 			writer = null;
 		}
 		_reader = new ReaderLocal(indexConfig, indexDirectory);
+	}
+
+	@Override
+	public synchronized void addUpdateInterface(UpdateInterfaces updateInterface) {
+		if (updateInterface == null)
+			return;
+		if (updateInterface instanceof UpdateInterfaces.Before) {
+			if (beforeUpdateList == null)
+				beforeUpdateList = new ArrayList<UpdateInterfaces.Before>(1);
+			beforeUpdateList.add((UpdateInterfaces.Before) updateInterface);
+		}
+		if (updateInterface instanceof UpdateInterfaces.After) {
+			if (afterUpdateList == null)
+				afterUpdateList = new ArrayList<UpdateInterfaces.After>(1);
+			afterUpdateList.add((UpdateInterfaces.After) updateInterface);
+		}
+		if (updateInterface instanceof UpdateInterfaces.Delete) {
+			if (afterDeleteList == null)
+				afterDeleteList = new ArrayList<UpdateInterfaces.Delete>(1);
+			afterDeleteList.add((UpdateInterfaces.Delete) updateInterface);
+		}
 	}
 
 	/**
@@ -126,15 +151,10 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void close() {
-		rwl.w.lock();
-		try {
-			if (_reader != null)
-				IOUtils.close(_reader);
-			_reader = null;
-			indexDirectory.close();
-		} finally {
-			rwl.w.unlock();
-		}
+		if (_reader != null)
+			IOUtils.close(_reader);
+		_reader = null;
+		indexDirectory.close();
 	}
 
 	private void checkOnline(boolean online) throws SearchLibException {
@@ -143,114 +163,99 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	public void optimize() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			checkOnline(true);
-			if (writer == null)
-				return;
-			writer.optimize();
-			reload();
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public boolean isOptimizing() {
-		rwl.r.lock();
-		try {
-			return writer != null ? writer.isOptimizing() : false;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
 	public void deleteAll() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		if (writer == null)
+			return;
+		writer.deleteAll();
+		reloadNoLock();
+	}
+
+	private int[] getIds(AbstractRequest request) throws IOException, ParseException, SyntaxError, SearchLibException {
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			if (writer == null)
-				return;
-			writer.deleteAll();
-			reload();
+			if (request instanceof AbstractLocalSearchRequest) {
+				DocSetHits dsh = reader.searchDocSet((AbstractLocalSearchRequest) request, null);
+				if (dsh != null)
+					return dsh.getIds();
+			} else if (request instanceof DocumentsRequest) {
+				ResultDocuments result = (ResultDocuments) reader.request(request);
+				if (result != null)
+					return result.getDocIdArray();
+			}
+			return null;
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public int deleteDocuments(AbstractRequest request) throws SearchLibException {
-		rwl.r.lock();
 		try {
 			checkOnline(true);
 			if (writer == null)
 				return 0;
+			int[] ids = getIds(request);
+			if (ids == null || ids.length == 0)
+				return 0;
 			int res = writer.deleteDocuments(request);
-			reload();
+			reloadNoLock();
 			return res;
-		} finally {
-			rwl.r.unlock();
+		} catch (IOException | ParseException | SyntaxError e) {
+			throw new SearchLibException(e);
 		}
 	}
 
-	@Override
-	public void addUpdateInterface(UpdateInterfaces updateInterface) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (writer != null)
-				writer.addUpdateInterface(updateInterface);
-		} finally {
-			rwl.r.unlock();
-		}
+	private void beforeUpdate(Schema schema, IndexDocument document) throws SearchLibException {
+		if (beforeUpdateList == null)
+			return;
+		for (UpdateInterfaces.Before beforeUpdate : beforeUpdateList)
+			beforeUpdate.update(schema, document);
+	}
+
+	private void afterUpdate(IndexDocument document) throws SearchLibException {
+		if (afterUpdateList == null)
+			return;
+		for (UpdateInterfaces.After afterUpdate : afterUpdateList)
+			afterUpdate.update(document);
 	}
 
 	@Override
 	public boolean updateDocument(Schema schema, IndexDocument document) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			checkOnline(true);
-			if (writer == null)
-				return false;
-			if (!writer.updateDocument(schema, document))
-				return false;
-			reload();
-			return true;
-		} finally {
-			rwl.r.unlock();
-		}
+		checkOnline(true);
+		if (writer == null)
+			return false;
+		beforeUpdate(schema, document);
+		if (!writer.updateDocument(schema, document))
+			return false;
+		reloadNoLock();
+		afterUpdate(document);
+		return true;
 	}
 
 	@Override
 	public int updateDocuments(Schema schema, Collection<IndexDocument> documents) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			checkOnline(true);
-			if (writer == null)
-				return 0;
-			int res = writer.updateDocuments(schema, documents);
-			reload();
-			return res;
-		} finally {
-			rwl.r.unlock();
-		}
+		checkOnline(true);
+		if (writer == null)
+			return 0;
+		for (IndexDocument document : documents)
+			beforeUpdate(schema, document);
+		int res = writer.updateDocuments(schema, documents);
+		reloadNoLock();
+		for (IndexDocument document : documents)
+			afterUpdate(document);
+		return res;
 	}
 
 	@Override
 	public int updateIndexDocuments(Schema schema, Collection<IndexDocumentResult> documents)
 			throws SearchLibException {
-		rwl.r.lock();
-		try {
-			checkOnline(true);
-			if (writer == null)
-				return 0;
-			int res = writer.updateIndexDocuments(schema, documents);
-			reload();
-			return res;
-		} finally {
-			rwl.r.unlock();
-		}
+		checkOnline(true);
+		if (writer == null)
+			return 0;
+		int res = writer.updateIndexDocuments(schema, documents);
+		reloadNoLock();
+		return res;
 	}
 
 	private void reloadNoLock() throws SearchLibException {
@@ -268,17 +273,12 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void reload() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				reloadNoLock();
-			} finally {
-				release(reader);
-			}
+			reloadNoLock();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
@@ -293,63 +293,43 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public AbstractResult<?> request(AbstractRequest request) throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.request(request);
-			} finally {
-				release(reader);
-			}
+			return reader.request(request);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public String explain(AbstractRequest request, int docId, boolean bHtml) throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.explain(request, docId, bHtml);
-			} finally {
-				release(reader);
-			}
+			return reader.explain(request, docId, bHtml);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public boolean sameIndex(ReaderInterface reader) {
-		rwl.r.lock();
-		try {
-			if (reader == this)
-				return true;
-			if (reader == this._reader)
-				return true;
-			return false;
-		} finally {
-			rwl.r.unlock();
-		}
+		if (reader == this)
+			return true;
+		if (reader == this._reader)
+			return true;
+		return false;
 	}
 
 	@Override
 	public IndexStatistics getStatistics() throws IOException, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getStatistics();
-			} finally {
-				release(reader);
-			}
+			return reader.getStatistics();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
@@ -360,249 +340,166 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	final public int getDocFreq(final Term term) throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getDocFreq(term);
-			} finally {
-				release(reader);
-			}
+			return reader.getDocFreq(term);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public TermEnum getTermEnum() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getTermEnum();
-			} finally {
-				release(reader);
-			}
+			return reader.getTermEnum();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public TermEnum getTermEnum(final Term term) throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getTermEnum(term);
-			} finally {
-				release(reader);
-			}
+			return reader.getTermEnum(term);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public TermDocs getTermDocs(final Term term) throws SearchLibException, IOException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getTermDocs(term);
-			} finally {
-				release(reader);
-			}
+			return reader.getTermDocs(term);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public TermPositions getTermPositions() throws IOException, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getTermPositions();
-			} finally {
-				release(reader);
-			}
+			return reader.getTermPositions();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public TermFreqVector getTermFreqVector(final int docId, final String field)
 			throws IOException, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getTermFreqVector(docId, field);
-			} finally {
-				release(reader);
-			}
+			return reader.getTermFreqVector(docId, field);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public void putTermVectors(final int[] docIds, final String field, final Collection<String[]> termVectors)
 			throws IOException, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				reader.putTermVectors(docIds, field, termVectors);
-			} finally {
-				release(reader);
-			}
+			reader.putTermVectors(docIds, field, termVectors);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public FieldCacheIndex getStringIndex(final String fieldName) throws IOException, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getStringIndex(fieldName);
-			} finally {
-				release(reader);
-			}
+			return reader.getStringIndex(fieldName);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
-
 	}
 
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField, PerFieldAnalyzer analyzer,
 			AbstractLocalSearchRequest request, FilterAbstract<?> filter, Timer timer)
 					throws ParseException, IOException, SearchLibException, SyntaxError {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getFilterHits(defaultField, analyzer, request, filter, timer);
-			} finally {
-				release(reader);
-			}
+			return reader.getFilterHits(defaultField, analyzer, request, filter, timer);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public DocSetHits searchDocSet(AbstractLocalSearchRequest searchRequest, Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.searchDocSet(searchRequest, timer);
-			} finally {
-				release(reader);
-			}
+			return reader.searchDocSet(searchRequest, timer);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	final public boolean isOnline() {
-		rwl.r.lock();
-		try {
-			return online;
-		} finally {
-			rwl.r.unlock();
-		}
+		return online;
 	}
 
 	@Override
-	public void setOnline(boolean v) throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (v == online)
-				return;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (v == online)
-				return;
-			online = v;
-			if (v)
-				reload();
-			else {
-				IOUtils.close(_reader);
-				_reader = null;
-			}
-		} finally {
-			rwl.w.unlock();
+	public synchronized void setOnline(boolean v) throws SearchLibException {
+		if (v == online)
+			return;
+		online = v;
+		if (v)
+			reloadNoLock();
+		else {
+			IOUtils.close(_reader);
+			_reader = null;
 		}
 	}
 
 	@Override
 	public long getVersion() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getVersion();
-			} finally {
-				release(reader);
-			}
+			return reader.getVersion();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	public DocSetHitsCache getSearchCache() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getDocSetHitsCache();
-			} finally {
-				release(reader);
-			}
+			return reader.getDocSetHitsCache();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public String[] getDocTerms(String field) throws SearchLibException, IOException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getDocTerms(field);
-			} finally {
-				release(reader);
-			}
+			return reader.getDocTerms(field);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
@@ -613,17 +510,12 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public Collection<?> getFieldNames() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getFieldNames();
-			} finally {
-				release(reader);
-			}
+			return reader.getFieldNames();
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
@@ -631,97 +523,46 @@ public class IndexSingle extends IndexAbstract {
 	final public LinkedHashMap<String, FieldValue> getDocumentFields(final int docId,
 			final LinkedHashSet<String> fieldNameSet, final Timer timer)
 					throws IOException, ParseException, SyntaxError, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getDocumentFields(docId, fieldNameSet, timer);
-			} finally {
-				release(reader);
-			}
+			return reader.getDocumentFields(docId, fieldNameSet, timer);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public LinkedHashMap<String, FieldValue> getDocumentStoredField(final int docId)
 			throws IOException, SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getDocumentStoredField(docId);
-			} finally {
-				release(reader);
-			}
+			return reader.getDocumentStoredField(docId);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public Query rewrite(Query query) throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.rewrite(query);
-			} finally {
-				release(reader);
-			}
+			return reader.rewrite(query);
 		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 
 	@Override
 	public MoreLikeThis getMoreLikeThis() throws SearchLibException {
-		rwl.r.lock();
+		checkOnline(true);
+		ReaderLocal reader = acquire();
 		try {
-			checkOnline(true);
-			ReaderLocal reader = acquire();
-			try {
-				return reader.getMoreLikeThis();
-			} finally {
-				release(reader);
-			}
+			return reader.getMoreLikeThis();
 		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public void mergeData(WriterInterface source) throws SearchLibException {
-		if (!(source instanceof IndexSingle))
-			throw new SearchLibException("Unsupported operation");
-		IndexSingle sourceIndex = (IndexSingle) source;
-		rwl.w.lock();
-		try {
-			if (writer == null)
-				return;
-			sourceIndex.rwl.r.lock();
-			try {
-				writer.mergeData(sourceIndex.writer);
-				reloadNoLock();
-			} finally {
-				sourceIndex.rwl.r.unlock();
-			}
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	@Override
-	public boolean isMerging() {
-		rwl.r.lock();
-		try {
-			return writer != null ? writer.isMerging() : false;
-		} finally {
-			rwl.r.unlock();
+			release(reader);
 		}
 	}
 

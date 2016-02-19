@@ -32,29 +32,16 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 @WebService(name = "Command")
 public interface SoapCommand {
 
-	public CommonResult optimize(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
+	public CommonResult reload(@WebParam(name = "use") String use, @WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult reload(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
+	public CommonResult online(@WebParam(name = "use") String use, @WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult online(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
+	public CommonResult offline(@WebParam(name = "use") String use, @WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
 
-	public CommonResult offline(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
+	public CommonResult truncate(@WebParam(name = "use") String use, @WebParam(name = "login") String login,
 			@WebParam(name = "key") String key);
-
-	public CommonResult truncate(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key);
-
-	public CommonResult merge(@WebParam(name = "use") String use,
-			@WebParam(name = "login") String login,
-			@WebParam(name = "key") String key,
-			@WebParam(name = "index") String index);
 
 }
