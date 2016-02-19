@@ -26,26 +26,14 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.jaeksoft.searchlib.util.Md5Spliter;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public abstract class WriterAbstract implements WriterInterface {
 
-	final private ReadWriteLock rwl = new ReadWriteLock();
-
 	final protected IndexConfig indexConfig;
 	final private Md5Spliter md5spliter;
-	private String keyField = null;
-	protected List<UpdateInterfaces.Before> beforeUpdateList = null;
-	protected List<UpdateInterfaces.After> afterUpdateList = null;
-	protected List<UpdateInterfaces.Delete> afterDeleteList = null;
-
-	private boolean isMergingSource = false;
-	private boolean isMergingTarget = false;
-	protected boolean isOptimizing = false;
+	final private String keyField;
 
 	protected WriterAbstract(IndexConfig indexConfig) {
 		this.indexConfig = indexConfig;
@@ -58,109 +46,14 @@ public abstract class WriterAbstract implements WriterInterface {
 
 	protected boolean acceptDocument(IndexDocument document)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		rwl.r.lock();
-		try {
-			if (keyField == null)
-				return true;
-			if (md5spliter == null)
-				return true;
-			FieldContent fieldContent = document.getField(keyField);
-			if (fieldContent == null)
-				return false;
-			return md5spliter.acceptAnyKey(fieldContent.getValues());
-		} finally {
-			rwl.r.unlock();
-		}
+		if (keyField == null)
+			return true;
+		if (md5spliter == null)
+			return true;
+		FieldContent fieldContent = document.getField(keyField);
+		if (fieldContent == null)
+			return false;
+		return md5spliter.acceptAnyKey(fieldContent.getValues());
 	}
 
-	@Override
-	public void addUpdateInterface(UpdateInterfaces updateInterface) {
-		rwl.w.lock();
-		try {
-			if (updateInterface == null)
-				return;
-			if (updateInterface instanceof UpdateInterfaces.Before) {
-				if (beforeUpdateList == null)
-					beforeUpdateList = new ArrayList<UpdateInterfaces.Before>(1);
-				beforeUpdateList.add((UpdateInterfaces.Before) updateInterface);
-			}
-			if (updateInterface instanceof UpdateInterfaces.After) {
-				if (afterUpdateList == null)
-					afterUpdateList = new ArrayList<UpdateInterfaces.After>(1);
-				afterUpdateList.add((UpdateInterfaces.After) updateInterface);
-			}
-			if (updateInterface instanceof UpdateInterfaces.Delete) {
-				if (afterDeleteList == null)
-					afterDeleteList = new ArrayList<UpdateInterfaces.Delete>(1);
-				afterDeleteList.add((UpdateInterfaces.Delete) updateInterface);
-			}
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	protected void setOptimizing(boolean optimizing) {
-		rwl.w.lock();
-		try {
-			this.isOptimizing = optimizing;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	@Override
-	public boolean isOptimizing() {
-		rwl.r.lock();
-		try {
-			return isOptimizing;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected void setMergingSource(boolean merging) {
-		rwl.w.lock();
-		try {
-			this.isMergingSource = merging;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public boolean isMergingSource() {
-		rwl.r.lock();
-		try {
-			return isMergingSource;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	protected void setMergingTarget(boolean merging) {
-		rwl.w.lock();
-		try {
-			this.isMergingTarget = merging;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public boolean isMergingTarget() {
-		rwl.r.lock();
-		try {
-			return isMergingTarget;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public boolean isMerging() {
-		rwl.r.lock();
-		try {
-			return isMergingSource || isMergingTarget;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
 }

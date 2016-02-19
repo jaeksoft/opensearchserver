@@ -43,28 +43,23 @@ import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskFileManagerAction extends TaskAbstract {
 
-	final private TaskPropertyDef propCommand = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Command", "Command",
+	final private TaskPropertyDef propCommand = new TaskPropertyDef(TaskPropertyType.comboBox, "Command", "Command",
 			"Select the command to execute", 30);
 
-	final private TaskPropertyDef propFetchStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Fetch status", "Fetch status",
-			"Filter on the fetch status", 20);
+	final private TaskPropertyDef propFetchStatus = new TaskPropertyDef(TaskPropertyType.listBox, "Fetch status",
+			"Fetch status", "Filter on the fetch status", 20);
 
-	final private TaskPropertyDef propParserStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Parser status", "Parser status",
-			"Filter on the Parser status", 20);
+	final private TaskPropertyDef propParserStatus = new TaskPropertyDef(TaskPropertyType.listBox, "Parser status",
+			"Parser status", "Filter on the Parser status", 20);
 
-	final private TaskPropertyDef propIndexStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Index status", "Index status",
-			"Filter on the index status", 20);
+	final private TaskPropertyDef propIndexStatus = new TaskPropertyDef(TaskPropertyType.listBox, "Index status",
+			"Index status", "Filter on the index status", 20);
 
-	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", "Buffer size",
-			"Buffer size", 10);
+	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(TaskPropertyType.textBox, "Buffer size",
+			"Buffer size", "Buffer size", 10);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propCommand,
-			propFetchStatus, propParserStatus, propIndexStatus, propBufferSize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propCommand, propFetchStatus, propParserStatus,
+			propIndexStatus, propBufferSize };
 
 	final public static String CommandDoNothing = "Do nothing";
 	final public static String CommandDeleteAll = "Delete all";
@@ -72,8 +67,8 @@ public class TaskFileManagerAction extends TaskAbstract {
 	final public static String CommandOptimize = "Optimize";
 	final public static String CommandSynchronize = "Synchronize";
 
-	final private static String[] CommandList = { CommandDoNothing,
-			CommandDeleteAll, CommandSynchronize, CommandOptimize };
+	final private static String[] CommandList = { CommandDoNothing, CommandDeleteAll, CommandSynchronize,
+			CommandOptimize };
 
 	@Override
 	public String getName() {
@@ -86,8 +81,7 @@ public class TaskFileManagerAction extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propCommand)
 			return CommandList;
 		else if (propertyDef == propFetchStatus)
@@ -122,8 +116,8 @@ public class TaskFileManagerAction extends TaskAbstract {
 
 	private Integer manualBufferSize = null;
 
-	public void setManual(AbstractSearchRequest selectionRequest,
-			FetchStatus setToFetchStatus, String manualCommand, int bufferSize) {
+	public void setManual(AbstractSearchRequest selectionRequest, FetchStatus setToFetchStatus, String manualCommand,
+			int bufferSize) {
 		this.selectionRequest = selectionRequest;
 		this.setToFetchStatus = setToFetchStatus;
 		this.manualCommand = manualCommand;
@@ -131,35 +125,27 @@ public class TaskFileManagerAction extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException,
-			IOException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		FileManager fileManager = client.getFileManager();
 		taskLog.setInfo("File manager Action started");
 
-		String command = manualCommand != null ? manualCommand : properties
-				.getValue(propCommand);
-		int bufferSize = manualBufferSize != null ? manualBufferSize : Integer
-				.parseInt(properties.getValue(propBufferSize));
+		String command = manualCommand != null ? manualCommand : properties.getValue(propCommand);
+		int bufferSize = manualBufferSize != null ? manualBufferSize
+				: Integer.parseInt(properties.getValue(propBufferSize));
 
 		if (selectionRequest == null) {
-			FetchStatus fetchStatus = FetchStatus.findByName(properties
-					.getValue(propFetchStatus));
-			ParserStatus parserStatus = ParserStatus.findByName(properties
-					.getValue(propParserStatus));
-			IndexStatus indexStatus = IndexStatus.findByName(properties
-					.getValue(propIndexStatus));
-			selectionRequest = fileManager.fileQuery(
-					FileManager.SearchTemplate.fileSearch, null, null, null,
-					null, null, null, null, fetchStatus, parserStatus,
-					indexStatus, null, null, null, null, null, null, null,
+			FetchStatus fetchStatus = FetchStatus.findByName(properties.getValue(propFetchStatus));
+			ParserStatus parserStatus = ParserStatus.findByName(properties.getValue(propParserStatus));
+			IndexStatus indexStatus = IndexStatus.findByName(properties.getValue(propIndexStatus));
+			selectionRequest = fileManager.fileQuery(FileManager.SearchTemplate.fileSearch, null, null, null, null,
+					null, null, null, fetchStatus, parserStatus, indexStatus, null, null, null, null, null, null, null,
 					null, null);
 		}
 
 		if (setToFetchStatus != null) {
 			taskLog.setInfo("File manager: set selection to unfetched");
-			fileManager.updateFetchStatus(selectionRequest, setToFetchStatus,
-					bufferSize, taskLog);
+			fileManager.updateFetchStatus(selectionRequest, setToFetchStatus, bufferSize, taskLog);
 		} else if (CommandDeleteSelection.equals(command)) {
 			taskLog.setInfo("File manager: delete selection");
 			fileManager.delete(selectionRequest, taskLog);
@@ -169,9 +155,6 @@ public class TaskFileManagerAction extends TaskAbstract {
 		} else if (CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("File manager: Delete All");
 			fileManager.deleteAll(taskLog);
-		} else if (CommandOptimize.equals(command)) {
-			taskLog.setInfo("File manager: optimize");
-			fileManager.reload(true, taskLog);
 		}
 	}
 }

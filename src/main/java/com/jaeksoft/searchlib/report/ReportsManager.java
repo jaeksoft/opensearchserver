@@ -58,11 +58,9 @@ public class ReportsManager {
 	private Client client;
 	private Client reportsClient;
 
-	public ReportsManager(Config config, File directory)
-			throws SearchLibException {
+	public ReportsManager(Config config, File directory) throws SearchLibException {
 		this.client = (Client) config;
-		this.reportsClient = new Client(directory,
-				"/com/jaeksoft/searchlib/report_config.xml", true);
+		this.reportsClient = new Client(directory, "/com/jaeksoft/searchlib/report_config.xml", true);
 	}
 
 	private class ReportFileFilter implements FilenameFilter {
@@ -80,8 +78,7 @@ public class ReportsManager {
 		return logDirectory.listFiles(new ReportFileFilter());
 	}
 
-	public void updateReportItem(ReportItem reportItem)
-			throws SearchLibException {
+	public void updateReportItem(ReportItem reportItem) throws SearchLibException {
 
 		try {
 			IndexDocument indexDocument = new IndexDocument();
@@ -99,10 +96,8 @@ public class ReportsManager {
 		return reportLine.split("\\s+");
 	}
 
-	private SearchPatternRequest getNewSearchRequest(String defaultOperator,
-			int rows) throws SearchLibException {
-		SearchPatternRequest searchRequest = new SearchPatternRequest(
-				reportsClient);
+	private SearchPatternRequest getNewSearchRequest(String defaultOperator, int rows) throws SearchLibException {
+		SearchPatternRequest searchRequest = new SearchPatternRequest(reportsClient);
 		searchRequest.setDefaultOperator(defaultOperator);
 		searchRequest.setRows(rows);
 		searchRequest.setPhraseSlop(2);
@@ -112,15 +107,13 @@ public class ReportsManager {
 		searchRequest.addReturnField("keywordsExact");
 		searchRequest.addReturnField("datetime");
 		searchRequest.addReturnField("responseTime");
-		searchRequest.getFacetFieldList().put(
-				new FacetField("keywords", 1, false, false, rows,
-						OrderByEnum.count_desc, null));
+		searchRequest.getFacetFieldList()
+				.put(new FacetField("keywords", 1, false, false, rows, OrderByEnum.count_desc, null));
 		searchRequest.setLang(LanguageEnum.UNDEFINED);
 		return searchRequest;
 	}
 
-	private SearchPatternRequest addDateFilter(
-			SearchPatternRequest searchRequest, String startDate, String endDate)
+	private SearchPatternRequest addDateFilter(SearchPatternRequest searchRequest, String startDate, String endDate)
 			throws ParseException {
 		StringBuilder addDateBuffer = new StringBuilder();
 		addDateBuffer.append(" ");
@@ -133,9 +126,8 @@ public class ReportsManager {
 		return searchRequest;
 	}
 
-	private SearchPatternRequest generateSearchRequest(String topKeywords,
-			String startDate, String endDate, boolean withResult, int rows)
-			throws ParseException, SearchLibException {
+	private SearchPatternRequest generateSearchRequest(String topKeywords, String startDate, String endDate,
+			boolean withResult, int rows) throws ParseException, SearchLibException {
 		SearchPatternRequest searchRequest = getNewSearchRequest("OR", rows);
 		if (!withResult) {
 			StringBuilder addFilterBuffer = new StringBuilder();
@@ -152,15 +144,13 @@ public class ReportsManager {
 		return searchRequest;
 	}
 
-	private final static ThreadSafeDateFormat changeDateFormat = new ThreadSafeSimpleDateFormat(
-			"yyyyMMddhhmmss");
+	private final static ThreadSafeDateFormat changeDateFormat = new ThreadSafeSimpleDateFormat("yyyyMMddhhmmss");
 
 	private final String modifyDate(Date date) throws java.text.ParseException {
 		return changeDateFormat.format(date);
 	}
 
-	public Facet getSearchReport(String topKeywords, Date startDate,
-			Date endDate, boolean withResult, int rows)
+	public Facet getSearchReport(String topKeywords, Date startDate, Date endDate, boolean withResult, int rows)
 			throws SearchLibException, ParseException {
 
 		SearchPatternRequest searchRequest;
@@ -168,13 +158,10 @@ public class ReportsManager {
 		String dateTo;
 
 		try {
-			fromDate = startDate == null ? "00000000000000"
-					: modifyDate(startDate);
+			fromDate = startDate == null ? "00000000000000" : modifyDate(startDate);
 			dateTo = endDate == null ? "99999999999999" : modifyDate(endDate);
-			searchRequest = generateSearchRequest(topKeywords, fromDate,
-					dateTo, withResult, rows);
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) reportsClient
-					.request(searchRequest);
+			searchRequest = generateSearchRequest(topKeywords, fromDate, dateTo, withResult, rows);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) reportsClient.request(searchRequest);
 			FacetList facet = result.getFacetList();
 			return facet.getByField("keywords");
 		} catch (java.text.ParseException e) {
@@ -182,16 +169,7 @@ public class ReportsManager {
 		}
 	}
 
-	public void reload(boolean optimize) throws SearchLibException {
-		if (optimize) {
-			reportsClient.reload();
-			reportsClient.getIndex().optimize();
-		}
-	}
-
-	public int loadReportFile(String filename)
-			throws UnsupportedEncodingException, IOException,
-			SearchLibException {
+	public int loadReportFile(String filename) throws UnsupportedEncodingException, IOException, SearchLibException {
 		List<String> fileList = new ArrayList<String>();
 		int count = 0;
 
@@ -200,8 +178,7 @@ public class ReportsManager {
 		BufferedReader br = null;
 		InputStreamReader isr = null;
 		try {
-			File reportFile = new File(client.getLogReportManager()
-					.getLogDirectory(), filename);
+			File reportFile = new File(client.getLogReportManager().getLogDirectory(), filename);
 			fstream = new FileInputStream(reportFile);
 			in = new DataInputStream(fstream);
 			isr = new InputStreamReader(in);
@@ -229,8 +206,8 @@ public class ReportsManager {
 		fileList.clear();
 	}
 
-	private List<ReportItem> createIndexvalues(List<String> reportFileString,
-			File reportFile) throws UnsupportedEncodingException {
+	private List<ReportItem> createIndexvalues(List<String> reportFileString, File reportFile)
+			throws UnsupportedEncodingException {
 		List<ReportItem> listReportItem = new ArrayList<ReportItem>();
 		int id = 1;
 		for (String reportList : reportFileString) {
@@ -239,8 +216,7 @@ public class ReportsManager {
 			reportItem.setReportId(reportFile.getName() + "_" + id);
 			reportItem.setDatetime(createDate(reportItems[0]));
 			reportItem.setKeywords(URLDecoder.decode(reportItems[1], "UTF-8"));
-			reportItem.setKeywordsExact(URLDecoder.decode(reportItems[1],
-					"UTF-8"));
+			reportItem.setKeywordsExact(URLDecoder.decode(reportItems[1], "UTF-8"));
 			reportItem.setResponseTime(reportItems[2]);
 			reportItem.setDocumentsFound(reportItems[3]);
 			listReportItem.add(reportItem);
@@ -249,11 +225,9 @@ public class ReportsManager {
 		return listReportItem;
 	}
 
-	public void updateReportItems(List<ReportItem> listItem)
-			throws SearchLibException {
+	public void updateReportItems(List<ReportItem> listItem) throws SearchLibException {
 		for (ReportItem reportItemList : listItem)
 			updateReportItem(reportItemList);
-		reload(true);
 	}
 
 	public String createDate(String date) {

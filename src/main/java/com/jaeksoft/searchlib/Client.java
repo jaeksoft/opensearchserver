@@ -300,37 +300,6 @@ public class Client extends Config {
 		}
 	}
 
-	public void optimize() throws SearchLibException {
-		Timer timer = new Timer("Optimize");
-		try {
-			getIndexAbstract().optimize();
-		} finally {
-			getStatisticsList().addOptimize(timer);
-		}
-	}
-
-	public boolean isOptimizing() {
-		return getIndexAbstract().isOptimizing();
-	}
-
-	public String getOptimizationStatus() throws IOException, SearchLibException {
-		if (!isOnline())
-			return "Unknown";
-		if (isOptimizing())
-			return "Running";
-		return Boolean.toString(getIndexAbstract().getStatistics().isOptimized());
-	}
-
-	public String getMergeStatus() {
-		if (!isOnline())
-			return "Unknown";
-		return isMerging() ? "Merging" : null;
-	}
-
-	public boolean isMerging() {
-		return getIndexAbstract().isMerging();
-	}
-
 	public void deleteAll() throws SearchLibException {
 		Timer timer = new Timer("DeleteAll");
 		try {
@@ -417,10 +386,6 @@ public class Client extends Config {
 
 	public void removeReplCheck() {
 		new File(this.getDirectory(), REPL_CHECK_FILENAME).delete();
-	}
-
-	public void mergeData(Client sourceClient) throws SearchLibException {
-		getIndexAbstract().mergeData(sourceClient.getIndexAbstract());
 	}
 
 }

@@ -43,6 +43,8 @@ public abstract class IndexAbstract implements ReaderInterface, WriterInterface 
 		return indexConfig;
 	}
 
+	public abstract void addUpdateInterface(UpdateInterfaces updateInterface);
+
 	public abstract boolean isOnline();
 
 	public abstract void reload() throws SearchLibException;

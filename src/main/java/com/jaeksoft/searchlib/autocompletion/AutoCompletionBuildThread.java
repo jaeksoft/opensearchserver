@@ -186,7 +186,6 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 		else
 			docCount = buildTermEnum(buffer, docCount);
 		docCount = indexBuffer(docCount, buffer);
-		autoCompClient.optimize();
 	}
 
 	@Override
