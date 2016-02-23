@@ -75,7 +75,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		try {
 			Client client = getLoggedClient(use, login, key, Role.WEB_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
-			if (once)
+			if (once != null && once)
 				return CrawlerUtils.runOnce(client.getWebCrawlMaster());
 			else {
 				client.getWebPropertyManager().getCrawlEnabled().setValue(true);
