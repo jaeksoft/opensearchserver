@@ -52,15 +52,14 @@ public class CrawlWebController extends CrawlerController {
 		return sheetRows;
 	}
 
-	public WebPropertyManager getProperties() throws SearchLibException {
+	public WebPropertyManager getProperties() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		return client.getWebPropertyManager();
 	}
 
-	private final static String[] fetchIntervalUnitValues = { "days", "hours",
-			"minutes" };
+	private final static String[] fetchIntervalUnitValues = { "days", "hours", "minutes" };
 
 	public String[] getFetchIntervalUnitValues() {
 		return fetchIntervalUnitValues;
@@ -78,8 +77,7 @@ public class CrawlWebController extends CrawlerController {
 	public void onRun() throws SearchLibException, IOException {
 		if (!isWebCrawlerStartStopRights())
 			throw new SearchLibException("Not allowed");
-		WebPropertyManager propertyManager = getClient()
-				.getWebPropertyManager();
+		WebPropertyManager propertyManager = getClient().getWebPropertyManager();
 		if (getCrawlMaster().isRunning()) {
 			propertyManager.getCrawlEnabled().setValue(false);
 			getCrawlMaster().abort();

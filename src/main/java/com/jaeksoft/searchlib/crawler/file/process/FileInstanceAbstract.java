@@ -34,7 +34,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.util.IOUtils;
@@ -50,20 +49,16 @@ public abstract class FileInstanceAbstract {
 	private URI uri;
 
 	final public static FileInstanceAbstract create(FilePathItem filePathItem, FileInstanceAbstract parent, String path)
-			throws SearchLibException {
+			throws IOException, URISyntaxException {
 		FileInstanceAbstract fileInstance;
 		try {
 			fileInstance = filePathItem.getType().getNewInstance();
 			fileInstance.init(filePathItem, parent, path);
 			return fileInstance;
 		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (UnsupportedEncodingException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		}
 	}
 
@@ -71,38 +66,38 @@ public abstract class FileInstanceAbstract {
 	}
 
 	final protected void init(FilePathItem filePathItem, FileInstanceAbstract parent, String path)
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		this.filePathItem = filePathItem;
 		this.parent = parent;
 		this.path = path;
 		this.uri = init();
 	}
 
-	public abstract URI init() throws SearchLibException, URISyntaxException, UnsupportedEncodingException;
+	public abstract URI init() throws URISyntaxException, UnsupportedEncodingException;
 
 	public URI getURI() {
 		return uri;
 	}
 
-	public abstract FileTypeEnum getFileType() throws SearchLibException;
+	public abstract FileTypeEnum getFileType() throws IOException;
 
 	public abstract FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException;
+			throws URISyntaxException, UnsupportedEncodingException, IOException;
 
 	public abstract FileInstanceAbstract[] listFilesOnly()
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException;
+			throws URISyntaxException, UnsupportedEncodingException, IOException;
 
-	public abstract String getFileName() throws SearchLibException;
+	public abstract String getFileName() throws IOException;
 
-	public abstract Long getLastModified() throws SearchLibException;
+	public abstract Long getLastModified() throws IOException;
 
-	public abstract Long getFileSize() throws SearchLibException;
+	public abstract Long getFileSize() throws IOException;
 
 	public abstract InputStream getInputStream() throws IOException;
 
 	public abstract void delete() throws IOException;
 
-	public String check() throws SearchLibException, URISyntaxException, UnsupportedEncodingException {
+	public String check() throws URISyntaxException, IOException {
 		StringWriter sw = null;
 		PrintWriter pw = null;
 		try {

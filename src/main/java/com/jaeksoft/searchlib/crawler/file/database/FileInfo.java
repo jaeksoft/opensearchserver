@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.file.database;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,7 +33,6 @@ import java.text.ParseException;
 import org.apache.commons.io.FilenameUtils;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -73,7 +73,7 @@ public class FileInfo {
 		setIndexStatusInt(doc.getValueContent(FileItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
 	}
 
-	public FileInfo(FileInstanceAbstract fileInstance) throws SearchLibException {
+	public FileInfo(FileInstanceAbstract fileInstance) throws IOException {
 		init();
 		setUriFileNameExtension(fileInstance.getURI());
 

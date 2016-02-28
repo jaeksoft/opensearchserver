@@ -44,7 +44,7 @@ public abstract class CrawlQueueAbstract {
 
 	private final SimpleLock lock = new SimpleLock();
 
-	protected CrawlQueueAbstract(Config config) throws SearchLibException {
+	protected CrawlQueueAbstract(Config config) {
 		this.sessionStats = null;
 		this.config = config;
 		this.containedData = false;
@@ -108,17 +108,15 @@ public abstract class CrawlQueueAbstract {
 		}
 	}
 
-	protected abstract void indexWork() throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException;
+	protected abstract void indexWork() throws SearchLibException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, HttpException;
 
 	protected abstract void initWorking();
 
 	protected abstract void resetWork();
 
-	public void index(boolean bForce) throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void index(boolean bForce) throws SearchLibException, IOException, URISyntaxException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, HttpException {
 		if (!bForce)
 			if (!weMustIndexNow())
 				return;

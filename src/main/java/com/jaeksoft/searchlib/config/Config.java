@@ -929,7 +929,11 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	protected WebCrawlMaster getNewWebCrawlMaster() throws SearchLibException {
-		return new WebCrawlMaster(this);
+		try {
+			return new WebCrawlMaster(this);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 	private final ReadWriteLock webCrawlLock = new ReadWriteLock();
@@ -954,7 +958,7 @@ public abstract class Config implements ThreadFactory {
 
 	private final ReadWriteLock fileCrawlLock = new ReadWriteLock();
 
-	public CrawlFileMaster getFileCrawlMaster() throws SearchLibException {
+	public CrawlFileMaster getFileCrawlMaster() throws IOException {
 		fileCrawlLock.r.lock();
 		try {
 			if (fileCrawlMaster != null)
@@ -1176,6 +1180,8 @@ public abstract class Config implements ThreadFactory {
 			if (screenshotManager != null)
 				return screenshotManager;
 			return screenshotManager = new ScreenshotManager(this);
+		} catch (IOException e) {
+			throw new SearchLibException(e);
 		} finally {
 			screenshotLock.w.unlock();
 		}
@@ -1859,7 +1865,7 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	public WebPropertyManager getWebPropertyManager() throws SearchLibException {
+	public WebPropertyManager getWebPropertyManager() throws IOException {
 		webCrawlLock.r.lock();
 		try {
 			if (webPropertyManager != null)
@@ -1872,14 +1878,12 @@ public abstract class Config implements ThreadFactory {
 			if (webPropertyManager != null)
 				return webPropertyManager;
 			return webPropertyManager = new WebPropertyManager(new File(indexDir, "webcrawler-properties.xml"));
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} finally {
 			webCrawlLock.w.unlock();
 		}
 	}
 
-	public FilePropertyManager getFilePropertyManager() throws SearchLibException {
+	public FilePropertyManager getFilePropertyManager() throws IOException {
 		fileCrawlLock.r.lock();
 		try {
 			if (filePropertyManager != null)
@@ -1892,8 +1896,6 @@ public abstract class Config implements ThreadFactory {
 			if (filePropertyManager != null)
 				return filePropertyManager;
 			return filePropertyManager = new FilePropertyManager(new File(indexDir, "filecrawler-properties.xml"));
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} finally {
 			fileCrawlLock.w.unlock();
 		}

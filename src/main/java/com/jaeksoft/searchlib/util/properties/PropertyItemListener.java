@@ -24,9 +24,9 @@
 
 package com.jaeksoft.searchlib.util.properties;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import java.io.IOException;
 
 public interface PropertyItemListener {
 
-	void hasBeenSet(PropertyItem<?> prop) throws SearchLibException;
+	void hasBeenSet(PropertyItem<?> prop) throws IOException;
 }

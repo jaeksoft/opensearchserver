@@ -40,7 +40,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -55,8 +54,7 @@ public class ProxyHandler {
 
 	final private String password;
 
-	public ProxyHandler(WebPropertyManager webPropertyManager)
-			throws SearchLibException {
+	public ProxyHandler(WebPropertyManager webPropertyManager) throws IOException {
 		if (!webPropertyManager.getProxyEnabled().getValue()) {
 			proxyList = null;
 			exclusionSet = null;
@@ -66,8 +64,7 @@ public class ProxyHandler {
 		}
 		String proxyHost = webPropertyManager.getProxyHost().getValue();
 		int proxyPort = webPropertyManager.getProxyPort().getValue();
-		if (proxyHost == null || proxyHost.trim().length() == 0
-				|| proxyPort == 0) {
+		if (proxyHost == null || proxyHost.trim().length() == 0 || proxyPort == 0) {
 			proxyList = null;
 			exclusionSet = null;
 			username = null;
@@ -90,16 +87,13 @@ public class ProxyHandler {
 		StringReader sr = null;
 		BufferedReader br = null;
 		try {
-			sr = new StringReader(webPropertyManager.getProxyExclusion()
-					.getValue());
+			sr = new StringReader(webPropertyManager.getProxyExclusion().getValue());
 			br = new BufferedReader(sr);
 			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				if (line.length() > 0)
 					exclusionSet.add(line);
 			}
-		} catch (IOException e) {
-			throw new SearchLibException(e);
 		} finally {
 			IOUtils.close(br, sr);
 		}

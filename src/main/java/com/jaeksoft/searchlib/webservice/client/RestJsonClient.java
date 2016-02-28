@@ -45,18 +45,18 @@ public class RestJsonClient {
 	private final HttpDownloader downloader;
 
 	public RestJsonClient(HttpDownloader downloader, String oss_url, String oss_login, String oss_key)
-			throws SearchLibException {
+			throws IOException {
 		this.downloader = downloader == null ? new HttpDownloader("RestJsonOssClient", false, null) : downloader;
 		this.oss_url = oss_url;
 		this.oss_login = oss_login;
 		this.oss_key = oss_key;
 	}
 
-	public RestJsonClient(String oss_url, String oss_login, String oss_key) throws SearchLibException {
+	public RestJsonClient(String oss_url, String oss_login, String oss_key) throws IOException {
 		this(null, oss_url, oss_login, oss_key);
 	}
 
-	public RestJsonClient(String oss_url) throws SearchLibException {
+	public RestJsonClient(String oss_url) throws IOException {
 		this(null, oss_url, null, null);
 	}
 

@@ -53,7 +53,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlF
 
 	private final LinkedList<FilePathItem> filePathList;
 
-	public CrawlFileMaster(Config config) throws SearchLibException {
+	public CrawlFileMaster(Config config) throws IOException {
 		super(config);
 		FilePropertyManager filePropertyManager = config.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config);

@@ -26,16 +26,13 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 
 public class FtpsFileInstance extends FtpFileInstance {
@@ -44,16 +41,14 @@ public class FtpsFileInstance extends FtpFileInstance {
 		super();
 	}
 
-	protected FtpsFileInstance(FilePathItem filePathItem,
-			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	protected FtpsFileInstance(FilePathItem filePathItem, FtpFileInstance parent, FTPFile ftpFile)
+			throws URISyntaxException, UnsupportedEncodingException {
 		super(filePathItem, parent, ftpFile);
 	}
 
 	@Override
-	protected FtpFileInstance newInstance(FilePathItem filePathItem,
-			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	protected FtpFileInstance newInstance(FilePathItem filePathItem, FtpFileInstance parent, FTPFile ftpFile)
+			throws URISyntaxException, UnsupportedEncodingException {
 		return new FtpsFileInstance(filePathItem, parent, ftpFile);
 	}
 
@@ -63,8 +58,7 @@ public class FtpsFileInstance extends FtpFileInstance {
 	}
 
 	@Override
-	protected FTPClient ftpConnect() throws SocketException, IOException,
-			NoSuchAlgorithmException {
+	protected FTPClient ftpConnect() throws IOException {
 		FilePathItem fpi = getFilePathItem();
 		FTPClient f = new FTPSClient();
 		f.connect(fpi.getHost());

@@ -27,7 +27,6 @@ package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -108,7 +106,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 	}
 
 	protected SmbFileInstance(FilePathItem filePathItem, SmbFileInstance parent, SmbFile smbFile)
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		init(filePathItem, parent, LinkUtils.concatPath(parent.getPath(), smbFile.getName()));
 		this.smbFileStore = smbFile;
 	}
@@ -118,7 +116,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 		return new URI("smb", filePathItem.getHost(), getPath(), null);
 	}
 
-	protected SmbFile getSmbFile() throws MalformedURLException, LoginException {
+	protected SmbFile getSmbFile() throws IOException {
 		if (smbFileStore != null)
 			return smbFileStore;
 		String context = StringUtils.fastConcat("smb://", getFilePathItem().getHost());
@@ -126,7 +124,11 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			smbFileStore = new SmbFile(context, getPath());
 		} else if (filePathItem.getKeyTabPath() != null) {
 			Subject subject = new Subject();
-			login(subject, filePathItem);
+			try {
+				login(subject, filePathItem);
+			} catch (LoginException e) {
+				throw new IOException(e);
+			}
 			Kerb5Authenticator auth = new Kerb5Authenticator(subject);
 			smbFileStore = new SmbFile(getURI().toURL(), auth);
 		} else {
@@ -162,44 +164,30 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 	}
 
 	@Override
-	public FileTypeEnum getFileType() throws SearchLibException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			if (smbFile.isDirectory())
-				return FileTypeEnum.directory;
-			if (smbFile.isFile())
-				return FileTypeEnum.file;
-			return null;
-		} catch (MalformedURLException e) {
-			throw new SearchLibException("URL error on " + getPath(), e);
-		} catch (SmbException e) {
-			throw new SearchLibException("SMB Error on " + getPath(), e);
-		} catch (LoginException e) {
-			throw new SearchLibException("Login Error on " + getPath(), e);
-		}
+	public FileTypeEnum getFileType() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		if (smbFile.isDirectory())
+			return FileTypeEnum.directory;
+		if (smbFile.isFile())
+			return FileTypeEnum.file;
+		return null;
 	}
 
 	@Override
-	public String getFileName() throws SearchLibException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			if (smbFile == null)
-				return null;
-			return smbFile.getName();
-		} catch (MalformedURLException e) {
-			throw new SearchLibException("URL error on " + getPath(), e);
-		} catch (LoginException e) {
-			throw new SearchLibException("Login error on " + getPath(), e);
-		}
+	public String getFileName() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		if (smbFile == null)
+			return null;
+		return smbFile.getName();
 	}
 
 	protected SmbFileInstance newInstance(FilePathItem filePathItem, SmbFileInstance parent, SmbFile smbFile)
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		return new SmbFileInstance(filePathItem, parent, smbFile);
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(SmbFile[] files)
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -210,8 +198,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws SearchLibException, UnsupportedEncodingException, URISyntaxException {
+	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, IOException {
 		try {
 			SmbFile smbFile = getSmbFile();
 			SmbFile[] files = smbFile.listFiles(new SmbInstanceFileFilter(false));
@@ -219,12 +206,6 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 		} catch (SmbAuthException e) {
 			Logging.warn(e.getMessage() + " - " + getPath(), e);
 			return null;
-		} catch (SmbException e) {
-			throw new SearchLibException(e);
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
-		} catch (LoginException e) {
-			throw new SearchLibException(e);
 		}
 	}
 
@@ -256,64 +237,33 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly()
-			throws SearchLibException, UnsupportedEncodingException, URISyntaxException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			SmbFile[] files = smbFile.listFiles(new SmbInstanceFileFilter(true));
-			return buildFileInstanceArray(files);
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
-		} catch (SmbException e) {
-			throw new SearchLibException(e);
-		} catch (LoginException e) {
-			throw new SearchLibException(e);
-		}
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException, IOException {
+		SmbFile smbFile = getSmbFile();
+		SmbFile[] files = smbFile.listFiles(new SmbInstanceFileFilter(true));
+		return buildFileInstanceArray(files);
 	}
 
 	@Override
-	public Long getLastModified() throws SearchLibException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			return smbFile.getLastModified();
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
-		} catch (LoginException e) {
-			throw new SearchLibException(e);
-		}
+	public Long getLastModified() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		return smbFile.getLastModified();
 	}
 
 	@Override
-	public Long getFileSize() throws SearchLibException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			return (long) smbFile.getContentLength();
-		} catch (MalformedURLException e) {
-			throw new SearchLibException(e);
-		} catch (LoginException e) {
-			throw new SearchLibException(e);
-		}
+	public Long getFileSize() throws IOException {
+		SmbFile smbFile = getSmbFile();
+		return (long) smbFile.getContentLength();
 	}
 
 	@Override
 	public void delete() throws IOException {
-		try {
-			getSmbFile().delete();
-		} catch (LoginException e) {
-			throw new IOException(e);
-		}
+		getSmbFile().delete();
 	}
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			return smbFile.getInputStream();
-		} catch (IOException e) {
-			throw new IOException("I/O error on SMB path: " + getPath(), e);
-		} catch (LoginException e) {
-			throw new IOException("Login error on SMB path: " + getPath(), e);
-		}
+		SmbFile smbFile = getSmbFile();
+		return smbFile.getInputStream();
 	}
 
 	public final static ACE[] getSecurity(SmbFile smbFile) throws IOException {
@@ -385,27 +335,23 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 
 	@Override
 	public List<SecurityAccess> getSecurity() throws IOException {
-		try {
-			SmbFile smbFile = getSmbFile();
-			List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
-			SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();
-			if (smbSecurityPermissions == null)
-				smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
-			switch (smbSecurityPermissions) {
-			case FILE_PERMISSIONS:
-				fillSecurity(getSecurity(smbFile), accesses);
-				break;
-			case SHARE_PERMISSIONS:
-				fillSecurity(getShareSecurity(smbFile), accesses);
-				break;
-			case FILE_SHARE_PERMISSIONS:
-				fillSecurity(getSecurity(smbFile), accesses);
-				fillSecurity(getShareSecurity(smbFile), accesses);
-				break;
-			}
-			return accesses.isEmpty() ? null : accesses;
-		} catch (LoginException e) {
-			throw new IOException("Login error on SMB path: " + getPath(), e);
+		SmbFile smbFile = getSmbFile();
+		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();
+		if (smbSecurityPermissions == null)
+			smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
+		switch (smbSecurityPermissions) {
+		case FILE_PERMISSIONS:
+			fillSecurity(getSecurity(smbFile), accesses);
+			break;
+		case SHARE_PERMISSIONS:
+			fillSecurity(getShareSecurity(smbFile), accesses);
+			break;
+		case FILE_SHARE_PERMISSIONS:
+			fillSecurity(getSecurity(smbFile), accesses);
+			fillSecurity(getShareSecurity(smbFile), accesses);
+			break;
 		}
+		return accesses.isEmpty() ? null : accesses;
 	}
 }

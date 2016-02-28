@@ -180,7 +180,7 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 	}
 
 	private FileInstanceAbstract[] checkDirectory(FileInstanceAbstract fileInstance)
-			throws UnsupportedEncodingException, SearchLibException, URISyntaxException {
+			throws SearchLibException, URISyntaxException, IOException {
 
 		// Load directory from Index
 		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();

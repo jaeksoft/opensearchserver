@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.crawler.web.spider;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -50,18 +50,15 @@ public class HttpDownloadThread extends ThreadAbstract<HttpDownloadThread> {
 	private long contentTransfered;
 	private boolean downloadSuccess;
 
-	public HttpDownloadThread(Config config, URI uri, File destFile,
-			boolean followRedirection) throws SearchLibException,
-			MalformedURLException, URISyntaxException {
+	public HttpDownloadThread(Config config, URI uri, File destFile, boolean followRedirection)
+			throws URISyntaxException, SearchLibException, IOException {
 		super(config, null, null, null);
 		this.uri = uri;
 		contentSize = 0;
 		contentTransfered = 0;
 		this.destFile = destFile;
-		httpDownloader = config.getWebCrawlMaster().getNewHttpDownloader(
-				followRedirection);
-		credentialItem = config.getWebCredentialManager().getCredential(
-				uri.toString());
+		httpDownloader = config.getWebCrawlMaster().getNewHttpDownloader(followRedirection);
+		credentialItem = config.getWebCredentialManager().getCredential(uri.toString());
 		downloadSuccess = false;
 	}
 

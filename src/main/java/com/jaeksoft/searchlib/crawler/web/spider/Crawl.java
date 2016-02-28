@@ -106,7 +106,7 @@ public class Crawl {
 	private final boolean robotsTxtEnabled;
 
 	public Crawl(HostUrlList hostUrlList, UrlItem urlItem, Config config, ParserSelector parserSelector)
-			throws SearchLibException {
+			throws IOException, SearchLibException {
 		this.credentialManager = config.getWebCredentialManager();
 		this.cookieManager = config.getWebCookieManager();
 		this.headerManager = config.getWebHeaderManager();
@@ -135,7 +135,7 @@ public class Crawl {
 		this.robotsTxtEnabled = propertyManager.getRobotsTxtEnabled().getValue();
 	}
 
-	public Crawl(WebCrawlThread crawlThread) throws SearchLibException {
+	public Crawl(WebCrawlThread crawlThread) throws SearchLibException, IOException {
 		this(crawlThread.getHostUrlList(), crawlThread.getCurrentUrlItem(), crawlThread.getConfig(),
 				crawlThread.getConfig().getParserSelector());
 	}
@@ -216,7 +216,7 @@ public class Crawl {
 	}
 
 	public boolean checkRobotTxtAllow(HttpDownloader httpDownloader)
-			throws MalformedURLException, SearchLibException, URISyntaxException, ClassNotFoundException {
+			throws SearchLibException, URISyntaxException, ClassNotFoundException, IOException {
 		RobotsTxtStatus robotsTxtStatus;
 		if (robotsTxtEnabled) {
 			RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(httpDownloader, config, urlItem.getURL(),

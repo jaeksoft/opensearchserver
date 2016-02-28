@@ -778,7 +778,7 @@ public class UrlManager extends AbstractManager {
 		}
 	}
 
-	public long updateSiteMap(TaskLog taskLog) throws SearchLibException {
+	public long updateSiteMap(TaskLog taskLog) throws SearchLibException, IOException {
 		setCurrentTaskLog(taskLog);
 		HttpDownloader httpDownloader = null;
 		try {

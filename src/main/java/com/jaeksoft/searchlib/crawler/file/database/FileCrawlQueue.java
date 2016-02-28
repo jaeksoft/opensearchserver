@@ -49,7 +49,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	private List<CrawlFile> workingUpdateCrawlList;
 	private List<String> workingDeleteUriList;
 
-	public FileCrawlQueue(Config config) throws SearchLibException {
+	public FileCrawlQueue(Config config) {
 		super(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
 		this.deleteUriList = new ArrayList<String>(0);

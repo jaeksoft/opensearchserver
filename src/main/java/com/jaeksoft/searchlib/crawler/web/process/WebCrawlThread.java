@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.process;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -65,7 +66,7 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 	private final WebScriptManager webScriptManager;
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster, CrawlStatistics sessionStats,
-			HostUrlList hostUrlList) throws SearchLibException {
+			HostUrlList hostUrlList) throws SearchLibException, IOException {
 		super(config, crawlMaster, null, null);
 		this.crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 		this.currentUrlItem = null;
@@ -134,7 +135,7 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 		urlList.clear();
 	}
 
-	private Crawl crawl() throws SearchLibException, InterruptedException {
+	private Crawl crawl() throws SearchLibException, InterruptedException, IOException {
 
 		Config config = getConfig();
 
@@ -144,6 +145,7 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 		Crawl crawl = ((WebCrawlMaster) getThreadMaster()).getNewCrawl(this);
 
 		try {
+
 			// Check the url
 			URL url = currentUrlItem.getURL();
 

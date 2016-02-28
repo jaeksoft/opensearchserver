@@ -23,6 +23,8 @@
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
+
 import org.zkoss.bind.annotation.AfterCompose;
 
 import com.jaeksoft.searchlib.Client;
@@ -51,7 +53,7 @@ public class ExclusionController extends AbstractPatternController {
 	}
 
 	@Override
-	public PropertyItem<Boolean> getEnabled() throws SearchLibException {
+	public PropertyItem<Boolean> getEnabled() throws IOException, SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return null;

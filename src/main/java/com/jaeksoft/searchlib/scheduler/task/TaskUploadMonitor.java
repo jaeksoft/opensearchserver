@@ -53,20 +53,17 @@ import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskUploadMonitor extends TaskAbstract {
 
-	final private TaskPropertyDef propUrl = new TaskPropertyDef(
-			TaskPropertyType.textBox, "URL", "Url", null, 100);
+	final private TaskPropertyDef propUrl = new TaskPropertyDef(TaskPropertyType.textBox, "URL", "Url", null, 100);
 
-	final private TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", "Login", null, 50);
+	final private TaskPropertyDef propLogin = new TaskPropertyDef(TaskPropertyType.textBox, "Login", "Login", null, 50);
 
-	final private TaskPropertyDef propPassword = new TaskPropertyDef(
-			TaskPropertyType.password, "Password", "Password", null, 20);
+	final private TaskPropertyDef propPassword = new TaskPropertyDef(TaskPropertyType.password, "Password", "Password",
+			null, 20);
 
-	final private TaskPropertyDef propInstanceId = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Instance ID", "Instance ID", null, 80);
+	final private TaskPropertyDef propInstanceId = new TaskPropertyDef(TaskPropertyType.textBox, "Instance ID",
+			"Instance ID", null, 80);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propUrl, propLogin,
-			propPassword, propInstanceId };
+	final private TaskPropertyDef[] taskPropertyDefs = { propUrl, propLogin, propPassword, propInstanceId };
 
 	@Override
 	public String getName() {
@@ -79,8 +76,7 @@ public class TaskUploadMonitor extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		return null;
 	}
@@ -93,8 +89,8 @@ public class TaskUploadMonitor extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		String url = properties.getValue(propUrl);
 		URI uri;
 		try {
@@ -108,21 +104,18 @@ public class TaskUploadMonitor extends TaskAbstract {
 
 		CredentialItem credentialItem = null;
 		if (!StringUtils.isEmpty(login) && !StringUtils.isEmpty(password))
-			credentialItem = new CredentialItem(CredentialType.BASIC_DIGEST,
-					null, login, password, null, null);
-		HttpDownloader downloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader(true);
+			credentialItem = new CredentialItem(CredentialType.BASIC_DIGEST, null, login, password, null, null);
+		HttpDownloader downloader = client.getWebCrawlMaster().getNewHttpDownloader(true);
 		try {
 
 			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 			nvps.add(new BasicNameValuePair("instanceId", instanceId));
 			new Monitor().writeToPost(nvps);
-			DownloadItem downloadItem = downloader.post(uri, credentialItem,
-					null, null, new UrlEncodedFormEntity(nvps));
+			DownloadItem downloadItem = downloader.post(uri, credentialItem, null, null,
+					new UrlEncodedFormEntity(nvps));
 			if (downloadItem.getStatusCode() != 200)
-				throw new SearchLibException("Wrong code status:"
-						+ downloadItem.getStatusCode() + " "
-						+ downloadItem.getReasonPhrase());
+				throw new SearchLibException(
+						"Wrong code status:" + downloadItem.getStatusCode() + " " + downloadItem.getReasonPhrase());
 			taskLog.setInfo("Monitoring data uploaded");
 		} catch (ClientProtocolException e) {
 			throw new SearchLibException(e);

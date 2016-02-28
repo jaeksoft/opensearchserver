@@ -40,24 +40,19 @@ public class StreamLimiterFileInstance extends StreamLimiter {
 
 	private final FileInstanceAbstract fileInstance;
 
-	public StreamLimiterFileInstance(FileInstanceAbstract fileInstance,
-			int limit) throws IOException, SearchLibException {
+	public StreamLimiterFileInstance(FileInstanceAbstract fileInstance, int limit)
+			throws IOException, SearchLibException {
 		super(limit, fileInstance.getFileName(), fileInstance.getURL());
 		this.fileInstance = fileInstance;
 	}
 
 	@Override
 	protected void loadOutputCache() throws LimitException, IOException {
-		try {
-			Long l = fileInstance.getFileSize();
-			if (l != null)
-				if (limit != 0 && l > limit)
-					throw new LimitException("File instance "
-							+ fileInstance.getFileName() + " larger than "
-							+ limit + " bytes.");
-		} catch (SearchLibException e) {
-			throw new IOException(e);
-		}
+		Long l = fileInstance.getFileSize();
+		if (l != null)
+			if (limit != 0 && l > limit)
+				throw new LimitException(
+						"File instance " + fileInstance.getFileName() + " larger than " + limit + " bytes.");
 		if (fileInstance instanceof LocalFileInstance)
 			loadOutputCache(((LocalFileInstance) fileInstance).getFile());
 		else {

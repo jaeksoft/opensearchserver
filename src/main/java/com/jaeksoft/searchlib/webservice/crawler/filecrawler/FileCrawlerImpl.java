@@ -43,19 +43,15 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 
-public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
-		RestFileCrawler {
+public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, RestFileCrawler {
 
 	@Override
 	public CommonResult runOnce(String use, String login, String key) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_START_STOP);
+			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.runOnce(client.getFileCrawlMaster());
 		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
@@ -65,8 +61,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	@Override
 	public CommonResult runForever(String use, String login, String key) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_START_STOP);
+			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getFilePropertyManager().getCrawlEnabled().setValue(true);
 			return CrawlerUtils.runForever(client.getFileCrawlMaster());
@@ -82,8 +77,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	@Override
 	public CommonResult stop(String use, String login, String key) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_START_STOP);
+			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getFilePropertyManager().getCrawlEnabled().setValue(false);
 			return CrawlerUtils.stop(client.getFileCrawlMaster());
@@ -99,28 +93,22 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	@Override
 	public CommonResult status(String use, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.FILE_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.status(client.getFileCrawlMaster());
 		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}
 
-	private CommonResult injectRepository(String use, String login, String key,
-			FileInstanceType type, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host,
-			String swiftContainer, String swiftTenant, String swiftAuthURL,
+	private CommonResult injectRepository(String use, String login, String key, FileInstanceType type, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String domain, String host, String swiftContainer, String swiftTenant, String swiftAuthURL,
 			AuthType swiftAuthType) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			FilePathItem filePathItem = new FilePathItem(client);
 			filePathItem.setType(type);
@@ -150,8 +138,7 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 			if (checkFilePathItem != null)
 				filePathManager.remove(checkFilePathItem);
 			filePathManager.add(filePathItem);
-			return new CommonResult(true,
-					checkFilePathItem == null ? "Inserted" : "Updated");
+			return new CommonResult(true, checkFilePathItem == null ? "Inserted" : "Updated");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		} catch (InterruptedException e) {
@@ -162,20 +149,16 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	}
 
 	@Override
-	public CommonResult injectLocalFileRepository(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay) {
-		return injectRepository(use, login, key, FileInstanceType.Local, path,
-				ignoreHiddenFile, withSubDirectory, enabled, delay, null, null,
-				null, null, null, null, null, null);
+	public CommonResult injectLocalFileRepository(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay) {
+		return injectRepository(use, login, key, FileInstanceType.Local, path, ignoreHiddenFile, withSubDirectory,
+				enabled, delay, null, null, null, null, null, null, null, null);
 	}
 
-	private CommonResult removeFileRepository(String use, String login,
-			String key, FileInstanceType type, String path, String username,
-			String domain, String host, String swiftContainer) {
+	private CommonResult removeFileRepository(String use, String login, String key, FileInstanceType type, String path,
+			String username, String domain, String host, String swiftContainer) {
 		try {
-			Client client = getLoggedClient(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			FilePathItem filePathItem = new FilePathItem(client);
 			filePathItem.setType(type);
@@ -204,48 +187,38 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	}
 
 	@Override
-	public CommonResult removeLocalFileRepository(String use, String login,
-			String key, String path) {
-		return removeFileRepository(use, login, key, FileInstanceType.Local,
-				path, null, null, null, null);
+	public CommonResult removeLocalFileRepository(String use, String login, String key, String path) {
+		return removeFileRepository(use, login, key, FileInstanceType.Local, path, null, null, null, null);
 	}
 
 	@Override
-	public CommonResult injectSmbRepository(@WebParam(name = "use") String use,
-			String login, String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host) {
-		return injectRepository(use, login, key, FileInstanceType.Smb, path,
-				ignoreHiddenFile, withSubDirectory, enabled, delay, username,
-				password, domain, host, null, null, null, null);
+	public CommonResult injectSmbRepository(@WebParam(name = "use") String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String domain, String host) {
+		return injectRepository(use, login, key, FileInstanceType.Smb, path, ignoreHiddenFile, withSubDirectory,
+				enabled, delay, username, password, domain, host, null, null, null, null);
 	}
 
 	@Override
-	public CommonResult removeSmbRepository(@WebParam(name = "use") String use,
-			String login, String key, String path, String username,
-			String domain, String host) {
-		return removeFileRepository(use, login, key, FileInstanceType.Smb,
-				path, username, domain, host, null);
+	public CommonResult removeSmbRepository(@WebParam(name = "use") String use, String login, String key, String path,
+			String username, String domain, String host) {
+		return removeFileRepository(use, login, key, FileInstanceType.Smb, path, username, domain, host, null);
 	}
 
 	@Override
-	public CommonResult injectFtpRepository(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String host, boolean ssl) {
-		return injectRepository(use, login, key, ssl ? FileInstanceType.Ftps
-				: FileInstanceType.Ftp, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, null,
-				host, null, null, null, null);
+	public CommonResult injectFtpRepository(String use, String login, String key, String path, Boolean ignoreHiddenFile,
+			Boolean withSubDirectory, Boolean enabled, int delay, String username, String password, String host,
+			boolean ssl) {
+		return injectRepository(use, login, key, ssl ? FileInstanceType.Ftps : FileInstanceType.Ftp, path,
+				ignoreHiddenFile, withSubDirectory, enabled, delay, username, password, null, host, null, null, null,
+				null);
 	}
 
 	@Override
-	public CommonResult removeFtpRepository(@WebParam(name = "use") String use,
-			String login, String key, String path, String username,
-			String host, boolean ssl) {
-		return removeFileRepository(use, login, key,
-				ssl ? FileInstanceType.Ftps : FileInstanceType.Ftp, path,
-				username, null, host, null);
+	public CommonResult removeFtpRepository(@WebParam(name = "use") String use, String login, String key, String path,
+			String username, String host, boolean ssl) {
+		return removeFileRepository(use, login, key, ssl ? FileInstanceType.Ftps : FileInstanceType.Ftp, path, username,
+				null, host, null);
 	}
 
 	@Override
@@ -289,160 +262,133 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler,
 	}
 
 	@Override
-	public CommonResult injectLocalFileRepositoryXML(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay) {
-		return injectLocalFileRepository(use, login, key, path,
-				ignoreHiddenFile, withSubDirectory, enabled, delay);
+	public CommonResult injectLocalFileRepositoryXML(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay) {
+		return injectLocalFileRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay);
 	}
 
 	@Override
-	public CommonResult injectLocalFileRepositoryJSON(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay) {
-		return injectLocalFileRepository(use, login, key, path,
-				ignoreHiddenFile, withSubDirectory, enabled, delay);
+	public CommonResult injectLocalFileRepositoryJSON(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay) {
+		return injectLocalFileRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay);
 	}
 
 	@Override
-	public CommonResult removeLocalFileRepositoryXML(String use, String login,
-			String key, String path) {
+	public CommonResult removeLocalFileRepositoryXML(String use, String login, String key, String path) {
 		return removeLocalFileRepository(use, login, key, path);
 	}
 
 	@Override
-	public CommonResult removeLocalFileRepositoryJSON(String use, String login,
-			String key, String path) {
+	public CommonResult removeLocalFileRepositoryJSON(String use, String login, String key, String path) {
 		return removeLocalFileRepository(use, login, key, path);
 	}
 
 	@Override
-	public CommonResult injectSmbRepositoryXML(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host) {
-		return injectSmbRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, domain,
-				host);
+	public CommonResult injectSmbRepositoryXML(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String domain, String host) {
+		return injectSmbRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay, username,
+				password, domain, host);
 	}
 
 	@Override
-	public CommonResult injectSmbRepositoryJSON(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String domain, String host) {
-		return injectSmbRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, domain,
-				host);
+	public CommonResult injectSmbRepositoryJSON(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String domain, String host) {
+		return injectSmbRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay, username,
+				password, domain, host);
 	}
 
 	@Override
-	public CommonResult removeSmbRepositoryXML(String use, String login,
-			String key, String path, String username, String domain, String host) {
-		return removeSmbRepository(use, login, key, path, username, domain,
-				host);
+	public CommonResult removeSmbRepositoryXML(String use, String login, String key, String path, String username,
+			String domain, String host) {
+		return removeSmbRepository(use, login, key, path, username, domain, host);
 	}
 
 	@Override
-	public CommonResult removeSmbRepositoryJSON(String use, String login,
-			String key, String path, String username, String domain, String host) {
-		return removeSmbRepository(use, login, key, path, username, domain,
-				host);
+	public CommonResult removeSmbRepositoryJSON(String use, String login, String key, String path, String username,
+			String domain, String host) {
+		return removeSmbRepository(use, login, key, path, username, domain, host);
 	}
 
 	@Override
-	public CommonResult injectFtpRepositoryXML(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String host, boolean ssl) {
-		return injectFtpRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, host, ssl);
+	public CommonResult injectFtpRepositoryXML(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String host, boolean ssl) {
+		return injectFtpRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay, username,
+				password, host, ssl);
 	}
 
 	@Override
-	public CommonResult injectFtpRepositoryJSON(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String host, boolean ssl) {
-		return injectFtpRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, host, ssl);
+	public CommonResult injectFtpRepositoryJSON(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String host, boolean ssl) {
+		return injectFtpRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay, username,
+				password, host, ssl);
 	}
 
 	@Override
-	public CommonResult removeFtpRepositoryXML(String use, String login,
-			String key, String path, String username, String host, boolean ssl) {
+	public CommonResult removeFtpRepositoryXML(String use, String login, String key, String path, String username,
+			String host, boolean ssl) {
 		return removeFtpRepository(use, login, key, path, username, host, ssl);
 	}
 
 	@Override
-	public CommonResult removeFtpRepositoryJSON(String use, String login,
-			String key, String path, String username, String host, boolean ssl) {
+	public CommonResult removeFtpRepositoryJSON(String use, String login, String key, String path, String username,
+			String host, boolean ssl) {
 		return removeFtpRepository(use, login, key, path, username, host, ssl);
 	}
 
 	@Override
-	public CommonResult injectSwiftRepository(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String tenant, String container,
-			String authURL, AuthType authType) {
-		return injectRepository(use, login, key, FileInstanceType.Swift, path,
-				ignoreHiddenFile, withSubDirectory, enabled, delay, username,
-				password, null, null, container, tenant, authURL, authType);
+	public CommonResult injectSwiftRepository(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String tenant, String container, String authURL, AuthType authType) {
+		return injectRepository(use, login, key, FileInstanceType.Swift, path, ignoreHiddenFile, withSubDirectory,
+				enabled, delay, username, password, null, null, container, tenant, authURL, authType);
 	}
 
 	@Override
-	public CommonResult injectSwiftRepositoryXML(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String tenant, String container,
-			String authURL, AuthType authType) {
-		return injectSwiftRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, tenant,
-				container, authURL, authType);
+	public CommonResult injectSwiftRepositoryXML(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String tenant, String container, String authURL, AuthType authType) {
+		return injectSwiftRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay,
+				username, password, tenant, container, authURL, authType);
 	}
 
 	@Override
-	public CommonResult injectSwiftRepositoryJSON(String use, String login,
-			String key, String path, Boolean ignoreHiddenFile,
-			Boolean withSubDirectory, Boolean enabled, int delay,
-			String username, String password, String tenant, String container,
-			String authURL, AuthType authType) {
-		return injectSwiftRepository(use, login, key, path, ignoreHiddenFile,
-				withSubDirectory, enabled, delay, username, password, tenant,
-				container, authURL, authType);
+	public CommonResult injectSwiftRepositoryJSON(String use, String login, String key, String path,
+			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
+			String password, String tenant, String container, String authURL, AuthType authType) {
+		return injectSwiftRepository(use, login, key, path, ignoreHiddenFile, withSubDirectory, enabled, delay,
+				username, password, tenant, container, authURL, authType);
 	}
 
 	@Override
-	public CommonResult removeSwiftRepository(String use, String login,
-			String key, String path, String username, String container) {
-		return removeFileRepository(use, login, key, FileInstanceType.Swift,
-				path, username, null, null, container);
+	public CommonResult removeSwiftRepository(String use, String login, String key, String path, String username,
+			String container) {
+		return removeFileRepository(use, login, key, FileInstanceType.Swift, path, username, null, null, container);
 	}
 
 	@Override
-	public CommonResult removeSwiftRepositoryJSON(String use, String login,
-			String key, String path, String username, String container) {
+	public CommonResult removeSwiftRepositoryJSON(String use, String login, String key, String path, String username,
+			String container) {
 		return removeSwiftRepository(use, login, key, path, username, container);
 	}
 
 	@Override
-	public CommonResult removeSwiftRepositoryXML(String use, String login,
-			String key, String path, String username, String container) {
+	public CommonResult removeSwiftRepositoryXML(String use, String login, String key, String path, String username,
+			String container) {
 		return removeSwiftRepository(use, login, key, path, username, container);
 	}
 
 	@Override
-	public CommonListResult<FilePathResult> getList(String use, String login,
-			String key) {
+	public CommonListResult<FilePathResult> getList(String use, String login, String key) {
 		try {
-			Client client = getLoggedClientAnyRole(use, login, key,
-					Role.FILE_CRAWLER_EDIT_PARAMETERS);
+			Client client = getLoggedClientAnyRole(use, login, key, Role.FILE_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			List<FilePathItem> filePathItems = new ArrayList<FilePathItem>();
 			client.getFilePathManager().getAllFilePaths(filePathItems);
-			return new CommonListResult<FilePathResult>(
-					FilePathResult.create(filePathItems));
+			return new CommonListResult<FilePathResult>(FilePathResult.create(filePathItems));
 		} catch (IOException e) {
 			throw new WebServiceException(e);
 		} catch (SearchLibException e) {
