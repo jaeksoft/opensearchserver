@@ -96,13 +96,11 @@ public abstract class AbstractPatternController extends CrawlerController {
 		return like;
 	}
 
-	protected abstract PatternManager getPatternManager()
-			throws SearchLibException;
+	protected abstract PatternManager getPatternManager() throws SearchLibException;
 
 	protected abstract boolean isInclusion();
 
-	public abstract PropertyItem<Boolean> getEnabled()
-			throws SearchLibException;
+	public abstract PropertyItem<Boolean> getEnabled() throws IOException, SearchLibException;
 
 	public List<String> getPatternList() {
 		synchronized (this) {
@@ -114,8 +112,8 @@ public abstract class AbstractPatternController extends CrawlerController {
 					return null;
 				PatternManager patternManager = getPatternManager();
 				patternList = new ArrayList<String>();
-				totalSize = patternManager.getPatterns(like, getActivePage()
-						* getPageSize(), getPageSize(), patternList);
+				totalSize = patternManager.getPatterns(like, getActivePage() * getPageSize(), getPageSize(),
+						patternList);
 				selectionSet.clear();
 				return patternList;
 			} catch (SearchLibException e) {
@@ -129,8 +127,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 	}
 
 	@NotifyChange("*")
-	public void setSelectedItems(Set<String> selectionSet)
-			throws SearchLibException {
+	public void setSelectedItems(Set<String> selectionSet) throws SearchLibException {
 		this.selectionSet = selectionSet;
 	}
 
@@ -191,8 +188,7 @@ public abstract class AbstractPatternController extends CrawlerController {
 
 	}
 
-	public void deleteSelection(PatternManager patternManager)
-			throws SearchLibException {
+	public void deleteSelection(PatternManager patternManager) throws SearchLibException {
 		synchronized (selectionSet) {
 			if (!isWebCrawlerEditPatternsRights())
 				throw new SearchLibException("Not allowed");

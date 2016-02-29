@@ -222,8 +222,6 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			ClientFactory.INSTANCE.properties.checkApi();
 			WebPropertyManager webPropertyManager = client.getWebPropertyManager();
 			return getPatternStatusResult(webPropertyManager);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

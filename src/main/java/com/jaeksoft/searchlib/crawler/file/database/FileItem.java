@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract.SecurityInterface;
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
@@ -134,7 +133,7 @@ public class FileItem extends FileInfo {
 		setGroupDeny(FieldValueItem.buildArrayList(doc.getValues(FileItemFieldEnum.INSTANCE.groupDeny.getName())));
 	}
 
-	public FileItem(FileInstanceAbstract fileInstance) throws SearchLibException {
+	public FileItem(FileInstanceAbstract fileInstance) throws IOException {
 		super(fileInstance);
 		setHost(fileInstance.getFilePathItem().getHost());
 		setRepository(fileInstance.getFilePathItem().toString());
@@ -148,12 +147,7 @@ public class FileItem extends FileInfo {
 		setCrawlDate(System.currentTimeMillis());
 		if (fileInstance instanceof SecurityInterface) {
 			SecurityInterface fileInstanceSecurity = (SecurityInterface) fileInstance;
-			List<SecurityAccess> securityAccesses;
-			try {
-				securityAccesses = fileInstanceSecurity.getSecurity();
-			} catch (IOException e) {
-				throw new SearchLibException(e);
-			}
+			List<SecurityAccess> securityAccesses = fileInstanceSecurity.getSecurity();
 			setUserAllow(SecurityAccess.getIds(securityAccesses, Type.USER, Grant.ALLOW));
 			setUserDeny(SecurityAccess.getIds(securityAccesses, Type.USER, Grant.DENY));
 			setGroupAllow(SecurityAccess.getIds(securityAccesses, Type.GROUP, Grant.ALLOW));

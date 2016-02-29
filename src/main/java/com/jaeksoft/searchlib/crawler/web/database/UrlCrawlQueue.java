@@ -51,7 +51,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	private List<UrlItem> workingInsertUrlList;
 	private List<String> workingDeleteUrlList;
 
-	public UrlCrawlQueue(Config config) throws SearchLibException {
+	public UrlCrawlQueue(Config config) {
 		super(config);
 		updateCrawlList = new ArrayList<Crawl>(0);
 		insertUrlList = new ArrayList<UrlItem>(0);
@@ -175,7 +175,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	private boolean updateCrawls(List<Crawl> workUpdateCrawlList, CrawlStatistics sessionStats)
-			throws SearchLibException {
+			throws IOException, SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();

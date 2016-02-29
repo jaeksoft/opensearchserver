@@ -62,49 +62,36 @@ import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskFtpXmlFeed extends TaskAbstract {
 
-	final private TaskPropertyDef propServer = new TaskPropertyDef(
-			TaskPropertyType.textBox, "FTP server", "FTP server (hostname)",
-			"The hostname of the FTP server", 100);
+	final private TaskPropertyDef propServer = new TaskPropertyDef(TaskPropertyType.textBox, "FTP server",
+			"FTP server (hostname)", "The hostname of the FTP server", 100);
 
-	final private TaskPropertyDef propPath = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Path", "Path", "The remote path", 100);
+	final private TaskPropertyDef propPath = new TaskPropertyDef(TaskPropertyType.textBox, "Path", "Path",
+			"The remote path", 100);
 
-	final private TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", "Login",
+	final private TaskPropertyDef propLogin = new TaskPropertyDef(TaskPropertyType.textBox, "Login", "Login",
 			"The username on the FTP server", 50);
 
-	final private TaskPropertyDef propPassword = new TaskPropertyDef(
-			TaskPropertyType.password, "Password", "Password",
+	final private TaskPropertyDef propPassword = new TaskPropertyDef(TaskPropertyType.password, "Password", "Password",
 			"The password on the FTP server", 50);
 
-	final private TaskPropertyDef propFileNamePattern = new TaskPropertyDef(
-			TaskPropertyType.textBox, "File name pattern", "File name pattern",
-			"A regular expression to filter which files will be handled", 50);
+	final private TaskPropertyDef propFileNamePattern = new TaskPropertyDef(TaskPropertyType.textBox,
+			"File name pattern", "File name pattern", "A regular expression to filter which files will be handled", 50);
 
-	final private TaskPropertyDef propXsl = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "XSL", "XSL",
+	final private TaskPropertyDef propXsl = new TaskPropertyDef(TaskPropertyType.multilineTextBox, "XSL", "XSL",
 			"An optional XSL stylesheet", 100, 30);
 
-	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Delete after load", "Delete after load",
-			"Decide if the document will be deleted after being loaded", 10);
+	final private TaskPropertyDef propDeleteAfterLoad = new TaskPropertyDef(TaskPropertyType.listBox,
+			"Delete after load", "Delete after load", "Decide if the document will be deleted after being loaded", 10);
 
-	final private TaskPropertyDef propTruncateIndexWhenFilesFound = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Truncate index when files are found",
-			"Truncate index when files are found",
+	final private TaskPropertyDef propTruncateIndexWhenFilesFound = new TaskPropertyDef(TaskPropertyType.listBox,
+			"Truncate index when files are found", "Truncate index when files are found",
 			"Decide to truncate the index before loading the XML file", 10);
 
-	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
-			TaskPropertyType.textBox,
-			"Buffer size",
-			"Buffer size",
-			"How many documents will be write to the index in each transaction",
-			10);
+	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(TaskPropertyType.textBox, "Buffer size",
+			"Buffer size", "How many documents will be write to the index in each transaction", 10);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propServer, propPath,
-			propLogin, propPassword, propFileNamePattern, propXsl,
-			propDeleteAfterLoad, propTruncateIndexWhenFilesFound,
-			propBuffersize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propServer, propPath, propLogin, propPassword,
+			propFileNamePattern, propXsl, propDeleteAfterLoad, propTruncateIndexWhenFilesFound, propBuffersize };
 
 	@Override
 	public String getName() {
@@ -117,8 +104,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		if (propertyDef == propDeleteAfterLoad)
 			return ClassPropertyEnum.BOOLEAN_LIST;
@@ -140,8 +126,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		return null;
 	}
 
-	private void checkConnect(FTPClient ftp, String server, String login,
-			String password) throws IOException {
+	private void checkConnect(FTPClient ftp, String server, String login, String password) throws IOException {
 		try {
 			if (ftp.isConnected())
 				if (ftp.sendNoOp())
@@ -157,17 +142,16 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		String server = properties.getValue(propServer);
 		String path = properties.getValue(propPath);
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);
 		String fileNamePattern = properties.getValue(propFileNamePattern);
-		boolean deleteAfterLoad = Boolean.TRUE.toString().equals(
-				properties.getValue(propDeleteAfterLoad));
-		boolean truncateWhenFilesFound = Boolean.TRUE.toString().equals(
-				properties.getValue(propTruncateIndexWhenFilesFound));
+		boolean deleteAfterLoad = Boolean.TRUE.toString().equals(properties.getValue(propDeleteAfterLoad));
+		boolean truncateWhenFilesFound = Boolean.TRUE.toString()
+				.equals(properties.getValue(propTruncateIndexWhenFilesFound));
 		Pattern pattern = null;
 		if (fileNamePattern != null && fileNamePattern.length() > 0)
 			pattern = Pattern.compile(fileNamePattern);
@@ -178,17 +162,14 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
-		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader(true);
+		HttpDownloader httpDownloader = client.getWebCrawlMaster().getNewHttpDownloader(true);
 		FTPClient ftp = null;
 		InputStream inputStream = null;
 		try {
 			// FTP Connection
 			ftp = new FTPClient();
 			checkConnect(ftp, server, login, password);
-			FTPFile[] files = ftp
-					.listFiles(path, new FtpFileInstance.FtpInstanceFileFilter(
-							true, false, null));
+			FTPFile[] files = ftp.listFiles(path, new FtpFileInstance.FtpInstanceFileFilter(true, false, null));
 			if (files == null)
 				return;
 			// Sort by ascendant filename
@@ -216,15 +197,11 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 				Node xmlDoc = null;
 				if (xsl != null && xsl.length() > 0) {
 					xmlTempResult = File.createTempFile("ossftpfeed", ".xml");
-					DomUtils.xslt(new StreamSource(inputStream), xsl,
-							xmlTempResult);
-					xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult),
-							false);
+					DomUtils.xslt(new StreamSource(inputStream), xsl, xmlTempResult);
+					xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult), false);
 				} else
-					xmlDoc = DomUtils.readXml(new StreamSource(inputStream),
-							false);
-				client.updateXmlDocuments(xmlDoc, bufferSize, null,
-						httpDownloader, taskLog);
+					xmlDoc = DomUtils.readXml(new StreamSource(inputStream), false);
+				client.updateXmlDocuments(xmlDoc, bufferSize, null, httpDownloader, taskLog);
 				client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);
 				inputStream.close();
 				inputStream = null;
@@ -239,8 +216,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 					ftp.deleteFile(filePathName);
 				loaded++;
 			}
-			taskLog.setInfo(loaded + " file(s) loaded - " + ignored
-					+ " file(s) ignored");
+			taskLog.setInfo(loaded + " file(s) loaded - " + ignored + " file(s) ignored");
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (NoSuchAlgorithmException e) {

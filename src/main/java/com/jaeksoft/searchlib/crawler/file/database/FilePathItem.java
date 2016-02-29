@@ -462,8 +462,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		return sb.toString();
 	}
 
-	public String check() throws InstantiationException, IllegalAccessException, SearchLibException, URISyntaxException,
-			UnsupportedEncodingException {
+	public String check() throws URISyntaxException, IOException {
 		if (Logging.isDebug)
 			Logging.debug("CHECK " + this.toString());
 		return FileInstanceAbstract.create(this, null, path).check();

@@ -75,7 +75,7 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public HttpDownloader(final String userAgent, final boolean bFollowRedirect, final ProxyHandler proxyHandler)
-			throws SearchLibException {
+			throws IOException {
 		super(userAgent, bFollowRedirect, proxyHandler);
 	}
 
@@ -86,8 +86,7 @@ public class HttpDownloader extends HttpAbstract {
 			httpRequest.addHeader(header.getHeader());
 	}
 
-	private final DownloadItem getDownloadItem(final URI uri)
-			throws IllegalStateException, IOException, SearchLibException {
+	private final DownloadItem getDownloadItem(final URI uri) throws IllegalStateException, IOException {
 		DownloadItem downloadItem = new DownloadItem(uri);
 		downloadItem.setRedirectLocation(getRedirectLocation());
 		downloadItem.setContentLength(getContentLength());
@@ -106,8 +105,7 @@ public class HttpDownloader extends HttpAbstract {
 
 	private final DownloadItem request(final HttpRequestBase httpRequestBase, final CredentialItem credentialItem,
 			final List<HeaderItem> headers, final List<CookieItem> cookies, final HttpEntity entity)
-					throws ClientProtocolException, IOException, URISyntaxException, IllegalStateException,
-					SearchLibException {
+					throws ClientProtocolException, IOException, URISyntaxException, IllegalStateException {
 		synchronized (this) {
 			reset();
 			if (entity != null)
@@ -120,8 +118,7 @@ public class HttpDownloader extends HttpAbstract {
 
 	public final DownloadItem request(final URI uri, final Method method, final CredentialItem credentialItem,
 			final List<HeaderItem> headers, final List<CookieItem> cookies, final HttpEntity entity)
-					throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException,
-					SearchLibException {
+					throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException {
 		HttpRequestBase httpRequestBase;
 		switch (method) {
 		case GET:
@@ -146,7 +143,7 @@ public class HttpDownloader extends HttpAbstract {
 			httpRequestBase = new HttpHead(uri);
 			break;
 		default:
-			throw new SearchLibException("Unkown method: " + method);
+			throw new IOException("Unkown method: " + method);
 		}
 		return request(httpRequestBase, credentialItem, headers, cookies, entity);
 	}
@@ -158,12 +155,12 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem, List<HeaderItem> headers, List<CookieItem> cookies)
-			throws ClientProtocolException, IOException, IllegalStateException, SearchLibException, URISyntaxException {
+			throws IOException, IllegalStateException, URISyntaxException {
 		return request(uri, Method.GET, credentialItem, headers, cookies, null);
 	}
 
 	public DownloadItem get(URI uri, CredentialItem credentialItem)
-			throws ClientProtocolException, IOException, IllegalStateException, SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IOException, IllegalStateException, URISyntaxException {
 		return get(uri, credentialItem, null, null);
 	}
 
@@ -178,8 +175,7 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem post(URI uri, CredentialItem credentialItem, List<HeaderItem> headers, List<CookieItem> cookies,
-			HttpEntity entity) throws ClientProtocolException, IOException, IllegalStateException, SearchLibException,
-					URISyntaxException {
+			HttpEntity entity) throws ClientProtocolException, IOException, IllegalStateException, URISyntaxException {
 		return request(uri, Method.POST, credentialItem, headers, cookies, entity);
 	}
 

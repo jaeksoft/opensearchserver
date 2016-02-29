@@ -55,7 +55,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	protected DropboxFileInstance(FilePathItem filePathItem, DropboxFileInstance parent, DbxEntry dbxEntry)
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		init(filePathItem, parent, dbxEntry.path);
 		this.dbxEntry = dbxEntry;
 	}
@@ -76,12 +76,12 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public URI init() throws SearchLibException, URISyntaxException {
+	public URI init() throws URISyntaxException {
 		return new URI("dropbox", filePathItem.getHost(), getPath(), null);
 	}
 
 	@Override
-	public FileTypeEnum getFileType() throws SearchLibException {
+	public FileTypeEnum getFileType() {
 		if (dbxEntry == null) // ROOT
 			return FileTypeEnum.directory;
 		if (dbxEntry.isFolder())
@@ -90,7 +90,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, SearchLibException {
+	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, IOException {
 		try {
 			DbxClient dbxClient = connect();
 			DbxEntry.WithChildren entries;
@@ -103,15 +103,12 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 				fileInstances[i++] = new DropboxFileInstance(filePathItem, this, entry);
 			return fileInstances;
 		} catch (DbxException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly()
-			throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException, IOException {
 		try {
 			DbxClient dbxClient = connect();
 			DbxEntry.WithChildren entries;
@@ -129,14 +126,12 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 					fileInstances[i++] = new DropboxFileInstance(filePathItem, this, entry);
 			return fileInstances;
 		} catch (DbxException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public Long getLastModified() throws SearchLibException {
+	public Long getLastModified() {
 		if (dbxEntry == null)
 			return null;
 		Date dt = null;
@@ -148,7 +143,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public Long getFileSize() throws SearchLibException {
+	public Long getFileSize() {
 		if (dbxEntry == null)
 			return null;
 		if (dbxEntry instanceof DbxEntry.File)
@@ -157,7 +152,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public String getFileName() throws SearchLibException {
+	public String getFileName() {
 		if (dbxEntry == null)
 			return null;
 		return dbxEntry.name;

@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -50,8 +51,8 @@ public class RobotsTxtCache {
 
 	public RobotsTxtCache() throws SearchLibException, ClassNotFoundException {
 		robotsTxtList = new TreeMap<String, RobotsTxt>();
-		parserSelector = new ParserSelector(null, ParserFactory.create(null,
-				"RobotsTxt parser", DisallowList.class.getCanonicalName()));
+		parserSelector = new ParserSelector(null,
+				ParserFactory.create(null, "RobotsTxt parser", DisallowList.class.getCanonicalName()));
 	}
 
 	/**
@@ -61,8 +62,7 @@ public class RobotsTxtCache {
 	 */
 	private void checkExpiration(long t) {
 		synchronized (robotsTxtList) {
-			Iterator<Entry<String, RobotsTxt>> it = robotsTxtList.entrySet()
-					.iterator();
+			Iterator<Entry<String, RobotsTxt>> it = robotsTxtList.entrySet().iterator();
 			ArrayList<String> keyToRemove = null;
 			while (it.hasNext()) {
 				Entry<String, RobotsTxt> e = it.next();
@@ -85,15 +85,13 @@ public class RobotsTxtCache {
 	 * @param url
 	 * @param reloadRobotsTxt
 	 * @return
-	 * @throws MalformedURLException
 	 * @throws SearchLibException
 	 * @throws URISyntaxException
+	 * @throws IOException
 	 */
-	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Config config,
-			URL url, boolean reloadRobotsTxt) throws MalformedURLException,
-			SearchLibException, URISyntaxException {
-		UrlItem urlItem = config.getUrlManager().getNewUrlItem(
-				RobotsTxt.getRobotsUrl(url).toExternalForm());
+	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Config config, URL url, boolean reloadRobotsTxt)
+			throws SearchLibException, URISyntaxException, IOException {
+		UrlItem urlItem = config.getUrlManager().getNewUrlItem(RobotsTxt.getRobotsUrl(url).toExternalForm());
 		String robotsKey = urlItem.getUrl();
 		synchronized (robotsTxtList) {
 			checkExpiration(System.currentTimeMillis());
@@ -122,19 +120,16 @@ public class RobotsTxtCache {
 		}
 	}
 
-	private static String getRobotsUrlKey(String pattern)
-			throws MalformedURLException, URISyntaxException {
+	private static String getRobotsUrlKey(String pattern) throws MalformedURLException, URISyntaxException {
 		pattern = pattern.trim();
 		if (pattern.length() == 0)
 			return null;
 		if (pattern.indexOf(':') == -1)
 			pattern = "http://" + pattern;
-		return RobotsTxt.getRobotsUrl(LinkUtils.newEncodedURL(pattern))
-				.toExternalForm();
+		return RobotsTxt.getRobotsUrl(LinkUtils.newEncodedURL(pattern)).toExternalForm();
 	}
 
-	public RobotsTxt findRobotsTxt(String pattern)
-			throws MalformedURLException, URISyntaxException {
+	public RobotsTxt findRobotsTxt(String pattern) throws MalformedURLException, URISyntaxException {
 		synchronized (robotsTxtList) {
 			return robotsTxtList.get(getRobotsUrlKey(pattern));
 		}

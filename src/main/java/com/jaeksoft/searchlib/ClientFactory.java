@@ -81,64 +81,47 @@ public class ClientFactory implements PropertyItemListener {
 
 	public ClientFactory() throws SearchLibException {
 		try {
-			properties = new InstanceProperties(new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"properties.xml"));
-			File advPropFile = new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"advanced.xml");
+			properties = new InstanceProperties(
+					new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "properties.xml"));
+			File advPropFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "advanced.xml");
 			advancedProperties = new PropertyManager(advPropFile);
-			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty(
-					"booleanQueryMaxClauseCount", 1024, null, null);
+			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty("booleanQueryMaxClauseCount", 1024, null,
+					null);
 			hasBeenSet(booleanQueryMaxClauseCount);
 			booleanQueryMaxClauseCount.addListener(this);
-			defaultWebBrowserDriver = advancedProperties.newStringProperty(
-					"defaultWebBrowserDriver",
+			defaultWebBrowserDriver = advancedProperties.newStringProperty("defaultWebBrowserDriver",
 					BrowserDriverEnum.FIREFOX.getName());
 			defaultWebBrowserDriver.addListener(this);
-			soapActive = advancedProperties.newBooleanProperty("soapActive",
-					false);
+			soapActive = advancedProperties.newBooleanProperty("soapActive", false);
 			soapActive.addListener(this);
-			externalParser = advancedProperties.newBooleanProperty(
-					"externalParser", false);
+			externalParser = advancedProperties.newBooleanProperty("externalParser", false);
 			externalParser.addListener(this);
-			logFullTrace = advancedProperties.newBooleanProperty(
-					"logFullTrace", false);
+			logFullTrace = advancedProperties.newBooleanProperty("logFullTrace", false);
 			hasBeenSet(logFullTrace);
 			logFullTrace.addListener(this);
-			smtpHostname = advancedProperties.newStringProperty("smtpHostname",
-					"localhost");
+			smtpHostname = advancedProperties.newStringProperty("smtpHostname", "localhost");
 			smtpHostname.addListener(this);
-			smtpPort = advancedProperties.newIntegerProperty("smtpPort", 25, 1,
-					65536);
+			smtpPort = advancedProperties.newIntegerProperty("smtpPort", 25, 1, 65536);
 			smtpPort.addListener(this);
-			smtpUseSsl = advancedProperties.newBooleanProperty("smtpUseSsl",
-					false);
+			smtpUseSsl = advancedProperties.newBooleanProperty("smtpUseSsl", false);
 			smtpUseSsl.addListener(this);
-			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls",
-					false);
+			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls", false);
 			smtpUseTls.addListener(this);
-			smtpSenderEmail = advancedProperties.newStringProperty(
-					"smtpSenderEmail", "no-reply@open-search-server.com");
+			smtpSenderEmail = advancedProperties.newStringProperty("smtpSenderEmail",
+					"no-reply@open-search-server.com");
 			smtpSenderEmail.addListener(this);
-			smtpSenderName = advancedProperties.newStringProperty(
-					"smtpSenderName", "");
+			smtpSenderName = advancedProperties.newStringProperty("smtpSenderName", "");
 			smtpSenderName.addListener(this);
-			smtpUsername = advancedProperties.newStringProperty("smtpUsername",
-					"");
+			smtpUsername = advancedProperties.newStringProperty("smtpUsername", "");
 			smtpUsername.addListener(this);
-			smtpPassword = advancedProperties.newStringProperty("smtpPassword",
-					"");
+			smtpPassword = advancedProperties.newStringProperty("smtpPassword", "");
 			smtpPassword.addListener(this);
-			schedulerThreadPoolSize = advancedProperties.newIntegerProperty(
-					"schedulerThreadPoolSize", 20, 1, 200);
+			schedulerThreadPoolSize = advancedProperties.newIntegerProperty("schedulerThreadPoolSize", 20, 1, 200);
 			schedulerThreadPoolSize.addListener(this);
-			clusterInstanceId = advancedProperties.newIntegerProperty(
-					"clusterInstanceId", null, 0, 131072);
+			clusterInstanceId = advancedProperties.newIntegerProperty("clusterInstanceId", null, 0, 131072);
 			clusterInstanceId.addListener(this);
 			if (clusterInstanceId.getValue() == null)
-				clusterInstanceId
-						.setValue((int) System.currentTimeMillis() % 131072);
+				clusterInstanceId.setValue((int) System.currentTimeMillis() % 131072);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -152,22 +135,16 @@ public class ClientFactory implements PropertyItemListener {
 		}
 	}
 
-	protected Client newClient(File initFileOrDir,
-			boolean createIndexIfNotExists, boolean disableCrawler)
+	protected Client newClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler);
 	}
 
-	final public Client getNewClient(File initFileOrDir,
-			boolean createIndexIfNotExists, boolean disableCrawler)
+	final public Client getNewClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		try {
-			if (!FileUtils
-					.isSubDirectory(
-							StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-							initFileOrDir))
-				throw new SearchLibException("Security alert: " + initFileOrDir
-						+ " is outside OPENSEARCHSERVER_DATA ("
+			if (!FileUtils.isSubDirectory(StartStopListener.OPENSEARCHSERVER_DATA_FILE, initFileOrDir))
+				throw new SearchLibException("Security alert: " + initFileOrDir + " is outside OPENSEARCHSERVER_DATA ("
 						+ StartStopListener.OPENSEARCHSERVER_DATA_FILE + ")");
 		} catch (IOException e) {
 			throw new SearchLibException(e);
@@ -240,17 +217,12 @@ public class ClientFactory implements PropertyItemListener {
 	}
 
 	@Override
-	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+	public void hasBeenSet(PropertyItem<?> prop) throws IOException {
 		if (prop == booleanQueryMaxClauseCount)
-			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
-					.getValue());
+			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount.getValue());
 		else if (prop == logFullTrace)
 			Logging.setShowStackTrace(logFullTrace.isValue());
-		try {
-			advancedProperties.save();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
+		advancedProperties.save();
 	}
 
 }

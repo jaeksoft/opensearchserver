@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
@@ -57,14 +56,14 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	protected SwiftFileInstance(FilePathItem filePathItem, SwiftFileInstance parent, SwiftToken token,
-			ObjectMeta object) throws URISyntaxException, SearchLibException, UnsupportedEncodingException {
+			ObjectMeta object) throws URISyntaxException, UnsupportedEncodingException {
 		this.token = token;
 		this.object = object;
 		init(filePathItem, parent, object.pathName);
 	}
 
 	private void authentication(HttpDownloader downloader)
-			throws ClientProtocolException, URISyntaxException, IOException, JSONException, SearchLibException {
+			throws ClientProtocolException, URISyntaxException, IOException, JSONException {
 		if (token != null)
 			return;
 		token = new SwiftToken(downloader, filePathItem.getSwiftAuthURL(), filePathItem.getUsername(),
@@ -72,7 +71,7 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public URI init() throws SearchLibException, URISyntaxException, UnsupportedEncodingException {
+	public URI init() throws URISyntaxException, UnsupportedEncodingException {
 		String path = getPath();
 		if (token != null)
 			return token.getURI(filePathItem.getSwiftContainer(), path, false);
@@ -80,13 +79,14 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public FileTypeEnum getFileType() throws SearchLibException {
+	public FileTypeEnum getFileType() {
 		if (object == null)
 			return FileTypeEnum.directory;
 		return object.isDirectory ? FileTypeEnum.directory : FileTypeEnum.file;
 	}
 
-	private FileInstanceAbstract[] listFiles(boolean withDirectory) throws URISyntaxException, SearchLibException {
+	private FileInstanceAbstract[] listFiles(boolean withDirectory)
+			throws URISyntaxException, ClientProtocolException, JSONException, IOException {
 		HttpDownloader downloader = new HttpDownloader(null, false, null);
 		try {
 			authentication(downloader);
@@ -101,32 +101,26 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 			for (ObjectMeta object : objectList)
 				files[i++] = new SwiftFileInstance(fpi, this, token, object);
 			return files;
-		} catch (ClientProtocolException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (JSONException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
 		} finally {
 			downloader.release();
 		}
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, SearchLibException {
+	public FileInstanceAbstract[] listFilesAndDirectories()
+			throws URISyntaxException, ClientProtocolException, JSONException, IOException {
 		return listFiles(true);
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException, SearchLibException {
+	public FileInstanceAbstract[] listFilesOnly()
+			throws URISyntaxException, ClientProtocolException, JSONException, IOException {
 		return listFiles(false);
 
 	}
 
 	@Override
-	public Long getLastModified() throws SearchLibException {
+	public Long getLastModified() {
 		if (object == null)
 			return null;
 		return object.lastModified;
@@ -134,14 +128,14 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public Long getFileSize() throws SearchLibException {
+	public Long getFileSize() {
 		if (object == null)
 			return null;
 		return object.contentLength;
 	}
 
 	@Override
-	public String getFileName() throws SearchLibException {
+	public String getFileName() {
 		if (object == null)
 			return null;
 		return object.name;

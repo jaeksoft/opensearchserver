@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.analysis.filter;
 
+import java.io.IOException;
+
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,17 +41,14 @@ public class VimeoFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.VIMEO_DATA,
-				ClassPropertyEnum.VIMEO_DATA_LIST[0],
+		addProperty(ClassPropertyEnum.VIMEO_DATA, ClassPropertyEnum.VIMEO_DATA_LIST[0],
 				ClassPropertyEnum.VIMEO_DATA_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
-				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.FAULT_TOLERANT, ClassPropertyEnum.BOOLEAN_LIST[0], ClassPropertyEnum.BOOLEAN_LIST,
+				0, 0);
 	}
 
 	@Override
-	protected void checkValue(ClassPropertyEnum prop, String value)
-			throws SearchLibException {
+	protected void checkValue(ClassPropertyEnum prop, String value) throws SearchLibException {
 		if (prop == ClassPropertyEnum.VIMEO_DATA) {
 			vimeoData = 0;
 			int i = 0;
@@ -68,12 +67,10 @@ public class VimeoFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream) {
 		try {
 			WebPropertyManager propertyManager = config.getWebPropertyManager();
-			HttpDownloader httpDownloader = new HttpDownloader(propertyManager
-					.getUserAgent().getValue(), false,
+			HttpDownloader httpDownloader = new HttpDownloader(propertyManager.getUserAgent().getValue(), false,
 					propertyManager.getProxyHandler());
-			return new VimeoTokenFilter(tokenStream, vimeoData, httpDownloader,
-					faultTolerant);
-		} catch (SearchLibException e) {
+			return new VimeoTokenFilter(tokenStream, vimeoData, httpDownloader, faultTolerant);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}

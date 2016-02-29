@@ -79,8 +79,7 @@ public class ScreenshotController extends CrawlerController {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public void setUrl(String url) throws MalformedURLException,
-			URISyntaxException {
+	public void setUrl(String url) throws MalformedURLException, URISyntaxException {
 		this.url = url == null ? null : LinkUtils.newEncodedURL(url);
 	}
 
@@ -91,7 +90,7 @@ public class ScreenshotController extends CrawlerController {
 		return url == null ? null : url.toExternalForm();
 	}
 
-	public WebPropertyManager getProperties() throws SearchLibException {
+	public WebPropertyManager getProperties() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -99,13 +98,10 @@ public class ScreenshotController extends CrawlerController {
 	}
 
 	@Command
-	public void onCapture() throws SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	public void onCapture() throws SearchLibException, ParseException, IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		synchronized (this) {
-			if (currentScreenshotThread != null
-					&& currentScreenshotThread.isRunning())
+			if (currentScreenshotThread != null && currentScreenshotThread.isRunning())
 				throw new SearchLibException("A capture is already running");
 			Client client = getClient();
 			if (client == null)
@@ -113,25 +109,20 @@ public class ScreenshotController extends CrawlerController {
 			showImage = false;
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			if (!screenshotManager.getMethod().doScreenshot(url)) {
-				new AlertController(
-						"The capture is not allowed by the current method");
+				new AlertController("The capture is not allowed by the current method");
 				return;
 			}
-			CredentialItem credentialItem = client.getWebCredentialManager()
-					.getCredential(url.toExternalForm());
-			currentScreenshotThread = screenshotManager.capture(url,
-					credentialItem, false, 0);
+			CredentialItem credentialItem = client.getWebCredentialManager().getCredential(url.toExternalForm());
+			currentScreenshotThread = screenshotManager.capture(url, credentialItem, false, 0);
 			currentScreenshotThread.waitForStart(60);
 			reload();
 		}
 	}
 
 	@Command
-	public void onCheck() throws SearchLibException, InterruptedException,
-			IOException {
+	public void onCheck() throws SearchLibException, InterruptedException, IOException {
 		synchronized (this) {
-			BufferedImage currentImage = getClient().getScreenshotManager()
-					.getImage(url);
+			BufferedImage currentImage = getClient().getScreenshotManager().getImage(url);
 			if (currentImage == null)
 				new AlertController("Screenshot not found.");
 			else
@@ -176,26 +167,22 @@ public class ScreenshotController extends CrawlerController {
 		return showImage;
 	}
 
-	public String getApiCaptureUrl() throws SearchLibException,
-			UnsupportedEncodingException {
+	public String getApiCaptureUrl() throws SearchLibException, UnsupportedEncodingException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		if (url == null)
 			return null;
-		return ScreenshotServlet.captureUrl(getBaseUrl(), client,
-				getLoggedUser(), url);
+		return ScreenshotServlet.captureUrl(getBaseUrl(), client, getLoggedUser(), url);
 	}
 
-	public String getApiImageUrl() throws SearchLibException,
-			UnsupportedEncodingException {
+	public String getApiImageUrl() throws SearchLibException, UnsupportedEncodingException {
 		Client client = getClient();
 		if (client == null)
 			return null;
 		if (url == null)
 			return null;
-		return ScreenshotServlet.imageUrl(getBaseUrl(), client,
-				getLoggedUser(), url);
+		return ScreenshotServlet.imageUrl(getBaseUrl(), client, getLoggedUser(), url);
 	}
 
 	@Command

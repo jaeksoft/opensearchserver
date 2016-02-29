@@ -25,7 +25,7 @@
 package com.jaeksoft.searchlib.web.controller.crawler.file;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
@@ -64,10 +64,8 @@ public class FilePathEditController extends FileCrawlerController {
 
 		private FilePathItem deleteFilePath;
 
-		protected DeleteAlert(FilePathItem deleteFilePath)
-				throws InterruptedException {
-			super("Please, confirm that you want to delete the location: "
-					+ deleteFilePath.toString(),
+		protected DeleteAlert(FilePathItem deleteFilePath) throws InterruptedException {
+			super("Please, confirm that you want to delete the location: " + deleteFilePath.toString(),
 					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
 			this.deleteFilePath = deleteFilePath;
 		}
@@ -75,8 +73,7 @@ public class FilePathEditController extends FileCrawlerController {
 		@Override
 		protected void onYes() throws SearchLibException {
 			Client client = getClient();
-			client.getFileManager().deleteByRepository(
-					deleteFilePath.toString());
+			client.getFileManager().deleteByRepository(deleteFilePath.toString());
 			client.getFilePathManager().remove(deleteFilePath);
 			onCancel();
 		}
@@ -116,8 +113,7 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return isNoFilePathSelected() ? "Add a new location"
-				: "Edit the selected location";
+		return isNoFilePathSelected() ? "Add a new location" : "Edit the selected location";
 	}
 
 	@Command
@@ -150,17 +146,15 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	@Command
-	public void onCheck() throws InterruptedException, InstantiationException,
-			IllegalAccessException, SearchLibException, URISyntaxException,
-			UnsupportedEncodingException {
+	public void onCheck() throws InterruptedException, InstantiationException, IllegalAccessException,
+			URISyntaxException, IOException {
 		if (currentFilePath == null)
 			return;
 		new AlertController("Test results: " + currentFilePath.check());
 	}
 
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException,
-			URISyntaxException {
+	public void onSave() throws InterruptedException, SearchLibException, URISyntaxException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -237,8 +231,7 @@ public class FilePathEditController extends FileCrawlerController {
 		return currentFilePath.getType();
 	}
 
-	public void setCurrentFileType(FileInstanceType type)
-			throws SearchLibException {
+	public void setCurrentFileType(FileInstanceType type) throws SearchLibException {
 		currentFilePath.setType(type);
 		reload();
 	}
@@ -259,8 +252,7 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	@Command
-	public void onDropboxAuthRequest() throws MalformedURLException,
-			SearchLibException {
+	public void onDropboxAuthRequest() throws MalformedURLException, SearchLibException {
 		webAuthInfo = DropboxFileInstance.requestAuthorization();
 		reload();
 		throw new SearchLibException("Not yet implemented");
@@ -268,8 +260,7 @@ public class FilePathEditController extends FileCrawlerController {
 	}
 
 	@Command
-	public void onDropboxConfirmAuth() throws SearchLibException,
-			InterruptedException {
+	public void onDropboxConfirmAuth() throws SearchLibException, InterruptedException {
 		StringBuilder uid = new StringBuilder();
 		String atp = DropboxFileInstance.retrieveAccessToken(webAuthInfo, uid);
 		if (uid.length() == 0) {

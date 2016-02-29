@@ -64,77 +64,62 @@ public class FileManager extends AbstractManager {
 		fileSearch, fileInfo, fileExport;
 	}
 
-	public FileManager(Client client, File dataDir) throws SearchLibException,
-			URISyntaxException, FileNotFoundException {
+	public FileManager(Client client, File dataDir)
+			throws SearchLibException, URISyntaxException, FileNotFoundException {
 		dataDir = new File(dataDir, "file_crawler_url");
 		if (!dataDir.exists())
 			dataDir.mkdir();
 
-		Client dbClient = new Client(dataDir,
-				"/com/jaeksoft/searchlib/file_config.xml", true);
+		Client dbClient = new Client(dataDir, "/com/jaeksoft/searchlib/file_config.xml", true);
 		init(client, dbClient);
 
 	}
 
-	public AbstractSearchRequest fileQuery(SearchTemplate searchTemplate,
-			String repository, String fileName, String lang, String langMethod,
-			Integer minSize, Integer maxSize, String fileExtension,
-			FetchStatus fetchStatus, ParserStatus parserStatus,
-			IndexStatus indexStatus, Date startcrawlDate, Date endCrawlDate,
-			Date startModifiedDate, Date endModifiedDate,
-			FileTypeEnum fileType, String subDirectory, Integer minTime,
-			Integer maxTime, String parser) throws SearchLibException {
+	public AbstractSearchRequest fileQuery(SearchTemplate searchTemplate, String repository, String fileName,
+			String lang, String langMethod, Integer minSize, Integer maxSize, String fileExtension,
+			FetchStatus fetchStatus, ParserStatus parserStatus, IndexStatus indexStatus, Date startcrawlDate,
+			Date endCrawlDate, Date startModifiedDate, Date endModifiedDate, FileTypeEnum fileType, String subDirectory,
+			Integer minTime, Integer maxTime, String parser) throws SearchLibException {
 		try {
 
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-					.getNewRequest(searchTemplate.name());
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(searchTemplate.name());
 
 			StringBuilder query = new StringBuilder();
 
 			if (fileName != null)
 				if ((fileName = fileName.trim()).length() > 0)
-					FileItemFieldEnum.INSTANCE.fileName.addQuery(query,
-							fileName, true);
+					FileItemFieldEnum.INSTANCE.fileName.addQuery(query, fileName, true);
 
 			if (repository != null)
 				if ((repository = repository.trim()).length() > 0)
-					FileItemFieldEnum.INSTANCE.repository.addFilterQuery(
-							searchRequest, repository, true, false);
+					FileItemFieldEnum.INSTANCE.repository.addFilterQuery(searchRequest, repository, true, false);
 
 			if (fileExtension != null)
 				if ((fileExtension = fileExtension.trim()).length() > 0)
-					FileItemFieldEnum.INSTANCE.fileExtension
-							.addFilterQuery(searchRequest,
-									QueryUtils.escapeQuery(fileExtension),
-									false, false);
+					FileItemFieldEnum.INSTANCE.fileExtension.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(fileExtension), false, false);
 
 			if (lang != null)
 				if ((lang = lang.trim()).length() > 0)
-					FileItemFieldEnum.INSTANCE.lang.addFilterQuery(
-							searchRequest, QueryUtils.escapeQuery(lang), false,
+					FileItemFieldEnum.INSTANCE.lang.addFilterQuery(searchRequest, QueryUtils.escapeQuery(lang), false,
 							false);
 
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					FileItemFieldEnum.INSTANCE.langMethod.addFilterQuery(
-							searchRequest, QueryUtils.escapeQuery(langMethod),
-							false, false);
+					FileItemFieldEnum.INSTANCE.langMethod.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(langMethod), false, false);
 			}
 
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
-				FileItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(
-						searchRequest, fetchStatus.value, false, false);
+				FileItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest, fetchStatus.value, false, false);
 			if (parserStatus != null && parserStatus != ParserStatus.ALL)
-				FileItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(
-						searchRequest, parserStatus.value, false, false);
+				FileItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(searchRequest, parserStatus.value, false, false);
 			if (indexStatus != null && indexStatus != IndexStatus.ALL)
-				FileItemFieldEnum.INSTANCE.indexStatus.addFilterQuery(
-						searchRequest, indexStatus.value, false, false);
+				FileItemFieldEnum.INSTANCE.indexStatus.addFilterQuery(searchRequest, indexStatus.value, false, false);
 
 			if (fileType != null && fileType != FileTypeEnum.ALL)
-				FileItemFieldEnum.INSTANCE.fileType.addFilterQuery(
-						searchRequest, fileType.name(), true, false);
+				FileItemFieldEnum.INSTANCE.fileType.addFilterQuery(searchRequest, fileType.name(), true, false);
 
 			if (minSize != null || maxSize != null) {
 				String from, to;
@@ -146,8 +131,7 @@ public class FileManager extends AbstractManager {
 					to = FileItem.contentLengthFormat.format(Integer.MAX_VALUE);
 				else
 					to = FileItem.contentLengthFormat.format(maxSize);
-				FileItemFieldEnum.INSTANCE.fileSize.addFilterRange(
-						searchRequest, from, to, false, false);
+				FileItemFieldEnum.INSTANCE.fileSize.addFilterRange(searchRequest, from, to, false, false);
 			}
 
 			if (minTime != null || maxTime != null) {
@@ -160,8 +144,7 @@ public class FileManager extends AbstractManager {
 					to = FileItem.contentLengthFormat.format(Integer.MAX_VALUE);
 				else
 					to = FileItem.contentLengthFormat.format(maxTime);
-				FileItemFieldEnum.INSTANCE.time.addFilterRange(searchRequest,
-						from, to, false, false);
+				FileItemFieldEnum.INSTANCE.time.addFilterRange(searchRequest, from, to, false, false);
 			}
 
 			if (startcrawlDate != null || endCrawlDate != null) {
@@ -174,8 +157,7 @@ public class FileManager extends AbstractManager {
 					to = "99999999999999";
 				else
 					to = FileItem.dateFormat.format(endCrawlDate);
-				FileItemFieldEnum.INSTANCE.crawlDate.addFilterRange(
-						searchRequest, from, to, false, false);
+				FileItemFieldEnum.INSTANCE.crawlDate.addFilterRange(searchRequest, from, to, false, false);
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
@@ -188,18 +170,15 @@ public class FileManager extends AbstractManager {
 					to = "99999999999999";
 				else
 					to = FileItem.dateFormat.format(endModifiedDate);
-				FileItemFieldEnum.INSTANCE.fileSystemDate.addFilterRange(
-						searchRequest, from, to, false, false);
+				FileItemFieldEnum.INSTANCE.fileSystemDate.addFilterRange(searchRequest, from, to, false, false);
 			}
 
 			if (subDirectory != null)
-				FileItemFieldEnum.INSTANCE.subDirectory.addFilterQuery(
-						searchRequest, subDirectory, true, false);
+				FileItemFieldEnum.INSTANCE.subDirectory.addFilterQuery(searchRequest, subDirectory, true, false);
 
 			if (parser != null)
 				if ((parser = parser.trim()).length() > 0)
-					FileItemFieldEnum.INSTANCE.parser.addFilterQuery(
-							searchRequest, parser, true, false);
+					FileItemFieldEnum.INSTANCE.parser.addFilterQuery(searchRequest, parser, true, false);
 
 			searchRequest.setEmptyReturnsAll(true);
 			searchRequest.setQueryString(query.toString().trim());
@@ -209,8 +188,8 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public FileInfo getFileInfo(String uriString) throws SearchLibException,
-			UnsupportedEncodingException, URISyntaxException {
+	public FileInfo getFileInfo(String uriString)
+			throws SearchLibException, UnsupportedEncodingException, URISyntaxException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 				.getNewRequest(SearchTemplate.fileInfo.name());
 		StringBuilder sb = new StringBuilder();
@@ -218,27 +197,23 @@ public class FileManager extends AbstractManager {
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(1);
-		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-				.request(searchRequest);
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 		if (result.getNumFound() == 0)
 			return null;
 		return new FileInfo(result.getDocument(0));
 	}
 
-	public void getFileInfoList(URI parentDirectory,
-			Map<String, FileInfo> indexFileMap) throws SearchLibException,
-			UnsupportedEncodingException, URISyntaxException {
+	public void getFileInfoList(URI parentDirectory, Map<String, FileInfo> indexFileMap)
+			throws SearchLibException, UnsupportedEncodingException, URISyntaxException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 				.getNewRequest(SearchTemplate.fileInfo.name());
 		StringBuilder sb = new StringBuilder();
 		String parentUriString = parentDirectory.toASCIIString();
-		FileItemFieldEnum.INSTANCE.directory
-				.addQuery(sb, parentUriString, true);
+		FileItemFieldEnum.INSTANCE.directory.addQuery(sb, parentUriString, true);
 		searchRequest.setQueryString(sb.toString());
 		searchRequest.setStart(0);
 		searchRequest.setRows(Integer.MAX_VALUE);
-		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-				.request(searchRequest);
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 		int l = result.getNumFound();
 		for (int i = 0; i < l; i++) {
 			FileInfo fileInfo = new FileInfo(result.getDocument(i));
@@ -246,14 +221,13 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public long getFileList(AbstractSearchRequest searchRequest, long start,
-			long rows, List<FileItem> list) throws SearchLibException {
+	public long getFileList(AbstractSearchRequest searchRequest, long start, long rows, List<FileItem> list)
+			throws SearchLibException {
 		searchRequest.reset();
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-					.request(searchRequest);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
 					list.add(getNewFileItem(doc));
@@ -267,26 +241,35 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public FileItem getNewFileItem(ResultDocument doc)
-			throws UnsupportedEncodingException, URISyntaxException {
+	public FileItem getNewFileItem(ResultDocument doc) throws UnsupportedEncodingException, URISyntaxException {
 		return new FileItem(doc);
 	}
 
-	public FileItem getNewFileItem(FileInstanceAbstract fileInstance)
-			throws SearchLibException {
-		return new FileItem(fileInstance);
+	public FileItem getNewFileItem(FileInstanceAbstract fileInstance) throws IOException {
+		IOException exception = null;
+		for (int i = 1; i <= 5; i++) {
+			try {
+				return new FileItem(fileInstance);
+			} catch (IOException e) {
+				exception = e;
+				try {
+					Thread.sleep(i * 1000);
+				} catch (InterruptedException e1) {
+					break;
+				}
+			}
+		}
+		throw exception;
 	}
 
-	public long getFiles(AbstractSearchRequest searchRequest,
-			ItemField orderBy, boolean orderAsc, long start, long rows,
-			List<FileItem> list) throws SearchLibException {
+	public long getFiles(AbstractSearchRequest searchRequest, ItemField orderBy, boolean orderAsc, long start,
+			long rows, List<FileItem> list) throws SearchLibException {
 		searchRequest.setStart((int) start);
 		searchRequest.setRows((int) rows);
 		try {
 			if (orderBy != null)
 				orderBy.addSort(searchRequest, !orderAsc);
-			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient
-					.request(searchRequest);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 			if (list != null)
 				for (ResultDocument doc : result)
 					list.add(getNewFileItem(doc));
@@ -301,8 +284,7 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public final void deleteByRepository(String repository)
-			throws SearchLibException {
+	public final void deleteByRepository(String repository) throws SearchLibException {
 		try {
 			deleteByRepositoryFromTargetIndex(repository);
 			deleteByRepositoryFromFileDBIndex(repository);
@@ -327,18 +309,14 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public final boolean deleteByUri(List<String> rowToDelete)
-			throws SearchLibException {
+	public final boolean deleteByUri(List<String> rowToDelete) throws SearchLibException {
 
-		if (rowToDelete == null
-				|| (rowToDelete != null && rowToDelete.isEmpty()))
+		if (rowToDelete == null || (rowToDelete != null && rowToDelete.isEmpty()))
 			return false;
 
-		dbClient.deleteDocuments(FileItemFieldEnum.INSTANCE.uri.getName(),
-				rowToDelete);
+		dbClient.deleteDocuments(FileItemFieldEnum.INSTANCE.uri.getName(), rowToDelete);
 
-		String targetField = findIndexedFieldOfTargetIndex(
-				targetClient.getFileCrawlerFieldMap(),
+		String targetField = findIndexedFieldOfTargetIndex(targetClient.getFileCrawlerFieldMap(),
 				FileItemFieldEnum.INSTANCE.uri.getName());
 		if (targetField != null)
 			targetClient.deleteDocuments(targetField, rowToDelete);
@@ -361,50 +339,38 @@ public class FileManager extends AbstractManager {
 	 * @throws IllegalAccessException
 	 */
 	private final void deleteByRepositoryFromFileDBIndex(String repository)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+			throws SearchLibException, IOException, ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 
 		AbstractSearchRequest deleteRequest = new SearchPatternRequest(dbClient);
-		FileItemFieldEnum.INSTANCE.repository.setQuery(deleteRequest,
-				repository, true);
+		FileItemFieldEnum.INSTANCE.repository.setQuery(deleteRequest, repository, true);
 		dbClient.deleteDocuments(deleteRequest);
 	}
 
 	private final boolean deleteByRepositoryFromTargetIndex(String repository)
-			throws SearchLibException, IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, InstantiationException,
-			IllegalAccessException {
+			throws SearchLibException, IOException, ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 
 		List<TargetField> mappedPath = targetClient.getFileCrawlerFieldMap()
-				.getLinks(
-						new SourceField(FileItemFieldEnum.INSTANCE.repository
-								.toString()));
+				.getLinks(new SourceField(FileItemFieldEnum.INSTANCE.repository.toString()));
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return false;
 
-		AbstractSearchRequest deleteRequest = new SearchPatternRequest(
-				targetClient);
-		deleteRequest.setQueryString(mappedPath.get(0).getName() + ":\""
-				+ repository + "\"");
+		AbstractSearchRequest deleteRequest = new SearchPatternRequest(targetClient);
+		deleteRequest.setQueryString(mappedPath.get(0).getName() + ":\"" + repository + "\"");
 
 		targetClient.deleteDocuments(deleteRequest);
 		return true;
 	}
 
-	public void updateCrawlUriDb(List<CrawlFile> crawls)
-			throws SearchLibException {
-		List<IndexDocument> documents = new ArrayList<IndexDocument>(
-				crawls.size());
+	public void updateCrawlUriDb(List<CrawlFile> crawls) throws SearchLibException {
+		List<IndexDocument> documents = new ArrayList<IndexDocument>(crawls.size());
 		try {
 			for (CrawlFile crawl : crawls) {
 				if (crawl == null)
 					continue;
-				IndexDocument indexDocument = crawl.getFileItem()
-						.getIndexDocument();
+				IndexDocument indexDocument = crawl.getFileItem().getIndexDocument();
 				documents.add(indexDocument);
 			}
 			dbClient.updateDocuments(documents);
@@ -415,41 +381,34 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public void updateCrawlTarget(final List<CrawlFile> crawls,
-			final int documentBufferSize) throws SearchLibException {
+	public void updateCrawlTarget(final List<CrawlFile> crawls, final int documentBufferSize)
+			throws SearchLibException {
 		try {
 			if (crawls == null)
 				return;
-			List<String> documentsToDelete = new ArrayList<String>(
-					crawls.size());
-			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(
-					documentBufferSize);
+			List<String> documentsToDelete = new ArrayList<String>(crawls.size());
+			List<IndexDocument> documentsToUpdate = new ArrayList<IndexDocument>(documentBufferSize);
 			String uniqueField = targetClient.getSchema().getUniqueField();
 			for (CrawlFile crawl : crawls) {
 				if (crawl == null)
 					continue;
 				FileItem currentFileItem = crawl.getFileItem();
 
-				FileIndexDocumentIterator indexDocumentIterator = crawl
-						.getTargetIndexDocumentIterator();
+				FileIndexDocumentIterator indexDocumentIterator = crawl.getTargetIndexDocumentIterator();
 
 				TargetStatus targetStatus = currentFileItem.getIndexStatus().targetStatus;
 				if (targetStatus == TargetStatus.TARGET_UPDATE) {
 					if (!indexDocumentIterator.hasNext()) {
-						currentFileItem
-								.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
+						currentFileItem.setIndexStatus(IndexStatus.NOTHING_TO_INDEX);
 						continue;
 					}
 					while (indexDocumentIterator.hasNext()) {
-						IndexDocument indexDocument = indexDocumentIterator
-								.next();
+						IndexDocument indexDocument = indexDocumentIterator.next();
 						indexDocumentIterator.throwError();
 						if (indexDocument == null)
 							continue;
-						if (uniqueField != null
-								&& !indexDocument.hasContent(uniqueField)) {
-							currentFileItem
-									.setIndexStatus(IndexStatus.INDEX_ERROR);
+						if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
+							currentFileItem.setIndexStatus(IndexStatus.INDEX_ERROR);
 						} else {
 							documentsToUpdate.add(indexDocument);
 						}
@@ -467,30 +426,25 @@ public class FileManager extends AbstractManager {
 			for (CrawlFile crawl : crawls) {
 				FileItem currentFileItem = crawl.getFileItem();
 				IndexStatus indexStatus = currentFileItem.getIndexStatus();
-				if (indexStatus == IndexStatus.TO_INDEX
-						|| indexStatus == IndexStatus.NOT_INDEXED)
+				if (indexStatus == IndexStatus.TO_INDEX || indexStatus == IndexStatus.NOT_INDEXED)
 					currentFileItem.setIndexStatus(IndexStatus.INDEXED);
 			}
 			if (documentsToDelete.size() > 0) {
-				String targetField = findIndexedFieldOfTargetIndex(
-						targetClient.getFileCrawlerFieldMap(),
+				String targetField = findIndexedFieldOfTargetIndex(targetClient.getFileCrawlerFieldMap(),
 						FileItemFieldEnum.INSTANCE.uri.getName());
 				if (targetField != null)
-					targetClient
-							.deleteDocuments(targetField, documentsToDelete);
+					targetClient.deleteDocuments(targetField, documentsToDelete);
 			}
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
 	}
 
-	public void updateFileItems(List<FileItem> fileItems)
-			throws SearchLibException {
+	public void updateFileItems(List<FileItem> fileItems) throws SearchLibException {
 		try {
 			if (fileItems == null)
 				return;
-			List<IndexDocument> documents = new ArrayList<IndexDocument>(
-					fileItems.size());
+			List<IndexDocument> documents = new ArrayList<IndexDocument>(fileItems.size());
 			for (FileItem fileItem : fileItems) {
 				if (fileItem == null)
 					continue;
@@ -505,8 +459,7 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public int delete(AbstractSearchRequest searchRequest, TaskLog taskLog)
-			throws SearchLibException {
+	public int delete(AbstractSearchRequest searchRequest, TaskLog taskLog) throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
 			int total = 0;
@@ -519,8 +472,7 @@ public class FileManager extends AbstractManager {
 				List<String> uriList = new ArrayList<String>(itemList.size());
 				for (FileItem fileItem : itemList)
 					uriList.add(fileItem.getUri());
-				dbClient.deleteDocuments(
-						FileItemFieldEnum.INSTANCE.uri.getName(), uriList);
+				dbClient.deleteDocuments(FileItemFieldEnum.INSTANCE.uri.getName(), uriList);
 				total += itemList.size();
 				taskLog.setInfo(total + " URI(s) deleted");
 				if (taskLog.isAbortRequested())
@@ -532,14 +484,12 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public int updateFetchStatus(AbstractSearchRequest searchRequest,
-			FetchStatus fetchStatus, int bufferSize, TaskLog taskLog)
-			throws SearchLibException {
+	public int updateFetchStatus(AbstractSearchRequest searchRequest, FetchStatus fetchStatus, int bufferSize,
+			TaskLog taskLog) throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
 			int total = 0;
-			FileItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(
-					searchRequest, fetchStatus.value, false, true);
+			FileItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest, fetchStatus.value, false, true);
 			List<FileItem> fileItemList = new ArrayList<FileItem>();
 			for (;;) {
 				fileItemList.clear();
@@ -562,13 +512,12 @@ public class FileManager extends AbstractManager {
 		}
 	}
 
-	public long synchronizeIndex(AbstractSearchRequest searchRequest,
-			int bufferSize, TaskLog taskLog) throws SearchLibException {
-		String targetField = findIndexedFieldOfTargetIndex(
-				targetClient.getFileCrawlerFieldMap(),
+	public long synchronizeIndex(AbstractSearchRequest searchRequest, int bufferSize, TaskLog taskLog)
+			throws SearchLibException {
+		String targetField = findIndexedFieldOfTargetIndex(targetClient.getFileCrawlerFieldMap(),
 				FileItemFieldEnum.INSTANCE.uri.getName());
-		return synchronizeIndex(searchRequest, targetField,
-				FileItemFieldEnum.INSTANCE.uri.getName(), bufferSize, taskLog);
+		return synchronizeIndex(searchRequest, targetField, FileItemFieldEnum.INSTANCE.uri.getName(), bufferSize,
+				taskLog);
 	}
 
 }

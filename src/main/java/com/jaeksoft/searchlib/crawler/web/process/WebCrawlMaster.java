@@ -82,7 +82,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 
 	private final UrlCrawlQueue urlCrawlQueue;
 
-	public WebCrawlMaster(Config config) throws SearchLibException {
+	public WebCrawlMaster(Config config) throws SearchLibException, IOException {
 		super(config);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		urlCrawlQueue = new UrlCrawlQueue(config);
@@ -193,7 +193,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 
 	}
 
-	private void extractSiteMapList() throws SearchLibException {
+	private void extractSiteMapList() throws SearchLibException, IOException {
 		HttpDownloader httpDownloader = null;
 		try {
 			httpDownloader = getNewHttpDownloader(true);
@@ -238,7 +238,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 	}
 
 	public HttpDownloader getNewHttpDownloader(boolean followRedirect, String userAgent, boolean useProxies)
-			throws SearchLibException {
+			throws SearchLibException, IOException {
 		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		if (StringUtils.isEmpty(userAgent))
@@ -246,7 +246,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		return new HttpDownloader(userAgent, followRedirect, useProxies ? propertyManager.getProxyHandler() : null);
 	}
 
-	final public HttpDownloader getNewHttpDownloader(final boolean followRedirect) throws SearchLibException {
+	final public HttpDownloader getNewHttpDownloader(final boolean followRedirect)
+			throws SearchLibException, IOException {
 		return getNewHttpDownloader(followRedirect, null, true);
 	}
 
@@ -295,11 +296,11 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		return hostUrlList;
 	}
 
-	public boolean isFull() throws SearchLibException {
+	public boolean isFull() throws IOException {
 		return currentStats.getFetchedCount() >= getConfig().getWebPropertyManager().getMaxUrlPerSession().getValue();
 	}
 
-	public Crawl getNewCrawl(WebCrawlThread crawlThread) throws SearchLibException {
+	public Crawl getNewCrawl(WebCrawlThread crawlThread) throws SearchLibException, IOException {
 		return new Crawl(crawlThread);
 
 	}

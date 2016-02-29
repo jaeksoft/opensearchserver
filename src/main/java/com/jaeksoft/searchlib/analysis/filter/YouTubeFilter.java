@@ -23,6 +23,8 @@
  **/
 package com.jaeksoft.searchlib.analysis.filter;
 
+import java.io.IOException;
+
 import org.apache.lucene.analysis.TokenStream;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,17 +41,14 @@ public class YouTubeFilter extends FilterFactory {
 	@Override
 	protected void initProperties() throws SearchLibException {
 		super.initProperties();
-		addProperty(ClassPropertyEnum.YOUTUBE_DATA,
-				ClassPropertyEnum.YOUTUBE_DATA_LIST[0],
+		addProperty(ClassPropertyEnum.YOUTUBE_DATA, ClassPropertyEnum.YOUTUBE_DATA_LIST[0],
 				ClassPropertyEnum.YOUTUBE_DATA_LIST, 0, 0);
-		addProperty(ClassPropertyEnum.FAULT_TOLERANT,
-				ClassPropertyEnum.BOOLEAN_LIST[0],
-				ClassPropertyEnum.BOOLEAN_LIST, 0, 0);
+		addProperty(ClassPropertyEnum.FAULT_TOLERANT, ClassPropertyEnum.BOOLEAN_LIST[0], ClassPropertyEnum.BOOLEAN_LIST,
+				0, 0);
 	}
 
 	@Override
-	protected void checkValue(ClassPropertyEnum prop, String value)
-			throws SearchLibException {
+	protected void checkValue(ClassPropertyEnum prop, String value) throws SearchLibException {
 		if (prop == ClassPropertyEnum.YOUTUBE_DATA) {
 			int i = 0;
 			for (String v : ClassPropertyEnum.YOUTUBE_DATA_LIST) {
@@ -64,13 +63,14 @@ public class YouTubeFilter extends FilterFactory {
 	}
 
 	@Override
-	public TokenStream create(TokenStream tokenStream)
-			throws SearchLibException {
-		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		HttpDownloader httpDownloader = new HttpDownloader(propertyManager
-				.getUserAgent().getValue(), false,
-				propertyManager.getProxyHandler());
-		return new YouTubeTokenFilter(tokenStream, youtubeData, httpDownloader,
-				faultTolerant);
+	public TokenStream create(TokenStream tokenStream) {
+		try {
+			WebPropertyManager propertyManager = config.getWebPropertyManager();
+			HttpDownloader httpDownloader = new HttpDownloader(propertyManager.getUserAgent().getValue(), false,
+					propertyManager.getProxyHandler());
+			return new YouTubeTokenFilter(tokenStream, youtubeData, httpDownloader, faultTolerant);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

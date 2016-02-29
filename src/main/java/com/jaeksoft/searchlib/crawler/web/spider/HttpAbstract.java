@@ -81,7 +81,6 @@ import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
@@ -104,8 +103,7 @@ public abstract class HttpAbstract {
 	private CredentialsProvider credentialsProvider;
 	private final CookieStore cookieStore;
 
-	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler)
-			throws SearchLibException {
+	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler) throws IOException {
 
 		this.followRedirect = bFollowRedirect;
 
@@ -121,11 +119,11 @@ public abstract class HttpAbstract {
 			}).build();
 			builder.setSSLContext(sslContext);
 		} catch (KeyManagementException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		} catch (KeyStoreException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		}
 
 		HostnameVerifier hostnameVerifier = NoopHostnameVerifier.INSTANCE;

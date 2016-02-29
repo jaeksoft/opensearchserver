@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 
 import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
@@ -183,7 +182,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 	}
 
 	@Override
-	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+	public void hasBeenSet(PropertyItem<?> prop) {
 		synchronized (this) {
 			if (prop == proxyHost || prop == proxyPort || prop == proxyExclusion || prop == proxyUsername
 					|| prop == proxyPassword)
@@ -191,7 +190,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 		}
 	}
 
-	public ProxyHandler getProxyHandler() throws SearchLibException {
+	public ProxyHandler getProxyHandler() throws IOException {
 		synchronized (this) {
 			if (!proxyEnabled.getValue())
 				return null;
