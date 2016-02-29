@@ -16,6 +16,8 @@ import com.github.jankroken.commandline.annotations.LongSwitch;
 import com.github.jankroken.commandline.annotations.Option;
 import com.github.jankroken.commandline.annotations.ShortSwitch;
 import com.github.jankroken.commandline.annotations.SingleArgument;
+import com.github.jankroken.commandline.annotations.Toggle;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
 
@@ -25,9 +27,13 @@ public class Server {
 
 	private Server(Arguments arguments) {
 		File baseDir = new File(arguments.extractDirectory == null ? "server" : arguments.extractDirectory);
+		if (baseDir.exists())
+			if (arguments.resetExtract && baseDir.isDirectory())
+				FileUtils.deleteDirectoryQuietly(baseDir);
 		if (!baseDir.exists())
 			baseDir.mkdir();
 		tomcat = new Tomcat();
+		tomcat.noDefaultWebXmlPath();
 		tomcat.setPort(arguments.httpPort == null ? 9090 : arguments.httpPort);
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
 		tomcat.getHost().setAppBase(baseDir.getAbsolutePath());
@@ -41,6 +47,7 @@ public class Server {
 		private String extractDirectory = null;
 		private Integer httpPort = null;
 		private String uriEncoding = null;
+		private boolean resetExtract = false;
 
 		@Option
 		@LongSwitch("extractDirectory")
@@ -64,6 +71,14 @@ public class Server {
 		@SingleArgument
 		public void setUriEncoding(String uriEncoding) {
 			this.uriEncoding = uriEncoding;
+		}
+
+		@Option
+		@LongSwitch("resetExtract")
+		@ShortSwitch("r")
+		@Toggle(true)
+		public void setResetExtract(boolean resetExtract) {
+			this.resetExtract = resetExtract;
 		}
 
 	}

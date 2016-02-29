@@ -25,11 +25,13 @@
 package com.jaeksoft.searchlib.parser;
 
 import java.io.IOException;
+import java.util.List;
 
-import org.apache.poi.hslf.model.Slide;
-import org.apache.poi.hslf.model.TextRun;
 import org.apache.poi.hslf.record.TextHeaderAtom;
-import org.apache.poi.hslf.usermodel.SlideShow;
+import org.apache.poi.hslf.usermodel.HSLFSlide;
+import org.apache.poi.hslf.usermodel.HSLFSlideShow;
+import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
+import org.apache.poi.hslf.usermodel.HSLFTextRun;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -43,9 +45,8 @@ public class PptParser extends Parser {
 
 	public static final String[] DEFAULT_EXTENSIONS = { "ppt" };
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
-			ParserFieldEnum.title, ParserFieldEnum.note, ParserFieldEnum.body,
-			ParserFieldEnum.other };
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name, ParserFieldEnum.title, ParserFieldEnum.note,
+			ParserFieldEnum.body, ParserFieldEnum.other };
 
 	public PptParser() {
 		super(fl);
@@ -58,43 +59,45 @@ public class PptParser extends Parser {
 	}
 
 	@Override
-	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
-			throws IOException {
+	protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang) throws IOException {
 
-		SlideShow ppt = new SlideShow(streamLimiter.getNewInputStream());
-		Slide[] slides = ppt.getSlides();
+		HSLFSlideShow ppt = new HSLFSlideShow(streamLimiter.getNewInputStream());
+		List<HSLFSlide> slides = ppt.getSlides();
 		ParserResultItem result = getNewParserResultItem();
-		for (Slide slide : slides) {
-			TextRun[] textRuns = slide.getTextRuns();
-			for (TextRun textRun : textRuns) {
-				ParserFieldEnum field;
-				switch (textRun.getRunType()) {
-				case TextHeaderAtom.TITLE_TYPE:
-				case TextHeaderAtom.CENTER_TITLE_TYPE:
-					field = ParserFieldEnum.title;
-					break;
-				case TextHeaderAtom.NOTES_TYPE:
-					field = ParserFieldEnum.note;
-					break;
-				case TextHeaderAtom.BODY_TYPE:
-				case TextHeaderAtom.CENTRE_BODY_TYPE:
-				case TextHeaderAtom.HALF_BODY_TYPE:
-				case TextHeaderAtom.QUARTER_BODY_TYPE:
-					field = ParserFieldEnum.body;
-					break;
-				case TextHeaderAtom.OTHER_TYPE:
-				default:
-					field = ParserFieldEnum.other;
-					break;
+		for (HSLFSlide slide : slides) {
+			List<List<HSLFTextParagraph>> textLevel0 = slide.getTextParagraphs();
+			for (List<HSLFTextParagraph> textLevel1 : textLevel0) {
+				for (HSLFTextParagraph textPara : textLevel1) {
+					ParserFieldEnum field;
+					switch (textPara.getRunType()) {
+					case TextHeaderAtom.TITLE_TYPE:
+					case TextHeaderAtom.CENTER_TITLE_TYPE:
+						field = ParserFieldEnum.title;
+						break;
+					case TextHeaderAtom.NOTES_TYPE:
+						field = ParserFieldEnum.note;
+						break;
+					case TextHeaderAtom.BODY_TYPE:
+					case TextHeaderAtom.CENTRE_BODY_TYPE:
+					case TextHeaderAtom.HALF_BODY_TYPE:
+					case TextHeaderAtom.QUARTER_BODY_TYPE:
+						field = ParserFieldEnum.body;
+						break;
+					case TextHeaderAtom.OTHER_TYPE:
+					default:
+						field = ParserFieldEnum.other;
+						break;
+					}
+					StringBuilder sb = new StringBuilder();
+					for (HSLFTextRun textRun : textPara.getTextRuns()) {
+						sb.append(textRun.getRawText());
+						sb.append(' ');
+					}
+					result.addField(field, StringUtils.replaceConsecutiveSpaces(sb.toString(), " "));
 				}
-				String[] frags = textRun.getText().split("\\n");
-				for (String frag : frags)
-					result.addField(field,
-							StringUtils.replaceConsecutiveSpaces(frag, " "));
 			}
 		}
 		result.langDetection(10000, ParserFieldEnum.body);
-
 	}
 
 }
