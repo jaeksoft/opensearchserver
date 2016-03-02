@@ -60,6 +60,7 @@ import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.ReaderUtil;
+import org.openqa.selenium.io.IOUtils;
 import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -86,18 +87,19 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 	private final SpellCheckCache spellCheckCache;
 	private final DocSetHitsCache docSetHitsCache;
 
-	private IndexSearcher indexSearcher;
-	private IndexReader indexReader;
-	private IndexReader[] indexReaders;
-	private IndexDirectory[] indexDirectories;
-	final AtomicInteger references;
+	private final IndexSearcher indexSearcher;
+	private final IndexReader indexReader;
+	private final IndexReader[] indexReaders;
+	private final IndexDirectory[] indexDirectories;
+	private final AtomicInteger references;
 
 	ReaderLocal(IndexConfig indexConfig, IndexDirectory indexDirectory) throws IOException, SearchLibException {
 		super(indexConfig);
 		spellCheckCache = new SpellCheckCache(100);
 		docSetHitsCache = new DocSetHitsCache(indexConfig);
 		this.indexDirectory = indexDirectory;
-		references = new AtomicInteger();
+		references = new AtomicInteger(0);
+		acquire();
 		Directory directory = indexDirectory.getDirectory();
 		if (directory == null)
 			throw new IOException("The directory is closed");
@@ -113,8 +115,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 				indexReaders[i++] = IndexReader.open(indexDir.getDirectory());
 			}
 			indexReader = new MultiReader(indexReaders);
-		} else
+		} else {
+			indexReaders = null;
+			indexDirectories = null;
 			indexReader = IndexReader.open(directory);
+		}
 		indexSearcher = new IndexSearcher(indexReader);
 
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
@@ -122,40 +127,38 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 			indexSearcher.setSimilarity(similarity);
 	}
 
-	synchronized ReaderLocal acquire() {
+	void acquire() {
 		references.incrementAndGet();
-		if (indexSearcher == null)
-			throw new NullPointerException("IndexSearcher is null");
-		return this;
 	}
 
-	synchronized void release() {
-		references.decrementAndGet();
+	void release() {
+		if (references.decrementAndGet() <= 0)
+			doClose();
 	}
 
-	@Override
-	public synchronized void close() throws IOException {
+	private void doClose() {
 		if (indexSearcher != null) {
-			indexSearcher.close();
-			indexSearcher = null;
+			IOUtils.closeQuietly(indexSearcher);
 		}
 		if (indexReader != null) {
 			org.apache.lucene.search.FieldCache.DEFAULT.purge(indexReader);
-			indexReader.close();
-			indexReader = null;
+			IOUtils.closeQuietly(indexReader);
 		}
 		if (indexReaders != null) {
 			for (IndexReader ir : indexReaders) {
 				org.apache.lucene.search.FieldCache.DEFAULT.purge(ir);
-				ir.close();
+				IOUtils.closeQuietly(ir);
 			}
-			indexReaders = null;
 		}
 		if (indexDirectories != null) {
 			for (IndexDirectory id : indexDirectories)
 				id.close();
-			indexDirectories = null;
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		release();
 	}
 
 	@Override

@@ -31,11 +31,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.index.Term;
@@ -80,13 +78,10 @@ public class IndexSingle extends IndexAbstract {
 	protected List<UpdateInterfaces.After> afterUpdateList = null;
 	protected List<UpdateInterfaces.Delete> afterDeleteList = null;
 
-	private final Set<ReaderLocal> closeableReaders;
-
 	public IndexSingle(File configDir, IndexConfig indexConfig, boolean createIfNotExists)
 			throws IOException, URISyntaxException, SearchLibException, JSONException {
 		super(indexConfig);
 		this.online = true;
-		closeableReaders = new HashSet<ReaderLocal>();
 		boolean bCreate = false;
 		File indexDir = new File(configDir, "index");
 		if (!indexDir.exists()) {
@@ -258,17 +253,15 @@ public class IndexSingle extends IndexAbstract {
 		return res;
 	}
 
-	private void reloadNoLock() throws SearchLibException {
-		synchronized (closeableReaders) {
-			if (_reader != null)
-				closeableReaders.add(_reader);
-		}
+	private synchronized void reloadNoLock() throws SearchLibException {
+		ReaderLocal oldReader = _reader;
 		try {
 			_reader = new ReaderLocal(indexConfig, indexDirectory);
-			closeCloseables();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
+		if (oldReader != null)
+			IOUtils.closeQuietly(oldReader);
 	}
 
 	@Override
@@ -283,12 +276,13 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	private synchronized ReaderLocal acquire() {
-		return _reader.acquire();
+		ReaderLocal reader = _reader;
+		reader.acquire();
+		return reader;
 	}
 
 	private synchronized void release(ReaderLocal reader) {
 		reader.release();
-		closeCloseables();
 	}
 
 	@Override
@@ -563,21 +557,6 @@ public class IndexSingle extends IndexAbstract {
 			return reader.getMoreLikeThis();
 		} finally {
 			release(reader);
-		}
-	}
-
-	private void closeCloseables() {
-		synchronized (closeableReaders) {
-			if (closeableReaders.isEmpty())
-				return;
-			final ArrayList<ReaderLocal> list = new ArrayList<ReaderLocal>();
-			for (ReaderLocal readerLocal : closeableReaders)
-				if (readerLocal.references.get() == 0)
-					list.add(readerLocal);
-			for (ReaderLocal readerLocal : list) {
-				closeableReaders.remove(readerLocal);
-				IOUtils.close(readerLocal);
-			}
 		}
 	}
 
