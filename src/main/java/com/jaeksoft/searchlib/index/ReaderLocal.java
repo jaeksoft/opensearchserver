@@ -1,67 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p/>
  * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.index;
-
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.FieldSelector;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.index.TermPositions;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.Explanation;
-import org.apache.lucene.search.FieldCache.StringIndex;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Similarity;
-import org.apache.lucene.search.similar.MoreLikeThis;
-import org.apache.lucene.search.spell.LuceneDictionary;
-import org.apache.lucene.search.spell.SpellChecker;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.ReaderUtil;
-import org.openqa.selenium.io.IOUtils;
-import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -80,6 +41,26 @@ import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
 import com.jaeksoft.searchlib.util.Timer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.FieldSelector;
+import org.apache.lucene.document.Fieldable;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.FieldCache.StringIndex;
+import org.apache.lucene.search.similar.MoreLikeThis;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.util.ReaderUtil;
+import org.openqa.selenium.io.IOUtils;
+import org.roaringbitmap.RoaringBitmap;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Closeable {
 
@@ -292,7 +273,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField, PerFieldAnalyzer analyzer,
 			AbstractLocalSearchRequest request, FilterAbstract<?> filter, Timer timer)
-					throws ParseException, IOException, SearchLibException, SyntaxError {
+			throws ParseException, IOException, SearchLibException, SyntaxError {
 		return filter.getFilterHits(defaultField, analyzer, request, timer);
 	}
 
@@ -390,7 +371,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 	@Override
 	final public LinkedHashMap<String, FieldValue> getDocumentFields(final int docId,
 			final LinkedHashSet<String> fieldNameSet, final Timer timer)
-					throws IOException, ParseException, SyntaxError {
+			throws IOException, ParseException, SyntaxError {
 
 		LinkedHashMap<String, FieldValue> documentFields = new LinkedHashMap<String, FieldValue>();
 		Set<String> vectorField = null;
@@ -423,8 +404,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 			for (String fieldName : vectorField) {
 				TermFreqVector tfv = getTermFreqVector(docId, fieldName);
 				if (tfv != null) {
-					FieldValueItem[] valueItems = FieldValueItem.buildArray(FieldValueOriginEnum.TERM_VECTOR,
-							tfv.getTerms());
+					FieldValueItem[] valueItems = FieldValueItem
+							.buildArray(FieldValueOriginEnum.TERM_VECTOR, tfv.getTerms());
 					documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
 				} else
 					indexedField.add(fieldName);
@@ -443,8 +424,8 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 				if (stringIndex != null) {
 					String term = stringIndex.lookup[stringIndex.order[docId]];
 					if (term != null) {
-						FieldValueItem[] valueItems = FieldValueItem.buildArray(FieldValueOriginEnum.STRING_INDEX,
-								term);
+						FieldValueItem[] valueItems = FieldValueItem
+								.buildArray(FieldValueOriginEnum.STRING_INDEX, term);
 						documentFields.put(fieldName, new FieldValue(fieldName, valueItems));
 						continue;
 					}
