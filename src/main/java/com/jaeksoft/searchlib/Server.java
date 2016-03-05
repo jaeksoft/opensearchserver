@@ -1,25 +1,20 @@
 package com.jaeksoft.searchlib;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-
+import com.github.jankroken.commandline.CommandLineParser;
+import com.github.jankroken.commandline.OptionStyle;
+import com.github.jankroken.commandline.annotations.*;
+import com.jaeksoft.searchlib.util.FileUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.web.StartStopListener;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.github.jankroken.commandline.CommandLineParser;
-import com.github.jankroken.commandline.OptionStyle;
-import com.github.jankroken.commandline.annotations.LongSwitch;
-import com.github.jankroken.commandline.annotations.Option;
-import com.github.jankroken.commandline.annotations.ShortSwitch;
-import com.github.jankroken.commandline.annotations.SingleArgument;
-import com.github.jankroken.commandline.annotations.Toggle;
-import com.jaeksoft.searchlib.util.FileUtils;
-import com.jaeksoft.searchlib.util.ThreadUtils;
-import com.jaeksoft.searchlib.web.StartStopListener;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 
 public class Server {
 
