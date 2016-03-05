@@ -246,20 +246,7 @@ public class FileManager extends AbstractManager {
 	}
 
 	public FileItem getNewFileItem(FileInstanceAbstract fileInstance) throws IOException {
-		IOException exception = null;
-		for (int i = 1; i <= 5; i++) {
-			try {
-				return new FileItem(fileInstance);
-			} catch (IOException e) {
-				exception = e;
-				try {
-					Thread.sleep(i * 1000);
-				} catch (InterruptedException e1) {
-					break;
-				}
-			}
-		}
-		throw exception;
+		return new FileItem(fileInstance);
 	}
 
 	public long getFiles(AbstractSearchRequest searchRequest, ItemField orderBy, boolean orderAsc, long start,
