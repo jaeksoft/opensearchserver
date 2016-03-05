@@ -1,51 +1,31 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p/>
  * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.index;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.index.TermFreqVector;
-import org.apache.lucene.index.TermPositions;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.similar.MoreLikeThis;
-import org.json.JSONException;
-import org.xml.sax.SAXException;
-
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
 import com.jaeksoft.searchlib.filter.FilterAbstract;
@@ -64,6 +44,19 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similar.MoreLikeThis;
+import org.json.JSONException;
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public class IndexSingle extends IndexAbstract {
 
@@ -74,9 +67,22 @@ public class IndexSingle extends IndexAbstract {
 
 	private volatile boolean online;
 
-	protected List<UpdateInterfaces.Before> beforeUpdateList = null;
-	protected List<UpdateInterfaces.After> afterUpdateList = null;
-	protected List<UpdateInterfaces.Delete> afterDeleteList = null;
+	private final Set<UpdateInterfaces.Before> beforeUpdateSet = new HashSet<>();
+	private final Set<UpdateInterfaces.After> afterUpdateSet = new HashSet<>();
+	private final Set<UpdateInterfaces.Delete> afterDeleteSet = new HashSet<>();
+	private final Set<UpdateInterfaces.Reload> afterReloadSet = new HashSet<>();
+	private volatile UpdateInterfaces.Before[] _beforeUpdateArray = null;
+	private volatile UpdateInterfaces.After[] _afterUpdateArray = null;
+	private volatile UpdateInterfaces.Delete[] _afterDeleteArray = null;
+	private volatile UpdateInterfaces.Reload[] _afterReloadArray = null;
+
+	private final List<IndexAbstract> reloadIndexList;
+	private final UpdateInterfaces.Reload reloadUpdateInterface = new UpdateInterfaces.Reload() {
+		@Override
+		public void reload() throws SearchLibException {
+			IndexSingle.this.reload();
+		}
+	};
 
 	public IndexSingle(File configDir, IndexConfig indexConfig, boolean createIfNotExists)
 			throws IOException, URISyntaxException, SearchLibException, JSONException {
@@ -89,6 +95,7 @@ public class IndexSingle extends IndexAbstract {
 				indexDirectory = null;
 				_reader = null;
 				writer = null;
+				reloadIndexList = null;
 				return;
 			}
 			indexDir.mkdir();
@@ -102,36 +109,121 @@ public class IndexSingle extends IndexAbstract {
 			writer = new WriterLocal(indexConfig, indexDirectory);
 			if (bCreate)
 				((WriterLocal) writer).create();
+			reloadIndexList = null;
 		} else {
 			writer = null;
+			reloadIndexList = new ArrayList<>();
 		}
 		_reader = new ReaderLocal(indexConfig, indexDirectory);
+		eventUpdateInterface();
+	}
+
+	private void emptyReloadEvents() {
+		for (IndexAbstract index : reloadIndexList)
+			index.removeUpdateInterface(reloadUpdateInterface);
+		reloadIndexList.clear();
+	}
+
+	private void subscribeReloadEvents() throws SearchLibException {
+		for (String indexName : indexConfig.getIndexList()) {
+			Client client = ClientCatalog.getClient(indexName);
+			if (client == null)
+				continue;
+			IndexAbstract index = client.getIndex();
+			reloadIndexList.add(index);
+			index.addUpdateInterface(reloadUpdateInterface);
+		}
+	}
+
+	private void eventUpdateInterface() throws SearchLibException {
+		if (reloadIndexList == null)
+			return;
+		synchronized (reloadIndexList) {
+			emptyReloadEvents();
+			subscribeReloadEvents();
+		}
+	}
+
+	private void generateUpdateInterfaceArrays() {
+		synchronized (beforeUpdateSet) {
+			_beforeUpdateArray = beforeUpdateSet.isEmpty() ?
+					null :
+					beforeUpdateSet.toArray(new UpdateInterfaces.Before[beforeUpdateSet.size()]);
+		}
+		synchronized (afterUpdateSet) {
+			_afterUpdateArray = afterUpdateSet.isEmpty() ?
+					null :
+					afterUpdateSet.toArray(new UpdateInterfaces.After[afterUpdateSet.size()]);
+		}
+		synchronized (afterDeleteSet) {
+			_afterDeleteArray = afterDeleteSet.isEmpty() ?
+					null :
+					afterDeleteSet.toArray(new UpdateInterfaces.Delete[afterDeleteSet.size()]);
+		}
+		synchronized (afterReloadSet) {
+			_afterReloadArray = afterReloadSet.isEmpty() ?
+					null :
+					afterReloadSet.toArray(new UpdateInterfaces.Reload[afterReloadSet.size()]);
+		}
 	}
 
 	@Override
-	public synchronized void addUpdateInterface(UpdateInterfaces updateInterface) {
+	public void addUpdateInterface(UpdateInterfaces updateInterface) {
 		if (updateInterface == null)
 			return;
 		if (updateInterface instanceof UpdateInterfaces.Before) {
-			if (beforeUpdateList == null)
-				beforeUpdateList = new ArrayList<UpdateInterfaces.Before>(1);
-			beforeUpdateList.add((UpdateInterfaces.Before) updateInterface);
+			synchronized (beforeUpdateSet) {
+				beforeUpdateSet.add((UpdateInterfaces.Before) updateInterface);
+			}
 		}
 		if (updateInterface instanceof UpdateInterfaces.After) {
-			if (afterUpdateList == null)
-				afterUpdateList = new ArrayList<UpdateInterfaces.After>(1);
-			afterUpdateList.add((UpdateInterfaces.After) updateInterface);
+			synchronized (afterUpdateSet) {
+				afterUpdateSet.add((UpdateInterfaces.After) updateInterface);
+			}
 		}
 		if (updateInterface instanceof UpdateInterfaces.Delete) {
-			if (afterDeleteList == null)
-				afterDeleteList = new ArrayList<UpdateInterfaces.Delete>(1);
-			afterDeleteList.add((UpdateInterfaces.Delete) updateInterface);
+			synchronized (afterDeleteSet) {
+				afterDeleteSet.add((UpdateInterfaces.Delete) updateInterface);
+			}
 		}
+		if (updateInterface instanceof UpdateInterfaces.Reload) {
+			synchronized (afterReloadSet) {
+				afterReloadSet.add((UpdateInterfaces.Reload) updateInterface);
+			}
+		}
+		generateUpdateInterfaceArrays();
+	}
+
+	@Override
+	public void removeUpdateInterface(UpdateInterfaces updateInterface) {
+		if (updateInterface == null)
+			return;
+		if (updateInterface instanceof UpdateInterfaces.Before) {
+			synchronized (beforeUpdateSet) {
+				beforeUpdateSet.remove((UpdateInterfaces.Before) updateInterface);
+			}
+		}
+		if (updateInterface instanceof UpdateInterfaces.After) {
+			synchronized (afterUpdateSet) {
+				afterUpdateSet.remove((UpdateInterfaces.After) updateInterface);
+			}
+		}
+		if (updateInterface instanceof UpdateInterfaces.Delete) {
+			synchronized (afterDeleteSet) {
+				afterDeleteSet.remove((UpdateInterfaces.Delete) updateInterface);
+			}
+		}
+		if (updateInterface instanceof UpdateInterfaces.Reload) {
+			synchronized (afterReloadSet) {
+				afterReloadSet.remove((UpdateInterfaces.Reload) updateInterface);
+			}
+		}
+		generateUpdateInterfaceArrays();
 	}
 
 	/**
 	 * Check if there is old style index sub directory
-	 * 
+	 *
 	 * @param indexDir
 	 * @return
 	 */
@@ -146,6 +238,11 @@ public class IndexSingle extends IndexAbstract {
 
 	@Override
 	public void close() {
+		if (reloadIndexList != null) {
+			synchronized (reloadIndexList) {
+				emptyReloadEvents();
+			}
+		}
 		if (_reader != null)
 			IOUtils.close(_reader);
 		_reader = null;
@@ -202,17 +299,27 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	private void beforeUpdate(Schema schema, IndexDocument document) throws SearchLibException {
-		if (beforeUpdateList == null)
+		UpdateInterfaces.Before[] array = _beforeUpdateArray;
+		if (array == null)
 			return;
-		for (UpdateInterfaces.Before beforeUpdate : beforeUpdateList)
+		for (UpdateInterfaces.Before beforeUpdate : array)
 			beforeUpdate.update(schema, document);
 	}
 
 	private void afterUpdate(IndexDocument document) throws SearchLibException {
-		if (afterUpdateList == null)
+		UpdateInterfaces.After[] array = _afterUpdateArray;
+		if (array == null)
 			return;
-		for (UpdateInterfaces.After afterUpdate : afterUpdateList)
+		for (UpdateInterfaces.After afterUpdate : array)
 			afterUpdate.update(document);
+	}
+
+	private void afterReload() throws SearchLibException {
+		UpdateInterfaces.Reload[] array = _afterReloadArray;
+		if (array == null)
+			return;
+		for (UpdateInterfaces.Reload afterReload : array)
+			afterReload.reload();
 	}
 
 	@Override
@@ -262,11 +369,13 @@ public class IndexSingle extends IndexAbstract {
 		}
 		if (oldReader != null)
 			IOUtils.closeQuietly(oldReader);
+		afterReload();
 	}
 
 	@Override
 	public void reload() throws SearchLibException {
 		checkOnline(true);
+		eventUpdateInterface();
 		ReaderLocal reader = acquire();
 		try {
 			reloadNoLock();
@@ -425,7 +534,7 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	public FilterHits getFilterHits(SchemaField defaultField, PerFieldAnalyzer analyzer,
 			AbstractLocalSearchRequest request, FilterAbstract<?> filter, Timer timer)
-					throws ParseException, IOException, SearchLibException, SyntaxError {
+			throws ParseException, IOException, SearchLibException, SyntaxError {
 		checkOnline(true);
 		ReaderLocal reader = acquire();
 		try {
@@ -516,7 +625,7 @@ public class IndexSingle extends IndexAbstract {
 	@Override
 	final public LinkedHashMap<String, FieldValue> getDocumentFields(final int docId,
 			final LinkedHashSet<String> fieldNameSet, final Timer timer)
-					throws IOException, ParseException, SyntaxError, SearchLibException {
+			throws IOException, ParseException, SyntaxError, SearchLibException {
 		checkOnline(true);
 		ReaderLocal reader = acquire();
 		try {
