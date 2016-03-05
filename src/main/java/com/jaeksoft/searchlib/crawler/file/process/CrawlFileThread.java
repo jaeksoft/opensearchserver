@@ -24,16 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpException;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -43,13 +33,17 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
-import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
-import com.jaeksoft.searchlib.crawler.file.database.FileInfo;
-import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileManager;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
+import com.jaeksoft.searchlib.crawler.file.database.*;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpException;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlFileMaster> {
 
@@ -92,7 +86,7 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 			return;
 		if (fileInstance == null)
 			return;
-		FileItem fileItem = fileManager.getNewFileItem(fileInstance, crawlMaster);
+		FileItem fileItem = fileManager.getNewFileItem(fileInstance);
 		setCurrentFileItem(fileItem);
 		FileTypeEnum fileType = fileItem.getFileType();
 		if (fileType == null)
