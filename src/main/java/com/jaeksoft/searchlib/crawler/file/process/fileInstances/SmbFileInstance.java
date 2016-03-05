@@ -1,42 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p/>
  * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
@@ -48,15 +34,20 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.sun.security.auth.module.Krb5LoginModule;
+import jcifs.smb.*;
 
-import jcifs.smb.ACE;
-import jcifs.smb.Kerb5Authenticator;
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SID;
-import jcifs.smb.SmbAuthException;
-import jcifs.smb.SmbException;
-import jcifs.smb.SmbFile;
-import jcifs.smb.SmbFileFilter;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 public class SmbFileInstance extends FileInstanceAbstract implements SecurityInterface {
 
@@ -335,6 +326,27 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 
 	@Override
 	public List<SecurityAccess> getSecurity() throws IOException {
+		IOException exception = null;
+		for (int i = 1; i <= 10; i++) {
+			try {
+				List<SecurityAccess> securityList = getSecurityOnce();
+				if (exception != null)
+					Logging.warn(i + " getSecurity attempts: " + exception.getMessage());
+				return securityList;
+			} catch (IOException e) {
+				exception = e;
+				try {
+					Thread.sleep(i * 1000);
+				} catch (InterruptedException e1) {
+					Logging.warn(e1);
+					break;
+				}
+			}
+		}
+		throw new IOException("GetSecurity failed after 10 attempts.", exception);
+	}
+
+	private List<SecurityAccess> getSecurityOnce() throws IOException {
 		SmbFile smbFile = getSmbFile();
 		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
 		SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();

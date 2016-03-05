@@ -92,7 +92,7 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 			return;
 		if (fileInstance == null)
 			return;
-		FileItem fileItem = fileManager.getNewFileItem(fileInstance);
+		FileItem fileItem = fileManager.getNewFileItem(fileInstance, crawlMaster);
 		setCurrentFileItem(fileItem);
 		FileTypeEnum fileType = fileItem.getFileType();
 		if (fileType == null)
