@@ -1,29 +1,67 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2013-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.*;
+import org.apache.http.auth.AuthSchemeProvider;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.auth.BasicSchemeFactory;
+import org.apache.http.impl.auth.DigestSchemeFactory;
+import org.apache.http.impl.auth.KerberosSchemeFactory;
+import org.apache.http.impl.auth.SPNegoSchemeFactory;
+import org.apache.http.impl.client.*;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.EntityUtils;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -39,57 +77,9 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthSchemeProvider;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.RedirectStrategy;
-import org.apache.http.client.config.AuthSchemes;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.auth.BasicSchemeFactory;
-import org.apache.http.impl.auth.DigestSchemeFactory;
-import org.apache.http.impl.auth.KerberosSchemeFactory;
-import org.apache.http.impl.auth.SPNegoSchemeFactory;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
-import org.apache.http.util.EntityUtils;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
-import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
-import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
-import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
-
 public abstract class HttpAbstract {
 
+	private final int msTimeOut;
 	private final boolean followRedirect;
 	private CloseableHttpClient httpClient = null;
 	private RedirectStrategy redirectStrategy;
@@ -103,11 +93,15 @@ public abstract class HttpAbstract {
 	private CredentialsProvider credentialsProvider;
 	private final CookieStore cookieStore;
 
-	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler) throws IOException {
+	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler, int msTimeOut)
+			throws IOException {
 
 		this.followRedirect = bFollowRedirect;
-
+		this.msTimeOut = msTimeOut;
 		HttpClientBuilder builder = HttpClients.custom();
+
+		// Timeout
+		builder.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(msTimeOut).build());
 
 		SSLContext sslContext;
 		try {
@@ -145,7 +139,7 @@ public abstract class HttpAbstract {
 		this.proxyHandler = proxyHandler;
 		proxyHost = proxyHandler == null ? null : proxyHandler.getAnyProxy();
 
-		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider> create()
+		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
 				.register(AuthSchemes.NTLM, new NTLMSchemeFactory())
 				.register(AuthSchemes.BASIC, new BasicSchemeFactory())
 				.register(AuthSchemes.DIGEST, new DigestSchemeFactory())
@@ -198,8 +192,9 @@ public abstract class HttpAbstract {
 		// No more than one 1 minute to establish the connection
 		// No more than 10 minutes to establish the socket
 		// Cookies uses best match policy
-		RequestConfig.Builder configBuilder = RequestConfig.custom().setSocketTimeout(1000 * 60 * 10)
-				.setConnectTimeout(1000 * 60).setCookieSpec(CookieSpecs.DEFAULT).setRedirectsEnabled(followRedirect);
+		RequestConfig.Builder configBuilder = RequestConfig.custom().setSocketTimeout(msTimeOut)
+				.setConnectionRequestTimeout(msTimeOut).setConnectTimeout(msTimeOut).setCookieSpec(CookieSpecs.DEFAULT)
+				.setRedirectsEnabled(followRedirect);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
@@ -319,7 +314,9 @@ public abstract class HttpAbstract {
 			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format, Locale.ENGLISH);
 			httpDatesFormats[i++] = new ThreadSafeSimpleDateFormat(format);
 		}
-	};
+	}
+
+	;
 
 	public Long getLastModified() {
 		synchronized (this) {

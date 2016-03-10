@@ -1,51 +1,43 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.spider;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
 import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.*;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
 public class HttpDownloader extends HttpAbstract {
 
@@ -74,9 +66,9 @@ public class HttpDownloader extends HttpAbstract {
 
 	}
 
-	public HttpDownloader(final String userAgent, final boolean bFollowRedirect, final ProxyHandler proxyHandler)
-			throws IOException {
-		super(userAgent, bFollowRedirect, proxyHandler);
+	public HttpDownloader(final String userAgent, final boolean bFollowRedirect, final ProxyHandler proxyHandler,
+			int msTimeOut) throws IOException {
+		super(userAgent, bFollowRedirect, proxyHandler, msTimeOut);
 	}
 
 	private final void addHeader(HttpRequest httpRequest, List<HeaderItem> headers) {
@@ -105,7 +97,7 @@ public class HttpDownloader extends HttpAbstract {
 
 	private final DownloadItem request(final HttpRequestBase httpRequestBase, final CredentialItem credentialItem,
 			final List<HeaderItem> headers, final List<CookieItem> cookies, final HttpEntity entity)
-					throws ClientProtocolException, IOException, URISyntaxException, IllegalStateException {
+			throws ClientProtocolException, IOException, URISyntaxException, IllegalStateException {
 		synchronized (this) {
 			reset();
 			if (entity != null)
@@ -118,7 +110,7 @@ public class HttpDownloader extends HttpAbstract {
 
 	public final DownloadItem request(final URI uri, final Method method, final CredentialItem credentialItem,
 			final List<HeaderItem> headers, final List<CookieItem> cookies, final HttpEntity entity)
-					throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException {
 		HttpRequestBase httpRequestBase;
 		switch (method) {
 		case GET:
@@ -149,8 +141,8 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem patch(URI uri, CredentialItem credentialItem, List<HeaderItem> headers,
-			List<CookieItem> cookies, HttpEntity entity) throws ClientProtocolException, IOException,
-					URISyntaxException, IllegalStateException, SearchLibException {
+			List<CookieItem> cookies, HttpEntity entity)
+			throws ClientProtocolException, IOException, URISyntaxException, IllegalStateException, SearchLibException {
 		return request(uri, Method.PATCH, credentialItem, headers, cookies, entity);
 	}
 
@@ -180,20 +172,20 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	public DownloadItem options(URI uri, CredentialItem credentialItem, List<HeaderItem> headers,
-			List<CookieItem> cookies) throws ClientProtocolException, IOException, IllegalStateException,
-					SearchLibException, URISyntaxException {
+			List<CookieItem> cookies)
+			throws ClientProtocolException, IOException, IllegalStateException, SearchLibException, URISyntaxException {
 		return request(uri, Method.OPTIONS, credentialItem, headers, cookies, null);
 	}
 
 	public DownloadItem delete(URI uri, CredentialItem credentialItem, List<HeaderItem> headers,
-			List<CookieItem> cookies) throws ClientProtocolException, IOException, IllegalStateException,
-					SearchLibException, URISyntaxException {
+			List<CookieItem> cookies)
+			throws ClientProtocolException, IOException, IllegalStateException, SearchLibException, URISyntaxException {
 		return request(uri, Method.DELETE, credentialItem, headers, cookies, null);
 	}
 
 	public DownloadItem put(URI uri, CredentialItem credentialItem, List<HeaderItem> headers, List<CookieItem> cookies,
-			HttpEntity entity) throws ClientProtocolException, IOException, IllegalStateException, SearchLibException,
-					URISyntaxException {
+			HttpEntity entity)
+			throws ClientProtocolException, IOException, IllegalStateException, SearchLibException, URISyntaxException {
 		return request(uri, Method.PUT, credentialItem, headers, cookies, entity);
 	}
 
@@ -201,7 +193,7 @@ public class HttpDownloader extends HttpAbstract {
 
 	public static final void main(String[] args) throws IOException {
 		try {
-			HttpDownloader downloader = new HttpDownloader("OpenSearchServerBot", true, null);
+			HttpDownloader downloader = new HttpDownloader("OpenSearchServerBot", true, null, 60000);
 			downloader.get(new URI("http://www.opensearchserver.com/robots.txt"), null);
 			downloader.get(new URI("http://www.opensearchserver.com/"), null);
 			downloader.release();

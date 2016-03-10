@@ -1,43 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.process;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -48,14 +33,8 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
+import com.jaeksoft.searchlib.crawler.web.database.*;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
-import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
-import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
-import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
-import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
@@ -65,6 +44,15 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawlThread> {
 
@@ -86,10 +74,12 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		super(config);
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		urlCrawlQueue = new UrlCrawlQueue(config);
-		exclusionMatcher = propertyManager.getExclusionEnabled().getValue()
-				? config.getExclusionPatternManager().getPatternListMatcher() : null;
-		inclusionMatcher = propertyManager.getInclusionEnabled().getValue()
-				? config.getInclusionPatternManager().getPatternListMatcher() : null;
+		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ?
+				config.getExclusionPatternManager().getPatternListMatcher() :
+				null;
+		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
+				config.getInclusionPatternManager().getPatternListMatcher() :
+				null;
 		hostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
@@ -223,8 +213,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 								continue;
 
 						if (!urlManager.exists(sUri)) {
-							workInsertUrlList.add(
-									urlManager.getNewUrlItem(new LinkItem(sUri, LinkItem.Origin.sitemap, null, 0)));
+							workInsertUrlList.add(urlManager
+									.getNewUrlItem(new LinkItem(sUri, LinkItem.Origin.sitemap, null, 0)));
 						}
 					}
 				}
@@ -243,7 +233,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
 		if (StringUtils.isEmpty(userAgent))
 			userAgent = propertyManager.getUserAgent().getValue();
-		return new HttpDownloader(userAgent, followRedirect, useProxies ? propertyManager.getProxyHandler() : null);
+		return new HttpDownloader(userAgent, followRedirect, useProxies ? propertyManager.getProxyHandler() : null,
+				propertyManager.getConnectionTimeOut().getValue() * 1000);
 	}
 
 	final public HttpDownloader getNewHttpDownloader(final boolean followRedirect)

@@ -1,37 +1,37 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.database;
-
-import java.io.File;
-import java.io.IOException;
 
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
+
+import java.io.File;
+import java.io.IOException;
 
 public class WebPropertyManager extends AbstractPropertyManager implements PropertyItemListener {
 
@@ -41,6 +41,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 	final private PropertyItem<Integer> maxUrlPerHost;
 	final private PropertyItem<Integer> maxUrlPerSession;
 	final private PropertyItem<String> userAgent;
+	final private PropertyItem<Integer> connectionTimeOut;
 	final private PropertyItem<Boolean> exclusionEnabled;
 	final private PropertyItem<Boolean> inclusionEnabled;
 	final private PropertyItem<Boolean> robotsTxtEnabled;
@@ -69,6 +70,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100, 1, null);
 		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1, null);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
+		connectionTimeOut = newIntegerProperty("connectionTimeOut", 600, 0, null);
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
@@ -131,6 +133,10 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 
 	public PropertyItem<String> getUserAgent() {
 		return userAgent;
+	}
+
+	public PropertyItem<Integer> getConnectionTimeOut() {
+		return connectionTimeOut;
 	}
 
 	public PropertyItem<String> getFetchIntervalUnit() {
