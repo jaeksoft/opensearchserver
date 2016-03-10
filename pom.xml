@@ -116,7 +116,7 @@
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
-            <version>7.0.10</version>
+            <version>7.0.11</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -470,12 +470,12 @@
         <dependency>
             <groupId>com.atlascopco</groupId>
             <artifactId>hunspell-bridj</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.roaringbitmap</groupId>
             <artifactId>RoaringBitmap</artifactId>
-            <version>0.6.3</version>
+            <version>0.6.5</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -555,7 +555,7 @@
         <lucene.version>3.6.2</lucene.version>
         <httpclient.version>4.5.2</httpclient.version>
         <httpcore.version>4.4.4</httpcore.version>
-        <poi.version>3.13</poi.version>
+        <poi.version>3.14</poi.version>
         <selenium.version>2.52.0</selenium.version>
         <zk.version>6.5.4</zk.version>
         <jackson.version>2.6.5</jackson.version>

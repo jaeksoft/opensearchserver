@@ -11,6 +11,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 OpenSearchServer 1.5.14
 
 New features:
+- GH-1746: Add HTTP connection time out
 - GH-1706: Autocompletion thread should be interruptible
 - GH-1700: Tomcat version update 7.0.68
 - GH-1689: Disabling link detection
@@ -19,6 +20,7 @@ New features:
 - GH-1669: An XML/JSON API for field terms extractions
 
 Bug fixes:
+- GH-1745: Can't access "Privileges" tab in last snapshots
 - GH-1729: org.apache.cxf.interceptor.Fault, Tomcat 7.0.53, when starting crawl
 - GH-1697: Ignored Number of suggestion for auto-completion
 - GH-1697: Scheduler URL database error
