@@ -1,4 +1,5 @@
 release date=12:00 04.04.2016,version=1.5.14,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1745: Can't access Privileges tab in last snapshots
  * GH-1729: org.apache.cxf.interceptor.Fault, Tomcat 7.0.53, when starting crawl
  * GH-1706: Autocompletion thread should be interruptible
  * GH-1700: Tomcat version update 7.0.68
