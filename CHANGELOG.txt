@@ -11,6 +11,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 OpenSearchServer 1.5.14
 
 New features:
+- GH-1746: Add HTTP connection time out
 - GH-1706: Autocompletion thread should be interruptible
 - GH-1700: Tomcat version update 7.0.68
 - GH-1689: Disabling link detection
