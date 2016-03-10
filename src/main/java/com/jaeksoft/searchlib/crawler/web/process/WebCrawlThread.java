@@ -1,35 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.process;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -50,6 +43,13 @@ import com.jaeksoft.searchlib.crawler.web.script.WebScriptManager;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 
 public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawlMaster> {
 
@@ -78,11 +78,13 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 		this.hostUrlList = hostUrlList;
 		httpDownloader = crawlMaster.getNewHttpDownloader(false);
 		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager.getUserAgent().getValue(), true,
-				propertyManager.getProxyHandler());
-		exclusionMatcher = propertyManager.getExclusionEnabled().getValue()
-				? config.getExclusionPatternManager().getPatternListMatcher() : null;
-		inclusionMatcher = propertyManager.getInclusionEnabled().getValue()
-				? config.getInclusionPatternManager().getPatternListMatcher() : null;
+				propertyManager.getProxyHandler(), propertyManager.getConnectionTimeOut().getValue() * 1000);
+		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ?
+				config.getExclusionPatternManager().getPatternListMatcher() :
+				null;
+		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
+				config.getInclusionPatternManager().getPatternListMatcher() :
+				null;
 		webScriptManager = config.getWebScriptManager();
 	}
 

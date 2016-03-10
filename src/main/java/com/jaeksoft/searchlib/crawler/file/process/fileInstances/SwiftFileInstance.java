@@ -1,38 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2013-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
@@ -43,6 +33,15 @@ import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftProt
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 
 public class SwiftFileInstance extends FileInstanceAbstract {
 
@@ -87,11 +86,12 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 
 	private FileInstanceAbstract[] listFiles(boolean withDirectory)
 			throws URISyntaxException, ClientProtocolException, JSONException, IOException {
-		HttpDownloader downloader = new HttpDownloader(null, false, null);
+		HttpDownloader downloader = new HttpDownloader(null, false, null, 600);
 		try {
 			authentication(downloader);
-			List<ObjectMeta> objectList = SwiftProtocol.listObjects(downloader, token, filePathItem.getSwiftContainer(),
-					getPath(), withDirectory, filePathItem.isIgnoreHiddenFiles(), filePathItem.getExclusionMatchers());
+			List<ObjectMeta> objectList = SwiftProtocol
+					.listObjects(downloader, token, filePathItem.getSwiftContainer(), getPath(), withDirectory,
+							filePathItem.isIgnoreHiddenFiles(), filePathItem.getExclusionMatchers());
 			if (objectList == null)
 				return null;
 
@@ -149,7 +149,7 @@ public class SwiftFileInstance extends FileInstanceAbstract {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		try {
-			HttpDownloader downloader = new HttpDownloader(null, false, null);
+			HttpDownloader downloader = new HttpDownloader(null, false, null, 600);
 			authentication(downloader);
 			return SwiftProtocol.getObject(downloader, getFilePathItem().getSwiftContainer(), token, object);
 		} catch (URISyntaxException e) {

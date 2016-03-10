@@ -1,27 +1,35 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2012-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.util.video;
+
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.LinkUtils;
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,26 +40,16 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.json.JSONException;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
-import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.LinkUtils;
-
 public class Dailymotion {
 
 	private final static String API_URL = "https://api.dailymotion.com/video/";
 	private final static String THUMBNAIL = "http://www.dailymotion.com/thumbnail/video/";
-	private final static Pattern[] idPatterns = {
-			Pattern.compile(".*/video/([^_&]+).*"),
+	private final static Pattern[] idPatterns = { Pattern.compile(".*/video/([^_&]+).*"),
 			Pattern.compile("/swf/([^&]+).*") };
 
 	public static DailymotionItem getInfo(URL url, HttpDownloader httpDownloader)
-			throws MalformedURLException, IOException, URISyntaxException,
-			JSONException, IllegalStateException, SearchLibException {
+			throws MalformedURLException, IOException, URISyntaxException, JSONException, IllegalStateException,
+			SearchLibException {
 		String videoId = getVideoId(url);
 		if (videoId == null)
 			throw new IOException("No video ID found: " + url);
@@ -63,15 +61,12 @@ public class Dailymotion {
 		}
 		String videoApiURL = API_URL + videoId;
 		String thumbnail = THUMBNAIL + videoId;
-		DownloadItem downloadItem = httpDownloader.get(new URI(videoApiURL),
-				null);
+		DownloadItem downloadItem = httpDownloader.get(new URI(videoApiURL), null);
 		InputStream dailymotionResponse = downloadItem.getContentInputStream();
 		if (dailymotionResponse == null)
-			throw new IOException("No respond returned from Dailymotion API: "
-					+ videoApiURL);
+			throw new IOException("No respond returned from Dailymotion API: " + videoApiURL);
 		try {
-			dailymotionItem = new DailymotionItem(dailymotionResponse, videoId,
-					thumbnail);
+			dailymotionItem = new DailymotionItem(dailymotionResponse, videoId, thumbnail);
 			DailymotionItemCache.addItem(videoId, dailymotionItem);
 			return dailymotionItem;
 		} finally {
@@ -96,15 +91,13 @@ public class Dailymotion {
 		return null;
 	}
 
-	public final static void main(String[] args) throws MalformedURLException,
-			IOException, URISyntaxException, JSONException,
-			IllegalStateException, SearchLibException {
-		HttpDownloader downloader = new HttpDownloader("OpenSearchServer",
-				false, null);
+	public final static void main(String[] args)
+			throws MalformedURLException, IOException, URISyntaxException, JSONException, IllegalStateException,
+			SearchLibException {
+		HttpDownloader downloader = new HttpDownloader("OpenSearchServer", false, null, 600);
 		String[] urls = {
 				"http://www.dailymotion.com/video/xjlmik_raphael-perez-emmanuel-keller-open-search-server_tech?no_track=1",
-				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0",
-				"http://www.dailymotion.com/embed/video/xayzui",
+				"http://www.dailymotion.com/swf/x4f4ty&v3=1&related=0", "http://www.dailymotion.com/embed/video/xayzui",
 				"http://www.dailymotion.com/embed/video/xl4c8y?logo=0&autoPlay=1&repeat=1&forcedQuality=sd" };
 		for (String u : urls) {
 			URL url = LinkUtils.newEncodedURL(u);
