@@ -1,40 +1,35 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2011-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.webservice;
-
-import java.util.TreeMap;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.util.InfoCallback;
+
+import javax.xml.bind.annotation.*;
+import java.util.Properties;
+import java.util.TreeMap;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "result")
@@ -86,6 +81,14 @@ public class CommonResult implements InfoCallback {
 		if (details == null)
 			details = new TreeMap<String, String>();
 		details.put(key, value.toString());
+		return this;
+	}
+
+	public CommonResult addDetail(Properties properties) {
+		if (properties == null)
+			return this;
+		for (String name : properties.stringPropertyNames())
+			addDetail(name, properties.getProperty(name));
 		return this;
 	}
 

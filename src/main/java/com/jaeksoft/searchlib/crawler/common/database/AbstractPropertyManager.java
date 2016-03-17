@@ -24,11 +24,11 @@
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyManager;
+
+import java.io.File;
+import java.io.IOException;
 
 public abstract class AbstractPropertyManager extends PropertyManager {
 
