@@ -28,7 +28,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
 import javax.xml.bind.annotation.*;
-import java.util.Properties;
 import java.util.TreeMap;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -45,7 +44,7 @@ public class CommonResult implements InfoCallback {
 	public String info;
 
 	@XmlElement
-	public TreeMap<String, String> details;
+	public TreeMap<String, Object> details;
 
 	public CommonResult() {
 		successful = null;
@@ -56,7 +55,7 @@ public class CommonResult implements InfoCallback {
 	protected CommonResult(CommonResult result) {
 		successful = result.successful;
 		info = result.info;
-		details = result.details == null ? null : new TreeMap<String, String>(result.details);
+		details = result.details == null ? null : new TreeMap<String, Object>(result.details);
 	}
 
 	public CommonResult(Boolean successful, String info) {
@@ -79,16 +78,8 @@ public class CommonResult implements InfoCallback {
 		if (value == null)
 			return this;
 		if (details == null)
-			details = new TreeMap<String, String>();
-		details.put(key, value.toString());
-		return this;
-	}
-
-	public CommonResult addDetail(Properties properties) {
-		if (properties == null)
-			return this;
-		for (String name : properties.stringPropertyNames())
-			addDetail(name, properties.getProperty(name));
+			details = new TreeMap<>();
+		details.put(key, value);
 		return this;
 	}
 

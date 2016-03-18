@@ -158,5 +158,5 @@ public interface RestWebCrawler {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/properties")
 	public CommonResult setProperties(@PathParam("index_name") String use, @QueryParam("login") String login,
-			@QueryParam("key") String key, Map<String, Object> properties);
+			@QueryParam("key") String key, Map<String, Comparable> properties);
 }

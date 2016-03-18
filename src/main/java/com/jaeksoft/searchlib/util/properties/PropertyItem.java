@@ -52,6 +52,7 @@ public class PropertyItem<T extends Comparable<T>> {
 		this.listeners = null;
 		this.min = min;
 		this.max = max;
+		propertyManager.add(this);
 	}
 
 	public void addListener(PropertyItemListener listener) {
@@ -92,6 +93,10 @@ public class PropertyItem<T extends Comparable<T>> {
 		if (listeners != null)
 			for (PropertyItemListener listener : listeners)
 				listener.hasBeenSet(this);
+	}
+
+	void setValueObject(Comparable value) throws IOException, SearchLibException {
+		this.setValue((T) value);
 	}
 
 	public Boolean isValue() {

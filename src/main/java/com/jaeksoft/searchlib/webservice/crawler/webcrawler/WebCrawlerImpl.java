@@ -58,6 +58,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, RestWebCrawler {
 
@@ -506,9 +507,12 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
-			WebPropertyManager props = client.getWebPropertyManager();
+			WebPropertyManager webProperties = client.getWebPropertyManager();
 			CommonResult result = new CommonResult(true, "getProperties");
-			result.addDetail(props.getProperties());
+			final HashMap<String, Comparable> props = new HashMap<>();
+			webProperties.fillProperties(props);
+			for (Map.Entry<String, Comparable> entry : props.entrySet())
+				result.addDetail(entry.getKey(), entry.getValue());
 			return result;
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
@@ -518,20 +522,20 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 	}
 
 	@Override
-	public CommonResult setProperties(String index, String login, String key, Map<String, Object> newProperties) {
+	public CommonResult setProperties(String index, String login, String key, Map<String, Comparable> newProperties) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
-			WebPropertyManager props = client.getWebPropertyManager();
-			for (Map.Entry<String, Object> entry : newProperties.entrySet())
+			WebPropertyManager webProperties = client.getWebPropertyManager();
+			for (Map.Entry<String, Comparable> entry : newProperties.entrySet())
 				if (entry.getValue() != null)
-					props.setProperty(entry.getKey(), entry.getValue().toString());
-			CommonResult result = new CommonResult(true, "setProperties");
-			result.addDetail(props.getProperties());
-			return result;
+					webProperties.setProperty(entry.getKey(), entry.getValue());
+			return new CommonResult(true, "setProperties");
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}
