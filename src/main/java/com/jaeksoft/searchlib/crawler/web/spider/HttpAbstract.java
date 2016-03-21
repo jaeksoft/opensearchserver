@@ -76,6 +76,7 @@ import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public abstract class HttpAbstract {
 
@@ -96,12 +97,14 @@ public abstract class HttpAbstract {
 	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler, int msTimeOut)
 			throws IOException {
 
+
 		this.followRedirect = bFollowRedirect;
 		this.msTimeOut = msTimeOut;
 		HttpClientBuilder builder = HttpClients.custom();
 
 		// Timeout
 		builder.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(msTimeOut).build());
+		builder.setConnectionTimeToLive(msTimeOut * 2, TimeUnit.MILLISECONDS);
 
 		SSLContext sslContext;
 		try {

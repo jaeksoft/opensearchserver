@@ -24,13 +24,19 @@
 
 package com.jaeksoft.searchlib.util.properties;
 
+import com.jaeksoft.searchlib.SearchLibException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class PropertyManager {
+
+	private final HashMap<String, PropertyItem<?>> propertyMap;
 
 	private final File propFile;
 
@@ -38,6 +44,7 @@ public class PropertyManager {
 
 	public PropertyManager(File file) throws IOException {
 		propFile = file;
+		propertyMap = new HashMap<>();
 		properties = new Properties();
 		if (propFile.exists()) {
 			FileInputStream inputStream = null;
@@ -51,6 +58,10 @@ public class PropertyManager {
 					inputStream.close();
 			}
 		}
+	}
+
+	void add(PropertyItem<?> propertyItem) {
+		propertyMap.put(propertyItem.getName(), propertyItem);
 	}
 
 	public void save() throws IOException {
@@ -97,12 +108,15 @@ public class PropertyManager {
 		save();
 	}
 
-	public Properties getProperties() {
-		return properties;
+	public void fillProperties(Map<String, Comparable> map) {
+		for (PropertyItem<?> item : propertyMap.values())
+			map.put(item.getName(), item.getValue());
 	}
 
-	public void setProperty(String name, String value) {
-		//TODO
+	public void setProperty(String name,  Comparable value) throws IOException, SearchLibException {
+		PropertyItem<?> item = propertyMap.get(name);
+		if (item != null)
+			item.setValueObject(value);
 	}
 
 }
