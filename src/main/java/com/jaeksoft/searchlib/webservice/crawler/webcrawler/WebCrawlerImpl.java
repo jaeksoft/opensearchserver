@@ -522,15 +522,13 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 	}
 
 	@Override
-	public CommonResult setProperties(String index, String login, String key, Map<String, Comparable> newProperties) {
+	public CommonResult setProperty(String index, String login, String key, String property, String value) {
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PARAMETERS);
 			ClientFactory.INSTANCE.properties.checkApi();
 			WebPropertyManager webProperties = client.getWebPropertyManager();
-			for (Map.Entry<String, Comparable> entry : newProperties.entrySet())
-				if (entry.getValue() != null)
-					webProperties.setProperty(entry.getKey(), entry.getValue());
-			return new CommonResult(true, "setProperties");
+			webProperties.setProperty(property, value);
+			return new CommonResult(true, "setProperty");
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {

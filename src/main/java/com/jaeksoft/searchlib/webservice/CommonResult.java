@@ -43,7 +43,6 @@ public class CommonResult implements InfoCallback {
 	@XmlElement
 	public String info;
 
-	@XmlElement
 	public TreeMap<String, Object> details;
 
 	public CommonResult() {

@@ -29,7 +29,6 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.Map;
 
 @Path("/index/{index_name}/crawler/web")
 public interface RestWebCrawler {
@@ -155,8 +154,7 @@ public interface RestWebCrawler {
 
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Path("/properties")
-	public CommonResult setProperties(@PathParam("index_name") String use, @QueryParam("login") String login,
-			@QueryParam("key") String key, Map<String, Comparable> properties);
+	@Path("/properties/{property}")
+	public CommonResult setProperty(@PathParam("index_name") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key, @PathParam("property") String property, @QueryParam("value") String value);
 }
