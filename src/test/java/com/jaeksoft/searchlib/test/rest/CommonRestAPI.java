@@ -76,9 +76,9 @@ public abstract class CommonRestAPI {
 		return commonResult;
 	}
 
-	public void checkCommonResultDetail(CommonResult commonResult, String detail, String expectedValue) {
+	public void checkCommonResultDetail(CommonResult commonResult, String detail, Object expectedValue) {
 		Object value = commonResult.details.get(detail);
-		assertTrue("Wrong result detail : " + value, expectedValue.equals(value));
+		assertEquals(expectedValue, value);
 	}
 
 	public String getResource(String name) throws IOException {
