@@ -1,5 +1,7 @@
 OpenSearchServer
 ================
+
+[![Join the chat at https://gitter.im/jaeksoft/opensearchserver](https://badges.gitter.im/jaeksoft/opensearchserver.svg)](https://gitter.im/jaeksoft/opensearchserver?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 http://www.opensearchserver.com
 
 Copyright Emmanuel Keller / Jaeksoft (2008-2016)
