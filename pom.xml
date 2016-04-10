@@ -1,11 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jaeksoft</groupId>
     <artifactId>opensearchserver</artifactId>
     <packaging>jar</packaging>
     <name>OpenSearchServer</name>
     <url>http://www.open-search-server.com</url>
+
     <licenses>
         <license>
             <name>General Public License, Version 3.0</name>
@@ -13,6 +15,21 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface,
+        the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and
+        easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and
+        Linux/Unix/BSD.
+    </description>
+    
+    <developers>
+        <developer>
+            <name>Emmanuel Keller</name>
+            <email>ekeller@opensearchserver.com</email>
+            <organization>Jaeksoft OpenSearchServer</organization>
+            <organizationUrl>http://www.opensearchserver.com</organizationUrl>
+        </developer>
+    </developers>
 
     <version>1.5.14-SNAPSHOT</version>
 
@@ -39,6 +56,7 @@
             <url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
         </repository>
     </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -496,18 +514,6 @@
             <groupId>com.jaeksoft</groupId>
             <artifactId>jcifs-krb5-jdk7</artifactId>
             <version>1.3.18</version>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>jcifs</groupId>
-                    <artifactId>jcifs</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>jcifs</groupId>
-            <artifactId>jcifs</artifactId>
-            <version>1.3.17</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -583,15 +589,7 @@
         <jackson.version>2.6.6</jackson.version>
         <tomcat.version>7.0.68</tomcat.version>
     </properties>
-    <description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface,
-        the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and
-        easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and
-        Linux/Unix/BSD.
-    </description>
-    <organization>
-        <name>Jaeksoft OpenSearchServer</name>
-        <url>http://www.open-search-server.com</url>
-    </organization>
+
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
