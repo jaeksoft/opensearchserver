@@ -101,8 +101,13 @@ public class SiteMapList {
 		set.add(item);
 	}
 
-	public int size() {
-		return size;
+	public int getSize() {
+		rwl.w.lock();
+		try {
+			return size;
+		} finally {
+			rwl.w.unlock();
+		}
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws IOException,

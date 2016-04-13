@@ -198,13 +198,13 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
 			SiteMapItem item = new SiteMapItem();
-			size = client.getSiteMapList().size();
+			size = client.getSiteMapList().getSize();
 			for (final String del : deleteList) {
 				item.setUri(del);
 				client.getSiteMapList().remove(item);
-				if (size != client.getSiteMapList().size()) {
+				if (size != client.getSiteMapList().getSize()) {
 					count = count + 1;
-					size = client.getSiteMapList().size();
+					size = client.getSiteMapList().getSize();
 				}
 			}
 			return new CommonResult(true, count + " SiteMap deleted");
