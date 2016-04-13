@@ -55,6 +55,7 @@ public class SiteMapList {
 	private final File configFile;
 	private final Map<String, Set<SiteMapItem>> sitemapMap;
 	private SiteMapItem[] sitemapArray;
+	private int size = 0;
 
 	public SiteMapList(File indexDir, String filename)
 			throws SearchLibException {
@@ -98,6 +99,10 @@ public class SiteMapList {
 			sitemapMap.put(item.getHostname(), set);
 		}
 		set.add(item);
+	}
+
+	public int size() {
+		return size;
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws IOException,
@@ -152,6 +157,7 @@ public class SiteMapList {
 			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
+			size = size + 1;
 		}
 	}
 
@@ -167,6 +173,7 @@ public class SiteMapList {
 			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
+			size = size - 1;
 		}
 	}
 
