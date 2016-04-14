@@ -53,7 +53,7 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 			ParserConfigurationException {
 		Response response = client()
 				.path(path, IntegrationTest.INDEX_NAME)
-				.query("value", siteMapUrl)
+				.query("site_map_url", siteMapUrl)
 				.accept(MediaType.APPLICATION_JSON).put(null);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
@@ -76,7 +76,7 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 			ParserConfigurationException {
 		Response response = client()
 				.path(path, IntegrationTest.INDEX_NAME)
-				.query("value", siteMapUrl)
+				.query("site_map_url", siteMapUrl)
 				.accept(MediaType.APPLICATION_JSON).delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
@@ -87,7 +87,7 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 			ParserConfigurationException {
 		Response response = client()
 				.path(path, IntegrationTest.INDEX_NAME)
-				.query("value", siteMapUrl)
+				.query("site_map_url", siteMapUrl)
 				.accept(MediaType.APPLICATION_JSON).delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
