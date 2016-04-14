@@ -188,7 +188,7 @@
 			* [Insert](api_v2/WEB_crawler/exclusion_patterns/insert.md)
 			* [List](api_v2/WEB_crawler/exclusion_patterns/list.md)
 			* [Delete](api_v2/WEB_crawler/exclusion_patterns/delete.md)
-		* [URL Database](api_v2/WEB_crawler/URL_database/README.md)
+		* [URL database](api_v2/WEB_crawler/URL_database/README.md)
 			* [Injecting URLs](api_v2/WEB_crawler/URL_database/inject.md)
 			* [Hostname list](api_v2/WEB_crawler/URL_database/hostnames.md)
 		* [Site map](api_v2/WEB_crawler/sitemap/README.md)
