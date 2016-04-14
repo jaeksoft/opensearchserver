@@ -120,14 +120,14 @@ public interface RestWebCrawler {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/sitemap")
 	public CommonResult injectSiteMap(@PathParam("index_name") String use, @QueryParam("login") String login,
-									  @QueryParam("key") String key, @QueryParam("value")List<String> addListSiteMap);
+									  @QueryParam("key") String key, @QueryParam("site_map_url")List<String> addListSiteMap);
 
 	@DELETE
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/sitemap")
 	public CommonResult deleteSiteMap(@PathParam("index_name") String use, @QueryParam("login") String login,
-									  @QueryParam("key") String key, @QueryParam("value")List<String> deleteList);
+									  @QueryParam("key") String key, @QueryParam("site_map_url")List<String> deleteList);
 
 
 	@GET
