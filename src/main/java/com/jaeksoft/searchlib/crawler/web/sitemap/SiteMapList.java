@@ -100,6 +100,21 @@ public class SiteMapList {
 		set.add(item);
 	}
 
+	/**
+	 *
+	 * @return return the size of sitemapMap
+	 */
+	public int getSize() {
+		rwl.w.lock();
+		try {
+			if (sitemapMap == null)
+				return 0;
+			return sitemapMap.size();
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
 	public void writeXml(XmlWriter xmlWriter) throws IOException,
 			TransformerConfigurationException, SAXException {
 		rwl.w.lock();

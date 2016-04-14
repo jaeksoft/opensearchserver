@@ -23,6 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
@@ -106,12 +107,34 @@ public interface RestWebCrawler {
 	public CommonResult getPatternStatus(@PathParam("index_name") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key);
 
+
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/patterns/status")
 	public CommonResult setPatternStatus(@PathParam("index_name") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("inclusion") Boolean inclusion,
 			@QueryParam("exclusion") Boolean exclusion);
+
+	@PUT
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/sitemap")
+	public CommonResult injectSiteMap(@PathParam("index_name") String use, @QueryParam("login") String login,
+									  @QueryParam("key") String key, @QueryParam("value")List<String> addListSiteMap);
+
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/sitemap")
+	public CommonResult deleteSiteMap(@PathParam("index_name") String use, @QueryParam("login") String login,
+									  @QueryParam("key") String key, @QueryParam("value")List<String> deleteList);
+
+
+	@GET
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/sitemap")
+	public CommonListResult<String> getSiteMap(@PathParam("index_name") String use, @QueryParam("login") String login,
+											   @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
