@@ -190,6 +190,7 @@
 			* [Delete](api_v2/WEB_crawler/exclusion_patterns/delete.md)
 		* [URL Database](api_v2/WEB_crawler/URL_database/README.md)
 			* [Injecting URLs](api_v2/WEB_crawler/URL_database/inject.md)
+			* [Hostname list](api_v2/WEB_crawler/URL_database/hostnames.md)
 		* [Site map](api_v2/WEB_crawler/sitemap/README.md)
 			* [Inserting inclusion patterns](api_v2/WEB_crawler/sitemap/insert.md)
 			* [Listing inclusion patterns](api_v2/WEB_crawler/sitemap/list.md)
