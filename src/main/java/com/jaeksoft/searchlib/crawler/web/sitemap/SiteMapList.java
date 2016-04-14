@@ -55,7 +55,6 @@ public class SiteMapList {
 	private final File configFile;
 	private final Map<String, Set<SiteMapItem>> sitemapMap;
 	private SiteMapItem[] sitemapArray;
-	private int size = 0;
 
 	public SiteMapList(File indexDir, String filename)
 			throws SearchLibException {
@@ -101,10 +100,16 @@ public class SiteMapList {
 		set.add(item);
 	}
 
+	/**
+	 *
+	 * @return return the size of sitemapMap
+	 */
 	public int getSize() {
 		rwl.w.lock();
 		try {
-			return size;
+			if (sitemapMap == null)
+				return 0;
+			return sitemapMap.size();
 		} finally {
 			rwl.w.unlock();
 		}
@@ -162,7 +167,6 @@ public class SiteMapList {
 			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
-			size = size + 1;
 		}
 	}
 
@@ -178,7 +182,6 @@ public class SiteMapList {
 			sitemapArray = null;
 		} finally {
 			rwl.w.unlock();
-			size = size - 1;
 		}
 	}
 

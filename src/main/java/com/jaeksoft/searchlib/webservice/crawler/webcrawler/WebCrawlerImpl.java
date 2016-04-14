@@ -174,12 +174,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
         try {
             Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
             ClientFactory.INSTANCE.properties.checkApi();
-            int count = 0;
+	        int count = client.getSiteMapList().getSize();
             for (final String SiteMapUrl : addListSiteMap) {
                 client.getSiteMapList().add(new SiteMapItem(SiteMapUrl));
-                count = count + 1;
             }
-            return new CommonResult(true, count + " SiteMap injected");
+            return new CommonResult(true,  (client.getSiteMapList().getSize() - count) + " SiteMap injected");
         } catch (SearchLibException e) {
             throw new CommonServiceException(e);
         } catch (IOException e) {
@@ -193,21 +192,15 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
     
     public CommonResult deleteSiteMap(String index, String login, String key, List<String> deleteList) {
 		try {
-			int count = 0, size;
-
+			SiteMapItem item = new SiteMapItem();
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
-			SiteMapItem item = new SiteMapItem();
-			size = client.getSiteMapList().getSize();
+			int count = client.getSiteMapList().getSize();
 			for (final String del : deleteList) {
 				item.setUri(del);
 				client.getSiteMapList().remove(item);
-				if (size != client.getSiteMapList().getSize()) {
-					count = count + 1;
-					size = client.getSiteMapList().getSize();
-				}
 			}
-			return new CommonResult(true, count + " SiteMap deleted");
+			return new CommonResult(true, (count - client.getSiteMapList().getSize()) + " SiteMap deleted");
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (FileNotFoundException e) {
@@ -221,7 +214,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		}
     }
 
-    public CommonListResult<String> getSiteMap(String index, String host, String login, String key) {
+    public CommonListResult<String> getSiteMap(String index, String login, String key) {
         try {
             List<String> SiteMapStr = new ArrayList<String>();
             Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);

@@ -133,8 +133,8 @@ public interface RestWebCrawler {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/sitemap")
-	public CommonListResult<String> getSiteMap(@PathParam("index_name") String use, @QueryParam("host") String host,
-												@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonListResult<String> getSiteMap(@PathParam("index_name") String use, @QueryParam("login") String login,
+											   @QueryParam("key") String key);
 
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
