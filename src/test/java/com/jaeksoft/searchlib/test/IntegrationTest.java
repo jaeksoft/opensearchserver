@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
+import com.jaeksoft.searchlib.webservice.crawler.webcrawler.RestWebCrawler;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -41,10 +42,11 @@ import com.jaeksoft.searchlib.test.rest.RestIndexCreateExistsListTest;
 import com.jaeksoft.searchlib.test.rest.RestSchemaTest;
 import com.jaeksoft.searchlib.test.rest.RestSearchTest;
 import com.jaeksoft.searchlib.test.rest.RestUpdateTest;
+import com.jaeksoft.searchlib.test.rest.RestWebCrawlerTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class, RestUpdateTest.class, RestSearchTest.class,
-		RestDeleteTest.class, RestFacetTest.class, RestDeleteIndexTest.class })
+		RestDeleteTest.class, RestFacetTest.class, RestWebCrawlerTest.class, RestDeleteIndexTest.class })
 /* RestAutocompletionTest */
 public class IntegrationTest {
 
