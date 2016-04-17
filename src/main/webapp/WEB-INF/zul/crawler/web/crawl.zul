@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -92,8 +92,9 @@
                 <cell/>
             </row>
             <row>
-                <cell/>
-                <cell/>
+                 <label value="Maximum depth: "/>
+                 <intbox readonly="@load(crawlProcess.refresh)"
+                         value="@bind(crawlProcess.properties.maxDepth.value)"/>
                 <label
                         value="HTTP Connection time-out, in seconds: "/>
                 <intbox constraint="no empty, no negative"
