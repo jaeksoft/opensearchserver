@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web;
@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.user.User;
 public class WebCrawlerServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -8453924728832924760L;
 
@@ -45,8 +45,7 @@ public class WebCrawlerServlet extends AbstractServlet {
 		STARTED, STARTING, STOPPED, STOPPING;
 	}
 
-	protected void doCrawlMaster(CrawlMasterAbstract<?, ?> crawlMaster,
-			ServletTransaction transaction) {
+	protected void doCrawlMaster(CrawlMasterAbstract<?, ?> crawlMaster, ServletTransaction transaction) {
 
 		String action = transaction.getParameterString("action");
 
@@ -81,14 +80,11 @@ public class WebCrawlerServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.WEB_CRAWLER_START_STOP))
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.WEB_CRAWLER_START_STOP))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();

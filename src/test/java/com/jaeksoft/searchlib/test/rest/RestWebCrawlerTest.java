@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.test.rest;
@@ -40,7 +40,6 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestWebCrawlerTest extends CommonRestAPI {
 
@@ -48,57 +47,44 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 	public final static String siteMapUrl = "http://www.google.com/sitemap.xml";
 
 	@Test
-	public void testA_AddSiteMap() throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
+	public void testA_AddSiteMap() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client()
-				.path(path, IntegrationTest.INDEX_NAME)
-				.query("site_map_url", siteMapUrl)
+		Response response = client().path(path, IntegrationTest.INDEX_NAME).query("site_map_url", siteMapUrl)
 				.accept(MediaType.APPLICATION_JSON).put(null);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
-	public void testB_testGetSiteMap() throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
+	public void testB_testGetSiteMap()
+			throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client()
-				.path(path, IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).get();
+		Response response = client().path(path, IntegrationTest.INDEX_NAME).accept(MediaType.APPLICATION_JSON).get();
 		CommonListResult<String> cmd = checkCommonResult(response, CommonListResult.class, 200);
 		assertNotNull(cmd.items.toArray());
 		assertEquals(cmd.items.toArray()[0], siteMapUrl);
 	}
 
 	@Test
-	public void testC_DeleteSiteMap() throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
+	public void testC_DeleteSiteMap() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client()
-				.path(path, IntegrationTest.INDEX_NAME)
-				.query("site_map_url", siteMapUrl)
+		Response response = client().path(path, IntegrationTest.INDEX_NAME).query("site_map_url", siteMapUrl)
 				.accept(MediaType.APPLICATION_JSON).delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
-	public void testD_DeleteNoneSiteMap() throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
+	public void testD_DeleteNoneSiteMap()
+			throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client()
-				.path(path, IntegrationTest.INDEX_NAME)
-				.query("site_map_url", siteMapUrl)
+		Response response = client().path(path, IntegrationTest.INDEX_NAME).query("site_map_url", siteMapUrl)
 				.accept(MediaType.APPLICATION_JSON).delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
-	public void testE_GetSiteMap() throws IllegalStateException,
-			IOException, XPathExpressionException, SAXException,
+	public void testE_GetSiteMap() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client()
-				.path(path, IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).get();
+		Response response = client().path(path, IntegrationTest.INDEX_NAME).accept(MediaType.APPLICATION_JSON).get();
 		checkCommonResult(response, CommonListResult.class, 200);
 	}
 }

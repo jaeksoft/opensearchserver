@@ -23,9 +23,7 @@
  **/
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.*;
 import com.jaeksoft.searchlib.crawler.web.database.*;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem;
@@ -47,6 +45,8 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
+import com.jaeksoft.searchlib.web.WebCrawlerServlet;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -63,10 +63,7 @@ import javax.xml.ws.WebServiceException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, RestWebCrawler {
 
@@ -109,9 +106,36 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 	@Override
 	public CommonResult status(String use, String login, String key) {
 		try {
+			if (use.equals("*"))
+				return allStatus(login, key);
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.status(client.getWebCrawlMaster());
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	public CommonResult allStatus(String login, String key) {
+		try {
+			ClientFactory.INSTANCE.properties.checkApi();
+			Set<ClientCatalogItem> catalogItem = ClientCatalog.getClientCatalog(getLoggedUser(login, key));
+			CommonResult status;
+			if (catalogItem != null && !catalogItem.isEmpty()) {
+				status = new CommonResult(true, "All the client's status");
+				for (final ClientCatalogItem item : catalogItem) {
+					if (item == null)
+						continue;
+					status.addDetail(item.getIndexName(),
+							CrawlerUtils.infoStatus(item.getClient().getWebCrawlMaster()));
+				}
+			} else
+				status = new CommonResult(false, "Don't have any index");
+			return status;
 		} catch (SearchLibException e) {
 			throw new CommonServiceException(e);
 		} catch (InterruptedException e) {
@@ -170,27 +194,27 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		}
 	}
 
-    public CommonResult injectSiteMap(String index, String login, String key, List<String> addListSiteMap) {
-        try {
-            Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
-            ClientFactory.INSTANCE.properties.checkApi();
-	        int count = client.getSiteMapList().getSize();
-            for (final String SiteMapUrl : addListSiteMap) {
-                client.getSiteMapList().add(new SiteMapItem(SiteMapUrl));
-            }
-            return new CommonResult(true,  (client.getSiteMapList().getSize() - count) + " SiteMap injected");
-        } catch (SearchLibException e) {
-            throw new CommonServiceException(e);
-        } catch (IOException e) {
-            throw new CommonServiceException(e);
-        } catch (InterruptedException e) {
-            throw new CommonServiceException(e);
+	public CommonResult injectSiteMap(String index, String login, String key, List<String> addListSiteMap) {
+		try {
+			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			ClientFactory.INSTANCE.properties.checkApi();
+			int count = client.getSiteMapList().getSize();
+			for (final String SiteMapUrl : addListSiteMap) {
+				client.getSiteMapList().add(new SiteMapItem(SiteMapUrl));
+			}
+			return new CommonResult(true, (client.getSiteMapList().getSize() - count) + " SiteMap injected");
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
 		} catch (URISyntaxException e) {
 			throw new CommonServiceException(e);
 		}
-    }
-    
-    public CommonResult deleteSiteMap(String index, String login, String key, List<String> deleteList) {
+	}
+
+	public CommonResult deleteSiteMap(String index, String login, String key, List<String> deleteList) {
 		try {
 			SiteMapItem item = new SiteMapItem();
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
@@ -212,28 +236,26 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		} catch (URISyntaxException e) {
 			throw new CommonServiceException(e);
 		}
-    }
+	}
 
-    public CommonListResult<String> getSiteMap(String index, String login, String key) {
-        try {
-            List<String> SiteMapStr = new ArrayList<String>();
-            Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
-            ClientFactory.INSTANCE.properties.checkApi();
-            SiteMapList Maplist = client.getSiteMapList();
-            for (final SiteMapItem item : Maplist.getArray())
-            {
-                SiteMapStr.add(item.getUri());
-            }
-            return new CommonListResult<String>(SiteMapStr);
-        } catch (SearchLibException e) {
-            throw new CommonServiceException(e);
-        } catch (IOException e) {
-            throw new CommonServiceException(e);
-        } catch (InterruptedException e) {
-            throw new CommonServiceException(e);
-        }
-    }
-
+	public CommonListResult<String> getSiteMap(String index, String login, String key) {
+		try {
+			List<String> SiteMapStr = new ArrayList<String>();
+			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
+			ClientFactory.INSTANCE.properties.checkApi();
+			SiteMapList Maplist = client.getSiteMapList();
+			for (final SiteMapItem item : Maplist.getArray()) {
+				SiteMapStr.add(item.getUri());
+			}
+			return new CommonListResult<String>(SiteMapStr);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (InterruptedException e) {
+			throw new CommonServiceException(e);
+		}
+	}
 
 	private CommonResult injectPatterns(String index, String login, String key, Boolean replaceAll, Boolean injectUrls,
 			List<String> patterns, boolean inclusion) {
