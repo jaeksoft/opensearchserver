@@ -37,6 +37,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.jaeksoft.searchlib.Server;
 import com.jaeksoft.searchlib.test.rest.RestDeleteIndexTest;
 import com.jaeksoft.searchlib.test.rest.RestDeleteTest;
+import com.jaeksoft.searchlib.test.rest.RestStatusTest;
 import com.jaeksoft.searchlib.test.rest.RestFacetTest;
 import com.jaeksoft.searchlib.test.rest.RestIndexCreateExistsListTest;
 import com.jaeksoft.searchlib.test.rest.RestSchemaTest;
@@ -45,8 +46,9 @@ import com.jaeksoft.searchlib.test.rest.RestUpdateTest;
 import com.jaeksoft.searchlib.test.rest.RestWebCrawlerTest;
 
 @RunWith(Suite.class)
-@SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class, RestUpdateTest.class, RestSearchTest.class,
-		RestDeleteTest.class, RestFacetTest.class, RestWebCrawlerTest.class, RestDeleteIndexTest.class })
+@SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class,
+		RestUpdateTest.class, RestSearchTest.class, RestDeleteTest.class, RestFacetTest.class,
+		RestWebCrawlerTest.class, RestStatusTest.class, RestDeleteIndexTest.class })
 /* RestAutocompletionTest */
 public class IntegrationTest {
 
