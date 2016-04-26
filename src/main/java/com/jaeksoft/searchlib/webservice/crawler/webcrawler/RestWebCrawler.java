@@ -52,6 +52,7 @@ public interface RestWebCrawler {
 	public CommonResult status(@PathParam("index_name") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key);
 
+
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -114,6 +115,7 @@ public interface RestWebCrawler {
 	public CommonResult setPatternStatus(@PathParam("index_name") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key, @QueryParam("inclusion") Boolean inclusion,
 			@QueryParam("exclusion") Boolean exclusion);
+
 
 	@PUT
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

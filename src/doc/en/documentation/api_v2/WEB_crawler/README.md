@@ -5,6 +5,7 @@ The WEB crawler indexes Web sites.
 * [Starting the crawl](start.md)
 * [Stopping the crawl](stop.md)
 * [Getting the status of the crawler](status.md)
+* [Getting the status of all crawler](allStatus.md)
 * [Crawling one URL](crawl_URL.md)
 * [Inclusion patterns](inclusion_patterns/README.md)
 	* [Insert](inclusion_patterns/insert.md)
