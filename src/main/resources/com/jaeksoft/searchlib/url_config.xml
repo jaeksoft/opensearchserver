@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- License Agreement for OpenSearchServer -->
-<!-- Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft -->
+<!-- Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft -->
 <!-- http://www.open-search-server.com -->
 <!-- This file is part of OpenSearchServer. -->
 <!-- OpenSearchServer is free software: you can redistribute it and/or modify 
@@ -13,72 +13,72 @@
 	General Public License along with Jaeksoft Open Search Server. If not, see 
 	<http://www.gnu.org/licenses/>. -->
 <configuration>
-	<indices>
-		<index name="url" searchCache="0" filterCache="0" fieldCache="0" />
-	</indices>
-	<schema>
-		<fields default="url" unique="url">
-			<field name="lang" indexed="yes" stored="no" termVector="no" />
-			<field name="langMethod" indexed="yes" stored="no" termVector="no" />
-			<field name="contentBaseType" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="contentTypeCharset" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="contentEncoding" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="contentLength" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="url" indexed="yes" stored="no" termVector="no" />
-			<field name="outlink" indexed="yes" stored="no" termVector="no" />
-			<field name="inlink" indexed="yes" stored="no" termVector="no" />
-			<field name="host" indexed="yes" stored="no" termVector="no" />
-			<field name="subhost" indexed="yes" stored="no" termVector="no" />
-			<field name="when" indexed="yes" stored="no" termVector="no" />
-			<field name="responseCode" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="robotsTxtStatus" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="parserStatus" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="fetchStatus" indexed="yes" stored="no" termVector="no" />
-			<field name="indexStatus" indexed="yes" stored="no" termVector="no" />
-			<field name="md5size" indexed="yes" stored="no" termVector="no" />
-			<field name="lastModifiedDate" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="contentUpdateDate" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="parentUrl" indexed="yes" stored="no" termVector="no" />
-			<field name="redirectionUrl" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="origin" indexed="yes" stored="no" termVector="no" />
-			<field name="headers" indexed="yes" stored="no" termVector="no" />
-			<field name="backlinkCount" indexed="yes" stored="no"
-				termVector="no" />
-			<field name="depth" indexed="yes" stored="no" termVector="no" />
-			<field name="urlWhen" indexed="yes" stored="no" termVector="no" />
-		</fields>
-	</schema>
-	<requests>
-		<request name="urlSearch" defaultOperator="and" start="0"
-			rows="0" allowLeadingWildcard="yes">
-			<query>$$</query>
-			<returnFields>
-				url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
-				lang,langMethod,when,responseCode,
-				robotsTxtStatus,parserStatus,fetchStatus,indexStatus,
-				md5size,lastModifiedDate,parentUrl,origin,headers,backlinkCount,depth
-			</returnFields>
-		</request>
-		<request name="urlExport" defaultOperator="and" start="0"
-			rows="0" allowLeadingWildcard="yes">
-			<query>$$</query>
-			<returnFields>url,lastModifiedDate</returnFields>
-		</request>
-		<request name="hostFacet" defaultOperator="or" start="0" rows="0">
-			<query>$$</query>
-			<facetFields>
-				<facetField name="host" minCount="1" />
-			</facetFields>
-		</request>
-	</requests>
+    <indices>
+        <index name="url" searchCache="0" filterCache="0" fieldCache="0"/>
+    </indices>
+    <schema>
+        <fields default="url" unique="url">
+            <field name="lang" indexed="yes" stored="no" termVector="no"/>
+            <field name="langMethod" indexed="yes" stored="no" termVector="no"/>
+            <field name="contentBaseType" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="contentTypeCharset" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="contentEncoding" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="contentLength" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="url" indexed="yes" stored="no" termVector="no"/>
+            <field name="outlink" indexed="yes" stored="no" termVector="no"/>
+            <field name="inlink" indexed="yes" stored="no" termVector="no"/>
+            <field name="host" indexed="yes" stored="no" termVector="no"/>
+            <field name="subhost" indexed="yes" stored="no" termVector="no"/>
+            <field name="when" indexed="yes" stored="no" termVector="no"/>
+            <field name="responseCode" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="robotsTxtStatus" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="parserStatus" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="fetchStatus" indexed="yes" stored="no" termVector="no"/>
+            <field name="indexStatus" indexed="yes" stored="no" termVector="no"/>
+            <field name="md5size" indexed="yes" stored="no" termVector="no"/>
+            <field name="lastModifiedDate" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="contentUpdateDate" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="parentUrl" indexed="yes" stored="no" termVector="no"/>
+            <field name="redirectionUrl" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="origin" indexed="yes" stored="no" termVector="no"/>
+            <field name="headers" indexed="yes" stored="no" termVector="no"/>
+            <field name="backlinkCount" indexed="yes" stored="no"
+                   termVector="no"/>
+            <field name="depth" indexed="yes" stored="no" termVector="no"/>
+            <field name="urlWhen" indexed="yes" stored="no" termVector="no"/>
+        </fields>
+    </schema>
+    <requests>
+        <request name="urlSearch" defaultOperator="and" start="0"
+                 rows="0" allowLeadingWildcard="yes">
+            <query>$$</query>
+            <returnFields>
+                url,host,contentBaseType,contentTypeCharset,contentEncoding,contentLength,
+                lang,langMethod,when,responseCode,
+                robotsTxtStatus,parserStatus,fetchStatus,indexStatus,
+                md5size,lastModifiedDate,parentUrl,origin,headers,backlinkCount,depth
+            </returnFields>
+        </request>
+        <request name="urlExport" defaultOperator="and" start="0"
+                 rows="0" allowLeadingWildcard="yes">
+            <query>$$</query>
+            <returnFields>url,lastModifiedDate</returnFields>
+        </request>
+        <request name="hostFacet" defaultOperator="or" start="0" rows="0">
+            <query>$$</query>
+            <facetFields>
+                <facetField name="host" minCount="1"/>
+            </facetFields>
+        </request>
+    </requests>
 </configuration>
