@@ -1,0 +1,23 @@
+{
+  "name": "PrayTheSun",
+  "type": "test",
+  "cron": {
+    "seconds": "13",
+    "minutes": "16",
+    "hours": "12",
+    "month": "5",
+    "dayOfMonth": "3",
+    "dayOfWeek": "*",
+    "year": "2016"
+  },
+  "active": "true",
+  "mailRecipients": "git gud",
+  "emailNotification": "true",
+  "tasks": {
+    "TaskBuildAutocompletion": {
+      "Buffer size": "1000",
+      "Item name": "autocomplete",
+      "Time out": "14400"
+    }
+  }
+}

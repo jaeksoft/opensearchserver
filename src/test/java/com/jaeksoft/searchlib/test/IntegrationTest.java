@@ -35,6 +35,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import com.jaeksoft.searchlib.Server;
+import com.jaeksoft.searchlib.test.rest.RestSchedulerTest;
 import com.jaeksoft.searchlib.test.rest.RestDeleteIndexTest;
 import com.jaeksoft.searchlib.test.rest.RestDeleteTest;
 import com.jaeksoft.searchlib.test.rest.RestStatusTest;
@@ -48,7 +49,7 @@ import com.jaeksoft.searchlib.test.rest.RestWebCrawlerTest;
 @RunWith(Suite.class)
 @SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class,
 		RestUpdateTest.class, RestSearchTest.class, RestDeleteTest.class, RestFacetTest.class,
-		RestWebCrawlerTest.class, RestStatusTest.class, RestDeleteIndexTest.class })
+		RestWebCrawlerTest.class, RestSchedulerTest.class, RestStatusTest.class, RestDeleteIndexTest.class })
 /* RestAutocompletionTest */
 public class IntegrationTest {
 
