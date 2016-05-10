@@ -1,10 +1,10 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ *
  * http://www.open-search-server.com
- * 
+ *
  * This file is part of OpenSearchServer.
  *
  * OpenSearchServer is free software: you can redistribute it and/or
@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
+ *  along with OpenSearchServer.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
@@ -62,5 +62,4 @@ public class IntegrationTest {
 			IOException, URISyntaxException {
 		Server.start(null, false);
 	}
-
 }
