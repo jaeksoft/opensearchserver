@@ -55,4 +55,13 @@ public interface RestScheduler {
 			@PathParam("scheduler_name") String name,
 			Map<String, String> variables);
 
+	@PUT
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/create")
+	public CommonResult createSchedulerJob(@PathParam("index_name") String use,
+			@QueryParam("login") String login,
+			@QueryParam("key") String key,
+			SchedulerDefinition parameters);
+
 }

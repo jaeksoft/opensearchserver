@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import com.jaeksoft.searchlib.webservice.scheduler.SchedulerDefinition;
 import org.apache.commons.mail.EmailException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -59,11 +60,11 @@ public class JobItem extends ExecutionAbstract {
 
 	private TaskCronExpression cron;
 
-	private List<TaskItem> tasks;
+	private final List<TaskItem> tasks;
 
 	private SearchLibException lastError;
 
-	private JobLog jobLog;
+	private final JobLog jobLog;
 
 	private TaskLog currentTaskLog;
 
@@ -76,6 +77,15 @@ public class JobItem extends ExecutionAbstract {
 		this.name = name;
 		tasks = new ArrayList<TaskItem>();
 		cron = new TaskCronExpression();
+		jobLog = new JobLog(200);
+		setLastError(null);
+	}
+
+	public JobItem(Config config, SchedulerDefinition schedulerDef) {
+		this.config = config;
+		this.name = schedulerDef.name;
+		this.tasks = schedulerDef.getTasksList();
+		this.cron = schedulerDef.cron;
 		jobLog = new JobLog(200);
 		setLastError(null);
 	}
@@ -162,7 +172,7 @@ public class JobItem extends ExecutionAbstract {
 	/**
 	 * Move a task down
 	 * 
-	 * @param filter
+	 * @param task
 	 */
 	public void taskDown(TaskItem task) {
 		rwl.w.lock();
@@ -181,7 +191,7 @@ public class JobItem extends ExecutionAbstract {
 	/**
 	 * Remove the filter
 	 * 
-	 * @param filter
+	 * @param task
 	 */
 	public void taskRemove(TaskItem task) {
 		rwl.w.lock();

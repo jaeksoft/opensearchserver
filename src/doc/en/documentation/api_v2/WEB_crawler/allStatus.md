@@ -11,7 +11,6 @@ Use this API to obtain the status of all crawler.
 **URL:** ```/services/rest/index/*/crawler/web/run```
 
 
-
 **Method:** ```GET```
 
 **Header** (optional returned type):

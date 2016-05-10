@@ -1,10 +1,10 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ *
  * http://www.open-search-server.com
- * 
+ *
  * This file is part of OpenSearchServer.
  *
  * OpenSearchServer is free software: you can redistribute it and/or
@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
+ *  along with OpenSearchServer.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
@@ -28,13 +28,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
-import com.jaeksoft.searchlib.webservice.crawler.webcrawler.RestWebCrawler;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import com.jaeksoft.searchlib.Server;
+import com.jaeksoft.searchlib.test.rest.RestSchedulerTest;
 import com.jaeksoft.searchlib.test.rest.RestDeleteIndexTest;
 import com.jaeksoft.searchlib.test.rest.RestDeleteTest;
 import com.jaeksoft.searchlib.test.rest.RestStatusTest;
@@ -48,7 +48,7 @@ import com.jaeksoft.searchlib.test.rest.RestWebCrawlerTest;
 @RunWith(Suite.class)
 @SuiteClasses({ RestIndexCreateExistsListTest.class, RestSchemaTest.class,
 		RestUpdateTest.class, RestSearchTest.class, RestDeleteTest.class, RestFacetTest.class,
-		RestWebCrawlerTest.class, RestStatusTest.class, RestDeleteIndexTest.class })
+		RestWebCrawlerTest.class, RestSchedulerTest.class, RestStatusTest.class, RestDeleteIndexTest.class })
 /* RestAutocompletionTest */
 public class IntegrationTest {
 
@@ -61,5 +61,4 @@ public class IntegrationTest {
 			IOException, URISyntaxException {
 		Server.start(null, false);
 	}
-
 }
