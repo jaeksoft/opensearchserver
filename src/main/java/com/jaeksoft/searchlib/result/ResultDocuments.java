@@ -1,44 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.result;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.TermFreqVector;
-import org.roaringbitmap.IntIterator;
-import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
@@ -52,12 +36,7 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.FieldValue;
-import com.jaeksoft.searchlib.schema.Indexed;
-import com.jaeksoft.searchlib.schema.Schema;
-import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.schema.SchemaFieldList;
-import com.jaeksoft.searchlib.schema.TermVector;
+import com.jaeksoft.searchlib.schema.*;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
@@ -65,6 +44,16 @@ import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermFreqVector;
+import org.roaringbitmap.IntIterator;
+import org.roaringbitmap.RoaringBitmap;
+
+import java.io.IOException;
+import java.util.*;
 
 public class ResultDocuments extends AbstractResult<AbstractRequest>
 		implements ResultDocumentsInterface<AbstractRequest> {
@@ -117,8 +106,9 @@ public class ResultDocuments extends AbstractResult<AbstractRequest>
 		}
 		Collection<String> uniqueKeys = request.getUniqueKeyList();
 		String fieldName = schemaField.getName();
-		return request.isReverse() ? reverseDoc(reader, fieldName, uniqueKeys)
-				: sortedDoc(reader, fieldName, uniqueKeys);
+		return request.isReverse() ?
+				reverseDoc(reader, fieldName, uniqueKeys) :
+				sortedDoc(reader, fieldName, uniqueKeys);
 	}
 
 	private final static int[] sortedDoc(ReaderLocal reader, String fieldName, Collection<String> uniqueKeys)
@@ -163,9 +153,9 @@ public class ResultDocuments extends AbstractResult<AbstractRequest>
 				}
 			}
 		}
-		bitSet.flip(0, higher + 1);
-		IntBufferedArrayInterface intBufferArray = IntBufferedArrayFactory.INSTANCE
-				.newInstance(bitSet.getCardinality());
+		bitSet.flip(0L, higher + 1);
+		IntBufferedArrayInterface intBufferArray =
+				IntBufferedArrayFactory.INSTANCE.newInstance(bitSet.getCardinality());
 		IntIterator iterator = bitSet.getIntIterator();
 		while (iterator.hasNext()) {
 			int docId = iterator.next();
