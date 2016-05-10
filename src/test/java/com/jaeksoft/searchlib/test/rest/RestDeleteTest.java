@@ -55,9 +55,9 @@ public class RestDeleteTest extends CommonRestAPI {
 
 	@Test
 	public void testB_RestAPIDeleteByField() throws IOException, InterruptedException, ExecutionException {
-		Response response = client()
-				.path("/services/rest/index/{index_name}/document/id/1/2", IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).delete();
+		Response response =
+				client().path("/services/rest/index/{index_name}/document/id/1/2", IntegrationTest.INDEX_NAME)
+						.accept(MediaType.APPLICATION_JSON).delete();
 		CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 		assertTrue("Wrong info: " + result.info, result.info.startsWith("2 document"));
 		checkCommonResultDetail(result, "deletedCount", 2);
@@ -75,19 +75,19 @@ public class RestDeleteTest extends CommonRestAPI {
 		}
 	}
 
-	private CloseableHttpResponse doDeleteJson(CloseableHttpClient hc, String path, String json)
-			throws ClientProtocolException, IOException {
+	private CloseableHttpResponse doDeleteJson(CloseableHttpClient hc, String path, String json) throws IOException {
 		HttpDeleteBody httpDeleteBody = new HttpDeleteBody(IntegrationTest.SERVER_URL + path);
 		httpDeleteBody.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 		return hc.execute(httpDeleteBody);
 	}
 
 	@Test
-	public void testC_RestAPIDeleteByJson() throws ClientProtocolException, IOException {
+	public void testC_RestAPIDeleteByJson() throws IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response = doDeleteJson(hc,
-					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document/id", "[\"2\",\"3\"]");
+			CloseableHttpResponse response =
+					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document/id",
+							"[\"2\",\"3\"]");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("1 document"));
 			checkCommonResultDetail(result, "deletedCount", 1);
@@ -100,8 +100,9 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testD_RestAPIDeleteByJsonQueryUnique() throws ClientProtocolException, IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response = doDeleteJson(hc,
-					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents", "{ \"values\": [4, 5] }");
+			CloseableHttpResponse response =
+					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
+							"{ \"values\": [4, 5] }");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("2 document"));
 			checkCommonResultDetail(result, "deletedCount", 2);
@@ -114,9 +115,9 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testE_RestAPIDeleteByJsonQueryField() throws ClientProtocolException, IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response = doDeleteJson(hc,
-					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
-					"{ \"field\": \"content\", \"values\": [\"hallo\"] }");
+			CloseableHttpResponse response =
+					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
+							"{ \"field\": \"content\", \"values\": [\"hallo\"] }");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("1 document"));
 			checkCommonResultDetail(result, "deletedCount", 1);
@@ -129,9 +130,9 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testF_RestAPIDeleteByJsonUniqueReverse() throws ClientProtocolException, IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response = doDeleteJson(hc,
-					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
-					"{ \"reverse\": true, \"values\": [10] }");
+			CloseableHttpResponse response =
+					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
+							"{ \"reverse\": true, \"values\": [10] }");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("3 document"));
 			checkCommonResultDetail(result, "deletedCount", 3);
