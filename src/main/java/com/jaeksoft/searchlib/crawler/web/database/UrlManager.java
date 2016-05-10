@@ -1,52 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.database;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.transform.TransformerConfigurationException;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.RandomUtils;
-import org.json.JSONException;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -85,6 +61,21 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomUtils;
+import org.json.JSONException;
+import org.xml.sax.SAXException;
+
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
 
 public class UrlManager extends AbstractManager {
 
@@ -221,19 +212,22 @@ public class UrlManager extends AbstractManager {
 		return urlLimit;
 	}
 
-	private AbstractSearchRequest getHostFacetSearchRequest() {
+	private AbstractSearchRequest getHostFacetSearchRequest(Integer maxDepth) throws ParseException {
 		AbstractSearchRequest searchRequest = new SearchPatternRequest(dbClient);
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
+		if (maxDepth != null)
+			UrlItemFieldEnum.INSTANCE.depth.addFilterRange(searchRequest, 0, maxDepth, true, false);
 		searchRequest.getFacetFieldList().put(new FacetField("host", 1, false, false, null, null, null));
 		return searchRequest;
 	}
 
-	public int getHostToFetch(NamedItem.Selection selection, int urlLimit, int maxUrlPerHost, List<NamedItem> hostList,
-			Set<String> hostSet) throws SearchLibException {
-		AbstractSearchRequest searchRequest = getHostFacetSearchRequest();
-		searchRequest.setEmptyReturnsAll(true);
+	public int getHostToFetch(NamedItem.Selection selection, int urlLimit, int maxUrlPerHost, Integer maxDepth,
+			List<NamedItem> hostList, Set<String> hostSet) throws SearchLibException {
+		final AbstractSearchRequest searchRequest;
 		try {
+			searchRequest = getHostFacetSearchRequest(maxDepth);
+			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, selection);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
@@ -244,8 +238,8 @@ public class UrlManager extends AbstractManager {
 
 	public void getStartingWith(String queryString, ItemField field, String start, int urlLimit, int maxUrlPerHost,
 			List<NamedItem> list)
-					throws ParseException, IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
-					InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
+			throws ParseException, IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(field + "Facet");
 		searchRequest.setQueryString(queryString);
 		searchRequest.getFilterList()
@@ -282,10 +276,13 @@ public class UrlManager extends AbstractManager {
 		return ui;
 	}
 
-	public void getUrlToFetch(NamedItem host, long urlLimit, List<UrlItem> urlList) throws SearchLibException {
+	public void getUrlToFetch(NamedItem host, long urlLimit, Integer maxDepth, List<UrlItem> urlList)
+			throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest("urlSearch");
 		try {
 			searchRequest.addFilter("host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"", false);
+			if (maxDepth != null)
+				UrlItemFieldEnum.INSTANCE.depth.addFilterRange(searchRequest, 0, maxDepth, true, false);
 			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, host.selection);
 		} catch (ParseException e) {
@@ -313,8 +310,8 @@ public class UrlManager extends AbstractManager {
 			UrlItemFieldEnum.INSTANCE.inlink.addQuery(sb, url, true);
 			sb.append(" OR");
 			UrlItemFieldEnum.INSTANCE.outlink.addQuery(sb, url, true);
-			UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(searchRequest, ParserStatus.PARSED.value, false,
-					false);
+			UrlItemFieldEnum.INSTANCE.parserStatus
+					.addFilterQuery(searchRequest, ParserStatus.PARSED.value, false, false);
 			searchRequest.setQueryString(sb.toString());
 			searchRequest.setRows(0);
 			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
@@ -329,7 +326,7 @@ public class UrlManager extends AbstractManager {
 			String contentTypeCharset, String contentEncoding, Integer minContentLength, Integer maxContentLength,
 			RobotsTxtStatus robotsTxtStatus, FetchStatus fetchStatus, Integer responseCode, ParserStatus parserStatus,
 			IndexStatus indexStatus, Date startDate, Date endDate, Date startModifiedDate, Date endModifiedDate)
-					throws SearchLibException {
+			throws SearchLibException {
 		try {
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
 					.getNewRequest(urlSearchTemplate.name());
@@ -347,46 +344,46 @@ public class UrlManager extends AbstractManager {
 				host = host.trim();
 				if (host.length() > 0)
 					if (includingSubDomain)
-						UrlItemFieldEnum.INSTANCE.subhost.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host),
-								false, false);
+						UrlItemFieldEnum.INSTANCE.subhost
+								.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host), false, false);
 					else
-						UrlItemFieldEnum.INSTANCE.host.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host),
-								false, false);
+						UrlItemFieldEnum.INSTANCE.host
+								.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host), false, false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					UrlItemFieldEnum.INSTANCE.lang.addFilterQuery(searchRequest, QueryUtils.escapeQuery(lang), false,
-							false);
+					UrlItemFieldEnum.INSTANCE.lang
+							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(lang), false, false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					UrlItemFieldEnum.INSTANCE.langMethod.addFilterQuery(searchRequest,
-							QueryUtils.escapeQuery(langMethod), true, false);
+					UrlItemFieldEnum.INSTANCE.langMethod
+							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(langMethod), true, false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentBaseType.addFilterQuery(searchRequest,
-							QueryUtils.escapeQuery(contentBaseType), true, false);
+					UrlItemFieldEnum.INSTANCE.contentBaseType
+							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(contentBaseType), true, false);
 			}
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
 				if (contentTypeCharset.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentTypeCharset.addFilterQuery(searchRequest,
-							QueryUtils.escapeQuery(contentTypeCharset), false, false);
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset
+							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(contentTypeCharset), false, false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentEncoding.addFilterQuery(searchRequest,
-							QueryUtils.escapeQuery(contentEncoding), true, false);
+					UrlItemFieldEnum.INSTANCE.contentEncoding
+							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(contentEncoding), true, false);
 			}
 
 			if (robotsTxtStatus != null && robotsTxtStatus != RobotsTxtStatus.ALL)
-				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.addFilterQuery(searchRequest, robotsTxtStatus.value, false,
-						false);
+				UrlItemFieldEnum.INSTANCE.robotsTxtStatus
+						.addFilterQuery(searchRequest, robotsTxtStatus.value, false, false);
 			if (responseCode != null)
 				UrlItemFieldEnum.INSTANCE.responseCode.addFilterQuery(searchRequest, responseCode, false, false);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
@@ -526,7 +523,7 @@ public class UrlManager extends AbstractManager {
 
 	/**
 	 * Update the targeted index with crawl results
-	 * 
+	 *
 	 * @param crawls
 	 * @throws SearchLibException
 	 */
@@ -593,7 +590,7 @@ public class UrlManager extends AbstractManager {
 			pw = new PrintWriter(tempFile);
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
-			for (;;) {
+			for (; ; ) {
 				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				for (UrlItem u : uList)
 					pw.println(u.getUrl());
@@ -627,7 +624,7 @@ public class UrlManager extends AbstractManager {
 			zipOutput = new ZipArchiveOutputStream(tempFile);
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
-			for (;;) {
+			for (; ; ) {
 				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				if (uList.size() == 0)
 					break;
@@ -669,7 +666,7 @@ public class UrlManager extends AbstractManager {
 			xmlWriter.startElement("urlset", "xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9");
 			int currentPos = 0;
 			List<UrlItem> uList = new ArrayList<UrlItem>();
-			for (;;) {
+			for (; ; ) {
 				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				for (UrlItem u : uList) {
 					xmlWriter.startElement("url");
@@ -709,7 +706,7 @@ public class UrlManager extends AbstractManager {
 			long total = 0;
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			long last = 0;
-			for (;;) {
+			for (; ; ) {
 				urlItemList.clear();
 				long len = getUrlList(searchRequest, 0, bufferSize, urlItemList);
 				if (urlItemList.size() == 0)
@@ -751,7 +748,7 @@ public class UrlManager extends AbstractManager {
 			UrlItemFieldEnum.INSTANCE.fetchStatus.addFilterQuery(searchRequest, fetchStatus.value, false, true);
 			List<UrlItem> urlItemList = new ArrayList<UrlItem>();
 			long last = 0;
-			for (;;) {
+			for (; ; ) {
 				urlItemList.clear();
 				long len = getUrlList(searchRequest, 0, bufferSize, urlItemList);
 				if (urlItemList.size() == 0)
@@ -807,8 +804,8 @@ public class UrlManager extends AbstractManager {
 						existing++;
 						long timeDistanceMs = now - urlItem.getWhen().getTime();
 						FetchStatus fetchStatus = urlItem.getFetchStatus();
-						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED
-								&& siteMapUrl.getChangeFreq().needUpdate(timeDistanceMs))) {
+						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED && siteMapUrl
+								.getChangeFreq().needUpdate(timeDistanceMs))) {
 							if (fetchStatus != FetchStatus.FETCH_FIRST) {
 								urlItem.setFetchStatus(FetchStatus.FETCH_FIRST);
 								urlItemList.add(urlItem);
@@ -839,7 +836,7 @@ public class UrlManager extends AbstractManager {
 
 	/**
 	 * Update the URL database with crawl results
-	 * 
+	 *
 	 * @param crawls
 	 * @throws SearchLibException
 	 */

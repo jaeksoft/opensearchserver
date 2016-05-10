@@ -106,6 +106,9 @@ public class PropertyItem<T extends Comparable<T>> {
 	}
 
 	public void put(Properties properties) {
-		properties.put(name, value.toString());
+		if (value == null)
+			properties.remove(name);
+		else
+			properties.put(name, value.toString());
 	}
 }

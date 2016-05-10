@@ -58,6 +58,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 
 	private final LinkedList<NamedItem> hostList;
 
+	private final Integer maxDepth;
+
 	private Date fetchIntervalDate;
 
 	private int maxUrlPerSession;
@@ -80,6 +82,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
 				config.getInclusionPatternManager().getPatternListMatcher() :
 				null;
+		maxDepth = propertyManager.getMaxDepth().getValue();
 		hostList = new LinkedList<NamedItem>();
 		if (propertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
@@ -169,15 +172,15 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		// First try fetch priority
 		NamedItem.Selection selection = new NamedItem.Selection(ListType.PRIORITY_URL, FetchStatus.FETCH_FIRST, null,
 				null);
-		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, hostList, hostSet);
+		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, maxDepth, hostList, hostSet);
 
 		// Second try old URLs
 		selection = new NamedItem.Selection(ListType.OLD_URL, null, fetchIntervalDate, null);
-		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, hostList, hostSet);
+		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, maxDepth, hostList, hostSet);
 
 		// Finally try new unfetched URLs
 		selection = new NamedItem.Selection(ListType.NEW_URL, FetchStatus.UN_FETCHED, null, fetchIntervalDate);
-		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, hostList, hostSet);
+		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, maxDepth, hostList, hostSet);
 
 		currentStats.addHostListSize(hostList.size());
 
@@ -281,7 +284,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		HostUrlList hostUrlList = new HostUrlList(urlList, host);
 		hostUrlList.setListType(host.selection.listType);
 
-		urlManager.getUrlToFetch(host, count, urlList);
+		urlManager.getUrlToFetch(host, count, maxDepth, urlList);
 
 		setInfo(null);
 		return hostUrlList;

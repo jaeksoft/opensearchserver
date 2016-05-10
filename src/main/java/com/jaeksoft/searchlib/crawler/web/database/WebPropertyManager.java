@@ -42,6 +42,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 	final private PropertyItem<Integer> maxUrlPerSession;
 	final private PropertyItem<String> userAgent;
 	final private PropertyItem<Integer> connectionTimeOut;
+	final private PropertyItem<Integer> maxDepth;
 	final private PropertyItem<Boolean> exclusionEnabled;
 	final private PropertyItem<Boolean> inclusionEnabled;
 	final private PropertyItem<Boolean> robotsTxtEnabled;
@@ -72,6 +73,7 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
 		connectionTimeOut = newIntegerProperty("connectionTimeOut", 600, 0, null);
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
+		maxDepth = newIntegerProperty("maxDepth", null, null, null);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
 		linkDetectionEnabled = newBooleanProperty("linkDetectionEnabled", true);
@@ -137,6 +139,10 @@ public class WebPropertyManager extends AbstractPropertyManager implements Prope
 
 	public PropertyItem<Integer> getConnectionTimeOut() {
 		return connectionTimeOut;
+	}
+
+	public PropertyItem<Integer> getMaxDepth() {
+		return maxDepth;
 	}
 
 	public PropertyItem<String> getFetchIntervalUnit() {

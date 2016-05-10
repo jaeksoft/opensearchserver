@@ -1,40 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.authentication;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -46,6 +34,16 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class AuthManager implements UpdateInterfaces.Before {
 
@@ -115,12 +113,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param userAllowField
-	 *            the userAllowField to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param userAllowField the userAllowField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setUserAllowField(String userAllowField) throws IOException, SearchLibException {
 		rwl.w.lock();
@@ -145,12 +140,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param groupAllowField
-	 *            the groupAllowField to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param groupAllowField the groupAllowField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setGroupAllowField(String groupAllowField) throws IOException, SearchLibException {
 		rwl.w.lock();
@@ -175,12 +167,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param userDenyField
-	 *            the userDenyField to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param userDenyField the userDenyField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setUserDenyField(String userDenyField) throws IOException, SearchLibException {
 		rwl.w.lock();
@@ -205,12 +194,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param groupDenyField
-	 *            the groupDenyField to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param groupDenyField the groupDenyField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setGroupDenyField(String groupDenyField) throws IOException, SearchLibException {
 		rwl.w.lock();
@@ -235,12 +221,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param enabled
-	 *            the enabled to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param enabled the enabled to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setEnabled(boolean enabled) throws IOException, SearchLibException {
 		rwl.w.lock();
@@ -265,8 +248,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param index
-	 *            the index to set
+	 * @param index the index to set
 	 */
 	public void setIndex(String index) {
 		rwl.w.lock();
@@ -290,12 +272,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param defaultUser
-	 *            the defaultUser to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param defaultUser the defaultUser to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setDefaultUser(String defaultUser) throws IOException, SearchLibException {
 		rwl.w.lock();
@@ -320,12 +299,9 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param defaultGroup
-	 *            the defaultGroup to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param defaultGroup the defaultGroup to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setDefaultGroup(String defaultGroup) throws IOException, SearchLibException {
 		rwl.w.lock();
