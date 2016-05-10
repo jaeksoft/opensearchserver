@@ -1,7 +1,6 @@
 package com.jaeksoft.searchlib.test.rest;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
-import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.scheduler.SchedulerResult;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
-import static com.apple.eio.FileManager.getResource;
 
 /**
  * Created by aureliengiudici on 09/05/2016.

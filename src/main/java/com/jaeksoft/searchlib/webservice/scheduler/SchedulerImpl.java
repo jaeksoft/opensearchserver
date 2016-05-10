@@ -24,13 +24,11 @@
 package com.jaeksoft.searchlib.webservice.scheduler;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.Map;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.scheduler.JobItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.user.Role;
@@ -38,7 +36,6 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-import static com.hp.hpl.jena.vocabulary.RSS.item;
 
 public class SchedulerImpl extends CommonServices implements RestScheduler, SoapScheduler {
 

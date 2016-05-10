@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
-import com.jaeksoft.searchlib.webservice.crawler.webcrawler.RestWebCrawler;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
