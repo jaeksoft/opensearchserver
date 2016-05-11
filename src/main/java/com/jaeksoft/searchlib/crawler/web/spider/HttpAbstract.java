@@ -34,7 +34,6 @@ import com.jaeksoft.searchlib.util.cifs.NTLMSchemeFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.*;
 import org.apache.http.auth.AuthSchemeProvider;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
@@ -82,7 +81,7 @@ public abstract class HttpAbstract {
 
 	private final int msTimeOut;
 	private final boolean followRedirect;
-	private CloseableHttpClient httpClient = null;
+	private final CloseableHttpClient httpClient;
 	private RedirectStrategy redirectStrategy;
 	private HttpResponse httpResponse = null;
 	private final HttpClientContext httpClientContext;
@@ -96,7 +95,6 @@ public abstract class HttpAbstract {
 
 	public HttpAbstract(String userAgent, boolean bFollowRedirect, ProxyHandler proxyHandler, int msTimeOut)
 			throws IOException {
-
 
 		this.followRedirect = bFollowRedirect;
 		this.msTimeOut = msTimeOut;
@@ -142,12 +140,12 @@ public abstract class HttpAbstract {
 		this.proxyHandler = proxyHandler;
 		proxyHost = proxyHandler == null ? null : proxyHandler.getAnyProxy();
 
-		Registry<AuthSchemeProvider> authSchemeRegistry = RegistryBuilder.<AuthSchemeProvider>create()
-				.register(AuthSchemes.NTLM, new NTLMSchemeFactory())
-				.register(AuthSchemes.BASIC, new BasicSchemeFactory())
-				.register(AuthSchemes.DIGEST, new DigestSchemeFactory())
-				.register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
-				.register(AuthSchemes.KERBEROS, new KerberosSchemeFactory()).build();
+		Registry<AuthSchemeProvider> authSchemeRegistry =
+				RegistryBuilder.<AuthSchemeProvider>create().register(AuthSchemes.NTLM, new NTLMSchemeFactory())
+						.register(AuthSchemes.BASIC, new BasicSchemeFactory())
+						.register(AuthSchemes.DIGEST, new DigestSchemeFactory())
+						.register(AuthSchemes.SPNEGO, new SPNegoSchemeFactory())
+						.register(AuthSchemes.KERBEROS, new KerberosSchemeFactory()).build();
 
 		credentialsProvider = new BasicCredentialsProvider();
 		builder.setDefaultCredentialsProvider(credentialsProvider);
@@ -178,7 +176,7 @@ public abstract class HttpAbstract {
 	}
 
 	protected void execute(HttpRequestBase httpBaseRequest, CredentialItem credentialItem, List<CookieItem> cookies)
-			throws ClientProtocolException, IOException, URISyntaxException {
+			throws IOException, URISyntaxException {
 
 		// Filling the cookie store with configuration cookies
 		if (!CollectionUtils.isEmpty(cookies)) {
@@ -195,9 +193,10 @@ public abstract class HttpAbstract {
 		// No more than one 1 minute to establish the connection
 		// No more than 10 minutes to establish the socket
 		// Cookies uses best match policy
-		RequestConfig.Builder configBuilder = RequestConfig.custom().setSocketTimeout(msTimeOut)
-				.setConnectionRequestTimeout(msTimeOut).setConnectTimeout(msTimeOut).setCookieSpec(CookieSpecs.DEFAULT)
-				.setRedirectsEnabled(followRedirect);
+		RequestConfig.Builder configBuilder =
+				RequestConfig.custom().setSocketTimeout(msTimeOut).setConnectionRequestTimeout(msTimeOut)
+						.setConnectTimeout(msTimeOut).setCookieSpec(CookieSpecs.STANDARD)
+						.setRedirectsEnabled(followRedirect);
 
 		if (credentialItem == null)
 			credentialsProvider.clear();
@@ -305,8 +304,9 @@ public abstract class HttpAbstract {
 	// Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
 	// Sun Nov 6 08:49:37 1994
 
-	private final static String[] LastModifiedDateFormats = { "EEE, dd MMM yyyy HH:mm:ss zzz",
-			"EEE, dd MMM yyyy HH:mm:ss z", "EEEE, dd-MMM-yy HH:mm:ss z", "EEE MMM d HH:mm:ss yyyy" };
+	private final static String[] LastModifiedDateFormats =
+			{ "EEE, dd MMM yyyy HH:mm:ss zzz", "EEE, dd MMM yyyy HH:mm:ss z", "EEEE, dd-MMM-yy HH:mm:ss z",
+					"EEE MMM d HH:mm:ss yyyy" };
 
 	private final static ThreadSafeDateFormat[] httpDatesFormats;
 
