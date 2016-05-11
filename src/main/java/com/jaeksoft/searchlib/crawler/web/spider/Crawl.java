@@ -1,28 +1,54 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.spider;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.FieldMap;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
+import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
+import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
+import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
+import com.jaeksoft.searchlib.crawler.web.database.*;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
+import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
+import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
+import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
+import com.jaeksoft.searchlib.index.FieldContent;
+import com.jaeksoft.searchlib.index.IndexDocument;
+import com.jaeksoft.searchlib.parser.*;
+import com.jaeksoft.searchlib.plugin.IndexPluginList;
+import com.jaeksoft.searchlib.schema.FieldValueItem;
+import com.jaeksoft.searchlib.streamlimiter.LimitException;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.LinkUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,49 +62,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.io.FilenameUtils;
-
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.crawler.FieldMap;
-import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
-import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
-import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
-import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
-import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
-import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
-import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
-import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
-import com.jaeksoft.searchlib.crawler.web.database.HeaderManager;
-import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
-import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
-import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
-import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
-import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
-import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
-import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
-import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
-import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
-import com.jaeksoft.searchlib.index.FieldContent;
-import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.HtmlParser;
-import com.jaeksoft.searchlib.parser.Parser;
-import com.jaeksoft.searchlib.parser.ParserFieldEnum;
-import com.jaeksoft.searchlib.parser.ParserResultItem;
-import com.jaeksoft.searchlib.parser.ParserSelector;
-import com.jaeksoft.searchlib.plugin.IndexPluginList;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class Crawl {
 
@@ -128,10 +111,12 @@ public class Crawl {
 		this.config = config;
 		this.error = null;
 		this.redirectUrlLocation = null;
-		this.exclusionMatcher = propertyManager.getExclusionEnabled().getValue()
-				? config.getExclusionPatternManager().getPatternListMatcher() : null;
-		this.inclusionMatcher = propertyManager.getInclusionEnabled().getValue()
-				? config.getInclusionPatternManager().getPatternListMatcher() : null;
+		this.exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ?
+				config.getExclusionPatternManager().getPatternListMatcher() :
+				null;
+		this.inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
+				config.getInclusionPatternManager().getPatternListMatcher() :
+				null;
 		this.robotsTxtEnabled = propertyManager.getRobotsTxtEnabled().getValue();
 	}
 
@@ -140,8 +125,9 @@ public class Crawl {
 				crawlThread.getConfig().getParserSelector());
 	}
 
-	protected void parseContent(InputStream inputStream) throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, IOException, SearchLibException, NoSuchAlgorithmException, URISyntaxException {
+	protected void parseContent(InputStream inputStream)
+			throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException,
+			SearchLibException, NoSuchAlgorithmException, URISyntaxException {
 		if (parserSelector == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
@@ -156,9 +142,10 @@ public class Crawl {
 		urlItem.populate(sourceDocument);
 		Date parserStartDate = new Date();
 		// TODO Which language for OCR ?
-		parser = parserSelector.parseStream(sourceDocument, fileName, urlItem.getContentBaseType(), urlItem.getUrl(),
-				inputStream, null, parserSelector.getWebCrawlerDefaultParser(),
-				parserSelector.getFileCrawlerDefaultParser());
+		parser = parserSelector
+				.parseStream(sourceDocument, fileName, urlItem.getContentBaseType(), urlItem.getUrl(), inputStream,
+						null, parserSelector.getWebCrawlerDefaultParser(),
+						parserSelector.getFileCrawlerDefaultParser());
 		if (parser == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
@@ -219,8 +206,8 @@ public class Crawl {
 			throws SearchLibException, URISyntaxException, ClassNotFoundException, IOException {
 		RobotsTxtStatus robotsTxtStatus;
 		if (robotsTxtEnabled) {
-			RobotsTxt robotsTxt = config.getRobotsTxtCache().getRobotsTxt(httpDownloader, config, urlItem.getURL(),
-					false);
+			RobotsTxt robotsTxt =
+					config.getRobotsTxtCache().getRobotsTxt(httpDownloader, config, urlItem.getURL(), false);
 			robotsTxtStatus = robotsTxt.getStatus(userAgent, urlItem);
 		} else
 			robotsTxtStatus = RobotsTxtStatus.DISABLED;
@@ -235,7 +222,7 @@ public class Crawl {
 
 	/**
 	 * Download the file and extract content informations
-	 * 
+	 *
 	 * @param httpDownloader
 	 */
 	public DownloadItem download(HttpDownloader httpDownloader) {
@@ -432,8 +419,8 @@ public class Crawl {
 				IndexPluginList indexPluginList = config.getWebCrawlMaster().getIndexPluginList();
 
 				if (indexPluginList != null) {
-					if (!indexPluginList.run((Client) config, getContentType(), getStreamLimiter(),
-							targetIndexDocument)) {
+					if (!indexPluginList
+							.run((Client) config, getContentType(), getStreamLimiter(), targetIndexDocument)) {
 						urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
 						urlItem.populate(urlIndexDocument);
 						continue;
@@ -446,13 +433,14 @@ public class Crawl {
 		}
 	}
 
-	final private void addDiscoverLink(String href, Origin origin, String parentUrl, int nextDepth, URL currentURL,
+	private void addDiscoverLink(String href, Origin origin, String parentUrl, int nextDepth, URL currentURL,
 			UrlFilterItem[] urlFilterList, List<LinkItem> newUrlList) {
 		if (href == null)
 			return;
 		try {
-			URL url = currentURL != null ? LinkUtils.getLink(currentURL, href, urlFilterList, false)
-					: LinkUtils.newEncodedURL(href);
+			URL url = currentURL != null ?
+					LinkUtils.getLink(currentURL, href, urlFilterList, false) :
+					LinkUtils.newEncodedURL(href);
 
 			if (exclusionMatcher != null)
 				if (exclusionMatcher.matchPattern(url, null))
@@ -468,9 +456,9 @@ public class Crawl {
 		}
 	}
 
-	final private void addDiscoverLinks(Collection<String> linkSet, Origin origin, String parentUrl, int nextDepth,
+	private void addDiscoverLinks(Collection<String> linkSet, Origin origin, String parentUrl, int nextDepth,
 			URL currentURL, UrlFilterItem[] urlFilterList, List<LinkItem> newUrlList)
-					throws NoSuchAlgorithmException, IOException, SearchLibException {
+			throws NoSuchAlgorithmException, IOException, SearchLibException {
 		if (linkSet == null)
 			return;
 		for (String link : linkSet)
@@ -489,10 +477,10 @@ public class Crawl {
 			URL currentURL = urlItem.getURL();
 			if (currentURL == null)
 				return discoverLinks;
-			discoverLinks = new ArrayList<LinkItem>();
+			discoverLinks = new ArrayList<>();
 			if (redirectUrlLocation != null)
-				addDiscoverLink(redirectUrlLocation.toString(), Origin.redirect, parentUrl, nextDepth, currentURL,
-						urlFilterList, discoverLinks);
+				addDiscoverLink(redirectUrlLocation.toString(), Origin.redirect, parentUrl, urlItem.getDepth(),
+						currentURL, urlFilterList, discoverLinks);
 			if (parser != null && urlItem.getFetchStatus() == FetchStatus.FETCHED)
 				addDiscoverLinks(parser.getDetectedLinks(), Origin.content, parentUrl, nextDepth, currentURL,
 						urlFilterList, discoverLinks);

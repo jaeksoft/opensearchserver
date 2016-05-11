@@ -116,7 +116,7 @@ public class UrlManager extends AbstractManager {
 				it.remove();
 	}
 
-	public void inject(List<String> urls, InfoCallback infoCallback) throws SearchLibException {
+	public void inject(final List<String> urls, final InfoCallback infoCallback) throws SearchLibException {
 		try {
 			int already = 0;
 			int injected = 0;
@@ -213,27 +213,30 @@ public class UrlManager extends AbstractManager {
 	}
 
 	private AbstractSearchRequest getHostFacetSearchRequest(Integer maxDepth) throws ParseException {
-		AbstractSearchRequest searchRequest = new SearchPatternRequest(dbClient);
+		final AbstractSearchRequest searchRequest = new SearchPatternRequest(dbClient);
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		if (maxDepth != null)
-			UrlItemFieldEnum.INSTANCE.depth.addFilterRange(searchRequest, 0, maxDepth, true, false);
+			UrlItemFieldEnum.INSTANCE.depth
+					.addFilterRange(searchRequest, UrlItem.longFormat.zero, UrlItem.longFormat.format(maxDepth), false,
+							false);
 		searchRequest.getFacetFieldList().put(new FacetField("host", 1, false, false, null, null, null));
 		return searchRequest;
 	}
 
-	public int getHostToFetch(NamedItem.Selection selection, int urlLimit, int maxUrlPerHost, Integer maxDepth,
-			List<NamedItem> hostList, Set<String> hostSet) throws SearchLibException {
+	public int getHostToFetch(final NamedItem.Selection selection, final int urlLimit, final int maxUrlPerHost,
+			final Integer maxDepth, final List<NamedItem> hostList, final Set<String> hostSet)
+			throws SearchLibException {
 		final AbstractSearchRequest searchRequest;
 		try {
 			searchRequest = getHostFacetSearchRequest(maxDepth);
 			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, selection);
+			return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest, urlLimit, maxUrlPerHost, selection,
+					hostList, hostSet);
 		} catch (ParseException e) {
 			throw new SearchLibException(e);
 		}
-		return getFacetLimit(UrlItemFieldEnum.INSTANCE.host, searchRequest, urlLimit, maxUrlPerHost, selection,
-				hostList, hostSet);
 	}
 
 	public void getStartingWith(String queryString, ItemField field, String start, int urlLimit, int maxUrlPerHost,
@@ -276,13 +279,15 @@ public class UrlManager extends AbstractManager {
 		return ui;
 	}
 
-	public void getUrlToFetch(NamedItem host, long urlLimit, Integer maxDepth, List<UrlItem> urlList)
-			throws SearchLibException {
+	final public void getUrlToFetch(final NamedItem host, final long urlLimit, final Integer maxDepth,
+			final List<UrlItem> urlList) throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest("urlSearch");
 		try {
 			searchRequest.addFilter("host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"", false);
 			if (maxDepth != null)
-				UrlItemFieldEnum.INSTANCE.depth.addFilterRange(searchRequest, 0, maxDepth, true, false);
+				UrlItemFieldEnum.INSTANCE.depth
+						.addFilterRange(searchRequest, UrlItem.longFormat.zero, UrlItem.longFormat.format(maxDepth),
+								false, false);
 			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, host.selection);
 		} catch (ParseException e) {
@@ -294,12 +299,12 @@ public class UrlManager extends AbstractManager {
 			urlList.add(getNewUrlItem(item));
 	}
 
-	public UrlItem getUrlToFetch(URL url) throws SearchLibException {
+	final public UrlItem getUrlToFetch(final URL url) throws SearchLibException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest("urlSearch");
 		return getUrl(searchRequest, url.toExternalForm());
 	}
 
-	public AbstractSearchRequest getSearchRequest(SearchTemplate urlSearchTemplate) throws SearchLibException {
+	public AbstractSearchRequest getSearchRequest(final SearchTemplate urlSearchTemplate) throws SearchLibException {
 		return (AbstractSearchRequest) dbClient.getNewRequest(urlSearchTemplate.name());
 	}
 
@@ -328,8 +333,8 @@ public class UrlManager extends AbstractManager {
 			IndexStatus indexStatus, Date startDate, Date endDate, Date startModifiedDate, Date endModifiedDate)
 			throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-					.getNewRequest(urlSearchTemplate.name());
+			AbstractSearchRequest searchRequest =
+					(AbstractSearchRequest) dbClient.getNewRequest(urlSearchTemplate.name());
 			StringBuilder query = new StringBuilder();
 			if (like != null) {
 				like = like.trim();
@@ -394,20 +399,20 @@ public class UrlManager extends AbstractManager {
 				UrlItemFieldEnum.INSTANCE.indexStatus.addFilterQuery(searchRequest, indexStatus.value, false, false);
 
 			if (minContentLength != null || maxContentLength != null) {
-				String from, to;
+				final String from, to;
 				if (minContentLength == null)
-					from = UrlItem.longFormat.format(0);
+					from = UrlItem.longFormat.zero;
 				else
 					from = UrlItem.longFormat.format(minContentLength);
 				if (maxContentLength == null)
-					to = UrlItem.longFormat.format(Integer.MAX_VALUE);
+					to = UrlItem.longFormat.integerMax;
 				else
 					to = UrlItem.longFormat.format(maxContentLength);
 				UrlItemFieldEnum.INSTANCE.contentLength.addQueryRange(query, from, to, false);
 			}
 
 			if (startDate != null || endDate != null) {
-				String from, to;
+				final String from, to;
 				if (startDate == null)
 					from = "00000000000000";
 				else
@@ -420,7 +425,7 @@ public class UrlManager extends AbstractManager {
 			}
 
 			if (startModifiedDate != null || endModifiedDate != null) {
-				String from, to;
+				final String from, to;
 				if (startModifiedDate == null)
 					from = "00000000000000";
 				else
@@ -476,8 +481,8 @@ public class UrlManager extends AbstractManager {
 
 	public Facet getHostFacetList(int minCount) throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient
-					.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
+			AbstractSearchRequest searchRequest =
+					(AbstractSearchRequest) dbClient.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
 			searchRequest.setEmptyReturnsAll(true);
 			FacetField facetField = searchRequest.getFacetFieldList().get(UrlItemFieldEnum.INSTANCE.host.getName());
 			if (minCount < 0)
@@ -527,7 +532,7 @@ public class UrlManager extends AbstractManager {
 	 * @param crawls
 	 * @throws SearchLibException
 	 */
-	public void updateCrawlTarget(List<Crawl> crawls, boolean propagateDeletion) throws SearchLibException {
+	public void updateCrawlTarget(final List<Crawl> crawls, final boolean propagateDeletion) throws SearchLibException {
 		try {
 			if (crawls == null)
 				return;
@@ -613,7 +618,8 @@ public class UrlManager extends AbstractManager {
 		return tempFile;
 	}
 
-	public File exportCrawlCache(AbstractSearchRequest searchRequest) throws IOException, SearchLibException {
+	final public File exportCrawlCache(final AbstractSearchRequest searchRequest)
+			throws IOException, SearchLibException {
 		File tempFile = null;
 		ZipArchiveOutputStream zipOutput = null;
 		CrawlCacheManager crawlCacheManager = CrawlCacheManager.getInstance(targetClient);
@@ -665,7 +671,7 @@ public class UrlManager extends AbstractManager {
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 			xmlWriter.startElement("urlset", "xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9");
 			int currentPos = 0;
-			List<UrlItem> uList = new ArrayList<UrlItem>();
+			List<UrlItem> uList = new ArrayList<>();
 			for (; ; ) {
 				int totalSize = (int) getUrlList(searchRequest, currentPos, 1000, uList);
 				for (UrlItem u : uList) {
@@ -699,7 +705,7 @@ public class UrlManager extends AbstractManager {
 		return tempFile;
 	}
 
-	public long deleteUrls(AbstractSearchRequest searchRequest, int bufferSize, TaskLog taskLog)
+	final public long deleteUrls(final AbstractSearchRequest searchRequest, final int bufferSize, final TaskLog taskLog)
 			throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
@@ -779,8 +785,8 @@ public class UrlManager extends AbstractManager {
 		setCurrentTaskLog(taskLog);
 		HttpDownloader httpDownloader = null;
 		try {
-			AbstractSearchRequest request = (AbstractSearchRequest) dbClient
-					.getNewRequest(SearchTemplate.urlSearch.name());
+			AbstractSearchRequest request =
+					(AbstractSearchRequest) dbClient.getNewRequest(SearchTemplate.urlSearch.name());
 			long inserted = 0;
 			long existing = 0;
 			long setToFetchFirst = 0;
