@@ -1,24 +1,23 @@
-/**   
- *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+/**
+ * Copyright (C) 2013-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.util;
@@ -34,8 +33,6 @@ public class FormatUtils {
 
 	public static class ThreadSafeDateFormat {
 
-		private final SimpleLock lock = new SimpleLock();
-
 		private final DateFormat dateFormat;
 
 		public ThreadSafeDateFormat(DateFormat dateFormat) {
@@ -43,29 +40,20 @@ public class FormatUtils {
 		}
 
 		public Date parse(String text) throws ParseException {
-			lock.rl.lock();
-			try {
+			synchronized (dateFormat) {
 				return dateFormat.parse(text);
-			} finally {
-				lock.rl.unlock();
 			}
 		}
 
 		public String format(Date date) {
-			lock.rl.lock();
-			try {
+			synchronized (dateFormat) {
 				return dateFormat.format(date);
-			} finally {
-				lock.rl.unlock();
 			}
 		}
 
 		public String format(long time) {
-			lock.rl.lock();
-			try {
+			synchronized (dateFormat) {
 				return dateFormat.format(time);
-			} finally {
-				lock.rl.unlock();
 			}
 		}
 	}
@@ -84,42 +72,64 @@ public class FormatUtils {
 
 	public static class ThreadSafeDecimalFormat {
 
-		private final SimpleLock lock = new SimpleLock();
-
 		private final DecimalFormat decimalFormat;
+
+		public final String zero;
+		public final String doubleMax;
+		public final String integerMax;
+		public final String floatMax;
+		public final String longMax;
 
 		public ThreadSafeDecimalFormat(DecimalFormat decimalFormat) {
 			this.decimalFormat = decimalFormat;
+			zero = decimalFormat.format(0);
+			doubleMax = decimalFormat.format(Double.MAX_VALUE);
+			integerMax = decimalFormat.format(Integer.MAX_VALUE);
+			floatMax = decimalFormat.format(Float.MAX_VALUE);
+			longMax = decimalFormat.format(Long.MAX_VALUE);
 		}
 
 		public ThreadSafeDecimalFormat(String format) {
 			this(new DecimalFormat(format));
 		}
 
-		public Number parse(String text) throws ParseException {
-			lock.rl.lock();
-			try {
+		final public Number parse(final String text) throws ParseException {
+			if (zero.equals(text))
+				return 0;
+			else if (integerMax.equals(text))
+				return Integer.MAX_VALUE;
+			else if (longMax.equals(text))
+				return Long.MAX_VALUE;
+			else if (floatMax.equals(text))
+				return Float.MAX_VALUE;
+			else if (doubleMax.equals(text))
+				return Double.MAX_VALUE;
+			synchronized (decimalFormat) {
 				return decimalFormat.parse(text);
-			} finally {
-				lock.rl.unlock();
 			}
 		}
 
-		public String format(double number) {
-			lock.rl.lock();
-			try {
+		final public String format(final double number) {
+			if (number == 0)
+				return zero;
+			else if (number == Float.MAX_VALUE)
+				return floatMax;
+			else if (number == Double.MAX_VALUE)
+				return doubleMax;
+			synchronized (decimalFormat) {
 				return decimalFormat.format(number);
-			} finally {
-				lock.rl.unlock();
 			}
 		}
 
-		public String format(long number) {
-			lock.rl.lock();
-			try {
+		final public String format(final long number) {
+			if (number == 0)
+				return zero;
+			else if (number == Integer.MAX_VALUE)
+				return integerMax;
+			else if (number == Long.MAX_VALUE)
+				return longMax;
+			synchronized (decimalFormat) {
 				return decimalFormat.format(number);
-			} finally {
-				lock.rl.unlock();
 			}
 		}
 

@@ -77,8 +77,9 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 		nextTimeTarget = 0;
 		this.hostUrlList = hostUrlList;
 		httpDownloader = crawlMaster.getNewHttpDownloader(false);
-		httpDownloaderRobotsTxt = new HttpDownloader(propertyManager.getUserAgent().getValue(), true,
-				propertyManager.getProxyHandler(), propertyManager.getConnectionTimeOut().getValue() * 1000);
+		httpDownloaderRobotsTxt =
+				new HttpDownloader(propertyManager.getUserAgent().getValue(), true, propertyManager.getProxyHandler(),
+						propertyManager.getConnectionTimeOut().getValue() * 1000);
 		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ?
 				config.getExclusionPatternManager().getPatternListMatcher() :
 				null;
@@ -139,12 +140,12 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 
 	private Crawl crawl() throws SearchLibException, InterruptedException, IOException {
 
-		Config config = getConfig();
+		final Config config = getConfig();
 
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		Crawl crawl = ((WebCrawlMaster) getThreadMaster()).getNewCrawl(this);
+		final Crawl crawl = ((WebCrawlMaster) getThreadMaster()).getNewCrawl(this);
 
 		try {
 

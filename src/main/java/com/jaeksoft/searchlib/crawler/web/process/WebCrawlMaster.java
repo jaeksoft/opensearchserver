@@ -58,33 +58,16 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 
 	private final LinkedList<NamedItem> hostList;
 
-	private final Integer maxDepth;
-
-	private Date fetchIntervalDate;
-
-	private int maxUrlPerSession;
-
-	private int maxUrlPerHost;
-
-	private final PatternListMatcher exclusionMatcher;
-
-	private final PatternListMatcher inclusionMatcher;
+	private volatile int maxUrlPerSession = 0;
 
 	private final UrlCrawlQueue urlCrawlQueue;
 
 	public WebCrawlMaster(Config config) throws SearchLibException, IOException {
 		super(config);
-		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		final WebPropertyManager propertyManager = config.getWebPropertyManager();
 		urlCrawlQueue = new UrlCrawlQueue(config);
-		exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ?
-				config.getExclusionPatternManager().getPatternListMatcher() :
-				null;
-		inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
-				config.getInclusionPatternManager().getPatternListMatcher() :
-				null;
-		maxDepth = propertyManager.getMaxDepth().getValue();
 		hostList = new LinkedList<NamedItem>();
-		if (propertyManager.getCrawlEnabled().getValue()) {
+		if (config.getWebPropertyManager().getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
 			start(false);
 		}
@@ -101,21 +84,28 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 			addStatistics(currentStats);
 			urlCrawlQueue.setStatistiques(currentStats);
 
-			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
+			final int threadNumber = propertyManager.getMaxThreadNumber().getValue();
 			maxUrlPerSession = propertyManager.getMaxUrlPerSession().getValue();
-			maxUrlPerHost = propertyManager.getMaxUrlPerHost().getValue();
+			final int maxUrlPerHost = propertyManager.getMaxUrlPerHost().getValue();
+			final PatternListMatcher exclusionMatcher = propertyManager.getExclusionEnabled().getValue() ?
+					config.getExclusionPatternManager().getPatternListMatcher() :
+					null;
+			final PatternListMatcher inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
+					config.getInclusionPatternManager().getPatternListMatcher() :
+					null;
+			final int maxDepth = propertyManager.getMaxDepth().getValue();
 			String schedulerJobName = propertyManager.getSchedulerAfterSession().getValue();
 
 			synchronized (hostList) {
 				hostList.clear();
 			}
 
-			extractSiteMapList();
-			extractHostList();
+			extractSiteMapList(inclusionMatcher, exclusionMatcher);
+			extractHostList(maxUrlPerHost, maxDepth);
 
 			while (!isAborted()) {
 
-				int howMany = urlLeftPerHost();
+				int howMany = urlLeftPerHost(maxUrlPerHost);
 				if (howMany <= 0)
 					break;
 
@@ -123,7 +113,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 				if (host == null)
 					break;
 
-				HostUrlList hostUrlList = getNextUrlList(host, howMany);
+				HostUrlList hostUrlList = getNextUrlList(host, howMany, maxDepth);
 				if (hostUrlList == null)
 					continue;
 
@@ -155,7 +145,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	private void extractHostList()
+	private void extractHostList(final int maxUrlPerHost, final int maxDepth)
 			throws IOException, ParseException, SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		Config config = getConfig();
@@ -165,13 +155,13 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		Set<String> hostSet = new TreeSet<String>();
 
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
-		fetchIntervalDate = AbstractManager.getPastDate(propertyManager.getFetchInterval().getValue(),
+		final Date fetchIntervalDate = AbstractManager.getPastDate(propertyManager.getFetchInterval().getValue(),
 				propertyManager.getFetchIntervalUnit().getValue());
 
 		int urlLimit = maxUrlPerSession;
 		// First try fetch priority
-		NamedItem.Selection selection = new NamedItem.Selection(ListType.PRIORITY_URL, FetchStatus.FETCH_FIRST, null,
-				null);
+		NamedItem.Selection selection =
+				new NamedItem.Selection(ListType.PRIORITY_URL, FetchStatus.FETCH_FIRST, null, null);
 		urlLimit = urlManager.getHostToFetch(selection, urlLimit, maxUrlPerHost, maxDepth, hostList, hostSet);
 
 		// Second try old URLs
@@ -186,7 +176,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 
 	}
 
-	private void extractSiteMapList() throws SearchLibException, IOException {
+	private void extractSiteMapList(final PatternListMatcher inclusionMatcher,
+			final PatternListMatcher exclusionMatcher) throws SearchLibException, IOException {
 		HttpDownloader httpDownloader = null;
 		try {
 			httpDownloader = getNewHttpDownloader(true);
@@ -263,7 +254,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		return (int) (maxUrlPerSession - currentStats.getFetchedCount());
 	}
 
-	private int urlLeftPerHost() {
+	private int urlLeftPerHost(int maxUrlPerHost) {
 		int leftCount = urlLeft();
 		if (leftCount < 0)
 			return leftCount;
@@ -272,7 +263,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		return leftCount;
 	}
 
-	private HostUrlList getNextUrlList(NamedItem host, int count)
+	private HostUrlList getNextUrlList(final NamedItem host, final int count, final int maxDepth)
 			throws ParseException, IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 

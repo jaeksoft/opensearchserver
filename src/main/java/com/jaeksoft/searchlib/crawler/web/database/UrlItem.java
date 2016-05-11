@@ -1,35 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.database;
-
-import java.io.IOException;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
@@ -43,6 +36,13 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
+
+import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class UrlItem {
 
@@ -537,8 +537,8 @@ public class UrlItem {
 		if (contentTypeCharset != null)
 			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), contentTypeCharset);
 		if (contentLength != null)
-			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentLength.getName(),
-					longFormat.format(contentLength));
+			indexDocument
+					.setString(UrlItemFieldEnum.INSTANCE.contentLength.getName(), longFormat.format(contentLength));
 		if (contentEncoding != null)
 			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), contentEncoding);
 		if (lang != null)
@@ -632,8 +632,7 @@ public class UrlItem {
 	}
 
 	/**
-	 * @param backLinkCount
-	 *            the backLinkCount to set
+	 * @param v the backLinkCount to set
 	 */
 	private void setBacklinkCount(String v) {
 		if (v == null)
@@ -648,8 +647,7 @@ public class UrlItem {
 	}
 
 	/**
-	 * @param backLinkCount
-	 *            the backLinkCount to set
+	 * @param backLinkCount the backLinkCount to set
 	 */
 	public void setBacklinkCount(int backLinkCount) {
 		this.backlinkCount = backLinkCount;
@@ -663,16 +661,14 @@ public class UrlItem {
 	}
 
 	/**
-	 * @param depth
-	 *            the depth to set
+	 * @param depth the depth to set
 	 */
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
 
 	/**
-	 * @param setDepth
-	 *            the setDepth to set
+	 * @param v the depth to set
 	 */
 	private void setDepth(String v) {
 		if (v == null)
