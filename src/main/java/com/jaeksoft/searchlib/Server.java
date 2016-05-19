@@ -75,7 +75,6 @@ public class Server {
 		public void setResetExtract(boolean resetExtract) {
 			this.resetExtract = resetExtract;
 		}
-
 	}
 
 	private void start(boolean await) throws IOException, URISyntaxException {

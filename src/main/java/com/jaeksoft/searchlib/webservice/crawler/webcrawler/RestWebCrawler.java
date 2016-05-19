@@ -164,6 +164,13 @@ public interface RestWebCrawler {
 	public CommonResult getUrls(@PathParam("index_name") String use, @QueryParam("login") String login,
 			@QueryParam("key") String key);
 
+	@DELETE
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Path("/urls")
+	public CommonResult truncateUrls(@PathParam("index_name") String use, @QueryParam("login")
+			String login, @QueryParam("key") String key);
+
 	@POST
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	@Path("/robotstxt")
