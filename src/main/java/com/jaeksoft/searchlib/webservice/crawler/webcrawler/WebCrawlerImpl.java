@@ -175,6 +175,23 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 	}
 
 	@Override
+	public CommonResult truncateUrls(String use, String login, String key)
+	{
+		try {
+			Client client = getLoggedClientAnyRole(use, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
+			ClientFactory.INSTANCE.properties.checkApi();
+			client.getUrlManager().deleteAll(null);
+			return new CommonResult(true, "delete all");
+		} catch (InterruptedException e) {
+		throw new CommonServiceException(e);
+		} catch (IOException e) {
+			throw new CommonServiceException(e);
+		} catch (SearchLibException e) {
+			throw new CommonServiceException(e);
+		}
+	}
+
+	@Override
 	public byte[] exportSiteMap(String use, String host, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
