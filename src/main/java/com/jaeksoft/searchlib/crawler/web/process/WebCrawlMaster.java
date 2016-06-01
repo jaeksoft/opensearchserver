@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.process;
 
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -77,6 +78,11 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 	public void runner() throws Exception {
 		Config config = getConfig();
 		WebPropertyManager propertyManager = config.getWebPropertyManager();
+		if (ClientFactory.INSTANCE.properties.isDisableWebCrawler()) {
+			abort();
+			propertyManager.getCrawlEnabled().setValue(false);
+			throw new InterruptedException("The webcrawler is disabled.");
+		}
 		urlCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());
 		while (!isAborted()) {
 

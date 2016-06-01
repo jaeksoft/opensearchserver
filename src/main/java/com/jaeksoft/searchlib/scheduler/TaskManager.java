@@ -1,59 +1,45 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.scheduler;
+
+import com.jaeksoft.searchlib.*;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.Variables;
+import com.jaeksoft.searchlib.web.StartStopListener;
+import org.quartz.*;
+import org.quartz.impl.DirectSchedulerFactory;
+
+import javax.naming.NamingException;
+import java.util.List;
+import java.util.Set;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
-
-import java.util.List;
-import java.util.Set;
-
-import javax.naming.NamingException;
-
-import org.quartz.CronTrigger;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.impl.DirectSchedulerFactory;
-
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.Variables;
-import com.jaeksoft.searchlib.web.StartStopListener;
 
 public class TaskManager {
 
@@ -63,8 +49,7 @@ public class TaskManager {
 		}
 
 		@Override
-		public void execute(JobExecutionContext context)
-				throws JobExecutionException {
+		public void execute(JobExecutionContext context) throws JobExecutionException {
 			if (StartStopListener.isShutdown())
 				throw new JobExecutionException("Aborted (application stopped)");
 			JobDetail jobDetail = context.getJobDetail();
@@ -100,13 +85,14 @@ public class TaskManager {
 	}
 
 	public void start() throws SearchLibException {
+		if (ClientFactory.INSTANCE.properties.isDisableScheduler())
+			Logging.warn("The scheduler is disabled ");
 		rwl.w.lock();
 		try {
 			if (scheduler == null) {
 				if (schedulerFactory == null)
 					schedulerFactory = DirectSchedulerFactory.getInstance();
-				threadPoolSize = ClientFactory.INSTANCE
-						.getSchedulerThreadPoolSize().getValue();
+				threadPoolSize = ClientFactory.INSTANCE.getSchedulerThreadPoolSize().getValue();
 				schedulerFactory.createVolatileScheduler(threadPoolSize);
 				scheduler = schedulerFactory.getScheduler();
 			}
@@ -134,29 +120,26 @@ public class TaskManager {
 
 	private void checkSchedulerAvailable() throws SearchLibException {
 		if (scheduler == null)
-			throw new SearchLibException("The scheduler is not availalbe.");
+			throw new SearchLibException("The scheduler is not available.");
 	}
 
-	public void cronJob(String indexName, String jobName,
-			TaskCronExpression cron) throws SearchLibException {
+	public void cronJob(String indexName, String jobName, TaskCronExpression cron) throws SearchLibException {
 		rwl.w.lock();
 		try {
 			checkSchedulerAvailable();
-			Trigger trigger = newTrigger().withIdentity(jobName, indexName)
-					.withSchedule(cronSchedule(cron.getStringExpression()))
-					.build();
+			Trigger trigger =
+					newTrigger().withIdentity(jobName, indexName).withSchedule(cronSchedule(cron.getStringExpression()))
+							.build();
 
 			// CHECK IF IT ALREADY EXIST
 			JobKey jobKey = jobKey(jobName, indexName);
 			if (scheduler.checkExists(jobKey)) {
-				List<? extends Trigger> triggers = scheduler
-						.getTriggersOfJob(jobKey);
+				List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
 				if (triggers != null) {
 					for (Trigger tr : triggers) {
 						if (tr instanceof CronTrigger) {
 							CronTrigger ctr = (CronTrigger) tr;
-							if (ctr.getCronExpression().equals(
-									cron.getStringExpression()))
+							if (ctr.getCronExpression().equals(cron.getStringExpression()))
 								return;
 						}
 					}
@@ -164,8 +147,7 @@ public class TaskManager {
 				scheduler.deleteJob(jobKey);
 			}
 
-			JobDetail job = newJob(TaskManagerJob.class).withIdentity(jobName,
-					indexName).build();
+			JobDetail job = newJob(TaskManagerJob.class).withIdentity(jobName, indexName).build();
 			scheduler.scheduleJob(job, trigger);
 		} catch (SchedulerException e) {
 			throw new SearchLibException(e);
@@ -176,14 +158,15 @@ public class TaskManager {
 
 	/**
 	 * Synchronous execution of a full Job
-	 * 
+	 *
 	 * @param indexName
 	 * @param jobName
 	 * @throws SearchLibException
 	 * @throws NamingException
 	 */
-	public void executeJob(String indexName, String jobName)
-			throws SearchLibException, NamingException {
+	public void executeJob(String indexName, String jobName) throws SearchLibException, NamingException {
+		if (ClientFactory.INSTANCE.properties.isDisableScheduler())
+			throw new SearchLibException("The scheduler is disabled.");
 		Client client = ClientCatalog.getClient(indexName);
 		if (client == null)
 			throw new SearchLibException("Client not found: " + indexName);
@@ -196,16 +179,17 @@ public class TaskManager {
 
 	/**
 	 * Asynchronous execution of a full Job
-	 * 
+	 *
 	 * @param client
 	 * @param jobItem
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public ImmediateExecution executeJob(Client client, JobItem jobItem,
-			Variables variables) throws InterruptedException {
-		ImmediateExecution execution = new ImmediateExecution(client, jobItem,
-				variables);
+	public ImmediateExecution executeJob(Client client, JobItem jobItem, Variables variables)
+			throws InterruptedException {
+		if (ClientFactory.INSTANCE.properties.isDisableScheduler())
+			throw new InterruptedException("The scheduler is disabled.");
+		ImmediateExecution execution = new ImmediateExecution(client, jobItem, variables);
 		execution.execute(300);
 		jobItem.waitForStart(300);
 		return execution;
@@ -213,26 +197,26 @@ public class TaskManager {
 
 	/**
 	 * Asynchronous execution of a Task
-	 * 
+	 *
 	 * @param client
 	 * @param taskItem
 	 * @param taskLog
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public static ImmediateExecution executeTask(Client client,
-			TaskItem taskItem, TaskLog taskLog) throws InterruptedException {
+	public static ImmediateExecution executeTask(Client client, TaskItem taskItem, TaskLog taskLog)
+			throws InterruptedException {
+		if (ClientFactory.INSTANCE.properties.isDisableScheduler())
+			throw new InterruptedException("The scheduler is disabled.");
 		if (taskLog == null)
 			taskLog = new TaskLog(taskItem, false, false);
-		ImmediateExecution execution = new ImmediateExecution(client, taskItem,
-				taskLog);
+		ImmediateExecution execution = new ImmediateExecution(client, taskItem, taskLog);
 		execution.execute(300);
 		taskItem.waitForStart(300);
 		return execution;
 	}
 
-	public void removeJob(String indexName, String jobName)
-			throws SearchLibException {
+	public void removeJob(String indexName, String jobName) throws SearchLibException {
 		rwl.w.lock();
 		try {
 			scheduler.deleteJob(jobKey(jobName, indexName));
@@ -246,8 +230,7 @@ public class TaskManager {
 	public void removeJobs(String indexName) throws SearchLibException {
 		rwl.w.lock();
 		try {
-			Set<JobKey> jobKeySet = scheduler
-					.getJobKeys(jobGroupEquals(indexName));
+			Set<JobKey> jobKeySet = scheduler.getJobKeys(jobGroupEquals(indexName));
 			for (JobKey jobKey : jobKeySet)
 				scheduler.deleteJob(jobKey);
 		} catch (SchedulerException e) {
@@ -260,8 +243,7 @@ public class TaskManager {
 	public String[] getActiveJobs(String indexName) throws SchedulerException {
 		rwl.r.lock();
 		try {
-			Set<JobKey> jobKeySet = scheduler
-					.getJobKeys(jobGroupEquals(indexName));
+			Set<JobKey> jobKeySet = scheduler.getJobKeys(jobGroupEquals(indexName));
 			String[] jobs = new String[jobKeySet.size()];
 			int i = 0;
 			for (JobKey jobKey : jobKeySet)
