@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2013-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.sitemap;
@@ -76,37 +76,33 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 					return changeFreq;
 			return unknown;
 		}
-	};
+	}
+
+	;
 
 	private final URI loc;
 	private final Date lastMod;
 	private final ChangeFreq changeFreq;
 	private final Float priority;
 
-	private final static ThreadSafeDateFormat w3cdateFormat = new ThreadSafeSimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ssZ");
+	private final static ThreadSafeDateFormat w3cdateFormat = new ThreadSafeSimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-	private final static ThreadSafeDateFormat shortDateFormat = new ThreadSafeSimpleDateFormat(
-			"yyyy-MM-dd");
+	private final static ThreadSafeDateFormat shortDateFormat = new ThreadSafeSimpleDateFormat("yyyy-MM-dd");
 
-	private final static Pattern w3cTimeZonePattern = Pattern
-			.compile(":(?=[0-9]{2}$)");
+	private final static Pattern w3cTimeZonePattern = Pattern.compile(":(?=[0-9]{2}$)");
 
-	public SiteMapUrl(Node urlNode) throws MalformedURLException,
-			URISyntaxException {
+	public SiteMapUrl(Node urlNode) throws MalformedURLException, URISyntaxException {
 		Node node = DomUtils.getFirstNode(urlNode, "loc");
-		loc = node == null ? null : LinkUtils.newEncodedURI(DomUtils
-				.getText(node));
+		loc = node == null ? null : LinkUtils.newEncodedURI(DomUtils.getText(node));
 		node = DomUtils.getFirstNode(urlNode, "lastmod");
 		Date d = null;
 		if (node != null) {
-			String t = RegExpUtils.replaceFirst(DomUtils.getText(node),
-					w3cTimeZonePattern, "");
+			String t = RegExpUtils.replaceFirst(DomUtils.getText(node), w3cTimeZonePattern, "");
 			if (t != null) {
 				try {
 					d = w3cdateFormat.parse(t);
 				} catch (ParseException e) {
-					Logging.warn(e);
+					// No log, we have another format to try
 				}
 				if (d == null) {
 					try {
@@ -120,8 +116,7 @@ public class SiteMapUrl implements Comparable<SiteMapUrl> {
 
 		lastMod = d;
 		node = DomUtils.getFirstNode(urlNode, "changefreq");
-		changeFreq = ChangeFreq.find(node == null ? null : DomUtils
-				.getText(node));
+		changeFreq = ChangeFreq.find(node == null ? null : DomUtils.getText(node));
 		node = DomUtils.getFirstNode(urlNode, "priority");
 		priority = node == null ? null : new Float(DomUtils.getText(node));
 	}
