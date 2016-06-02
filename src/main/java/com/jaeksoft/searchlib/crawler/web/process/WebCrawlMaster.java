@@ -99,7 +99,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 			final PatternListMatcher inclusionMatcher = propertyManager.getInclusionEnabled().getValue() ?
 					config.getInclusionPatternManager().getPatternListMatcher() :
 					null;
-			final int maxDepth = propertyManager.getMaxDepth().getValue();
+			final Integer maxDepth = propertyManager.getMaxDepth().getValue();
 			String schedulerJobName = propertyManager.getSchedulerAfterSession().getValue();
 
 			synchronized (hostList) {
@@ -151,7 +151,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	private void extractHostList(final int maxUrlPerHost, final int maxDepth)
+	private void extractHostList(final int maxUrlPerHost, final Integer maxDepth)
 			throws IOException, ParseException, SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		Config config = getConfig();
@@ -269,7 +269,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		return leftCount;
 	}
 
-	private HostUrlList getNextUrlList(final NamedItem host, final int count, final int maxDepth)
+	private HostUrlList getNextUrlList(final NamedItem host, final int count, final Integer maxDepth)
 			throws ParseException, IOException, SyntaxError, URISyntaxException, ClassNotFoundException,
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 
