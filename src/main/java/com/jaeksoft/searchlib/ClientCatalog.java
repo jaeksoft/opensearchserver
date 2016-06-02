@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib;
@@ -41,6 +41,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import com.jaeksoft.searchlib.replication.SilentBackupReplication;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.lucene.search.BooleanQuery;
@@ -94,7 +95,7 @@ public class ClientCatalog {
 	 * OpenSearchServer. It will initialize all internal resources. The
 	 * data_directory is the folder which will contain all the indexes (data and
 	 * configuration).
-	 * 
+	 *
 	 * @param data_directory
 	 *            The directory which contain the indexes
 	 */
@@ -141,6 +142,9 @@ public class ClientCatalog {
 			if (client != null)
 				return client;
 			client = ClientFactory.INSTANCE.newClient(indexDirectory, true, false);
+			String url = ClientFactory.INSTANCE.properties.getSilentBackupUrl();
+			if (url != null && !url.isEmpty())
+				client.getIndexAbstract().addUpdateInterface(new SilentBackupReplication(client, url));
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
@@ -261,8 +265,8 @@ public class ClientCatalog {
 	}
 
 	public static final Set<ClientCatalogItem> getClientCatalog(User user) throws SearchLibException {
-		File[] files = StartStopListener.OPENSEARCHSERVER_DATA_FILE
-				.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+		File[] files =
+				StartStopListener.OPENSEARCHSERVER_DATA_FILE.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
 		Set<ClientCatalogItem> set = new TreeSet<ClientCatalogItem>();
 		if (files == null)
 			return null;
@@ -280,7 +284,7 @@ public class ClientCatalog {
 
 	/**
 	 * Tests if an index exists
-	 * 
+	 *
 	 * @param indexName
 	 *            The name of an index
 	 * @return true if the index exist
@@ -317,7 +321,7 @@ public class ClientCatalog {
 
 	/**
 	 * Create a new index.
-	 * 
+	 *
 	 * @param indexName
 	 *            The name of the index.
 	 * @param templateName
@@ -355,7 +359,7 @@ public class ClientCatalog {
 
 	/**
 	 * Delete an index.
-	 * 
+	 *
 	 * @param indexName
 	 *            The name of the index
 	 * @throws SearchLibException

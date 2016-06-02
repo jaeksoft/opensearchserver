@@ -84,6 +84,10 @@ public class InstanceProperties {
 
 	private final boolean disableFileCrawler;
 
+	private final String silentBackupUrl;
+
+	private final static String REPLICATION_NODEPATH = "/instanceProperties/replication";
+
 	private final static String LIMIT_NODEPATH = "/instanceProperties/limit";
 
 	private final static String LIMIT_CHROOT_ATTR = "chroot";
@@ -100,11 +104,13 @@ public class InstanceProperties {
 
 	private final static String LIMIT_REQUEST_PER_MONTH = "requestPerMonth";
 
-	private final static String LIMIT_DISABLE_SCHEDULER = "disableScheduler";
+	private final static String DISABLE_SCHEDULER = "disableScheduler";
 
-	private final static String LIMIT_DISABLE_WEBCRAWLER = "disableWebCrawler";
+	private final static String DISABLE_WEBCRAWLER = "disableWebCrawler";
 
-	private final static String LIMIT_DISABLE_FILECRAWLER = "disableFileCrawler";
+	private final static String DISABLE_FILECRAWLER = "disableFileCrawler";
+
+	private final static String SILENT_BACKUP_URL = "silentBackupUrl";
 
 	private final static String REDIS_API_NODE = "/instanceProperties/redisApi";
 
@@ -136,12 +142,9 @@ public class InstanceProperties {
 				maxApiRate = XPathParser.getAttributeValue(node, LIMIT_MAX_API_RATE);
 				requestPerMonth = XPathParser.getAttributeValue(node, LIMIT_REQUEST_PER_MONTH);
 				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
-				disableScheduler =
-						"yes".equalsIgnoreCase(XPathParser.getAttributeString(node, LIMIT_DISABLE_SCHEDULER));
-				disableWebCrawler =
-						"yes".equalsIgnoreCase(XPathParser.getAttributeString(node, LIMIT_DISABLE_WEBCRAWLER));
-				disableFileCrawler =
-						"yes".equalsIgnoreCase(XPathParser.getAttributeString(node, LIMIT_DISABLE_FILECRAWLER));
+				disableScheduler = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, DISABLE_SCHEDULER));
+				disableWebCrawler = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, DISABLE_WEBCRAWLER));
+				disableFileCrawler = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, DISABLE_FILECRAWLER));
 			} else {
 				maxDocumentLimit = 0;
 				chroot = false;
@@ -155,6 +158,14 @@ public class InstanceProperties {
 				disableWebCrawler = false;
 				disableFileCrawler = false;
 			}
+
+			node = xpp.getNode(REPLICATION_NODEPATH);
+			if (node != null) {
+				silentBackupUrl = XPathParser.getAttributeString(node, SILENT_BACKUP_URL);
+			} else {
+				silentBackupUrl = null;
+			}
+
 			node = xpp.getNode(REDIS_API_NODE);
 			if (node != null) {
 				redisApiServerHostname = XPathParser.getAttributeString(node, REDIS_API_HOSTNAME_ATTR);
@@ -165,6 +176,7 @@ public class InstanceProperties {
 				redisApiServerPort = 0;
 				redisApiAuth = null;
 			}
+
 		} else {
 			requestperMonthFile = null;
 			maxDocumentLimit = 0;
@@ -181,6 +193,7 @@ public class InstanceProperties {
 			disableScheduler = false;
 			disableWebCrawler = false;
 			disableFileCrawler = false;
+			silentBackupUrl = null;
 		}
 	}
 
@@ -462,4 +475,7 @@ public class InstanceProperties {
 		return redisApiServerPort;
 	}
 
+	public String getSilentBackupUrl() {
+		return silentBackupUrl;
+	}
 }

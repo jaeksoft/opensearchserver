@@ -1,53 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.config;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.InvalidPropertiesFormatException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
-import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -73,12 +48,7 @@ import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlList;
 import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlList;
 import com.jaeksoft.searchlib.crawler.rest.RestCrawlMaster;
-import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
-import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
-import com.jaeksoft.searchlib.crawler.web.database.HeaderManager;
-import com.jaeksoft.searchlib.crawler.web.database.UrlFilterList;
-import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
-import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
+import com.jaeksoft.searchlib.crawler.web.database.*;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlMaster;
 import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtCache;
@@ -109,13 +79,27 @@ import com.jaeksoft.searchlib.scheduler.TaskEnum;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.script.ScriptManager;
 import com.jaeksoft.searchlib.statistics.StatisticsList;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.SimpleLock;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.util.*;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
+import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.InvalidPropertiesFormatException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 public abstract class Config implements ThreadFactory {
 
@@ -299,8 +283,9 @@ public abstract class Config implements ThreadFactory {
 		return indexDir;
 	}
 
-	private void saveConfigWithoutLock() throws IOException, TransformerConfigurationException, SAXException,
-			SearchLibException, XPathExpressionException {
+	private void saveConfigWithoutLock()
+			throws IOException, TransformerConfigurationException, SAXException, SearchLibException,
+			XPathExpressionException {
 		ConfigFileRotation cfr = configFiles.get(indexDir, "config.xml");
 		try {
 			XmlWriter xmlWriter = new XmlWriter(cfr.getTempPrintWriter("UTF-8"), "UTF-8");
@@ -670,8 +655,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveClassifier(Classifier classifier) throws SearchLibException, UnsupportedEncodingException {
-		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
-				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
+		ConfigFileRotation cfr =
+				configFiles.get(getClassifierDirectory(), URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -698,8 +683,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void deleteClassifier(Classifier classifier) throws SearchLibException, IOException {
-		ConfigFileRotation cfr = configFiles.get(getClassifierDirectory(),
-				URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
+		ConfigFileRotation cfr =
+				configFiles.get(getClassifierDirectory(), URLEncoder.encode(classifier.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -716,8 +701,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void saveLearner(Learner learner) throws SearchLibException, UnsupportedEncodingException {
-		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
-				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
+		ConfigFileRotation cfr =
+				configFiles.get(getLearnerDirectory(), URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -744,8 +729,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void deleteLearner(Learner learner) throws SearchLibException, IOException {
-		ConfigFileRotation cfr = configFiles.get(getLearnerDirectory(),
-				URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
+		ConfigFileRotation cfr =
+				configFiles.get(getLearnerDirectory(), URLEncoder.encode(learner.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -886,8 +871,8 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (mailboxCrawlList != null)
 				return mailboxCrawlList;
-			mailboxCrawlList = MailboxCrawlList.fromXml(getMailboxCrawlMaster(),
-					new File(indexDir, "mailboxCrawlList.xml"));
+			mailboxCrawlList =
+					MailboxCrawlList.fromXml(getMailboxCrawlMaster(), new File(indexDir, "mailboxCrawlList.xml"));
 			return mailboxCrawlList;
 		} catch (ParserConfigurationException e) {
 			throw new SearchLibException(e);
@@ -1251,8 +1236,8 @@ public abstract class Config implements ThreadFactory {
 	}
 
 	public void save(Renderer renderer) throws SearchLibException, UnsupportedEncodingException {
-		ConfigFileRotation cfr = configFiles.get(getRendererDirectory(),
-				URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
+		ConfigFileRotation cfr =
+				configFiles.get(getRendererDirectory(), URLEncoder.encode(renderer.getName(), "UTF-8") + ".xml");
 		if (!replicationLock.rl.tryLock())
 			throw new SearchLibException("Replication in process");
 		try {
@@ -1357,8 +1342,8 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (statisticsList != null)
 				return statisticsList;
-			statisticsList = StatisticsList.fromXmlConfig(xppConfig, xppConfig.getNode("/configuration/statistics"),
-					getStatStorage());
+			statisticsList = StatisticsList
+					.fromXmlConfig(xppConfig, xppConfig.getNode("/configuration/statistics"), getStatStorage());
 			return statisticsList;
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
@@ -1856,8 +1841,8 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (databasePropertyManager != null)
 				return databasePropertyManager;
-			return databasePropertyManager = new DatabasePropertyManager(
-					new File(indexDir, "dbcrawler-properties.xml"));
+			return databasePropertyManager =
+					new DatabasePropertyManager(new File(indexDir, "dbcrawler-properties.xml"));
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

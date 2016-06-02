@@ -65,9 +65,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 
 	public WebCrawlMaster(Config config) throws SearchLibException, IOException {
 		super(config);
-		final WebPropertyManager propertyManager = config.getWebPropertyManager();
 		urlCrawlQueue = new UrlCrawlQueue(config);
-		hostList = new LinkedList<NamedItem>();
+		hostList = new LinkedList<>();
 		if (config.getWebPropertyManager().getCrawlEnabled().getValue()) {
 			Logging.info("Webcrawler is starting for " + config.getIndexName());
 			start(false);
