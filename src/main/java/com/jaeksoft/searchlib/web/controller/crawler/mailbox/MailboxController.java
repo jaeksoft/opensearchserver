@@ -1,52 +1,44 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web.controller.crawler.mailbox;
 
-import java.io.IOException;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.mailbox.*;
+import com.jaeksoft.searchlib.web.controller.AlertController;
+import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlItem;
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlList;
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlMaster;
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxCrawlThread;
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxFieldEnum;
-import com.jaeksoft.searchlib.crawler.mailbox.MailboxProtocolEnum;
-import com.jaeksoft.searchlib.web.controller.AlertController;
-import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import java.io.IOException;
 
 @AfterCompose(superclass = true)
 public class MailboxController
-		extends
-		CommonFieldTargetCrawlerController<MailboxCrawlItem, MailboxCrawlThread, MailboxCrawlMaster> {
+		extends CommonFieldTargetCrawlerController<MailboxCrawlItem, MailboxCrawlThread, MailboxCrawlMaster> {
 
 	private transient MailboxCrawlList crawlList = null;
 
@@ -79,8 +71,7 @@ public class MailboxController
 	}
 
 	@Override
-	protected void doDelete(MailboxCrawlItem crawlItem)
-			throws SearchLibException {
+	protected void doDelete(MailboxCrawlItem crawlItem) throws SearchLibException {
 		Client client = getClient();
 		client.getMailboxCrawlList().remove(crawlItem);
 		client.saveMailboxCrawlList();
@@ -127,9 +118,9 @@ public class MailboxController
 	}
 
 	@Command
-	public void onCheck() throws InterruptedException, InstantiationException,
-			IllegalAccessException, MessagingException, IOException,
-			SearchLibException {
+	public void onCheck()
+			throws InterruptedException, InstantiationException, IllegalAccessException, MessagingException,
+			IOException, SearchLibException {
 		MailboxCrawlItem crawl = getCurrentCrawl();
 		if (crawl == null)
 			return;

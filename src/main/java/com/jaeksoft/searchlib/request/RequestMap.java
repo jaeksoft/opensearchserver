@@ -1,55 +1,53 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.request;
 
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.xpath.XPathExpressionException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
-
-public class RequestMap {
+public class RequestMap implements XmlWriter.Interface {
 
 	private final Map<String, AbstractRequest> map;
 
 	/**
 	 * Returns a map containing the request read from the XML configuration
 	 * file.
-	 * 
+	 *
 	 * @param config
 	 * @param document
 	 * @param xPath
@@ -60,10 +58,9 @@ public class RequestMap {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static RequestMap fromXmlConfig(Config config, XPathParser xpp,
-			Node parentNode) throws XPathExpressionException, DOMException,
-			ParseException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+	public static RequestMap fromXmlConfig(Config config, XPathParser xpp, Node parentNode)
+			throws XPathExpressionException, DOMException, ParseException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		RequestMap requestMap = new RequestMap();
 		if (parentNode == null)
 			return requestMap;
@@ -71,8 +68,7 @@ public class RequestMap {
 		if (nodes == null)
 			return requestMap;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			AbstractRequest request = RequestTypeEnum.fromXmlConfig(config,
-					xpp, nodes.item(i));
+			AbstractRequest request = RequestTypeEnum.fromXmlConfig(config, xpp, nodes.item(i));
 			if (request != null)
 				requestMap.put(request);
 		}
@@ -93,7 +89,8 @@ public class RequestMap {
 		return map.get(requestName);
 	}
 
-	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
+	@Override
+	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("requests");
 		for (AbstractRequest request : map.values())
 			request.writeXmlConfig(xmlWriter);
