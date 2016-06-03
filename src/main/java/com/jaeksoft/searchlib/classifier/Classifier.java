@@ -1,43 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.classifier;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.TreeSet;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.memory.MemoryIndex;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -51,8 +36,21 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.memory.MemoryIndex;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
-public class Classifier implements Comparable<Classifier> {
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.TreeSet;
+
+public class Classifier implements Comparable<Classifier>, XmlWriter.Interface {
 
 	private final static String CLASSIFIER_ITEM_ROOTNODE_NAME = "classifier";
 	private final static String CLASSIFIER_ITEM_NODE_NAME = "classifierItem";
@@ -121,33 +119,26 @@ public class Classifier implements Comparable<Classifier> {
 		}
 	}
 
-	protected Classifier(File file) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException,
+	protected Classifier(File file)
+			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
 			SearchLibException {
 		this();
 		if (!file.exists())
 			return;
 		Document document = DomUtils.readXml(new StreamSource(file), false);
-		Node rootNode = DomUtils.getFirstNode(document,
-				CLASSIFIER_ITEM_ROOTNODE_NAME);
+		Node rootNode = DomUtils.getFirstNode(document, CLASSIFIER_ITEM_ROOTNODE_NAME);
 		if (rootNode == null)
 			return;
-		setName(XPathParser.getAttributeString(rootNode,
-				CLASSIFIER_ITEM_ROOT_ATTR_NAME));
-		setFieldName(XPathParser.getAttributeString(rootNode,
-				CLASSIFIER_ITEM_ROOT_ATTR_FIELD));
-		setScoreFieldName(XPathParser.getAttributeString(rootNode,
-				CLASSIFIER_ITEM_ROOT_ATTR_SCOREFIELD));
-		setActive("yes".equalsIgnoreCase(XPathParser.getAttributeString(
-				rootNode, CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE)));
-		setMethod(ClassificationMethodEnum.find(XPathParser.getAttributeString(
-				rootNode, CLASSIFIER_ITEM_ROOT_ATTR_METHOD)));
-		Node defaultValueNode = DomUtils.getFirstNode(rootNode,
-				CLASSIFIER_ITEM_DEFAULT_VALUE_NODE);
+		setName(XPathParser.getAttributeString(rootNode, CLASSIFIER_ITEM_ROOT_ATTR_NAME));
+		setFieldName(XPathParser.getAttributeString(rootNode, CLASSIFIER_ITEM_ROOT_ATTR_FIELD));
+		setScoreFieldName(XPathParser.getAttributeString(rootNode, CLASSIFIER_ITEM_ROOT_ATTR_SCOREFIELD));
+		setActive("yes".equalsIgnoreCase(XPathParser.getAttributeString(rootNode, CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE)));
+		setMethod(ClassificationMethodEnum
+				.find(XPathParser.getAttributeString(rootNode, CLASSIFIER_ITEM_ROOT_ATTR_METHOD)));
+		Node defaultValueNode = DomUtils.getFirstNode(rootNode, CLASSIFIER_ITEM_DEFAULT_VALUE_NODE);
 		if (defaultValueNode != null)
 			setDefaultValue(defaultValueNode.getTextContent());
-		List<Node> nodes = DomUtils.getNodes(rootNode,
-				CLASSIFIER_ITEM_NODE_NAME);
+		List<Node> nodes = DomUtils.getNodes(rootNode, CLASSIFIER_ITEM_NODE_NAME);
 		if (nodes == null)
 			return;
 		for (Node n : nodes)
@@ -303,15 +294,14 @@ public class Classifier implements Comparable<Classifier> {
 		return name.compareTo(o.name);
 	}
 
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement(CLASSIFIER_ITEM_ROOTNODE_NAME,
-					CLASSIFIER_ITEM_ROOT_ATTR_NAME, name,
-					CLASSIFIER_ITEM_ROOT_ATTR_FIELD, fieldName,
-					CLASSIFIER_ITEM_ROOT_ATTR_SCOREFIELD, scoreFieldName,
-					CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no",
-					CLASSIFIER_ITEM_ROOT_ATTR_METHOD, method.name());
+			xmlWriter.startElement(CLASSIFIER_ITEM_ROOTNODE_NAME, CLASSIFIER_ITEM_ROOT_ATTR_NAME, name,
+					CLASSIFIER_ITEM_ROOT_ATTR_FIELD, fieldName, CLASSIFIER_ITEM_ROOT_ATTR_SCOREFIELD, scoreFieldName,
+					CLASSIFIER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no", CLASSIFIER_ITEM_ROOT_ATTR_METHOD,
+					method.name());
 			if (defaultValue != null && defaultValue.length() > 0) {
 				xmlWriter.startElement(CLASSIFIER_ITEM_DEFAULT_VALUE_NODE);
 				xmlWriter.textNode(defaultValue);
@@ -325,11 +315,9 @@ public class Classifier implements Comparable<Classifier> {
 		}
 	}
 
-	private void multivaluedClassification(Client client,
-			IndexDocument document, LanguageEnum lang, MemoryIndex index)
+	private void multivaluedClassification(Client client, IndexDocument document, LanguageEnum lang, MemoryIndex index)
 			throws ParseException, SearchLibException, SyntaxError, IOException {
-		boolean setDefaultValue = defaultValue != null
-				&& defaultValue.length() > 0;
+		boolean setDefaultValue = defaultValue != null && defaultValue.length() > 0;
 		for (ClassifierItem item : valueSet) {
 			float score = item.score(client, lang, index);
 			if (score > 0.0f) {
@@ -343,12 +331,10 @@ public class Classifier implements Comparable<Classifier> {
 			document.add(fieldName, defaultValue, 1.0F);
 	}
 
-	private final static ThreadSafeDecimalFormat scoreFormat = new ThreadSafeDecimalFormat(
-			"0.###########");
+	private final static ThreadSafeDecimalFormat scoreFormat = new ThreadSafeDecimalFormat("0.###########");
 
-	private void bestScoreClassification(Client client, IndexDocument document,
-			LanguageEnum lang, MemoryIndex index) throws ParseException,
-			SearchLibException, SyntaxError, IOException {
+	private void bestScoreClassification(Client client, IndexDocument document, LanguageEnum lang, MemoryIndex index)
+			throws ParseException, SearchLibException, SyntaxError, IOException {
 		ClassifierItem selectedItem = null;
 		float maxScore = 0;
 		for (ClassifierItem item : valueSet) {
@@ -359,8 +345,7 @@ public class Classifier implements Comparable<Classifier> {
 			}
 		}
 		if (selectedItem != null) {
-			document.add(getFieldName(), selectedItem.getValue(),
-					selectedItem.getBoost());
+			document.add(getFieldName(), selectedItem.getValue(), selectedItem.getBoost());
 			if (scoreFieldName != null && scoreFieldName.length() > 0) {
 				document.addString(scoreFieldName, scoreFormat.format(maxScore));
 			}
@@ -377,8 +362,7 @@ public class Classifier implements Comparable<Classifier> {
 		try {
 			MemoryIndex index = new MemoryIndex();
 			LanguageEnum lang = document.getLang();
-			Analyzer analyzer = client.getSchema().getIndexPerFieldAnalyzer(
-					lang);
+			Analyzer analyzer = client.getSchema().getIndexPerFieldAnalyzer(lang);
 			for (FieldContent fieldContent : document) {
 				String fieldName = fieldContent.getField();
 				String concatValues = fieldContent.getMergedValues(" ");

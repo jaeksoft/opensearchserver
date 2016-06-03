@@ -1,46 +1,44 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2013-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.mailbox;
 
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.TreeMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
-
-public class MailboxCrawlList {
+public class MailboxCrawlList implements XmlWriter.Interface {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -48,15 +46,14 @@ public class MailboxCrawlList {
 	private MailboxCrawlItem[] array;
 
 	private MailboxCrawlList() {
-		map = new TreeMap<String, MailboxCrawlItem>();
+		map = new TreeMap<>();
 	}
 
 	private final static String MAILBOX_CRAWLLIST_ROOTNODE_NAME = "mailboxCrawlList";
 	private final static String MAILBOX_CRAWL_NODE_NAME = "mailboxCrawlItem";
 
-	public static MailboxCrawlList fromXml(MailboxCrawlMaster crawlMaster,
-			File file) throws XPathExpressionException,
-			ParserConfigurationException, SAXException, IOException {
+	public static MailboxCrawlList fromXml(MailboxCrawlMaster crawlMaster, File file)
+			throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		MailboxCrawlList crawlList = new MailboxCrawlList();
 		if (!file.exists())
 			return crawlList;
@@ -68,8 +65,7 @@ public class MailboxCrawlList {
 		if (nodes == null)
 			return crawlList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			MailboxCrawlItem crawlItem = MailboxCrawlItem.fromXml(crawlMaster,
-					xpp, nodes.item(i));
+			MailboxCrawlItem crawlItem = MailboxCrawlItem.fromXml(crawlMaster, xpp, nodes.item(i));
 			if (crawlItem != null)
 				crawlList.add(crawlItem);
 		}
@@ -105,8 +101,8 @@ public class MailboxCrawlList {
 		}
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
+	@Override
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			xmlWriter.startElement(MAILBOX_CRAWLLIST_ROOTNODE_NAME);

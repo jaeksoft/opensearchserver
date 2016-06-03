@@ -1,7 +1,7 @@
 /**
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -24,30 +24,6 @@
 
 package com.jaeksoft.searchlib;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import com.jaeksoft.searchlib.replication.SilentBackupReplication;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.lucene.search.BooleanQuery;
-import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.WebApp;
-
 import com.jaeksoft.searchlib.cluster.ClusterManager;
 import com.jaeksoft.searchlib.config.ConfigFileRotation;
 import com.jaeksoft.searchlib.config.ConfigFiles;
@@ -60,14 +36,22 @@ import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.user.UserList;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.LastModifiedAndSize;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.ThreadUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.util.*;
 import com.jaeksoft.searchlib.web.StartStopListener;
 import com.jaeksoft.searchlib.web.controller.PushEvent;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.lucene.search.BooleanQuery;
+import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.WebApp;
+
+import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.*;
+import java.net.URI;
+import java.util.*;
 
 /**
  * This class handles a list of indexes stored in a given directory.
@@ -96,8 +80,7 @@ public class ClientCatalog {
 	 * data_directory is the folder which will contain all the indexes (data and
 	 * configuration).
 	 *
-	 * @param data_directory
-	 *            The directory which contain the indexes
+	 * @param data_directory The directory which contain the indexes
 	 */
 	public static final void init(File data_directory) {
 		StartStopListener.start(data_directory);
@@ -141,10 +124,8 @@ public class ClientCatalog {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
-			client = ClientFactory.INSTANCE.newClient(indexDirectory, true, false);
-			String url = ClientFactory.INSTANCE.properties.getSilentBackupUrl();
-			if (url != null && !url.isEmpty())
-				client.getIndexAbstract().addUpdateInterface(new SilentBackupReplication(client, url));
+			client = ClientFactory.INSTANCE
+					.newClient(indexDirectory, true, false, ClientFactory.INSTANCE.properties.getSilentBackupUrl());
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
@@ -285,11 +266,9 @@ public class ClientCatalog {
 	/**
 	 * Tests if an index exists
 	 *
-	 * @param indexName
-	 *            The name of an index
+	 * @param indexName The name of an index
 	 * @return true if the index exist
-	 * @throws SearchLibException
-	 *             inherited error
+	 * @throws SearchLibException inherited error
 	 */
 	public static final boolean exists(String indexName) throws SearchLibException {
 		return exists(null, indexName);
@@ -322,17 +301,12 @@ public class ClientCatalog {
 	/**
 	 * Create a new index.
 	 *
-	 * @param indexName
-	 *            The name of the index.
-	 * @param templateName
-	 *            The name of the template (EMPTY_INDEX, WEB_CRAWLER,
-	 *            FILE_CRAWLER)
-	 * @param remoteURI
-	 *            the remote URI
-	 * @throws IOException
-	 *             inherited error
-	 * @throws SearchLibException
-	 *             inherited error
+	 * @param indexName    The name of the index.
+	 * @param templateName The name of the template (EMPTY_INDEX, WEB_CRAWLER,
+	 *                     FILE_CRAWLER)
+	 * @param remoteURI    the remote URI
+	 * @throws IOException        inherited error
+	 * @throws SearchLibException inherited error
 	 */
 	public static void createIndex(String indexName, String templateName, URI remoteURI)
 			throws SearchLibException, IOException {
@@ -360,14 +334,10 @@ public class ClientCatalog {
 	/**
 	 * Delete an index.
 	 *
-	 * @param indexName
-	 *            The name of the index
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws NamingException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param indexName The name of the index
+	 * @throws SearchLibException inherited error
+	 * @throws NamingException    inherited error
+	 * @throws IOException        inherited error
 	 */
 	public static void eraseIndex(String indexName) throws SearchLibException, NamingException, IOException {
 		eraseIndex(null, indexName);
@@ -576,7 +546,8 @@ public class ClientCatalog {
 					if (!pathToMoveFile.delete())
 						throw new IOException("Unable to delete the file: " + pathToMoveFile.getAbsolutePath());
 				}
-				newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
+				newClient = ClientFactory.INSTANCE
+						.newClient(clientDir, true, true, ClientFactory.INSTANCE.properties.getSilentBackupUrl());
 				newClient.writeReplCheck();
 			} finally {
 				unlockClients(clientDepends);
@@ -596,7 +567,8 @@ public class ClientCatalog {
 		try {
 			client.close();
 			new ReplicationMerge(tempDir, clientDir);
-			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true);
+			newClient = ClientFactory.INSTANCE
+					.newClient(clientDir, true, true, ClientFactory.INSTANCE.properties.getSilentBackupUrl());
 			newClient.writeReplCheck();
 		} finally {
 			unlockClientDir(clientDir, newClient);

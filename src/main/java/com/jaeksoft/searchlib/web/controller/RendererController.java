@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web.controller;
@@ -78,11 +78,9 @@ public class RendererController extends CommonController {
 
 		private Renderer deleteRenderer;
 
-		protected DeleteAlert(Renderer deleteRenderer)
-				throws InterruptedException {
-			super("Please, confirm that you want to delete the renderer: "
-					+ deleteRenderer.getName(), Messagebox.YES | Messagebox.NO,
-					Messagebox.QUESTION);
+		protected DeleteAlert(Renderer deleteRenderer) throws InterruptedException {
+			super("Please, confirm that you want to delete the renderer: " + deleteRenderer.getName(),
+					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
 			this.deleteRenderer = deleteRenderer;
 		}
 
@@ -125,15 +123,13 @@ public class RendererController extends CommonController {
 		if (client == null)
 			return null;
 		List<String> requestList = new ArrayList<String>(0);
-		client.getRequestMap().getNameList(requestList,
-				RequestTypeEnum.SearchRequest,
-				RequestTypeEnum.SearchFieldRequest);
+		client.getRequestMap()
+				.getNameList(requestList, RequestTypeEnum.SearchRequest, RequestTypeEnum.SearchFieldRequest);
 		return requestList;
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return selectedRenderer == null ? "Create a new renderer"
-				: "Edit the renderer: " + selectedRenderer.getName();
+		return selectedRenderer == null ? "Create a new renderer" : "Edit the renderer: " + selectedRenderer.getName();
 	}
 
 	public boolean isEditing() {
@@ -173,8 +169,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void doEdit(@BindingParam("item") Renderer renderer)
-			throws SearchLibException {
+	public void doEdit(@BindingParam("item") Renderer renderer) throws SearchLibException {
 		selectedRenderer = renderer;
 		currentRenderer = new Renderer(renderer);
 		currentRendererField = new RendererField();
@@ -185,8 +180,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void doDelete(@BindingParam("item") Renderer renderer)
-			throws InterruptedException {
+	public void doDelete(@BindingParam("item") Renderer renderer) throws InterruptedException {
 		new DeleteAlert(renderer);
 	}
 
@@ -232,10 +226,9 @@ public class RendererController extends CommonController {
 
 	@Command
 	public void onLogFieldAdd() throws SearchLibException, InterruptedException {
-		if (currentRendererLogField.getLogParameterEnum() == null
-				|| currentRendererLogField.getCustomlogItem().equals("")
-				|| RendererLogParameterEnum.find(currentRendererLogField
-						.getLogParameterEnum().name()) == null)
+		if (currentRendererLogField.getLogParameterEnum() == null || currentRendererLogField.getCustomlogItem()
+				.equals("")
+				|| RendererLogParameterEnum.find(currentRendererLogField.getLogParameterEnum().name()) == null)
 			new AlertController("FieldName / Parameter cannot be null");
 		else {
 			if (currentRendererLogField != null)
@@ -259,57 +252,48 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onLogFieldRemove(
-			@BindingParam("renderLogFieldItem") RendererLogField rendererlogField)
+	public void onLogFieldRemove(@BindingParam("renderLogFieldItem") RendererLogField rendererlogField)
 			throws SearchLibException, InterruptedException {
 		currentRenderer.removeLogField(rendererlogField);
 		reload();
 	}
 
 	@Command
-	public void onRendererSortRemove(
-			@BindingParam("rendererSort") RendererSort rendererSort)
+	public void onRendererSortRemove(@BindingParam("rendererSort") RendererSort rendererSort)
 			throws SearchLibException, InterruptedException {
 		currentRenderer.removeSort(rendererSort);
 		reload();
 	}
 
 	@Command
-	public void onRendererFieldRemove(
-			@BindingParam("rendererFieldItem") RendererField rendererField)
+	public void onRendererFieldRemove(@BindingParam("rendererFieldItem") RendererField rendererField)
 			throws SearchLibException {
 		currentRenderer.removeField(rendererField);
 		reload();
 	}
 
 	@Command
-	public void onRendererFieldUp(
-			@BindingParam("rendererFieldItem") RendererField rendererField)
+	public void onRendererFieldUp(@BindingParam("rendererFieldItem") RendererField rendererField)
 			throws SearchLibException {
 		currentRenderer.fieldUp(rendererField);
 		reload();
 	}
 
 	@Command
-	public void onRendererFieldDown(
-			@BindingParam("rendererFieldItem") RendererField rendererField)
+	public void onRendererFieldDown(@BindingParam("rendererFieldItem") RendererField rendererField)
 			throws SearchLibException {
 		currentRenderer.fieldDown(rendererField);
 		reload();
 	}
 
 	@Command
-	public void onRendererSortUp(
-			@BindingParam("rendererSort") RendererSort rendererSort)
-			throws SearchLibException {
+	public void onRendererSortUp(@BindingParam("rendererSort") RendererSort rendererSort) throws SearchLibException {
 		currentRenderer.sortUp(rendererSort);
 		reload();
 	}
 
 	@Command
-	public void onRendererSortDown(
-			@BindingParam("rendererSort") RendererSort rendererSort)
-			throws SearchLibException {
+	public void onRendererSortDown(@BindingParam("rendererSort") RendererSort rendererSort) throws SearchLibException {
 		currentRenderer.sortDown(rendererSort);
 		reload();
 	}
@@ -323,8 +307,7 @@ public class RendererController extends CommonController {
 
 	@Command
 	public void onRendererFieldDefaultProperties()
-			throws InstantiationException, IllegalAccessException,
-			SearchLibException, IOException {
+			throws InstantiationException, IllegalAccessException, SearchLibException, IOException {
 		currentRendererField.setDefaultWidgetProperties();
 		reload();
 	}
@@ -337,8 +320,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onRendererFilterRemove(
-			@BindingParam("rendererFilterItem") RendererFilter rendererFilter)
+	public void onRendererFilterRemove(@BindingParam("rendererFilterItem") RendererFilter rendererFilter)
 			throws SearchLibException {
 		currentRenderer.removeFilter(rendererFilter);
 		reload();
@@ -346,8 +328,7 @@ public class RendererController extends CommonController {
 
 	@Command
 	public void onRendererFilterDefaultProperties()
-			throws InstantiationException, IllegalAccessException,
-			SearchLibException, IOException {
+			throws InstantiationException, IllegalAccessException, SearchLibException, IOException {
 		currentRendererFilter.setDefaultProperties();
 		reload();
 	}
@@ -367,8 +348,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onSave() throws SearchLibException,
-			UnsupportedEncodingException {
+	public void onSave() throws SearchLibException, UnsupportedEncodingException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -381,8 +361,7 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onSaveAndClose() throws UnsupportedEncodingException,
-			SearchLibException {
+	public void onSaveAndClose() throws UnsupportedEncodingException, SearchLibException {
 		onSave();
 		onCancel();
 	}
@@ -393,12 +372,10 @@ public class RendererController extends CommonController {
 		reload();
 	}
 
-	public String getIframeHtmlCode() throws UnsupportedEncodingException,
-			InterruptedException {
+	public String getIframeHtmlCode() throws UnsupportedEncodingException, InterruptedException {
 		if (currentRenderer == null)
 			return null;
-		return currentRenderer.getIFrameHtmlCode(getIframeWidthPx(),
-				getIframeHeightPx());
+		return currentRenderer.getIFrameHtmlCode(getIframeWidthPx(), getIframeHeightPx());
 	}
 
 	public boolean isTestable() {
@@ -417,8 +394,7 @@ public class RendererController extends CommonController {
 		return selectedRendererField;
 	}
 
-	public void setSelectedRendererField(RendererField field)
-			throws SearchLibException {
+	public void setSelectedRendererField(RendererField field) throws SearchLibException {
 		selectedRendererField = field;
 		currentRendererField = new RendererField(field);
 		reload();
@@ -432,8 +408,7 @@ public class RendererController extends CommonController {
 		return selectedRendererFilter;
 	}
 
-	public void setSelectedRendererFilter(RendererFilter filter)
-			throws SearchLibException {
+	public void setSelectedRendererFilter(RendererFilter filter) throws SearchLibException {
 		selectedRendererFilter = filter;
 		currentRendererFilter = new RendererFilter(filter);
 		reload();
@@ -447,8 +422,7 @@ public class RendererController extends CommonController {
 		return selectedRendererSort;
 	}
 
-	public void setSelectedRendererSort(RendererSort sort)
-			throws SearchLibException {
+	public void setSelectedRendererSort(RendererSort sort) throws SearchLibException {
 		selectedRendererSort = sort;
 		currentRendererSort = new RendererSort(sort);
 		reload();
@@ -459,13 +433,11 @@ public class RendererController extends CommonController {
 	}
 
 	public Integer getIframeWidth() {
-		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_WIDTH,
-				new Integer(700));
+		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_WIDTH, new Integer(700));
 	}
 
 	public Integer getIframeHeight() {
-		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_HEIGHT,
-				new Integer(400));
+		return (Integer) getAttribute(ScopeAttribute.RENDERER_IFRAME_HEIGHT, new Integer(400));
 	}
 
 	public String getIframeWidthPx() {
@@ -502,8 +474,7 @@ public class RendererController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return (AbstractSearchRequest) client.getRequestMap().get(
-				currentRenderer.getRequestName());
+		return (AbstractSearchRequest) client.getRequestMap().get(currentRenderer.getRequestName());
 	}
 
 	public List<Integer> getFieldSourceList() throws SearchLibException {
@@ -546,8 +517,7 @@ public class RendererController extends CommonController {
 			Client client = ClientCatalog.getClient(joinItem.getIndexName());
 			if (client == null)
 				return null;
-			request = (AbstractSearchRequest) client.getRequestMap().get(
-					joinItem.getQueryTemplate());
+			request = (AbstractSearchRequest) client.getRequestMap().get(joinItem.getQueryTemplate());
 			if (request == null)
 				return null;
 		}
@@ -589,8 +559,7 @@ public class RendererController extends CommonController {
 		return currentRendererLogField;
 	}
 
-	public void setCurrentRendererLogField(
-			RendererLogField currentRendererLogField) {
+	public void setCurrentRendererLogField(RendererLogField currentRendererLogField) {
 		this.currentRendererLogField = currentRendererLogField;
 	}
 
@@ -625,10 +594,8 @@ public class RendererController extends CommonController {
 	}
 
 	@Command
-	public void onTestAuth() throws SearchLibException, IOException,
-			InterruptedException {
-		AuthPluginInterface.User user = currentRenderer.testAuthRequest(
-				testLogin, testPassword);
+	public void onTestAuth() throws SearchLibException, IOException, InterruptedException {
+		AuthPluginInterface.User user = currentRenderer.testAuthRequest(testLogin, testPassword);
 		if (user == null)
 			throw new IOException("Authentication failed.");
 		StringWriter sw = null;

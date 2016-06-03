@@ -49,7 +49,7 @@ public class SilentBackupReplication implements UpdateInterfaces.After, UpdateIn
 		}
 	}
 
-	private void doReplication() throws SearchLibException {
+	public void doReplication() throws SearchLibException {
 		try {
 			synchronized (this) {
 				Exception exception =

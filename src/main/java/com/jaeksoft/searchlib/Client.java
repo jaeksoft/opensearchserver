@@ -1,49 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermEnum;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
@@ -61,33 +40,45 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermEnum;
+import org.w3c.dom.Node;
+
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Client extends Config {
 
-	public Client(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
-			throws SearchLibException {
-		super(initFileOrDir, null, createIndexIfNotExists, disableCrawler);
+	public Client(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler,
+			String silentReplicationUrl) throws SearchLibException {
+		super(initFileOrDir, null, createIndexIfNotExists, disableCrawler, silentReplicationUrl);
 	}
 
 	public Client(File initFileOrDir, String resourceName, boolean createIndexIfNotExists) throws SearchLibException {
-		super(initFileOrDir, resourceName, createIndexIfNotExists, false);
+		super(initFileOrDir, resourceName, createIndexIfNotExists, false, null);
 	}
 
 	public Client(File initFile) throws SearchLibException {
-		this(initFile, false, false);
+		this(initFile, false, false, null);
 	}
 
 	/**
 	 * Insert or update a document in the index. If an unique key is defined in
 	 * the schema, the document is updated if it already exists.
-	 * 
-	 * @param document
-	 *            the document to udpate
+	 *
+	 * @param document the document to udpate
 	 * @return true if the document has been updated
-	 * @throws IOException
-	 *             inherited error
-	 * @throws SearchLibException
-	 *             inherited error
+	 * @throws IOException        inherited error
+	 * @throws SearchLibException inherited error
 	 */
 	public boolean updateDocument(IndexDocument document) throws SearchLibException, IOException {
 		Timer timer = new Timer("Update document " + document.toString());
@@ -130,8 +121,9 @@ public class Client extends Config {
 	}
 
 	private final int updateDocList(int totalCount, int docCount, Collection<IndexDocument> docList,
-			InfoCallback infoCallBack) throws NoSuchAlgorithmException, IOException, URISyntaxException,
-					SearchLibException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+			InfoCallback infoCallBack)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException {
 		checkMaxStorageLimit();
 		checkMaxDocumentLimit();
 		docCount += updateDocuments(docList);
@@ -152,8 +144,8 @@ public class Client extends Config {
 
 	public int updateXmlDocuments(Node document, int bufferSize, CredentialItem urlDefaultCredential,
 			HttpDownloader httpDownloader, InfoCallback infoCallBack)
-					throws XPathExpressionException, NoSuchAlgorithmException, IOException, URISyntaxException,
-					SearchLibException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+			throws XPathExpressionException, NoSuchAlgorithmException, IOException, URISyntaxException,
+			SearchLibException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		List<Node> nodeList = DomUtils.getNodes(document, "index", "document");
 		Collection<IndexDocument> docList = new ArrayList<IndexDocument>(bufferSize);
 		int docCount = 0;
@@ -170,8 +162,8 @@ public class Client extends Config {
 
 	public int updateTextDocuments(StreamSource streamSource, String charset, Integer bufferSize, String capturePattern,
 			Integer langPosition, List<String> fieldList, InfoCallback infoCallBack)
-					throws SearchLibException, IOException, NoSuchAlgorithmException, URISyntaxException,
-					InstantiationException, IllegalAccessException, ClassNotFoundException {
+			throws SearchLibException, IOException, NoSuchAlgorithmException, URISyntaxException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException {
 		if (capturePattern == null)
 			throw new SearchLibException("No capture pattern");
 		if (fieldList == null || fieldList.size() == 0)
@@ -216,8 +208,8 @@ public class Client extends Config {
 				}
 				// Consecutive documents with same uniqueKey value are merged
 				// (multivalued)
-				if (uniqueField != null && lastDocument != null && uniqueValue != null
-						&& uniqueValue.equals(lastUniqueValue)) {
+				if (uniqueField != null && lastDocument != null && uniqueValue != null && uniqueValue
+						.equals(lastUniqueValue)) {
 					lastDocument.addIfNotAlreadyHere(document);
 					continue;
 				}

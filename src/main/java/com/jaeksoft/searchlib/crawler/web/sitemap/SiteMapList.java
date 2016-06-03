@@ -1,31 +1,42 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2010-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- *  
- *  Contributor: Richard Sinelle
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * Contributor: Richard Sinelle
  **/
 
 package com.jaeksoft.searchlib.crawler.web.sitemap;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -34,21 +45,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
-
-public class SiteMapList {
+public class SiteMapList implements XmlWriter.Interface {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -56,10 +53,9 @@ public class SiteMapList {
 	private final Map<String, Set<SiteMapItem>> sitemapMap;
 	private SiteMapItem[] sitemapArray;
 
-	public SiteMapList(File indexDir, String filename)
-			throws SearchLibException {
+	public SiteMapList(File indexDir, String filename) throws SearchLibException {
 		configFile = new File(indexDir, filename);
-		sitemapMap = new TreeMap<String, Set<SiteMapItem>>();
+		sitemapMap = new TreeMap<>();
 		sitemapArray = null;
 		try {
 			load();
@@ -74,8 +70,8 @@ public class SiteMapList {
 		}
 	}
 
-	private void load() throws ParserConfigurationException, SAXException,
-			IOException, XPathExpressionException, SearchLibException {
+	private void load() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
+			SearchLibException {
 		if (!configFile.exists())
 			return;
 		XPathParser xpp = new XPathParser(configFile);
@@ -101,7 +97,6 @@ public class SiteMapList {
 	}
 
 	/**
-	 *
 	 * @return return the size of sitemapMap
 	 */
 	public int getSize() {
@@ -115,8 +110,8 @@ public class SiteMapList {
 		}
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws IOException,
-			TransformerConfigurationException, SAXException {
+	@Override
+	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.w.lock();
 		try {
 			xmlWriter.startElement("siteMaps");
@@ -185,8 +180,8 @@ public class SiteMapList {
 		}
 	}
 
-	public Set<SiteMapUrl> load(String hostname, HttpDownloader downloader,
-			Set<SiteMapUrl> siteMapUrlSet) throws SearchLibException {
+	public Set<SiteMapUrl> load(String hostname, HttpDownloader downloader, Set<SiteMapUrl> siteMapUrlSet)
+			throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (siteMapUrlSet == null)

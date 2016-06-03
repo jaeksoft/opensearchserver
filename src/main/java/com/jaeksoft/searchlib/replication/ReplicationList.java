@@ -1,7 +1,7 @@
 /**
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2016 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -41,7 +41,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.TreeMap;
 
-public class ReplicationList {
+public class ReplicationList implements XmlWriter.Interface {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 	private TreeMap<String, ReplicationItem> replicationMap;
@@ -129,6 +129,7 @@ public class ReplicationList {
 		}
 	}
 
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
 		rwl.r.lock();
 		try {

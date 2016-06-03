@@ -1,38 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.lucene.search.BooleanQuery;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.util.FileUtils;
@@ -40,6 +30,14 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 import com.jaeksoft.searchlib.util.properties.PropertyManager;
 import com.jaeksoft.searchlib.web.StartStopListener;
+import org.apache.lucene.search.BooleanQuery;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class ClientFactory implements PropertyItemListener {
 
@@ -81,16 +79,16 @@ public class ClientFactory implements PropertyItemListener {
 
 	public ClientFactory() throws SearchLibException {
 		try {
-			properties = new InstanceProperties(
-					new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "properties.xml"));
+			properties =
+					new InstanceProperties(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "properties.xml"));
 			File advPropFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "advanced.xml");
 			advancedProperties = new PropertyManager(advPropFile);
-			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty("booleanQueryMaxClauseCount", 1024, null,
-					null);
+			booleanQueryMaxClauseCount =
+					advancedProperties.newIntegerProperty("booleanQueryMaxClauseCount", 1024, null, null);
 			hasBeenSet(booleanQueryMaxClauseCount);
 			booleanQueryMaxClauseCount.addListener(this);
-			defaultWebBrowserDriver = advancedProperties.newStringProperty("defaultWebBrowserDriver",
-					BrowserDriverEnum.FIREFOX.getName());
+			defaultWebBrowserDriver = advancedProperties
+					.newStringProperty("defaultWebBrowserDriver", BrowserDriverEnum.FIREFOX.getName());
 			defaultWebBrowserDriver.addListener(this);
 			soapActive = advancedProperties.newBooleanProperty("soapActive", false);
 			soapActive.addListener(this);
@@ -107,8 +105,8 @@ public class ClientFactory implements PropertyItemListener {
 			smtpUseSsl.addListener(this);
 			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls", false);
 			smtpUseTls.addListener(this);
-			smtpSenderEmail = advancedProperties.newStringProperty("smtpSenderEmail",
-					"no-reply@open-search-server.com");
+			smtpSenderEmail =
+					advancedProperties.newStringProperty("smtpSenderEmail", "no-reply@open-search-server.com");
 			smtpSenderEmail.addListener(this);
 			smtpSenderName = advancedProperties.newStringProperty("smtpSenderName", "");
 			smtpSenderName.addListener(this);
@@ -135,9 +133,9 @@ public class ClientFactory implements PropertyItemListener {
 		}
 	}
 
-	protected Client newClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
-			throws SearchLibException {
-		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler);
+	protected Client newClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler,
+			String silentReplicationUrl) throws SearchLibException {
+		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler, silentReplicationUrl);
 	}
 
 	final public Client getNewClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
@@ -149,7 +147,7 @@ public class ClientFactory implements PropertyItemListener {
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-		return newClient(initFileOrDir, createIndexIfNotExists, disableCrawler);
+		return newClient(initFileOrDir, createIndexIfNotExists, disableCrawler, null);
 	}
 
 	public static void setInstance(ClientFactory cf) {

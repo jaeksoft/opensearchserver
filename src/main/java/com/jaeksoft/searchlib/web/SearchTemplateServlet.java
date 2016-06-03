@@ -1,68 +1,58 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.IOException;
-
-import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.DOMException;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.request.MoreLikeThisRequest;
-import com.jaeksoft.searchlib.request.RequestTypeEnum;
-import com.jaeksoft.searchlib.request.ReturnField;
-import com.jaeksoft.searchlib.request.SearchPatternRequest;
-import com.jaeksoft.searchlib.request.SpellCheckRequest;
+import com.jaeksoft.searchlib.request.*;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckDistanceEnum;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckField;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import org.w3c.dom.DOMException;
+import org.xml.sax.SAXException;
+
+import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
 
 public class SearchTemplateServlet extends AbstractServlet {
 
 	private static final long serialVersionUID = -6279193437936726711L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 
 		boolean done = false;
 		try {
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.INDEX_QUERY))
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 				throw new SearchLibException("Not permitted");
 			String cmd = transaction.getParameterString("cmd");
 			if (cmd.equalsIgnoreCase("create")) {
@@ -110,27 +100,22 @@ public class SearchTemplateServlet extends AbstractServlet {
 	}
 
 	private boolean setSnippetField(User user, ServletTransaction transaction)
-			throws SearchLibException, NamingException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+			throws SearchLibException, NamingException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
 
 		String searchTemplate = transaction.getParameterString("qt.name");
-		String maxSnippetSize = transaction
-				.getParameterString("qt.maxSnippetSize");
+		String maxSnippetSize = transaction.getParameterString("qt.maxSnippetSize");
 		String tag = transaction.getParameterString("qt.tag");
 		String snippetField = transaction.getParameterString("snippetfield");
 		String fragmenter = transaction.getParameterString("qt.fragmenter");
 		Client client = transaction.getClient();
 		if (client.getRequestMap().get(searchTemplate) != null) {
-			AbstractSearchRequest request = (AbstractSearchRequest) client
-					.getRequestMap().get(searchTemplate);
+			AbstractSearchRequest request = (AbstractSearchRequest) client.getRequestMap().get(searchTemplate);
 			if (snippetField != null) {
-				request.getSnippetFieldList().put(
-						new SnippetField(snippetField));
-				SnippetField snippetFieldParameter = request
-						.getSnippetFieldList().get(snippetField);
+				request.getSnippetFieldList().put(new SnippetField(snippetField));
+				SnippetField snippetFieldParameter = request.getSnippetFieldList().get(snippetField);
 				if (maxSnippetSize != null && !maxSnippetSize.equals(""))
-					snippetFieldParameter.setMaxSnippetSize(Integer
-							.parseInt(maxSnippetSize));
+					snippetFieldParameter.setMaxSnippetSize(Integer.parseInt(maxSnippetSize));
 				if (tag != null && !tag.equals(""))
 					snippetFieldParameter.setTag(tag);
 				if (fragmenter != null && !fragmenter.equals(""))
@@ -153,8 +138,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 		String returnField = transaction.getParameterString("returnfield");
 		Client client = transaction.getClient();
 		if (client.getRequestMap().get(searchTemplate) != null) {
-			AbstractSearchRequest request = (AbstractSearchRequest) client
-					.getRequestMap().get(searchTemplate);
+			AbstractSearchRequest request = (AbstractSearchRequest) client.getRequestMap().get(searchTemplate);
 			request.addReturnField(returnField);
 			client.getRequestMap().put(request);
 			client.saveRequests();
@@ -182,9 +166,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 		return true;
 	}
 
-	private void createMoreLikeThisTemplate(
-			MoreLikeThisRequest moreLikeThisRequest,
-			ServletTransaction transaction) throws ParseException {
+	private void createMoreLikeThisTemplate(MoreLikeThisRequest moreLikeThisRequest, ServletTransaction transaction)
+			throws ParseException {
 
 		String p;
 		if ((p = transaction.getParameterString("qt.name")) != null)
@@ -233,16 +216,14 @@ public class SearchTemplateServlet extends AbstractServlet {
 		if ((p = transaction.getParameterString("qt.fields")) != null) {
 			String fields[] = p.split("\\,");
 			for (String mltField : fields) {
-				moreLikeThisRequest.getFieldList().put(
-						new ReturnField(mltField));
+				moreLikeThisRequest.getFieldList().put(new ReturnField(mltField));
 			}
 		}
 
 		if ((p = transaction.getParameterString("qt.returnfields")) != null) {
 			String returnFields[] = p.split("\\,");
 			for (String mltReturnField : returnFields) {
-				moreLikeThisRequest.getReturnFieldList().put(
-						new ReturnField(mltReturnField));
+				moreLikeThisRequest.getReturnFieldList().put(new ReturnField(mltReturnField));
 			}
 		}
 
@@ -263,8 +244,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 
 	}
 
-	private void createSearchTemplate(SearchPatternRequest request,
-			ServletTransaction transaction) {
+	private void createSearchTemplate(SearchPatternRequest request, ServletTransaction transaction) {
 		String p;
 		if ((p = transaction.getParameterString("qt.name")) != null)
 			request.setRequestName(p);
@@ -287,8 +267,7 @@ public class SearchTemplateServlet extends AbstractServlet {
 
 	}
 
-	private void createSpellTemplate(SpellCheckRequest spellCheckRequest,
-			ServletTransaction transaction) {
+	private void createSpellTemplate(SpellCheckRequest spellCheckRequest, ServletTransaction transaction) {
 		SpellCheckField spellCheckField = new SpellCheckField();
 
 		String p;
@@ -315,30 +294,23 @@ public class SearchTemplateServlet extends AbstractServlet {
 	}
 
 	private boolean createTemplate(User user, ServletTransaction transaction)
-			throws InterruptedException, SearchLibException, NamingException,
-			ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, DOMException, ParseException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
+			throws InterruptedException, SearchLibException, NamingException, ParserConfigurationException,
+			SAXException, IOException, XPathExpressionException, DOMException, ParseException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
 		Client client = transaction.getClient();
 		String queryType = transaction.getParameterString("qt.type");
-		if (queryType == null
-				|| RequestTypeEnum.SearchRequest.name().equalsIgnoreCase(
-						queryType)) {
+		if (queryType == null || RequestTypeEnum.SearchRequest.name().equalsIgnoreCase(queryType)) {
 			SearchPatternRequest request = new SearchPatternRequest(client);
 			createSearchTemplate(request, transaction);
 			client.getRequestMap().put(request);
 		}
-		if (RequestTypeEnum.SpellCheckRequest.name()
-				.equalsIgnoreCase(queryType)) {
+		if (RequestTypeEnum.SpellCheckRequest.name().equalsIgnoreCase(queryType)) {
 			SpellCheckRequest spellCheckRequest = new SpellCheckRequest(client);
 			createSpellTemplate(spellCheckRequest, transaction);
 			client.getRequestMap().put(spellCheckRequest);
 		}
-		if (RequestTypeEnum.MoreLikeThisRequest.name().equalsIgnoreCase(
-				queryType)) {
-			MoreLikeThisRequest moreLikeThisRequest = new MoreLikeThisRequest(
-					client);
+		if (RequestTypeEnum.MoreLikeThisRequest.name().equalsIgnoreCase(queryType)) {
+			MoreLikeThisRequest moreLikeThisRequest = new MoreLikeThisRequest(client);
 			createMoreLikeThisTemplate(moreLikeThisRequest, transaction);
 			client.getRequestMap().put(moreLikeThisRequest);
 		}
