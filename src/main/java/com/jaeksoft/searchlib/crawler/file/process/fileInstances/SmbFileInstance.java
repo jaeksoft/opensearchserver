@@ -1,7 +1,7 @@
 /**
  * License Agreement for OpenSearchServer
  * <p/>
- * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2016 Emmanuel Keller / Jaeksoft
  * <p/>
  * http://www.open-search-server.com
  * <p/>
@@ -21,7 +21,6 @@
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
 
 import com.jaeksoft.searchlib.Logging;
@@ -30,10 +29,10 @@ import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract.SecurityInterface;
 import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
+import com.jaeksoft.searchlib.util.Krb5Utils;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
-import com.sun.security.auth.module.Krb5LoginModule;
 import jcifs.smb.*;
 
 import javax.security.auth.Subject;
@@ -44,9 +43,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 
 public class SmbFileInstance extends FileInstanceAbstract implements SecurityInterface {
@@ -64,7 +61,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			System.setProperty("jcifs.smb.client.signingPreferred", "true");
 	}
 
-	public static enum SmbSecurityPermissions {
+	public enum SmbSecurityPermissions {
 
 		SHARE_PERMISSIONS("Share permissions"),
 
@@ -74,7 +71,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 
 		private final String label;
 
-		private SmbSecurityPermissions(String label) {
+		SmbSecurityPermissions(String label) {
 			this.label = label;
 		}
 
@@ -92,6 +89,9 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 
 	private SmbFile smbFileStore;
 
+	private SmbExtendedAuthenticator smbExtAuth;
+	private NtlmPasswordAuthentication smbNtlmAuth;
+
 	public SmbFileInstance() {
 		smbFileStore = null;
 	}
@@ -100,6 +100,13 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			throws URISyntaxException, UnsupportedEncodingException {
 		init(filePathItem, parent, LinkUtils.concatPath(parent.getPath(), smbFile.getName()));
 		this.smbFileStore = smbFile;
+		if (parent != null) {
+			smbExtAuth = parent.smbExtAuth;
+			smbNtlmAuth = parent.smbNtlmAuth;
+		} else {
+			smbExtAuth = null;
+			smbNtlmAuth = null;
+		}
 	}
 
 	@Override
@@ -107,51 +114,41 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 		return new URI("smb", filePathItem.getHost(), getPath(), null);
 	}
 
+	synchronized SmbExtendedAuthenticator getKrb5Authenticator() throws IOException {
+		if (smbExtAuth != null)
+			return smbExtAuth;
+		try {
+			final Subject subject = Krb5Utils.loginWithKeyTab(filePathItem.getKrb5IniPath(), filePathItem.getUsername(),
+					filePathItem.getKeyTabPath());
+			smbExtAuth = new Kerb5Authenticator(subject);
+			return smbExtAuth;
+		} catch (LoginException e) {
+			throw new IOException(e);
+		}
+	}
+
+	synchronized NtlmPasswordAuthentication getNtlmAuthentication() {
+		if (smbNtlmAuth != null)
+			return smbNtlmAuth;
+		smbNtlmAuth = new NtlmPasswordAuthentication(filePathItem.getDomain(), filePathItem.getUsername(),
+				filePathItem.getPassword());
+		return smbNtlmAuth;
+	}
+
 	protected SmbFile getSmbFile() throws IOException {
 		if (smbFileStore != null)
 			return smbFileStore;
-		String context = StringUtils.fastConcat("smb://", getFilePathItem().getHost());
-		if (filePathItem.isGuest()) {
+		final String context = StringUtils.fastConcat("smb://", getFilePathItem().getHost());
+		if (filePathItem.isGuest())
 			smbFileStore = new SmbFile(context, getPath());
-		} else if (filePathItem.getKeyTabPath() != null) {
-			Subject subject = new Subject();
-			try {
-				login(subject, filePathItem);
-			} catch (LoginException e) {
-				throw new IOException(e);
-			}
-			Kerb5Authenticator auth = new Kerb5Authenticator(subject);
-			smbFileStore = new SmbFile(getURI().toURL(), auth);
-		} else {
-			NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(filePathItem.getDomain(),
-					filePathItem.getUsername(), filePathItem.getPassword());
-			smbFileStore = new SmbFile(context, getPath(), auth);
-		}
+		else if (filePathItem.getKeyTabPath() != null)
+			smbFileStore = new SmbFile(getURI().toURL(), getKrb5Authenticator());
+		else
+			smbFileStore = new SmbFile(context, getPath(), getNtlmAuthentication());
 		if (Logging.isDebug)
 			Logging.debug("SMB Connect to " + smbFileStore.getURL().toString());
 		return smbFileStore;
 
-	}
-
-	public static void login(Subject subject, FilePathItem filePathItem) throws LoginException {
-
-		Map<String, Object> state = new HashMap<String, Object>();
-		state.put("java.security.krb5.conf", filePathItem.getKrb5IniPath());
-
-		Map<String, Object> option = new HashMap<String, Object>();
-		option.put("debug", "true");
-		// option.put("principal", PRINCIPAL);
-		option.put("useKeyTab", "true");
-		option.put("keyTab", filePathItem.getKeyTabPath());
-		option.put("refreshKrb5Config", "true");
-		option.put("doNotPrompt", "true");
-		option.put("storeKey", "true");
-
-		Krb5LoginModule login = new Krb5LoginModule();
-		login.initialize(subject, null, state, option);
-
-		if (login.login())
-			login.commit();
 	}
 
 	@Override
@@ -289,9 +286,9 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 		for (ACE ace : aces) {
 			if ((ace.getAccessMask() & ACE.FILE_READ_DATA) == 0)
 				continue;
-			SID sid = ace.getSID();
-			SecurityAccess accessName = new SecurityAccess();
-			SecurityAccess accessSid = new SecurityAccess();
+			final SID sid = ace.getSID();
+			final SecurityAccess accessName = new SecurityAccess();
+			final SecurityAccess accessSid = new SecurityAccess();
 			accessName.setId(sid.toDisplayString().toLowerCase());
 			accessSid.setId(sid.toString());
 			if (ace.isAllow()) {
@@ -302,6 +299,7 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 				accessSid.setGrant(SecurityAccess.Grant.DENY);
 			}
 			switch (sid.getType()) {
+			case SID.SID_TYPE_USE_NONE:
 			case SID.SID_TYPE_USER:
 				accessName.setType(SecurityAccess.Type.USER);
 				accessSid.setType(SecurityAccess.Type.USER);
@@ -316,7 +314,6 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 			case SID.SID_TYPE_DELETED:
 			case SID.SID_TYPE_INVALID:
 			case SID.SID_TYPE_UNKNOWN:
-			case SID.SID_TYPE_USE_NONE:
 				break;
 			}
 			accesses.add(accessName);
@@ -347,8 +344,8 @@ public class SmbFileInstance extends FileInstanceAbstract implements SecurityInt
 	}
 
 	private List<SecurityAccess> getSecurityOnce() throws IOException {
-		SmbFile smbFile = getSmbFile();
-		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		final SmbFile smbFile = getSmbFile();
+		final List<SecurityAccess> accesses = new ArrayList<>();
 		SmbSecurityPermissions smbSecurityPermissions = filePathItem.getSmbSecurityPermissions();
 		if (smbSecurityPermissions == null)
 			smbSecurityPermissions = SmbSecurityPermissions.FILE_PERMISSIONS;
