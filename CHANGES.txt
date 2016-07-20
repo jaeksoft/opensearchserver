@@ -1,4 +1,12 @@
 release date=12:00 04.04.2016,version=1.5.14,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1796: Silent backup replication
+ * GH-1791: Disabling the Scheduler, the WebCrawler and the FileCrawler
+ * GH-1780: Create a Scheduler using Rest API
+ * GH-1773: Crawler - API to delete URL browser
+ * GH-1768: Limit the crawl depth in the web crawler
+ * GH-1756: Crawler Status for All Crawlers trough API Call
+ * GH-1755: Add and Remove sitemaps from index trough the REST API / php client
+ * GH-1749: Web service method for web properties
  * GH-1746: Add HTTP connection time out
  * GH-1745: Can't access Privileges tab in last snapshots
  * GH-1729: org.apache.cxf.interceptor.Fault, Tomcat 7.0.53, when starting crawl
