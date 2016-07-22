@@ -93,7 +93,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			UniAddress dc = UniAddress.getByName(authServer, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(authServer,
+			activeDirectory = new ActiveDirectory(renderer.getAuthServer(),
 					ntlmAuth.getUsername(), ntlmAuth.getPassword(), domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
@@ -113,7 +113,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			Logging.info("USER authenticated: " + user);
 
 			user = new User(userId.toLowerCase(), username.toLowerCase(),
-					password, ActiveDirectory.toArray(groups),
+					password, ActiveDirectory.toArray(groups, "everyone"),
 					ActiveDirectory.getDisplayString(domain, username));
 			AuthUserCache.INSTANCE.add(username, domain, user);
 			return user;
@@ -144,15 +144,16 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 		try {
 			String server = args[0];
 			String domain = args[1];
-			String username = args[2];
+			String authUser = args[2];
 			String password = args[3];
+			String username = args[4];
 
 			NtlmPasswordAuthentication ntlmAuth = new NtlmPasswordAuthentication(
-					domain, username, password);
+					domain, authUser, password);
 			UniAddress dc = UniAddress.getByName(server, true);
 			SmbSession.logon(dc, ntlmAuth);
 
-			activeDirectory = new ActiveDirectory(server, username, password,
+			activeDirectory = new ActiveDirectory(server, authUser, password,
 					domain);
 
 			NamingEnumeration<SearchResult> result = activeDirectory
@@ -164,6 +165,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 				return;
 			}
 			String userId = ActiveDirectory.getObjectSID(attrs);
+			System.out.println("SID: " + userId);
 			List<ADGroup> groups = new ArrayList<ADGroup>();
 			activeDirectory.findUserGroups(attrs, groups);
 
@@ -173,7 +175,7 @@ public class AuthPluginNtlmLogin extends AuthPluginNtlm {
 			if (!StringUtils.isEmpty(dnUser))
 				activeDirectory.findUserGroup(dnUser, groups);
 
-			String[] groupArray = ActiveDirectory.toArray(groups);
+			String[] groupArray = ActiveDirectory.toArray(groups, "everyone");
 			System.out.println(new User(userId, username, password, groupArray,
 					ActiveDirectory.getDisplayString(domain, username)));
 			for (String group : groupArray)

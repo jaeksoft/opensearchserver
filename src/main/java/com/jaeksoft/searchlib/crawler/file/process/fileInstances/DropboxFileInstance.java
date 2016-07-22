@@ -44,11 +44,9 @@ import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 
 public class DropboxFileInstance extends FileInstanceAbstract {
 
-	private static final DbxRequestConfig DBX_REQUEST_CONFIG = new DbxRequestConfig(
-			"opensearcjserver/0.1", "en");
+	private static final DbxRequestConfig DBX_REQUEST_CONFIG = new DbxRequestConfig("opensearcjserver/0.1", "en");
 
-	private static final DbxAppInfo DBX_APP_INFO = new DbxAppInfo(
-			"2q1itz9v9manpv9", "hjpihpchb0xwd3d");
+	private static final DbxAppInfo DBX_APP_INFO = new DbxAppInfo("2q1itz9v9manpv9", "hjpihpchb0xwd3d");
 
 	private DbxEntry dbxEntry;
 
@@ -56,10 +54,8 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 		super();
 	}
 
-	protected DropboxFileInstance(FilePathItem filePathItem,
-			DropboxFileInstance parent, DbxEntry dbxEntry)
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
+	protected DropboxFileInstance(FilePathItem filePathItem, DropboxFileInstance parent, DbxEntry dbxEntry)
+			throws URISyntaxException, UnsupportedEncodingException {
 		init(filePathItem, parent, dbxEntry.path);
 		this.dbxEntry = dbxEntry;
 	}
@@ -69,8 +65,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 		throw new SearchLibException("Not yet implemented");
 	}
 
-	public static String retrieveAccessToken(DbxWebAuth webAuth,
-			StringBuilder sbUid) throws SearchLibException {
+	public static String retrieveAccessToken(DbxWebAuth webAuth, StringBuilder sbUid) throws SearchLibException {
 		// TODO do the implementation
 		throw new SearchLibException("Not yet implemented");
 	}
@@ -81,12 +76,12 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public URI init() throws SearchLibException, URISyntaxException {
+	public URI init() throws URISyntaxException {
 		return new URI("dropbox", filePathItem.getHost(), getPath(), null);
 	}
 
 	@Override
-	public FileTypeEnum getFileType() throws SearchLibException {
+	public FileTypeEnum getFileType() {
 		if (dbxEntry == null) // ROOT
 			return FileTypeEnum.directory;
 		if (dbxEntry.isFolder())
@@ -95,31 +90,25 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException {
+	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, IOException {
 		try {
 			DbxClient dbxClient = connect();
 			DbxEntry.WithChildren entries;
 			entries = dbxClient.getMetadataWithChildren(getPath());
 			if (entries == null || entries.children == null)
 				return null;
-			FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[entries.children
-					.size()];
+			FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[entries.children.size()];
 			int i = 0;
 			for (DbxEntry entry : entries.children)
-				fileInstances[i++] = new DropboxFileInstance(filePathItem,
-						this, entry);
+				fileInstances[i++] = new DropboxFileInstance(filePathItem, this, entry);
 			return fileInstances;
 		} catch (DbxException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException, IOException {
 		try {
 			DbxClient dbxClient = connect();
 			DbxEntry.WithChildren entries;
@@ -134,18 +123,15 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 			int i = 0;
 			for (DbxEntry entry : entries.children)
 				if (entry.isFile())
-					fileInstances[i++] = new DropboxFileInstance(filePathItem,
-							this, entry);
+					fileInstances[i++] = new DropboxFileInstance(filePathItem, this, entry);
 			return fileInstances;
 		} catch (DbxException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+			throw new IOException(e);
 		}
 	}
 
 	@Override
-	public Long getLastModified() throws SearchLibException {
+	public Long getLastModified() {
 		if (dbxEntry == null)
 			return null;
 		Date dt = null;
@@ -157,7 +143,7 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public Long getFileSize() throws SearchLibException {
+	public Long getFileSize() {
 		if (dbxEntry == null)
 			return null;
 		if (dbxEntry instanceof DbxEntry.File)
@@ -166,10 +152,15 @@ public class DropboxFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public String getFileName() throws SearchLibException {
+	public String getFileName() {
 		if (dbxEntry == null)
 			return null;
 		return dbxEntry.name;
+	}
+
+	@Override
+	public void delete() throws IOException {
+		throw new IOException("Delete not implemented");
 	}
 
 	@Override

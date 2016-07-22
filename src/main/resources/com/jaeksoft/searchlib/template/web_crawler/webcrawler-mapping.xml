@@ -25,6 +25,5 @@
 	<link source="subhost" target="subhost" />
 	<link source="lang" target="lang" />
 	<link source="url" target="url" />
-	<link source="crawlDate" target="crawlDate" />
 	<link source="backlinkCount" target="backlinkCount" />
 </map>

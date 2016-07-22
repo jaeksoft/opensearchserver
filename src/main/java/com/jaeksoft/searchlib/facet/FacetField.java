@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -45,6 +45,7 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Facet.OrderByEnum;
 
 public class FacetField extends AbstractField<FacetField> {
 
@@ -59,6 +60,10 @@ public class FacetField extends AbstractField<FacetField> {
 
 	private boolean postCollapsing;
 
+	private Integer limit;
+
+	private OrderByEnum orderBy;
+
 	private List<Range> ranges;
 
 	public FacetField() {
@@ -70,14 +75,19 @@ public class FacetField extends AbstractField<FacetField> {
 		this.multivalued = field.multivalued;
 		this.postCollapsing = field.postCollapsing;
 		this.ranges = Range.duplicate(field.ranges);
+		this.orderBy = field.orderBy;
+		this.limit = field.limit;
 	}
 
 	public FacetField(String name, int minCount, boolean multivalued,
-			boolean postCollapsing, List<Range> ranges) {
+			boolean postCollapsing, Integer limit, OrderByEnum orderBy,
+			List<Range> ranges) {
 		super(name);
 		this.minCount = minCount;
 		this.multivalued = multivalued;
 		this.postCollapsing = postCollapsing;
+		this.limit = limit;
+		this.orderBy = orderBy;
 		this.ranges = ranges;
 	}
 
@@ -92,6 +102,14 @@ public class FacetField extends AbstractField<FacetField> {
 
 	public void setMinCount(int value) {
 		minCount = value;
+	}
+
+	public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer value) {
+		limit = value;
 	}
 
 	public boolean isCheckMultivalued() {
@@ -130,6 +148,14 @@ public class FacetField extends AbstractField<FacetField> {
 				|| "1".equalsIgnoreCase(value);
 	}
 
+	public OrderByEnum getOrderBy() {
+		return orderBy;
+	}
+
+	public void setOrderBy(OrderByEnum orderBy) {
+		this.orderBy = orderBy;
+	}
+
 	final public Facet getFacet(ReaderAbstract reader, SchemaField schemaField,
 			DocIdInterface notCollapsedDocs,
 			CollapseDocInterface collapsedDocs, Timer timer)
@@ -164,6 +190,9 @@ public class FacetField extends AbstractField<FacetField> {
 				"multivalued"));
 		boolean postCollapsing = "yes".equals(XPathParser.getAttributeString(
 				node, "postCollapsing"));
+		Integer limit = DomUtils.getAttributeInteger(node, "limit", null);
+		OrderByEnum orderBy = DomUtils.getAttributeEnum(node, "orderBy",
+				OrderByEnum.values(), null);
 		if (source == null)
 			return;
 		SchemaField field = source.get(fieldName);
@@ -174,7 +203,7 @@ public class FacetField extends AbstractField<FacetField> {
 		if (rangesNode != null)
 			ranges = Range.loadList(rangesNode);
 		FacetField facetField = new FacetField(field.getName(), minCount,
-				multivalued, postCollapsing, ranges);
+				multivalued, postCollapsing, limit, orderBy, ranges);
 		target.put(facetField);
 	}
 
@@ -202,14 +231,16 @@ public class FacetField extends AbstractField<FacetField> {
 			fieldName = value;
 
 		return new FacetField(fieldName, minCount, multivalued, postCollapsing,
-				null);
+				null, null, null);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter writer) throws SAXException {
 		writer.startElement("facetField", "name", name, "minCount", Integer
 				.toString(minCount), "multivalued", multivalued ? "yes" : "no",
-				"postCollapsing", postCollapsing ? "yes" : "no");
+				"postCollapsing", postCollapsing ? "yes" : "no", "limit",
+				limit == null ? null : limit.toString(), "orderBy",
+				orderBy == null ? null : orderBy.name());
 		Range.writeXml(ranges, "ranges", writer);
 		writer.endElement();
 	}

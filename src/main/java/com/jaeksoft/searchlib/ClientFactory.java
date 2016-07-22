@@ -1,38 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.lucene.search.BooleanQuery;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriverEnum;
 import com.jaeksoft.searchlib.util.FileUtils;
@@ -40,6 +30,14 @@ import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 import com.jaeksoft.searchlib.util.properties.PropertyManager;
 import com.jaeksoft.searchlib.web.StartStopListener;
+import org.apache.lucene.search.BooleanQuery;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class ClientFactory implements PropertyItemListener {
 
@@ -81,64 +79,47 @@ public class ClientFactory implements PropertyItemListener {
 
 	public ClientFactory() throws SearchLibException {
 		try {
-			properties = new InstanceProperties(new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"properties.xml"));
-			File advPropFile = new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"advanced.xml");
+			properties =
+					new InstanceProperties(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "properties.xml"));
+			File advPropFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "advanced.xml");
 			advancedProperties = new PropertyManager(advPropFile);
-			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty(
-					"booleanQueryMaxClauseCount", 1024, null, null);
+			booleanQueryMaxClauseCount =
+					advancedProperties.newIntegerProperty("booleanQueryMaxClauseCount", 1024, null, null);
 			hasBeenSet(booleanQueryMaxClauseCount);
 			booleanQueryMaxClauseCount.addListener(this);
-			defaultWebBrowserDriver = advancedProperties.newStringProperty(
-					"defaultWebBrowserDriver",
-					BrowserDriverEnum.FIREFOX.getName());
+			defaultWebBrowserDriver = advancedProperties
+					.newStringProperty("defaultWebBrowserDriver", BrowserDriverEnum.FIREFOX.getName());
 			defaultWebBrowserDriver.addListener(this);
-			soapActive = advancedProperties.newBooleanProperty("soapActive",
-					false);
+			soapActive = advancedProperties.newBooleanProperty("soapActive", false);
 			soapActive.addListener(this);
-			externalParser = advancedProperties.newBooleanProperty(
-					"externalParser", false);
+			externalParser = advancedProperties.newBooleanProperty("externalParser", false);
 			externalParser.addListener(this);
-			logFullTrace = advancedProperties.newBooleanProperty(
-					"logFullTrace", false);
+			logFullTrace = advancedProperties.newBooleanProperty("logFullTrace", false);
 			hasBeenSet(logFullTrace);
 			logFullTrace.addListener(this);
-			smtpHostname = advancedProperties.newStringProperty("smtpHostname",
-					"localhost");
+			smtpHostname = advancedProperties.newStringProperty("smtpHostname", "localhost");
 			smtpHostname.addListener(this);
-			smtpPort = advancedProperties.newIntegerProperty("smtpPort", 25, 1,
-					65536);
+			smtpPort = advancedProperties.newIntegerProperty("smtpPort", 25, 1, 65536);
 			smtpPort.addListener(this);
-			smtpUseSsl = advancedProperties.newBooleanProperty("smtpUseSsl",
-					false);
+			smtpUseSsl = advancedProperties.newBooleanProperty("smtpUseSsl", false);
 			smtpUseSsl.addListener(this);
-			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls",
-					false);
+			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls", false);
 			smtpUseTls.addListener(this);
-			smtpSenderEmail = advancedProperties.newStringProperty(
-					"smtpSenderEmail", "no-reply@open-search-server.com");
+			smtpSenderEmail =
+					advancedProperties.newStringProperty("smtpSenderEmail", "no-reply@open-search-server.com");
 			smtpSenderEmail.addListener(this);
-			smtpSenderName = advancedProperties.newStringProperty(
-					"smtpSenderName", "");
+			smtpSenderName = advancedProperties.newStringProperty("smtpSenderName", "");
 			smtpSenderName.addListener(this);
-			smtpUsername = advancedProperties.newStringProperty("smtpUsername",
-					"");
+			smtpUsername = advancedProperties.newStringProperty("smtpUsername", "");
 			smtpUsername.addListener(this);
-			smtpPassword = advancedProperties.newStringProperty("smtpPassword",
-					"");
+			smtpPassword = advancedProperties.newStringProperty("smtpPassword", "");
 			smtpPassword.addListener(this);
-			schedulerThreadPoolSize = advancedProperties.newIntegerProperty(
-					"schedulerThreadPoolSize", 20, 1, 200);
+			schedulerThreadPoolSize = advancedProperties.newIntegerProperty("schedulerThreadPoolSize", 20, 1, 200);
 			schedulerThreadPoolSize.addListener(this);
-			clusterInstanceId = advancedProperties.newIntegerProperty(
-					"clusterInstanceId", null, 0, 131072);
+			clusterInstanceId = advancedProperties.newIntegerProperty("clusterInstanceId", null, 0, 131072);
 			clusterInstanceId.addListener(this);
 			if (clusterInstanceId.getValue() == null)
-				clusterInstanceId
-						.setValue((int) System.currentTimeMillis() % 131072);
+				clusterInstanceId.setValue((int) System.currentTimeMillis() % 131072);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);
 		} catch (ParserConfigurationException e) {
@@ -152,27 +133,21 @@ public class ClientFactory implements PropertyItemListener {
 		}
 	}
 
-	protected Client newClient(File initFileOrDir,
-			boolean createIndexIfNotExists, boolean disableCrawler)
-			throws SearchLibException {
-		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler);
+	protected Client newClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler,
+			String silentReplicationUrl) throws SearchLibException {
+		return new Client(initFileOrDir, createIndexIfNotExists, disableCrawler, silentReplicationUrl);
 	}
 
-	final public Client getNewClient(File initFileOrDir,
-			boolean createIndexIfNotExists, boolean disableCrawler)
+	final public Client getNewClient(File initFileOrDir, boolean createIndexIfNotExists, boolean disableCrawler)
 			throws SearchLibException {
 		try {
-			if (!FileUtils
-					.isSubDirectory(
-							StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-							initFileOrDir))
-				throw new SearchLibException("Security alert: " + initFileOrDir
-						+ " is outside OPENSEARCHSERVER_DATA ("
+			if (!FileUtils.isSubDirectory(StartStopListener.OPENSEARCHSERVER_DATA_FILE, initFileOrDir))
+				throw new SearchLibException("Security alert: " + initFileOrDir + " is outside OPENSEARCHSERVER_DATA ("
 						+ StartStopListener.OPENSEARCHSERVER_DATA_FILE + ")");
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
-		return newClient(initFileOrDir, createIndexIfNotExists, disableCrawler);
+		return newClient(initFileOrDir, createIndexIfNotExists, disableCrawler, null);
 	}
 
 	public static void setInstance(ClientFactory cf) {
@@ -240,17 +215,12 @@ public class ClientFactory implements PropertyItemListener {
 	}
 
 	@Override
-	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+	public void hasBeenSet(PropertyItem<?> prop) throws IOException {
 		if (prop == booleanQueryMaxClauseCount)
-			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount
-					.getValue());
+			BooleanQuery.setMaxClauseCount(booleanQueryMaxClauseCount.getValue());
 		else if (prop == logFullTrace)
 			Logging.setShowStackTrace(logFullTrace.isValue());
-		try {
-			advancedProperties.save();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		}
+		advancedProperties.save();
 	}
 
 }

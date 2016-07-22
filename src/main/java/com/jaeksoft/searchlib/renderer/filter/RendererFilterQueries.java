@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.jaeksoft.searchlib.facet.FacetItem;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.StringUtils;
@@ -110,7 +110,6 @@ public class RendererFilterQueries {
 			filterQueries.clear();
 			filterTerms.clear();
 		}
-		@SuppressWarnings("unchecked")
 		Enumeration<String> en = servletRequest.getParameterNames();
 		if (en != null) {
 			while (en.hasMoreElements()) {
@@ -197,8 +196,9 @@ public class RendererFilterQueries {
 		return false;
 	}
 
-	public boolean contains(String fieldName, FacetItem facetItem) {
-		return containsAny(fieldName, facetItem.getTerm());
+	public boolean contains(String fieldName,
+			Map.Entry<String, FacetCounter> facetItem) {
+		return containsAny(fieldName, facetItem.getKey());
 	}
 
 	private StringBuilder append(StringBuilder sb, boolean current,
@@ -257,7 +257,8 @@ public class RendererFilterQueries {
 	}
 
 	public String getFilterParam(boolean current, String fieldName,
-			FacetItem facetItem) throws UnsupportedEncodingException {
-		return getFilterParamTerm(current, fieldName, facetItem.getTerm());
+			Map.Entry<String, FacetCounter> facetItem)
+			throws UnsupportedEncodingException {
+		return getFilterParamTerm(current, fieldName, facetItem.getKey());
 	}
 }

@@ -221,7 +221,7 @@ public class ClassifierItem implements Comparable<ClassifierItem> {
 			throws SearchLibException {
 		AbstractSearchRequest searchRequest = getSearchRequest(client, lang);
 		searchRequest.setRows(0);
-		return ((AbstractResultSearch) client.request(searchRequest))
+		return ((AbstractResultSearch<?>) client.request(searchRequest))
 				.getNumFound();
 	}
 

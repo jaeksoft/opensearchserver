@@ -37,14 +37,12 @@ import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
-import com.jaeksoft.searchlib.util.ExceptionUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.ExceptionCatchThread;
 import com.jaeksoft.searchlib.util.Timer;
 
 public class FacetListExecutor {
 
-	private final ThreadGroup threadGroup;
 	private final Timer facetTimer;
 	private final List<FacetThread> threads;
 	private final FacetList facetList;
@@ -52,16 +50,13 @@ public class FacetListExecutor {
 	private final DocIdInterface notCollapsedDocs;
 	private final CollapseDocInterface collapsedDocs;
 
-	public FacetListExecutor(Config config, ReaderAbstract reader,
-			DocIdInterface notCollapsedDocs,
-			CollapseDocInterface collapsedDocs, FacetFieldList facetFieldList,
-			FacetList facetList, Timer timer) throws SearchLibException,
-			ParseException, IOException, SyntaxError {
+	public FacetListExecutor(Config config, ReaderAbstract reader, DocIdInterface notCollapsedDocs,
+			CollapseDocInterface collapsedDocs, FacetFieldList facetFieldList, FacetList facetList, Timer timer)
+					throws SearchLibException, ParseException, IOException, SyntaxError {
 		this.reader = reader;
 		this.collapsedDocs = collapsedDocs;
 		this.notCollapsedDocs = notCollapsedDocs;
 		this.facetList = facetList;
-		threadGroup = config.getThreadGroup();
 		int size = facetFieldList == null ? 0 : facetFieldList.size();
 		if (size == 0) {
 			threads = null;
@@ -75,21 +70,10 @@ public class FacetListExecutor {
 			SchemaField schemaField = schemaFieldList.get(facetField.getName());
 			if (schemaField == null)
 				continue;
-			FacetThread thread = new FacetThread(facetField, schemaField);
-			thread.start();
-			threads.add(thread);
+			threads.add(new FacetThread(facetField, schemaField));
 		}
-		join();
+		ThreadUtils.invokeAndJoin(config.getThreadPool(), threads);
 		facetTimer.getDuration();
-	}
-
-	private void join() throws SearchLibException {
-		try {
-			ThreadUtils.join(threads);
-		} catch (Exception e) {
-			ExceptionUtils.<SearchLibException> throwException(e,
-					SearchLibException.class);
-		}
 	}
 
 	public class FacetThread extends ExceptionCatchThread {
@@ -98,18 +82,14 @@ public class FacetListExecutor {
 		private final SchemaField schemaField;
 
 		public FacetThread(FacetField facetField, SchemaField schemaField) {
-			super(threadGroup, "FacetThread");
 			this.facetField = facetField;
 			this.schemaField = schemaField;
 		}
 
 		@Override
-		public void runner() throws ParseException, IOException,
-				SearchLibException, SyntaxError {
-			Timer t = new Timer(facetTimer, "facet - " + facetField.getName()
-					+ '(' + facetField.getMinCount() + ')');
-			facetList.add(facetField.getFacet(reader, schemaField,
-					notCollapsedDocs, collapsedDocs, t));
+		public void runner() throws ParseException, IOException, SearchLibException, SyntaxError {
+			Timer t = new Timer(facetTimer, "facet - " + facetField.getName() + '(' + facetField.getMinCount() + ')');
+			facetList.add(facetField.getFacet(reader, schemaField, notCollapsedDocs, collapsedDocs, t));
 			t.getDuration();
 		}
 	}

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,19 +31,17 @@ public enum TokenizerEnum {
 	LetterOrDigitTokenizerFactory(
 			"This tokenizer considers each non-digit, non-letter character to be a separator between words. Additional characters can be set."),
 
+	CustomCharTokenizerFactory("This tokenizer use a set of given characters"),
+
 	NGramTokenizer("Tokenizes the input into n-grams of the given size(s)."),
 
-	EdgeNGramTokenizer(
-			"Create n-grams from the beginning edge or ending edge of a input token."),
+	EdgeNGramTokenizer("Create n-grams from the beginning edge or ending edge of a input token."),
 
-	StandardTokenizer(
-			"Splits words at punctuation characters, removing punctuation."),
+	StandardTokenizer("Splits words at punctuation characters, removing punctuation."),
 
-	WhitespaceTokenizer(
-			"Splits text into word each time a white space is encountered"),
+	WhitespaceTokenizer("Splits text into word each time a white space is encountered"),
 
-	ArabicLetterTokenizer(
-			"Tokenizer that breaks text into runs of letters and diacritics for Arabic"),
+	ArabicLetterTokenizer("Tokenizer that breaks text into runs of letters and diacritics for Arabic"),
 
 	ChineseTokenizer("Chinese tokenizer"),
 

@@ -22,6 +22,8 @@
  **/
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
+import java.io.IOException;
+
 import org.zkoss.bind.annotation.AfterCompose;
 
 import com.jaeksoft.searchlib.Client;
@@ -41,7 +43,7 @@ public class ProxyController extends CommonController {
 		reset();
 	}
 
-	public WebPropertyManager getProperties() throws SearchLibException {
+	public WebPropertyManager getProperties() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return null;

@@ -26,15 +26,32 @@ package com.jaeksoft.searchlib.crawler.web.browser;
 
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
-public class HtmlUnitJavaScriptBrowserDriver extends
-		BrowserDriver<HtmlUnitDriver> {
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.jaeksoft.searchlib.crawler.web.browser.HtmlUnitJavaScriptBrowserDriver.JSHtmlUnitDriver;
+
+public class HtmlUnitJavaScriptBrowserDriver extends BrowserDriver<JSHtmlUnitDriver> {
 
 	public HtmlUnitJavaScriptBrowserDriver() {
 		super(BrowserDriverEnum.HTML_UNIT_JS);
 	}
 
 	@Override
-	public HtmlUnitDriver initialize() {
-		return new HtmlUnitDriver(true);
+	public JSHtmlUnitDriver initialize() {
+		return new JSHtmlUnitDriver();
 	}
+
+	public static class JSHtmlUnitDriver extends HtmlUnitDriver {
+
+		private JSHtmlUnitDriver() {
+			super(true);
+		}
+
+		@Override
+		protected WebClient modifyWebClient(WebClient client) {
+			WebClient modifiedClient = super.modifyWebClient(client);
+			modifiedClient.getOptions().setThrowExceptionOnScriptError(false);
+			return modifiedClient;
+		}
+	}
+
 }

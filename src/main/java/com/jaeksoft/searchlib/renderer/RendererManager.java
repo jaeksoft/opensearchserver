@@ -46,7 +46,7 @@ public class RendererManager {
 
 	private Renderer[] array;
 
-	private TreeMap<String, Renderer> map;
+	private final TreeMap<String, Renderer> map;
 
 	public RendererManager(Config config, File directory)
 			throws SearchLibException, XPathExpressionException,

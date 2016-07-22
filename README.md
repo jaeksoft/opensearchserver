@@ -1,8 +1,12 @@
-OpenSearchServer
-================
-http://www.opensearchserver.com
+[OpenSearchServer](http://www.opensearchserver.com)
+===================================================
 
-Copyright Emmanuel Keller / Jaeksoft (2008-2013)
+[![Build Status](https://travis-ci.org/jaeksoft/opensearchserver.svg?branch=master)](https://travis-ci.org/jaeksoft/opensearchserver)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.jaeksoft/opensearchserver/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.jaeksoft/opensearchserver)
+[![Join the chat at https://gitter.im/jaeksoft/opensearchserver](https://badges.gitter.im/jaeksoft/opensearchserver.svg)](https://gitter.im/jaeksoft/opensearchserver)
+
+
+Copyright Emmanuel Keller / Jaeksoft (2008-2016)
 This software is licensed under the GPL v3.
 
 OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Linux/Unix/BSD/Windows.
@@ -10,7 +14,7 @@ OpenSearchServer is a powerful, enterprise-class, search engine program. Using t
 Quickstart
 ----------
 ### One requirement
-You need to have a JAVA 6 (or newer) runtime on your server
+You need to have a JAVA 7 (or newer) runtime on your server
 
 ### Download the last ZIP or the TAR.GZ archive:
 http://www.opensearchserver.com/#download
@@ -90,8 +94,6 @@ Features
 
 ### General
 - REST API (XML and JSON)
-- SOAP Web Service
 - Monitoring module
 - Index replication
 - Scheduler for management of periodic tasks
-- WordPress plugin and Drupal module

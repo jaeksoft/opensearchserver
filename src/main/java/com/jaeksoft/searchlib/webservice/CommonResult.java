@@ -1,44 +1,38 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2011-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.webservice;
-
-import java.util.TreeMap;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.util.InfoCallback;
 
+import javax.xml.bind.annotation.*;
+import java.util.TreeMap;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class CommonResult implements InfoCallback {
 
 	protected final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
@@ -49,8 +43,7 @@ public class CommonResult implements InfoCallback {
 	@XmlElement
 	public String info;
 
-	@XmlElement
-	public TreeMap<String, String> details;
+	public TreeMap<String, Object> details;
 
 	public CommonResult() {
 		successful = null;
@@ -61,8 +54,7 @@ public class CommonResult implements InfoCallback {
 	protected CommonResult(CommonResult result) {
 		successful = result.successful;
 		info = result.info;
-		details = result.details == null ? null : new TreeMap<String, String>(
-				result.details);
+		details = result.details == null ? null : new TreeMap<String, Object>(result.details);
 	}
 
 	public CommonResult(Boolean successful, String info) {
@@ -85,8 +77,8 @@ public class CommonResult implements InfoCallback {
 		if (value == null)
 			return this;
 		if (details == null)
-			details = new TreeMap<String, String>();
-		details.put(key, value.toString());
+			details = new TreeMap<>();
+		details.put(key, value);
 		return this;
 	}
 

@@ -1,45 +1,43 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p/>
  * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.user;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class User implements Comparable<User> {
 
@@ -59,8 +57,7 @@ public class User implements Comparable<User> {
 		indexRoles = new TreeSet<IndexRole>();
 	}
 
-	public User(String name, String password, boolean isAdmin,
-			boolean isMonitoring, boolean readOnly) {
+	public User(String name, String password, boolean isAdmin, boolean isMonitoring, boolean readOnly) {
 		this();
 		this.name = name;
 		this.password = password;
@@ -162,8 +159,7 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public void addRole(String indexName, String roleName)
-			throws SearchLibException {
+	public void addRole(String indexName, String roleName) throws SearchLibException {
 		rwl.w.lock();
 		try {
 			checkWritable();
@@ -182,22 +178,17 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public static User fromXml(XPathParser xpp, Node node)
-			throws XPathExpressionException {
+	public static User fromXml(XPathParser xpp, Node node) throws XPathExpressionException {
 		if (node == null)
 			return null;
 		String name = XPathParser.getAttributeString(node, "name");
-		String encodedPassword = XPathParser.getAttributeString(node,
-				"password");
+		String encodedPassword = XPathParser.getAttributeString(node, "password");
 		String password = StringUtils.base64decode(encodedPassword);
 		if (name == null || password == null)
 			return null;
-		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(node, "isAdmin"));
-		boolean isMonitoring = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(node, "isMonitoring"));
-		boolean readOnly = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(node, "readOnly"));
+		boolean isAdmin = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "isAdmin"));
+		boolean isMonitoring = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "isMonitoring"));
+		boolean readOnly = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "readOnly"));
 		User user = new User(name, password, isAdmin, isMonitoring, readOnly);
 		NodeList nodes = xpp.getNodeList(node, "role");
 		if (nodes != null) {
@@ -211,14 +202,12 @@ public class User implements Comparable<User> {
 		return user;
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			String encodedPassword = StringUtils.base64encode(password);
-			xmlWriter.startElement(userElement, "name", name, "password",
-					encodedPassword, "isAdmin", isAdmin ? "yes" : "no",
-					"isMonitoring", isMonitoring ? "yes" : "no", "readOnly",
+			xmlWriter.startElement(userElement, "name", name, "password", encodedPassword, "isAdmin",
+					isAdmin ? "yes" : "no", "isMonitoring", isMonitoring ? "yes" : "no", "readOnly",
 					readOnly ? "yes" : "no");
 			for (IndexRole indexRole : indexRoles)
 				indexRole.writeXml(xmlWriter);
@@ -236,7 +225,14 @@ public class User implements Comparable<User> {
 	}
 
 	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object o) {
+		if (!(o instanceof User))
+			return false;
 		User u = (User) o;
 		if (u == null)
 			return false;
@@ -278,7 +274,7 @@ public class User implements Comparable<User> {
 			if (apiKey != null)
 				return apiKey;
 			apiKey = StringUtils.EMPTY;
-			if (name != null || password != null)
+			if (name != null && password != null)
 				if (name.length() > 0 && password.length() > 0)
 					apiKey = DigestUtils.md5Hex("ossacc" + name + password);
 			return apiKey;
@@ -355,8 +351,7 @@ public class User implements Comparable<User> {
 		}
 	}
 
-	public void appendApiCallParameters(StringBuilder sb)
-			throws UnsupportedEncodingException {
+	public void appendApiCallParameters(StringBuilder sb) throws UnsupportedEncodingException {
 		sb.append("&login=");
 		sb.append(URLEncoder.encode(name, "UTF-8"));
 		sb.append("&key=");

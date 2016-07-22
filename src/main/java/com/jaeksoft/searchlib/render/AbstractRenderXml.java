@@ -76,9 +76,11 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 		writer.print("<status>");
 		writer.print(status);
 		writer.print("</status>");
-		writer.print("<query>");
-		writer.print(StringEscapeUtils.escapeXml(queryString));
-		writer.println("</query>");
+		if (queryString != null) {
+			writer.print("<query>");
+			writer.print(StringEscapeUtils.escapeXml(queryString));
+			writer.println("</query>");
+		}
 		writer.println("</header>");
 	}
 

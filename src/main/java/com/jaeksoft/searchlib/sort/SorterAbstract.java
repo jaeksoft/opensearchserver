@@ -49,7 +49,7 @@ public abstract class SorterAbstract implements IntComparator {
 	public void quickSort(Timer timer) {
 		int numFound = collector.getSize();
 		Timer t = new Timer(timer, "Sort (quicksort): " + numFound);
-		Arrays.quickSort(0, numFound, this, collector);
+		Arrays.parallelQuickSort(0, numFound, this, collector);
 		t.end(null);
 	}
 

@@ -1,41 +1,39 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.AbstractPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.spider.ProxyHandler;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
 
-public class WebPropertyManager extends AbstractPropertyManager implements
-		PropertyItemListener {
+import java.io.File;
+import java.io.IOException;
+
+public class WebPropertyManager extends AbstractPropertyManager implements PropertyItemListener {
 
 	final private PropertyItem<Integer> delayBetweenAccesses;
 	final private PropertyItem<Integer> fetchInterval;
@@ -43,9 +41,12 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	final private PropertyItem<Integer> maxUrlPerHost;
 	final private PropertyItem<Integer> maxUrlPerSession;
 	final private PropertyItem<String> userAgent;
+	final private PropertyItem<Integer> connectionTimeOut;
+	final private PropertyItem<Integer> maxDepth;
 	final private PropertyItem<Boolean> exclusionEnabled;
 	final private PropertyItem<Boolean> inclusionEnabled;
 	final private PropertyItem<Boolean> robotsTxtEnabled;
+	final private PropertyItem<Boolean> linkDetectionEnabled;
 	final private PropertyItem<String> screenshotBrowser;
 	final private PropertyItem<String> screenshotMethod;
 	final private PropertyItem<Integer> screenshotCaptureWidth;
@@ -68,22 +69,20 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		fetchInterval = newIntegerProperty("fetchInterval", 30, 1, null);
 		fetchIntervalUnit = newStringProperty("fechIntervalUnit", "days");
 		maxUrlPerHost = newIntegerProperty("maxUrlPerHost", 100, 1, null);
-		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1,
-				null);
+		maxUrlPerSession = newIntegerProperty("maxUrlPerSession", 10000, 1, null);
 		userAgent = newStringProperty("userAgent", "OpenSearchServer_Bot");
+		connectionTimeOut = newIntegerProperty("connectionTimeOut", 600, 0, null);
 		exclusionEnabled = newBooleanProperty("exclusionEnabled", true);
+		maxDepth = newIntegerProperty("maxDepth", null, null, null);
 		inclusionEnabled = newBooleanProperty("inclusionEnabled", true);
 		robotsTxtEnabled = newBooleanProperty("robotsTxtEnabled", true);
+		linkDetectionEnabled = newBooleanProperty("linkDetectionEnabled", true);
 		screenshotMethod = newStringProperty("screenshotMethod", "");
 		screenshotBrowser = newStringProperty("screenshotBrowser", "");
-		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth",
-				1024, 1, null);
-		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight",
-				768, 1, null);
-		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth",
-				240, 1, null);
-		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight",
-				180, 1, null);
+		screenshotCaptureWidth = newIntegerProperty("screenshotCaptureWidth", 1024, 1, null);
+		screenshotCaptureHeight = newIntegerProperty("screenshotCaptureHeight", 768, 1, null);
+		screenshotResizeWidth = newIntegerProperty("screenshotResizeWidth", 240, 1, null);
+		screenshotResizeHeight = newIntegerProperty("screenshotResizeHeight", 180, 1, null);
 		proxyHost = newStringProperty("proxyHost", "");
 		proxyPort = newIntegerProperty("proxyPort", 8080, null, null);
 		proxyExclusion = newStringProperty("proxyExclusion", "");
@@ -138,6 +137,14 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 		return userAgent;
 	}
 
+	public PropertyItem<Integer> getConnectionTimeOut() {
+		return connectionTimeOut;
+	}
+
+	public PropertyItem<Integer> getMaxDepth() {
+		return maxDepth;
+	}
+
 	public PropertyItem<String> getFetchIntervalUnit() {
 		return fetchIntervalUnit;
 	}
@@ -156,6 +163,10 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 
 	public PropertyItem<Boolean> getRobotsTxtEnabled() {
 		return robotsTxtEnabled;
+	}
+
+	public PropertyItem<Boolean> getLinkDetectionEnabled() {
+		return linkDetectionEnabled;
 	}
 
 	public PropertyItem<String> getScreenshotMethod() {
@@ -183,16 +194,15 @@ public class WebPropertyManager extends AbstractPropertyManager implements
 	}
 
 	@Override
-	public void hasBeenSet(PropertyItem<?> prop) throws SearchLibException {
+	public void hasBeenSet(PropertyItem<?> prop) {
 		synchronized (this) {
-			if (prop == proxyHost || prop == proxyPort
-					|| prop == proxyExclusion || prop == proxyUsername
+			if (prop == proxyHost || prop == proxyPort || prop == proxyExclusion || prop == proxyUsername
 					|| prop == proxyPassword)
 				proxyHandler = null;
 		}
 	}
 
-	public ProxyHandler getProxyHandler() throws SearchLibException {
+	public ProxyHandler getProxyHandler() throws IOException {
 		synchronized (this) {
 			if (!proxyEnabled.getValue())
 				return null;

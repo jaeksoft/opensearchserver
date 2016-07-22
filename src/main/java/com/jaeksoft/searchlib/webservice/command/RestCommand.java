@@ -38,76 +38,50 @@ public interface RestCommand {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/optimize/{index}/json")
-	public CommonResult optimizeJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/optimize/{index}/xml")
-	public CommonResult optimizeXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/online/{index}/json")
-	public CommonResult onlineJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult onlineJSON(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/online/{index}/xml")
-	public CommonResult onlineXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult onlineXML(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/offline/{index}/json")
-	public CommonResult offlineJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult offlineJSON(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/offline/{index}/xml")
-	public CommonResult offlineXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult offlineXML(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/reload/{index}/json")
-	public CommonResult reloadJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult reloadJSON(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/reload/{index}/xml")
-	public CommonResult reloadXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult reloadXML(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/truncate/{index}/json")
-	public CommonResult truncateJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
+	public CommonResult truncateJSON(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	@Path("/truncate/{index}/xml")
-	public CommonResult truncateXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key);
-
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/merge/{index}/json")
-	public CommonResult mergeJSON(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("index") String index);
-
-	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	@Path("/merge/{index}/xml")
-	public CommonResult mergeXML(@PathParam("index") String use,
-			@QueryParam("login") String login, @QueryParam("key") String key,
-			@QueryParam("index") String index);
+	public CommonResult truncateXML(@PathParam("index") String use, @QueryParam("login") String login,
+			@QueryParam("key") String key);
 
 }

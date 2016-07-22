@@ -36,8 +36,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import net.minidev.json.JSONArray;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -46,6 +44,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
@@ -69,8 +68,9 @@ import com.jaeksoft.searchlib.util.map.TargetField;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
-public abstract class FieldMapGeneric<S extends SourceField, T extends TargetField>
-		extends GenericMap<S, T> {
+import net.minidev.json.JSONArray;
+
+public abstract class FieldMapGeneric<S extends SourceField, T extends TargetField> extends GenericMap<S, T> {
 
 	private File mapFile;
 
@@ -84,8 +84,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 	}
 
 	protected FieldMapGeneric(File mapFile, String rootXPath)
-			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException {
+			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		this.mapFile = mapFile;
 		if (!mapFile.exists())
 			return;
@@ -103,8 +102,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				return;
 			List<Node> nodeList = DomUtils.getNodes(parentNode, "link");
 			for (Node node : nodeList) {
-				String sourceName = StringEscapeUtils.unescapeXml(DomUtils
-						.getAttributeText(node, "source"));
+				String sourceName = StringEscapeUtils.unescapeXml(DomUtils.getAttributeText(node, "source"));
 				S source = loadSource(sourceName);
 				if (source == null)
 					continue;
@@ -117,30 +115,20 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		}
 	}
 
-	protected abstract void writeTarget(XmlWriter xmlWriter, T target)
-			throws SAXException;
+	protected abstract void writeTarget(XmlWriter xmlWriter, T target) throws SAXException;
 
 	public void store(XmlWriter xmlWriter) throws SAXException {
 		for (GenericLink<S, T> link : getList()) {
 			T target = link.getTarget();
-			xmlWriter.startElement(
-					"link",
-					"source",
-					link.getSource().toXmlAttribute(),
-					"target",
-					target.toXmlAttribute(),
-					"analyzer",
-					target.getAnalyzer(),
-					"boost",
-					target.getBoost() == null ? null : Float.toString(target
-							.getBoost()));
+			xmlWriter.startElement("link", "source", link.getSource().toXmlAttribute(), "target",
+					target.toXmlAttribute(), "analyzer", target.getAnalyzer(), "boost",
+					target.getBoost() == null ? null : Float.toString(target.getBoost()));
 			writeTarget(xmlWriter, link.getTarget());
 			xmlWriter.endElement();
 		}
 	}
 
-	public void store() throws TransformerConfigurationException, SAXException,
-			IOException {
+	public void store() throws TransformerConfigurationException, SAXException, IOException {
 		synchronized (this) {
 			if (!mapFile.exists())
 				mapFile.createNewFile();
@@ -157,20 +145,17 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		}
 	}
 
-	final protected void mapFieldTarget(FieldMapContext context,
-			FieldContent fc, CommonFieldTarget targetField,
-			IndexDocument target, Set<String> filePathSet) throws IOException,
-			SearchLibException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	final protected void mapFieldTarget(FieldMapContext context, FieldContent fc, CommonFieldTarget targetField,
+			IndexDocument target, Set<String> filePathSet)
+					throws IOException, SearchLibException, ParseException, SyntaxError, URISyntaxException,
+					ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		if (fc == null)
 			return;
 		for (FieldValueItem fvi : fc.getValues())
 			mapFieldTarget(context, targetField, fvi.value, target, filePathSet);
 	}
 
-	final public String mapFieldTarget(CommonFieldTarget dfTarget,
-			String content) {
+	final public String mapFieldTarget(CommonFieldTarget dfTarget, String content) {
 		if (StringUtils.isEmpty(content))
 			return null;
 		if (dfTarget.isConvertHtmlEntities())
@@ -182,12 +167,10 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		return content;
 	}
 
-	final protected void mapFieldTarget(FieldMapContext context,
-			CommonFieldTarget dfTarget, String content, IndexDocument target,
-			Set<String> filePathSet) throws SearchLibException, IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	final protected void mapFieldTarget(FieldMapContext context, CommonFieldTarget dfTarget, String content,
+			IndexDocument target, Set<String> filePathSet)
+					throws SearchLibException, IOException, ParseException, SyntaxError, URISyntaxException,
+					ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		if (dfTarget == null)
 			return;
 		if (StringUtils.isEmpty(content))
@@ -195,11 +178,12 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		if (dfTarget.isFilePath()) {
 			String filePath = dfTarget.getFilePath(content);
 			if (filePathSet == null || !filePathSet.contains(filePath)) {
-				filePathSet.add(filePath);
+				if (filePathSet != null)
+					filePathSet.add(filePath);
 				File file = new File(filePath);
 				if (file.exists()) {
-					Parser parser = context.parserSelector.parseFile(null,
-							file.getName(), null, null, file, context.lang);
+					Parser parser = context.parserSelector.parseFile(null, file.getName(), null, null, file,
+							context.lang);
 					if (parser != null)
 						parser.popupateResult(0, target);
 				} else {
@@ -210,47 +194,43 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		if (dfTarget.isCrawlFile()) {
 			String filePathName = dfTarget.getFilePathPrefix();
 			if (filePathSet == null || !filePathSet.contains(content)) {
-				filePathSet.add(content);
+				if (filePathSet != null)
+					filePathSet.add(content);
 				URI filePathURI = new URI(filePathName);
-				FilePathItem filePathItem = context.filePathManager.findFirst(
-						filePathURI.getScheme(), filePathURI.getHost());
+				FilePathItem filePathItem = context.filePathManager.findFirst(filePathURI.getScheme(),
+						filePathURI.getHost());
 				if (filePathItem == null)
-					throw new SearchLibException("FilePathItem not found: "
-							+ filePathName);
-				FileInstanceAbstract fileInstance = FileInstanceAbstract
-						.create(filePathItem, null, filePathItem.getPath()
-								+ content);
-				Parser parser = context.parserSelector
-						.parseStream(null, fileInstance.getFileName(), null,
-								null, fileInstance.getInputStream(),
-								context.lang, null, null);
-				if (parser != null)
-					parser.popupateResult(0, target);
+					throw new SearchLibException("FilePathItem not found: " + filePathName);
+				FileInstanceAbstract fileInstance = FileInstanceAbstract.create(filePathItem, null,
+						filePathItem.getPath() + content);
+				FileTypeEnum type = fileInstance.getFileType();
+				if (type != null && type == FileTypeEnum.file) {
+					Parser parser = context.parserSelector.parseStream(null, fileInstance.getFileName(), null, null,
+							fileInstance.getInputStream(), context.lang, null, null);
+					if (parser != null)
+						parser.popupateResult(0, target);
+				}
 			}
 		}
 		if (dfTarget.isCrawlUrl()) {
-			WebCrawlThread crawlThread = context.webCrawlMaster.manualCrawl(
-					LinkUtils.newEncodedURL(content), ListType.DBCRAWL);
+			WebCrawlThread crawlThread = context.webCrawlMaster.manualCrawl(LinkUtils.newEncodedURL(content),
+					ListType.DBCRAWL);
 			crawlThread.waitForStart(60);
 			crawlThread.waitForEnd(60);
 			Crawl crawl = crawlThread.getCurrentCrawl();
 			if (crawl != null) {
-				IndexDocument targetIndexDocument = crawl
-						.getTargetIndexDocument(0);
+				IndexDocument targetIndexDocument = crawl.getTargetIndexDocument(0);
 				if (targetIndexDocument != null)
 					target.add(targetIndexDocument);
 			}
 		}
 		content = mapFieldTarget(dfTarget, content);
-		target.add(dfTarget.getName(), new FieldValueItem(
-				FieldValueOriginEnum.EXTERNAL, content));
+		target.add(dfTarget.getName(), new FieldValueItem(FieldValueOriginEnum.EXTERNAL, content));
 	}
 
-	public void mapJson(FieldMapContext context, Object jsonObject,
-			IndexDocument target) throws SearchLibException, IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	public void mapJson(FieldMapContext context, Object jsonObject, IndexDocument target)
+			throws SearchLibException, IOException, ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		for (GenericLink<S, T> link : getList()) {
 			String jsonPath = link.getSource().getUniqueName();
 			try {
@@ -261,14 +241,11 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 					JSONArray jsonArray = (JSONArray) jsonContent;
 					for (Object content : jsonArray) {
 						if (content != null)
-							mapFieldTarget(context,
-									(CommonFieldTarget) link.getTarget(),
-									content.toString(), target, null);
+							mapFieldTarget(context, (CommonFieldTarget) link.getTarget(), content.toString(), target,
+									null);
 					}
 				} else
-					mapFieldTarget(context,
-							(CommonFieldTarget) link.getTarget(),
-							jsonContent.toString(), target, null);
+					mapFieldTarget(context, (CommonFieldTarget) link.getTarget(), jsonContent.toString(), target, null);
 			} catch (PathNotFoundException e) {
 				continue;
 			} catch (IllegalArgumentException e) {

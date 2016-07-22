@@ -42,12 +42,19 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class RestCrawlItem extends
-		FieldMapCrawlItem<RestCrawlItem, RestCrawlThread, RestCrawlMaster> {
+public class RestCrawlItem extends FieldMapCrawlItem<RestCrawlItem, RestCrawlThread, RestCrawlMaster> {
 
 	private String name;
 
 	private String url;
+
+	private String sequenceParameter;
+
+	private Integer sequenceFromInclusive;
+
+	private Integer sequenceToExclusive;
+
+	private Integer sequenceIncrement;
 
 	private HttpDownloader.Method method;
 
@@ -86,6 +93,10 @@ public class RestCrawlItem extends
 		url = null;
 		method = HttpDownloader.Method.GET;
 		credential = new CredentialItem();
+		sequenceParameter = null;
+		sequenceFromInclusive = null;
+		sequenceToExclusive = null;
+		sequenceIncrement = null;
 		pathDocument = null;
 		lang = LanguageEnum.UNDEFINED;
 		bufferSize = 100;
@@ -114,6 +125,7 @@ public class RestCrawlItem extends
 		if (variables == null)
 			return;
 		url = variables.replace(url);
+		sequenceParameter = variables.replace(sequenceParameter);
 		pathDocument = variables.replace(pathDocument);
 		credential.apply(variables);
 	}
@@ -133,6 +145,10 @@ public class RestCrawlItem extends
 		crawl.callbackMode = callbackMode;
 		crawl.callbackQueryParameter = callbackQueryParameter;
 		crawl.callbackPayload = callbackPayload;
+		crawl.sequenceParameter = this.sequenceParameter;
+		crawl.sequenceFromInclusive = this.sequenceFromInclusive;
+		crawl.sequenceToExclusive = this.sequenceToExclusive;
+		crawl.sequenceIncrement = this.sequenceIncrement;
 	}
 
 	/**
@@ -148,6 +164,66 @@ public class RestCrawlItem extends
 	 */
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	/**
+	 * @return the sequenceParameter
+	 */
+	public String getSequenceParameter() {
+		return sequenceParameter;
+	}
+
+	/**
+	 * @param sequenceParameter
+	 *            the sequenceParameter to set
+	 */
+	public void setSequenceParameter(String sequenceParameter) {
+		this.sequenceParameter = sequenceParameter;
+	}
+
+	/**
+	 * @return the sequenceFromInclusive
+	 */
+	public Integer getSequenceFromInclusive() {
+		return sequenceFromInclusive;
+	}
+
+	/**
+	 * @param sequenceFromInclusive
+	 *            the sequenceFromInclusive to set
+	 */
+	public void setSequenceFromInclusive(Integer sequenceFromInclusive) {
+		this.sequenceFromInclusive = sequenceFromInclusive;
+	}
+
+	/**
+	 * @return the sequenceToExclusive
+	 */
+	public Integer getSequenceToExclusive() {
+		return sequenceToExclusive;
+	}
+
+	/**
+	 * @param sequenceToExclusive
+	 *            the sequenceToExclusive to set
+	 */
+	public void setSequenceToExclusive(Integer sequenceToExclusive) {
+		this.sequenceToExclusive = sequenceToExclusive;
+	}
+
+	/**
+	 * @return the sequenceIncrement
+	 */
+	public Integer getSequenceIncrement() {
+		return sequenceIncrement;
+	}
+
+	/**
+	 * @param sequenceIncrement
+	 *            the sequenceIncrement to set
+	 */
+	public void setSequenceIncrement(Integer sequenceIncrement) {
+		this.sequenceIncrement = sequenceIncrement;
 	}
 
 	/**
@@ -199,78 +275,71 @@ public class RestCrawlItem extends
 	protected final static String REST_CRAWL_ATTR_NAME = "name";
 	protected final static String REST_CRAWL_NODE_CREDENTIAL = "credential";
 	protected final static String REST_CRAWL_ATTR_URL = "url";
+	protected final static String REST_CRAWL_ATTR_SEQUENCE_PARAMETER = "seqParameter";
+	protected final static String REST_CRAWL_ATTR_SEQUENCE_FROM = "seqFrom";
+	protected final static String REST_CRAWL_ATTR_SEQUENCE_TO = "seqTo";
+	protected final static String REST_CRAWL_ATTR_SEQUENCE_INCREMENT = "seqIncrement";
 	protected final static String REST_CRAWL_ATTR_LANG = "lang";
 	protected final static String REST_CRAWL_ATTR_METHOD = "method";
 	protected final static String REST_CRAWL_ATTR_BUFFER_SIZE = "bufferSize";
 	protected final static String REST_CRAWL_NODE_NAME_MAP = "map";
 	protected final static String REST_CRAWL_NODE_DOC_PATH = "documentPath";
-
 	protected final static String REST_CRAWL_NODE_CALLBACK = "callback";
 	protected final static String REST_CRAWL_CALLBACK_ATTR_METHOD = "method";
 	protected final static String REST_CRAWL_CALLBACK_ATTR_URL = "url";
 	protected final static String REST_CRAWL_CALLBACK_ATTR_MODE = "mode";
 	protected final static String REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM = "queryParam";
 
-	public RestCrawlItem(RestCrawlMaster crawlMaster, XPathParser xpp, Node item)
-			throws XPathExpressionException {
+	public RestCrawlItem(RestCrawlMaster crawlMaster, XPathParser xpp, Node item) throws XPathExpressionException {
 		this(crawlMaster);
 		setName(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_NAME));
 		setUrl(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_URL));
-		setMethod(HttpDownloader.Method.find(
-				DomUtils.getAttributeText(item, REST_CRAWL_ATTR_METHOD),
+		setSequenceParameter(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_SEQUENCE_PARAMETER));
+		setSequenceFromInclusive(DomUtils.getAttributeInteger(item, REST_CRAWL_ATTR_SEQUENCE_FROM, null));
+		setSequenceToExclusive(DomUtils.getAttributeInteger(item, REST_CRAWL_ATTR_SEQUENCE_TO, null));
+		setMethod(HttpDownloader.Method.find(DomUtils.getAttributeText(item, REST_CRAWL_ATTR_METHOD),
 				HttpDownloader.Method.GET));
-		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(item,
-				REST_CRAWL_ATTR_LANG)));
-		setBufferSize(XPathParser.getAttributeValue(item,
-				REST_CRAWL_ATTR_BUFFER_SIZE));
+		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(item, REST_CRAWL_ATTR_LANG)));
+		setBufferSize(XPathParser.getAttributeValue(item, REST_CRAWL_ATTR_BUFFER_SIZE));
 		Node mapNode = xpp.getNode(item, REST_CRAWL_NODE_NAME_MAP);
 		if (mapNode != null)
 			getFieldMap().load(mapNode);
 		Node pathNode = xpp.getNode(item, REST_CRAWL_NODE_DOC_PATH);
 		if (pathNode != null)
-			setPathDocument(StringEscapeUtils.unescapeXml(pathNode
-					.getTextContent()));
+			setPathDocument(StringEscapeUtils.unescapeXml(pathNode.getTextContent()));
 		Node credNode = xpp.getNode(item, REST_CRAWL_NODE_CREDENTIAL);
 		if (credNode != null)
 			credential = CredentialItem.fromXml(credNode);
-		Node callBackNode = DomUtils.getFirstNode(item,
-				REST_CRAWL_NODE_CALLBACK);
+		Node callBackNode = DomUtils.getFirstNode(item, REST_CRAWL_NODE_CALLBACK);
 		if (callBackNode != null) {
-			setCallbackMethod(HttpDownloader.Method.find(DomUtils
-					.getAttributeText(callBackNode,
-							REST_CRAWL_CALLBACK_ATTR_METHOD),
-					HttpDownloader.Method.GET));
-			setCallbackUrl(DomUtils.getAttributeText(callBackNode,
-					REST_CRAWL_CALLBACK_ATTR_URL));
-			setCallbackMode(CallbackMode.find(DomUtils.getAttributeText(
-					callBackNode, REST_CRAWL_CALLBACK_ATTR_MODE)));
-			setCallbackQueryParameter(DomUtils.getAttributeText(callBackNode,
-					REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM));
+			setCallbackMethod(
+					HttpDownloader.Method.find(DomUtils.getAttributeText(callBackNode, REST_CRAWL_CALLBACK_ATTR_METHOD),
+							HttpDownloader.Method.GET));
+			setCallbackUrl(DomUtils.getAttributeText(callBackNode, REST_CRAWL_CALLBACK_ATTR_URL));
+			setCallbackMode(CallbackMode.find(DomUtils.getAttributeText(callBackNode, REST_CRAWL_CALLBACK_ATTR_MODE)));
+			setCallbackQueryParameter(DomUtils.getAttributeText(callBackNode, REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM));
 			setCallbackPayload(callBackNode.getTextContent());
 		}
-
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
-		xmlWriter.startElement(REST_CRAWL_NODE_NAME, REST_CRAWL_ATTR_NAME,
-				getName(), REST_CRAWL_ATTR_URL, getUrl(),
-				REST_CRAWL_ATTR_METHOD, method.name(), REST_CRAWL_ATTR_LANG,
-				getLang().getCode(), REST_CRAWL_ATTR_BUFFER_SIZE,
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
+		xmlWriter.startElement(REST_CRAWL_NODE_NAME, REST_CRAWL_ATTR_NAME, getName(), REST_CRAWL_ATTR_URL, getUrl(),
+				REST_CRAWL_ATTR_SEQUENCE_PARAMETER, getSequenceParameter(), REST_CRAWL_ATTR_SEQUENCE_FROM,
+				sequenceFromInclusive == null ? null : sequenceFromInclusive.toString(), REST_CRAWL_ATTR_SEQUENCE_TO,
+				sequenceToExclusive == null ? null : sequenceToExclusive.toString(), REST_CRAWL_ATTR_SEQUENCE_INCREMENT,
+				sequenceIncrement == null ? null : sequenceIncrement.toString(), REST_CRAWL_ATTR_METHOD, method.name(),
+				REST_CRAWL_ATTR_LANG, getLang().getCode(), REST_CRAWL_ATTR_BUFFER_SIZE,
 				Integer.toString(getBufferSize()));
 		xmlWriter.startElement(REST_CRAWL_NODE_NAME_MAP);
 		getFieldMap().store(xmlWriter);
 		xmlWriter.endElement();
-		xmlWriter.startElement(REST_CRAWL_NODE_CALLBACK,
-				REST_CRAWL_CALLBACK_ATTR_METHOD, callbackMethod.name(),
-				REST_CRAWL_CALLBACK_ATTR_MODE, callbackMode.name(),
-				REST_CRAWL_CALLBACK_ATTR_URL, callbackUrl,
+		xmlWriter.startElement(REST_CRAWL_NODE_CALLBACK, REST_CRAWL_CALLBACK_ATTR_METHOD, callbackMethod.name(),
+				REST_CRAWL_CALLBACK_ATTR_MODE, callbackMode.name(), REST_CRAWL_CALLBACK_ATTR_URL, callbackUrl,
 				REST_CRAWL_CALLBACK_ATTR_QUERY_PARAM, callbackQueryParameter);
 		if (!StringUtils.isEmpty(callbackPayload))
 			xmlWriter.textNode(callbackPayload);
 		xmlWriter.endElement();
-		xmlWriter.writeSubTextNodeIfAny(REST_CRAWL_NODE_DOC_PATH,
-				xmlWriter.escapeXml(getPathDocument()));
+		xmlWriter.writeSubTextNodeIfAny(REST_CRAWL_NODE_DOC_PATH, xmlWriter.escapeXml(getPathDocument()));
 		credential.writeXml(xmlWriter);
 		xmlWriter.endElement();
 	}

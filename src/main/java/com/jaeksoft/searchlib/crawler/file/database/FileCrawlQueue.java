@@ -49,7 +49,7 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	private List<CrawlFile> workingUpdateCrawlList;
 	private List<String> workingDeleteUriList;
 
-	public FileCrawlQueue(Config config) throws SearchLibException {
+	public FileCrawlQueue(Config config) {
 		super(config);
 		this.updateCrawlList = new ArrayList<CrawlFile>(0);
 		this.deleteUriList = new ArrayList<String>(0);
@@ -133,22 +133,15 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	@Override
-	protected void indexWork() throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
-		FileManager fileManager = getConfig().getFileManager();
+	protected void indexWork() throws SearchLibException, IOException, URISyntaxException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		CrawlStatistics sessionStats = getSessionStats();
-		boolean needReload = false;
-		if (deleteCollection(workingDeleteUriList, sessionStats))
-			needReload = true;
-		if (updateCrawls(workingUpdateCrawlList, sessionStats))
-			needReload = true;
-		if (needReload)
-			fileManager.reload(false, null);
+		deleteCollection(workingDeleteUriList, sessionStats);
+		updateCrawls(workingUpdateCrawlList, sessionStats);
 	}
 
-	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	protected boolean updateCrawls(List<CrawlFile> workUpdateCrawlList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 
@@ -162,8 +155,8 @@ public class FileCrawlQueue extends CrawlQueueAbstract {
 		return true;
 	}
 
-	protected boolean deleteCollection(List<String> workDeleteUriList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	protected boolean deleteCollection(List<String> workDeleteUriList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workDeleteUriList.size() == 0)
 			return false;
 

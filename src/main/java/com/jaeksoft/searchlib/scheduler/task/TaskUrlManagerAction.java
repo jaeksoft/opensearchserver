@@ -45,71 +45,55 @@ import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskUrlManagerAction extends TaskAbstract {
 
-	final private TaskPropertyDef propCommand = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Command", "Command",
+	final private TaskPropertyDef propCommand = new TaskPropertyDef(TaskPropertyType.comboBox, "Command", "Command",
 			"Select the command to execute", 30);
 
-	final private TaskPropertyDef propFilterUrl = new TaskPropertyDef(
-			TaskPropertyType.textBox, "URL prefix", "URL prefix",
-			"Filter prefix on the URL", 50);
+	final private TaskPropertyDef propFilterUrl = new TaskPropertyDef(TaskPropertyType.textBox, "URL prefix",
+			"URL prefix", "Filter prefix on the URL", 50);
 
-	final private TaskPropertyDef propFilterLang = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Lang", "Lang", "Filter on the lang", 5);
+	final private TaskPropertyDef propFilterLang = new TaskPropertyDef(TaskPropertyType.textBox, "Lang", "Lang",
+			"Filter on the lang", 5);
 
-	final private TaskPropertyDef propFilterContentBaseType = new TaskPropertyDef(
-			TaskPropertyType.textBox, "ContentBaseType", "Content type",
-			"Filter on the content type", 30);
+	final private TaskPropertyDef propFilterContentBaseType = new TaskPropertyDef(TaskPropertyType.textBox,
+			"ContentBaseType", "Content type", "Filter on the content type", 30);
 
-	final private TaskPropertyDef propFilterContentTypeCharset = new TaskPropertyDef(
-			TaskPropertyType.textBox, "ContentTypeCharset", "Content charset",
-			"Filter on the content type charset", 10);
+	final private TaskPropertyDef propFilterContentTypeCharset = new TaskPropertyDef(TaskPropertyType.textBox,
+			"ContentTypeCharset", "Content charset", "Filter on the content type charset", 10);
 
-	final private TaskPropertyDef propFilterContentEncoding = new TaskPropertyDef(
-			TaskPropertyType.textBox, "ContentEncoding", "Content encoding",
-			"Filter on the content encoding", 10);
+	final private TaskPropertyDef propFilterContentEncoding = new TaskPropertyDef(TaskPropertyType.textBox,
+			"ContentEncoding", "Content encoding", "Filter on the content encoding", 10);
 
-	final private TaskPropertyDef propFilterMinContentLength = new TaskPropertyDef(
-			TaskPropertyType.textBox, "MinContentLength", "Min length",
-			"Filter on the minimum content length", 10);
+	final private TaskPropertyDef propFilterMinContentLength = new TaskPropertyDef(TaskPropertyType.textBox,
+			"MinContentLength", "Min length", "Filter on the minimum content length", 10);
 
-	final private TaskPropertyDef propFilterMaxContentLength = new TaskPropertyDef(
-			TaskPropertyType.textBox, "MaxContentLength", "Max length",
-			"Filter on the maximum content length", 10);
+	final private TaskPropertyDef propFilterMaxContentLength = new TaskPropertyDef(TaskPropertyType.textBox,
+			"MaxContentLength", "Max length", "Filter on the maximum content length", 10);
 
-	final private TaskPropertyDef propFilterHost = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Hostname", "Hostname",
+	final private TaskPropertyDef propFilterHost = new TaskPropertyDef(TaskPropertyType.textBox, "Hostname", "Hostname",
 			"Filter on the hostname", 30);
 
-	final private TaskPropertyDef propFilterWithSubDomain = new TaskPropertyDef(
-			TaskPropertyType.listBox, "WithSubDomain", "With sub domain",
-			"Filter on the sub domain", 10);
+	final private TaskPropertyDef propFilterWithSubDomain = new TaskPropertyDef(TaskPropertyType.listBox,
+			"WithSubDomain", "With sub domain", "Filter on the sub domain", 10);
 
-	final private TaskPropertyDef propRobotsTxtStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Robots.txt status", "Robots.txt status",
-			"Filter on the Robots.txt status", 20);
+	final private TaskPropertyDef propRobotsTxtStatus = new TaskPropertyDef(TaskPropertyType.listBox,
+			"Robots.txt status", "Robots.txt status", "Filter on the Robots.txt status", 20);
 
-	final private TaskPropertyDef propFetchStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Fetch status", "Fetch status",
-			"Filter on the fetch status", 20);
+	final private TaskPropertyDef propFetchStatus = new TaskPropertyDef(TaskPropertyType.listBox, "Fetch status",
+			"Fetch status", "Filter on the fetch status", 20);
 
-	final private TaskPropertyDef propParserStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Parser status", "Parser status",
-			"Filter on the Parser status", 20);
+	final private TaskPropertyDef propParserStatus = new TaskPropertyDef(TaskPropertyType.listBox, "Parser status",
+			"Parser status", "Filter on the Parser status", 20);
 
-	final private TaskPropertyDef propIndexStatus = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Index status", "Index status",
-			"Filter on the index status", 20);
+	final private TaskPropertyDef propIndexStatus = new TaskPropertyDef(TaskPropertyType.listBox, "Index status",
+			"Index status", "Filter on the index status", 20);
 
-	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", "Buffer size",
-			"Buffer size", 10);
+	final private TaskPropertyDef propBufferSize = new TaskPropertyDef(TaskPropertyType.textBox, "Buffer size",
+			"Buffer size", "Buffer size", 10);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propCommand,
-			propFilterUrl, propFilterLang, propFilterContentBaseType,
-			propFilterContentTypeCharset, propFilterContentEncoding,
-			propFilterMinContentLength, propFilterMaxContentLength,
-			propFilterHost, propFilterWithSubDomain, propRobotsTxtStatus,
-			propFetchStatus, propParserStatus, propIndexStatus, propBufferSize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propCommand, propFilterUrl, propFilterLang,
+			propFilterContentBaseType, propFilterContentTypeCharset, propFilterContentEncoding,
+			propFilterMinContentLength, propFilterMaxContentLength, propFilterHost, propFilterWithSubDomain,
+			propRobotsTxtStatus, propFetchStatus, propParserStatus, propIndexStatus, propBufferSize };
 
 	final public static String CommandDoNothing = "Do nothing";
 	final public static String CommandSetToUnfetched = "Set to unfetched";
@@ -120,10 +104,8 @@ public class TaskUrlManagerAction extends TaskAbstract {
 	final public static String CommandOptimize = "Optimize";
 	final public static String CommandSynchronize = "Synchronize";
 
-	final private static String[] CommandList = { CommandDoNothing,
-			CommandSetToUnfetched, CommandSetToFetchFirst,
-			CommandDeleteSelection, CommandDeleteAll, CommandLoadSitemap,
-			CommandSynchronize, CommandOptimize };
+	final private static String[] CommandList = { CommandDoNothing, CommandSetToUnfetched, CommandSetToFetchFirst,
+			CommandDeleteSelection, CommandDeleteAll, CommandLoadSitemap, CommandSynchronize, CommandOptimize };
 
 	@Override
 	public String getName() {
@@ -136,8 +118,7 @@ public class TaskUrlManagerAction extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propCommand)
 			return CommandList;
 		else if (propertyDef == propRobotsTxtStatus)
@@ -178,17 +159,15 @@ public class TaskUrlManagerAction extends TaskAbstract {
 
 	private Integer manualBufferSize = null;
 
-	public void setManual(AbstractSearchRequest selectionRequest,
-			String manualCommand, int bufferSize) {
+	public void setManual(AbstractSearchRequest selectionRequest, String manualCommand, int bufferSize) {
 		this.selectionRequest = selectionRequest;
 		this.manualCommand = manualCommand;
 		this.manualBufferSize = bufferSize;
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException,
-			IOException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		UrlManager urlManager = client.getUrlManager();
 		taskLog.setInfo("URL manager Action started");
 
@@ -203,33 +182,21 @@ public class TaskUrlManagerAction extends TaskAbstract {
 			bufferSize = Integer.parseInt(properties.getValue(propBufferSize));
 			String urlLike = properties.getValue(propFilterUrl);
 			String lang = properties.getValue(propFilterLang);
-			String contentBaseType = properties
-					.getValue(propFilterContentBaseType);
-			String contentTypeCharset = properties
-					.getValue(propFilterContentTypeCharset);
-			String contentEncoding = properties
-					.getValue(propFilterContentEncoding);
-			Integer minContentLength = properties
-					.getValueInteger(propFilterMinContentLength);
-			Integer maxContentLength = properties
-					.getValueInteger(propFilterMaxContentLength);
+			String contentBaseType = properties.getValue(propFilterContentBaseType);
+			String contentTypeCharset = properties.getValue(propFilterContentTypeCharset);
+			String contentEncoding = properties.getValue(propFilterContentEncoding);
+			Integer minContentLength = properties.getValueInteger(propFilterMinContentLength);
+			Integer maxContentLength = properties.getValueInteger(propFilterMaxContentLength);
 			String host = properties.getValue(propFilterHost);
-			boolean withSubDomain = properties.getValueBoolean(
-					propFilterWithSubDomain, false);
-			RobotsTxtStatus robotsTxtStatus = RobotsTxtStatus
-					.findByName(properties.getValue(propRobotsTxtStatus));
-			FetchStatus fetchStatus = FetchStatus.findByName(properties
-					.getValue(propFetchStatus));
-			ParserStatus parserStatus = ParserStatus.findByName(properties
-					.getValue(propParserStatus));
-			IndexStatus indexStatus = IndexStatus.findByName(properties
-					.getValue(propIndexStatus));
-			selectionRequest = urlManager.getSearchRequest(
-					UrlManager.SearchTemplate.urlSearch, urlLike, host,
-					withSubDomain, lang, null, contentBaseType,
-					contentTypeCharset, contentEncoding, minContentLength,
-					maxContentLength, robotsTxtStatus, fetchStatus, null,
-					parserStatus, indexStatus, null, null, null, null);
+			boolean withSubDomain = properties.getValueBoolean(propFilterWithSubDomain, false);
+			RobotsTxtStatus robotsTxtStatus = RobotsTxtStatus.findByName(properties.getValue(propRobotsTxtStatus));
+			FetchStatus fetchStatus = FetchStatus.findByName(properties.getValue(propFetchStatus));
+			ParserStatus parserStatus = ParserStatus.findByName(properties.getValue(propParserStatus));
+			IndexStatus indexStatus = IndexStatus.findByName(properties.getValue(propIndexStatus));
+			selectionRequest = urlManager.getSearchRequest(UrlManager.SearchTemplate.urlSearch, urlLike, host,
+					withSubDomain, lang, null, contentBaseType, contentTypeCharset, contentEncoding, minContentLength,
+					maxContentLength, robotsTxtStatus, fetchStatus, null, parserStatus, indexStatus, null, null, null,
+					null);
 		}
 
 		if (CommandLoadSitemap.equals(command)) {
@@ -237,21 +204,16 @@ public class TaskUrlManagerAction extends TaskAbstract {
 			urlManager.updateSiteMap(taskLog);
 		} else if (CommandSetToFetchFirst.equals(command)) {
 			taskLog.setInfo("URL manager: Update status to ");
-			urlManager.updateFetchStatus(selectionRequest,
-					FetchStatus.FETCH_FIRST, bufferSize, taskLog);
+			urlManager.updateFetchStatus(selectionRequest, FetchStatus.FETCH_FIRST, bufferSize, taskLog);
 		} else if (CommandSetToUnfetched.equals(command)) {
 			taskLog.setInfo("URL manager: Update status to ");
-			urlManager.updateFetchStatus(selectionRequest,
-					FetchStatus.UN_FETCHED, bufferSize, taskLog);
+			urlManager.updateFetchStatus(selectionRequest, FetchStatus.UN_FETCHED, bufferSize, taskLog);
 		} else if (CommandDeleteAll.equals(command)) {
 			taskLog.setInfo("URL manager: Delete All");
 			urlManager.deleteAll(taskLog);
 		} else if (CommandDeleteSelection.equals(command)) {
 			taskLog.setInfo("URL manager: Delete selection");
 			urlManager.deleteUrls(selectionRequest, bufferSize, taskLog);
-		} else if (CommandOptimize.equals(command)) {
-			taskLog.setInfo("URL manager: optimize");
-			urlManager.reload(true, taskLog);
 		} else if (CommandSynchronize.equals(command)) {
 			taskLog.setInfo("URL manager: synchronize");
 			urlManager.synchronizeIndex(selectionRequest, bufferSize, taskLog);

@@ -40,18 +40,14 @@ public class ActionServlet extends AbstractServlet {
 	private static final long serialVersionUID = -369063857059673597L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 			Client client = transaction.getClient();
 			String action = transaction.getParameterString("action");
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(client.getIndexName(), Role.INDEX_UPDATE))
+			if (user != null && !user.hasRole(client.getIndexName(), Role.INDEX_UPDATE))
 				throw new SearchLibException("Not permitted");
-			if ("optimize".equalsIgnoreCase(action))
-				client.optimize();
-			else if ("deleteAll".equalsIgnoreCase(action))
+			if ("deleteAll".equalsIgnoreCase(action))
 				client.deleteAll();
 			else if ("reload".equalsIgnoreCase(action))
 				client.reload();
@@ -67,44 +63,29 @@ public class ActionServlet extends AbstractServlet {
 		}
 	}
 
-	public static void optimize(URI uri, String indexName, String login,
-			String apikey, int secTimeOut) throws SearchLibException,
-			URISyntaxException {
-		call(secTimeOut,
-				buildUri(uri, "/action", indexName, login, apikey,
-						"action=optimize"));
+	public static void optimize(URI uri, String indexName, String login, String apikey, int secTimeOut)
+			throws SearchLibException, URISyntaxException {
+		call(secTimeOut, buildUri(uri, "/action", indexName, login, apikey, "action=optimize"));
 	}
 
-	public static void reload(URI uri, String indexName, String login,
-			String apikey, int secTimeOut) throws SearchLibException,
-			URISyntaxException {
-		call(secTimeOut,
-				buildUri(uri, "/action", indexName, login, apikey,
-						"action=reload"));
+	public static void reload(URI uri, String indexName, String login, String apikey, int secTimeOut)
+			throws SearchLibException, URISyntaxException {
+		call(secTimeOut, buildUri(uri, "/action", indexName, login, apikey, "action=reload"));
 	}
 
-	public static void close(URI uri, String indexName, String login,
-			String apikey, int secTimeOut) throws SearchLibException,
-			URISyntaxException {
-		call(secTimeOut,
-				buildUri(uri, "/action", indexName, login, apikey,
-						"action=close"));
+	public static void close(URI uri, String indexName, String login, String apikey, int secTimeOut)
+			throws SearchLibException, URISyntaxException {
+		call(secTimeOut, buildUri(uri, "/action", indexName, login, apikey, "action=close"));
 	}
 
-	public static void online(URI uri, String indexName, String login,
-			String apikey, int secTimeOut) throws SearchLibException,
-			URISyntaxException {
-		call(secTimeOut,
-				buildUri(uri, "/action", indexName, login, apikey,
-						"action=online"));
+	public static void online(URI uri, String indexName, String login, String apikey, int secTimeOut)
+			throws SearchLibException, URISyntaxException {
+		call(secTimeOut, buildUri(uri, "/action", indexName, login, apikey, "action=online"));
 	}
 
-	public static void offline(URI uri, String indexName, String login,
-			String apikey, int secTimeOut) throws SearchLibException,
-			URISyntaxException {
-		call(secTimeOut,
-				buildUri(uri, "/action", indexName, login, apikey,
-						"action=offline"));
+	public static void offline(URI uri, String indexName, String login, String apikey, int secTimeOut)
+			throws SearchLibException, URISyntaxException {
+		call(secTimeOut, buildUri(uri, "/action", indexName, login, apikey, "action=offline"));
 	}
 
 }

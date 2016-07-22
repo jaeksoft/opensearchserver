@@ -26,8 +26,8 @@ package com.jaeksoft.searchlib.index;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -43,8 +43,8 @@ import com.jaeksoft.searchlib.filter.FilterAbstract;
 import com.jaeksoft.searchlib.filter.FilterHits;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractRequest;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -54,7 +54,7 @@ public interface ReaderInterface {
 
 	public abstract boolean sameIndex(ReaderInterface reader);
 
-	public void close();
+	public void close() throws IOException;
 
 	public Collection<?> getFieldNames() throws SearchLibException;
 
@@ -64,56 +64,43 @@ public interface ReaderInterface {
 
 	public TermEnum getTermEnum(Term term) throws SearchLibException;
 
-	public TermDocs getTermDocs(Term term) throws IOException,
-			SearchLibException;
+	public TermDocs getTermDocs(Term term) throws IOException, SearchLibException;
 
-	public Map<String, FieldValue> getDocumentFields(final int docId,
-			final Set<String> fieldNameSet, final Timer timer)
+	public LinkedHashMap<String, FieldValue> getDocumentFields(final int docId,
+			final LinkedHashSet<String> fieldNameSet, final Timer timer)
+					throws IOException, ParseException, SyntaxError, SearchLibException;
+
+	public LinkedHashMap<String, FieldValue> getDocumentStoredField(final int docId)
+			throws IOException, SearchLibException;
+
+	public TermFreqVector getTermFreqVector(final int docId, final String field) throws IOException, SearchLibException;
+
+	public TermPositions getTermPositions() throws IOException, SearchLibException;
+
+	public FieldCacheIndex getStringIndex(final String fieldName) throws IOException, SearchLibException;
+
+	public String[] getDocTerms(String field) throws IOException, SearchLibException;
+
+	public FilterHits getFilterHits(SchemaField defaultField, PerFieldAnalyzer analyzer,
+			AbstractLocalSearchRequest request, FilterAbstract<?> filter, Timer timer)
+					throws ParseException, IOException, SearchLibException, SyntaxError;
+
+	public DocSetHits searchDocSet(AbstractLocalSearchRequest searchRequest, Timer timer)
 			throws IOException, ParseException, SyntaxError, SearchLibException;
 
-	public Map<String, FieldValue> getDocumentStoredField(final int docId)
+	public void putTermVectors(final int[] docIds, final String field, final Collection<String[]> termVectors)
 			throws IOException, SearchLibException;
-
-	public TermFreqVector getTermFreqVector(final int docId, final String field)
-			throws IOException, SearchLibException;
-
-	public TermPositions getTermPositions() throws IOException,
-			SearchLibException;
-
-	public FieldCacheIndex getStringIndex(final String fieldName)
-			throws IOException, SearchLibException;
-
-	public String[] getDocTerms(String field) throws IOException,
-			SearchLibException;
-
-	public FilterHits getFilterHits(SchemaField defaultField,
-			PerFieldAnalyzer analyzer, AbstractSearchRequest request,
-			FilterAbstract<?> filter, Timer timer) throws ParseException,
-			IOException, SearchLibException, SyntaxError;
-
-	public DocSetHits searchDocSet(AbstractSearchRequest searchRequest,
-			Timer timer) throws IOException, ParseException, SyntaxError,
-			SearchLibException;
-
-	public void putTermVectors(final int[] docIds, final String field,
-			final Collection<String[]> termVectors) throws IOException,
-			SearchLibException;
 
 	public abstract Query rewrite(Query query) throws SearchLibException;
 
 	public abstract MoreLikeThis getMoreLikeThis() throws SearchLibException;
 
-	public AbstractResult<?> request(AbstractRequest request)
-			throws SearchLibException;
+	public AbstractResult<?> request(AbstractRequest request) throws SearchLibException;
 
-	public String explain(AbstractRequest request, int docId, boolean bHtml)
-			throws SearchLibException;
+	public String explain(AbstractRequest request, int docId, boolean bHtml) throws SearchLibException;
 
-	public IndexStatistics getStatistics() throws IOException,
-			SearchLibException;
+	public IndexStatistics getStatistics() throws IOException, SearchLibException;
 
 	public long getVersion() throws SearchLibException;
-
-	public void reload() throws SearchLibException;
 
 }

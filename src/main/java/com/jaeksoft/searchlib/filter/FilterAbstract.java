@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.SearchFilterRequest;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.SchemaField;
@@ -151,11 +151,11 @@ public abstract class FilterAbstract<T extends FilterAbstract<?>> {
 	public abstract String getDescription();
 
 	public abstract String getCacheKey(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request)
+			Analyzer analyzer, AbstractLocalSearchRequest request)
 			throws ParseException, SyntaxError, SearchLibException, IOException;
 
 	public abstract FilterHits getFilterHits(SchemaField defaultField,
-			Analyzer analyzer, AbstractSearchRequest request, Timer timer)
+			Analyzer analyzer, AbstractLocalSearchRequest request, Timer timer)
 			throws ParseException, IOException, SearchLibException, SyntaxError;
 
 	public abstract void writeXmlConfig(XmlWriter xmlWriter)

@@ -64,19 +64,16 @@ public class CredentialController extends CrawlerController {
 
 		private transient CredentialItem deleteCredential;
 
-		protected DeleteAlert(CredentialItem deleteCredential)
-				throws InterruptedException {
-			super("Please, confirm that you want to delete the credential: "
-					+ deleteCredential.getPattern(), Messagebox.YES
-					| Messagebox.NO, Messagebox.QUESTION);
+		protected DeleteAlert(CredentialItem deleteCredential) throws InterruptedException {
+			super("Please, confirm that you want to delete the credential: " + deleteCredential.getPattern(),
+					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
 			this.deleteCredential = deleteCredential;
 		}
 
 		@Override
 		protected void onYes() throws SearchLibException {
 			Client client = getClient();
-			CredentialManager credentialManager = client
-					.getWebCredentialManager();
+			CredentialManager credentialManager = client.getWebCredentialManager();
 			credentialManager.delCredential(deleteCredential.getPattern());
 			onCancel();
 		}
@@ -121,8 +118,6 @@ public class CredentialController extends CrawlerController {
 	}
 
 	public void setLike(String v) {
-		if (v == like)
-			return;
 		like = v;
 	}
 
@@ -138,11 +133,9 @@ public class CredentialController extends CrawlerController {
 				Client client = getClient();
 				if (client == null)
 					return null;
-				CredentialManager credentialManager = client
-						.getWebCredentialManager();
+				CredentialManager credentialManager = client.getWebCredentialManager();
 				credentialList = new ArrayList<CredentialItem>();
-				totalSize = credentialManager.getCredentials(like,
-						getActivePage() * getPageSize(), getPageSize(),
+				totalSize = credentialManager.getCredentials(like, getActivePage() * getPageSize(), getPageSize(),
 						credentialList);
 				return credentialList;
 			} catch (SearchLibException e) {
@@ -182,8 +175,7 @@ public class CredentialController extends CrawlerController {
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return selectedCredential == null ? "Create a new credential"
-				: "Edit the selected credential";
+		return selectedCredential == null ? "Create a new credential" : "Edit the selected credential";
 	}
 
 	/**
@@ -208,8 +200,7 @@ public class CredentialController extends CrawlerController {
 	 * @param credential
 	 * @throws SearchLibException
 	 */
-	public void setSelectedCredential(CredentialItem credential)
-			throws SearchLibException {
+	public void setSelectedCredential(CredentialItem credential) throws SearchLibException {
 		if (credential == null)
 			return;
 		selectedCredential = credential;
@@ -256,8 +247,7 @@ public class CredentialController extends CrawlerController {
 	}
 
 	@Command
-	public void onSave() throws InterruptedException, SearchLibException,
-			MalformedURLException, URISyntaxException {
+	public void onSave() throws InterruptedException, SearchLibException, MalformedURLException, URISyntaxException {
 		Client client = getClient();
 		if (client == null)
 			return;

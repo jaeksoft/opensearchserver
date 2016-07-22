@@ -48,12 +48,10 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
-	private final static ThreadSafeDecimalFormat unitFormat = new ThreadSafeDecimalFormat(
-			"0.0");
+	private final static ThreadSafeDecimalFormat unitFormat = new ThreadSafeDecimalFormat("0.0");
 
 	private enum SizeUnit {
-		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 * 1024), GIGABYTE(
-				"GB", 1024 * 1024 * 1024);
+		BYTE("B", 1), KILOBYTE("KB", 1024), MEGABYTE("MB", 1024 * 1024), GIGABYTE("GB", 1024 * 1024 * 1024);
 
 		private String unit;
 		private float div;
@@ -85,25 +83,19 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
-	private final static Pattern removeBrPattern1 = Pattern.compile(
-			"\\.\\p{Space}+<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
-	private final static Pattern removeEndTagBlockPattern1 = Pattern
-			.compile(
-					"\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
-					Pattern.CASE_INSENSITIVE);
-	private final static Pattern removeEndTagBlockPattern2 = Pattern
-			.compile(
-					"</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
-					Pattern.CASE_INSENSITIVE);
-	private final static Pattern removeBrPattern2 = Pattern.compile(
-			"<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeBrPattern1 = Pattern.compile("\\.\\p{Space}+<br\\p{Space}*/?>",
+			Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeEndTagBlockPattern1 = Pattern.compile(
+			"\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
+			Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeEndTagBlockPattern2 = Pattern.compile(
+			"</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
+			Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeBrPattern2 = Pattern.compile("<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeScriptObjectStylePattern = Pattern
-			.compile(
-					"<(script|object|style)[^>]*>[^<]*</(script|object|style)>",
-					Pattern.CASE_INSENSITIVE);
+			.compile("<(script|object|style)[^>]*>[^<]*</(script|object|style)>", Pattern.CASE_INSENSITIVE);
 
-	public static final String replaceConsecutiveSpaces(String source,
-			String replace) {
+	public static final String replaceConsecutiveSpaces(String source, String replace) {
 		if (isEmpty(source))
 			return source;
 		StringBuilder target = new StringBuilder();
@@ -153,10 +145,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	public static Pattern wildcardPattern(String s) {
-		final CharSequence[] esc = { "\\", ".", "(", ")", "[", "]", "+", "?",
-				"*" };
-		final CharSequence[] replace = { "/", "\\.", "\\(", "\\)", "\\[",
-				"\\]", "\\+", "\\?", ".*" };
+		final CharSequence[] esc = { "\\", ".", "(", ")", "[", "]", "+", "?", "*" };
+		final CharSequence[] replace = { "/", "\\.", "\\(", "\\)", "\\[", "\\]", "\\+", "\\?", ".*" };
 		s = s.trim();
 		int i = 0;
 		for (CharSequence ch : esc)
@@ -196,8 +186,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @return a base64 encoded string
 	 * @throws UnsupportedEncodingException
 	 */
-	public final static String base64encode(String text)
-			throws UnsupportedEncodingException {
+	public final static String base64encode(String text) throws UnsupportedEncodingException {
 		if (isEmpty(text))
 			return null;
 		return Base64.encodeBase64URLSafeString(text.getBytes("UTF-8"));
@@ -249,17 +238,14 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	public final static String leftPad(int value, int size) {
-		return org.apache.commons.lang.StringUtils.leftPad(
-				Integer.toString(value), size, '0');
+		return org.apache.commons.lang.StringUtils.leftPad(Integer.toString(value), size, '0');
 	}
 
 	public final static String leftPad(long value, int size) {
-		return org.apache.commons.lang.StringUtils.leftPad(
-				Long.toString(value), size, '0');
+		return org.apache.commons.lang.StringUtils.leftPad(Long.toString(value), size, '0');
 	}
 
-	public final static String charsetDetector(InputStream inputStream)
-			throws IOException {
+	public final static String charsetDetector(InputStream inputStream) throws IOException {
 		CharsetDetector detector = new CharsetDetector();
 		detector.setText(inputStream);
 		CharsetMatch match = detector.detect();
@@ -277,8 +263,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return match.getName();
 	}
 
-	public final static String[] toStringArray(
-			Collection<? extends Object> collection, boolean sort) {
+	public final static String[] toStringArray(Collection<? extends Object> collection, boolean sort) {
 		if (collection == null)
 			return null;
 		String[] array = new String[collection.size()];
@@ -299,12 +284,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return sb.toString();
 	}
 
-	public final static CharSequence fastConcatCharSequence(
-			final Object... objects) {
+	public final static CharSequence fastConcatCharSequence(final Object... objects) {
 		if (objects == null)
 			return null;
 		if (objects.length == 1)
-			return objects.toString();
+			return objects[0].toString();
 		StringBuilder sb = new StringBuilder();
 		for (Object object : objects)
 			if (object != null)
@@ -317,8 +301,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return cs == null ? null : cs.toString();
 	}
 
-	public final static String LINE_SEPARATOR = System
-			.getProperty("line.separator");
+	public final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	public final static String[] splitLines(String str) {
 		return split(str, LINE_SEPARATOR);
@@ -333,8 +316,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return WordUtils.wrap(text, wrapLength, "&shy;", true);
 	}
 
-	public final static String htmlWrapReduce(String text, int wrapLength,
-			int maxSize) {
+	public final static String htmlWrapReduce(String text, int wrapLength, int maxSize) {
 		if (isEmpty(text))
 			return text;
 		if (text.length() < maxSize)

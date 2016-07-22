@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,11 +36,7 @@ import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
 /**
- * Contient la liste des clauses "Disallow" d'un fichier "robots.txt" regroup�
- * par "User-agent".
- * 
- * @author ekeller
- * 
+ * Contains the list of clauses of a "robots.txt" file *
  */
 public class DisallowList extends Parser {
 
@@ -56,11 +52,8 @@ public class DisallowList extends Parser {
 	}
 
 	/**
-	 * Retourne l'objet DisallowSet correspondant au User-agent pass� en
-	 * param�tre.
-	 * 
 	 * @param userAgent
-	 * @return
+	 * @return the right DisallowSet for the passed user-agent
 	 */
 	protected DisallowSet get(String userAgent) {
 		synchronized (this) {
@@ -71,11 +64,8 @@ public class DisallowList extends Parser {
 	}
 
 	/**
-	 * Retourne l'objet DisallowSet correspondant au param�tre User-agent. S'il
-	 * n'en existe pas, il en cr�e un nouveau.
-	 * 
 	 * @param userAgent
-	 * @return
+	 * @return the disallowset which is related to the useragent.
 	 */
 	protected DisallowSet getOrCreate(String userAgent) {
 		synchronized (this) {
@@ -91,40 +81,44 @@ public class DisallowList extends Parser {
 	}
 
 	/**
-	 * Extraction des informations disallow du fichier robots.txt
+	 * Parse a robots.txt file
 	 * 
 	 * @param br
 	 * @throws IOException
 	 */
 	@Override
-	public void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
-			throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				streamLimiter.getNewInputStream()));
-		String line;
-		DisallowSet currentDisallowSet = null;
-		while ((line = br.readLine()) != null) {
-			line = line.trim();
-			if (line.startsWith("#"))
-				continue;
-			if (line.length() == 0)
-				continue;
-			StringTokenizer st = new StringTokenizer(line, ":");
-			if (!st.hasMoreTokens())
-				continue;
-			String key = st.nextToken().trim();
-			String value = null;
-			if (!st.hasMoreTokens())
-				continue;
-			value = st.nextToken().trim();
-			if ("User-agent".equalsIgnoreCase(key)) {
-				currentDisallowSet = getOrCreate(value.toLowerCase());
-			} else if ("Disallow".equalsIgnoreCase(key)) {
-				if (currentDisallowSet != null)
-					currentDisallowSet.add(value);
+	public void parseContent(StreamLimiter streamLimiter, LanguageEnum lang) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(streamLimiter.getNewInputStream()));
+		try {
+			String line;
+			DisallowSet currentDisallowSet = null;
+			while ((line = br.readLine()) != null) {
+				line = line.trim();
+				if (line.startsWith("#"))
+					continue;
+				if (line.length() == 0)
+					continue;
+				StringTokenizer st = new StringTokenizer(line, ":");
+				if (!st.hasMoreTokens())
+					continue;
+				String key = st.nextToken().trim();
+				String value = null;
+				if (!st.hasMoreTokens())
+					continue;
+				value = st.nextToken().trim();
+				if ("User-agent".equalsIgnoreCase(key)) {
+					currentDisallowSet = getOrCreate(value.toLowerCase());
+				} else if ("Disallow".equalsIgnoreCase(key)) {
+					if (currentDisallowSet != null)
+						currentDisallowSet.add(value, false);
+				} else if ("Allow".equalsIgnoreCase(key)) {
+					if (currentDisallowSet != null)
+						currentDisallowSet.add(value, true);
+				}
 			}
+		} finally {
+			br.close();
 		}
-		br.close();
 	}
 
 	public long size() {

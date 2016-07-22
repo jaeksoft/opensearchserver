@@ -29,6 +29,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bson.Document;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -41,9 +43,10 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jayway.jsonpath.Configuration;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.util.JSON;
 
 public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
@@ -52,17 +55,15 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 
 	private final DatabaseCrawlMongoDb databaseCrawl;
 
-	public DatabaseCrawlMongoDbThread(Client client,
-			DatabaseCrawlMaster crawlMaster,
-			DatabaseCrawlMongoDb databaseCrawl, Variables variables,
-			InfoCallback infoCallback) {
+	public DatabaseCrawlMongoDbThread(Client client, DatabaseCrawlMaster crawlMaster,
+			DatabaseCrawlMongoDb databaseCrawl, Variables variables, InfoCallback infoCallback) {
 		super(client, crawlMaster, databaseCrawl, infoCallback);
 		this.databaseCrawl = (DatabaseCrawlMongoDb) databaseCrawl.duplicate();
 		this.databaseCrawl.applyVariables(variables);
 	}
 
 	private boolean index(List<IndexDocument> indexDocumentList, int limit)
-			throws IOException, SearchLibException {
+			throws IOException, SearchLibException, InterruptedException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -76,29 +77,26 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		}
 		indexDocumentList.clear();
 		if (infoCallback != null)
-			infoCallback.setInfo(updatedIndexDocumentCount
-					+ " document(s) indexed");
+			infoCallback.setInfo(updatedIndexDocumentCount + " document(s) indexed");
 		sleepMs(databaseCrawl.getMsSleep());
 		return true;
 	}
 
-	final private void runner_update(DBCursor cursor)
-			throws SearchLibException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException, IOException,
-			ParseException, SyntaxError, URISyntaxException,
-			InterruptedException {
+	final private void runner_update(FindIterable<Document> iterable)
+			throws SearchLibException, ClassNotFoundException, InstantiationException, IllegalAccessException,
+			IOException, ParseException, SyntaxError, URISyntaxException, InterruptedException {
 		final int limit = databaseCrawl.getBufferSize();
-		cursor.batchSize(limit);
+		iterable.batchSize(limit);
 		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		LanguageEnum lang = databaseCrawl.getLang();
 		FieldMapContext fieldMapContext = new FieldMapContext(client, lang);
 		String uniqueField = client.getSchema().getUniqueField();
+		MongoCursor<Document> cursor = iterable.iterator();
 		while (cursor.hasNext() && !isAborted()) {
 
 			String json = JSON.serialize(cursor.next());
-			Object document = Configuration.defaultConfiguration()
-					.jsonProvider().parse(json);
+			Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
 			IndexDocument indexDocument = new IndexDocument(lang);
 			databaseFieldMap.mapJson(fieldMapContext, document, indexDocument);
 			if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
@@ -131,18 +129,11 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 		MongoClient mongoClient = null;
 		try {
 			mongoClient = databaseCrawl.getMongoClient();
-			DBCollection collection = databaseCrawl.getCollection(mongoClient);
-			DBCursor cursor = collection.find(
-					databaseCrawl.getCriteriaObject(),
-					databaseCrawl.getProjectionObject());
-			try {
-				setStatus(CrawlStatus.CRAWL);
-				if (cursor != null)
-					runner_update(cursor);
-			} finally {
-				if (cursor != null)
-					cursor.close();
-			}
+			MongoCollection<Document> collection = databaseCrawl.getCollection(mongoClient);
+			FindIterable<Document> iterable = collection.find(databaseCrawl.getCriteriaObject());
+			setStatus(CrawlStatus.CRAWL);
+			if (iterable != null)
+				runner_update(iterable);
 			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
 				client.reload();
 		} finally {

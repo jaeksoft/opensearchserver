@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class ScriptResult extends CommonResult {
 
 	public final List<ScriptLineError> errors;

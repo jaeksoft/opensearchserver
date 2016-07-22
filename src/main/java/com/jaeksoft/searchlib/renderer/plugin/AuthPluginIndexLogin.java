@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.filter.TermFilter;
 import com.jaeksoft.searchlib.renderer.Renderer;
 import com.jaeksoft.searchlib.renderer.RendererException.AuthException;
+import com.jaeksoft.searchlib.renderer.plugin.AuthRendererTokens.AuthToken;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
@@ -49,6 +50,13 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
+		String token = request.getParameter("token");
+		if (!StringUtils.isEmpty(token)) {
+			AuthToken authToken = renderer.getTokens().getToken(token);
+			if (authToken == null)
+				throw new AuthException("Invalid authentication token");
+			return getUser(renderer, authToken.login, authToken.password);
+		}
 		return getUser(renderer, request.getParameter("username"),
 				request.getParameter("password"));
 	}
@@ -84,7 +92,7 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 			searchFieldRequest.setStart(0);
 			searchFieldRequest.setRows(1);
 			searchFieldRequest.addReturnField(GROUPS_FIELD);
-			AbstractResultSearch result = (AbstractResultSearch) authClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) authClient
 					.request(searchFieldRequest);
 			if (result == null || result.getNumFound() == 0)
 				throw new AuthException("Authentication failed.");
@@ -98,7 +106,7 @@ public class AuthPluginIndexLogin implements AuthPluginInterface {
 					groups[i++] = value.value;
 			} else
 				groups = null;
-			User user = new User(username, username.toLowerCase(), password,
+			User user = new User(username.toLowerCase(), username, password,
 					groups);
 			Logging.info("USER authenticated: " + user);
 			return user;

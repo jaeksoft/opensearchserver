@@ -104,8 +104,7 @@ public class LearningController extends CommonController {
 			Client client = getClient();
 			if (client == null)
 				return null;
-			List<SchemaField> list = client.getSchema().getFieldList()
-					.getList();
+			List<SchemaField> list = client.getSchema().getFieldList().getList();
 			if (list.size() > 0) {
 				if (selectedSourceIndexField == null)
 					selectedSourceIndexField = list.get(0).getName();
@@ -141,8 +140,7 @@ public class LearningController extends CommonController {
 	}
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return selectedLearner == null ? "Create a new learner"
-				: "Edit the selected learner";
+		return selectedLearner == null ? "Create a new learner" : "Edit the selected learner";
 	}
 
 	public boolean isEditing() {
@@ -166,8 +164,7 @@ public class LearningController extends CommonController {
 		Client client = getClient();
 		if (client == null)
 			return requestList;
-		client.getRequestMap().getNameList(requestList,
-				RequestTypeEnum.SearchRequest,
+		client.getRequestMap().getNameList(requestList, RequestTypeEnum.SearchRequest,
 				RequestTypeEnum.SearchFieldRequest);
 		return requestList;
 	}
@@ -187,8 +184,7 @@ public class LearningController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onSave() throws SearchLibException,
-			UnsupportedEncodingException {
+	public void onSave() throws SearchLibException, UnsupportedEncodingException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -218,8 +214,7 @@ public class LearningController extends CommonController {
 			return;
 		if (currentLearner == null)
 			return;
-		learnerResultItems = currentLearner.classify(client, testText, null,
-				null);
+		learnerResultItems = currentLearner.classify(client, testText, null, null);
 	}
 
 	public LearnerResultItem[] getLearnerResultItems() {
@@ -281,8 +276,7 @@ public class LearningController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onReset(@BindingParam("learner") String learnerName)
-			throws SearchLibException, IOException {
+	public void onReset(@BindingParam("learner") String learnerName) throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -291,8 +285,7 @@ public class LearningController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onLearn(@BindingParam("learner") String learnerName)
-			throws SearchLibException, InterruptedException {
+	public void onLearn(@BindingParam("learner") String learnerName) throws SearchLibException, InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -304,40 +297,34 @@ public class LearningController extends CommonController {
 
 	@Command
 	@NotifyChange("*")
-	public void onEdit(@BindingParam("learner") String learnerName)
-			throws SearchLibException {
+	public void onEdit(@BindingParam("learner") String learnerName) throws SearchLibException {
 		Client client = getClient();
 		if (client == null)
 			return;
 		selectedLearner = client.getLearnerManager().get(learnerName);
-		if (selectedLearner.isRunning())
-			throw new SearchLibException("Learning is running");
 		if (selectedLearner == null)
 			throw new SearchLibException("Learner not found: " + learnerName);
+		if (selectedLearner.isRunning())
+			throw new SearchLibException("Learning is running");
 		currentLearner = new Learner(selectedLearner);
 	}
 
 	@Command
 	@NotifyChange("*")
-	public void onSourceLinkAdd() throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException,
-			XPathExpressionException, ParserConfigurationException {
-		if (selectedSourceLearnerField == null
-				|| selectedSourceIndexField == null || currentLearner == null)
+	public void onSourceLinkAdd() throws SearchLibException, TransformerConfigurationException, SAXException,
+			IOException, XPathExpressionException, ParserConfigurationException {
+		if (selectedSourceLearnerField == null || selectedSourceIndexField == null || currentLearner == null)
 			return;
 		FieldMap fieldMap = currentLearner.getSourceFieldMap();
 		fieldMap.add(new SourceField(selectedSourceIndexField),
-				new TargetField(selectedSourceLearnerField, null,
-						selectedSourceLearnerFieldBoost, null));
+				new TargetField(selectedSourceLearnerField, null, selectedSourceLearnerFieldBoost, null));
 	}
 
 	@Command
 	@NotifyChange("*")
-	public void onSourceLinkRemove(
-			@BindingParam("link") GenericLink<SourceField, TargetField> link)
-			throws SearchLibException, TransformerConfigurationException,
-			SAXException, IOException, XPathExpressionException,
-			ParserConfigurationException {
+	public void onSourceLinkRemove(@BindingParam("link") GenericLink<SourceField, TargetField> link)
+			throws SearchLibException, TransformerConfigurationException, SAXException, IOException,
+			XPathExpressionException, ParserConfigurationException {
 		if (currentLearner == null)
 			return;
 		FieldMap fieldMap = currentLearner.getSourceFieldMap();
@@ -385,8 +372,7 @@ public class LearningController extends CommonController {
 	 * @param selectedSourceLearnerFieldBoost
 	 *            the selectedSourceLearnerFieldBoost to set
 	 */
-	public void setSelectedSourceLearnerFieldBoost(
-			Float selectedSourceLearnerFieldBoost) {
+	public void setSelectedSourceLearnerFieldBoost(Float selectedSourceLearnerFieldBoost) {
 		this.selectedSourceLearnerFieldBoost = selectedSourceLearnerFieldBoost;
 	}
 

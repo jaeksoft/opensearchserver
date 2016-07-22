@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -25,12 +25,11 @@
 package com.jaeksoft.searchlib.result.collector.collapsing;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.CollapseDocInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class CollapseBaseCollector extends
 		AbstractBaseCollector<CollapseCollectorInterface> implements
@@ -43,7 +42,7 @@ public class CollapseBaseCollector extends
 	protected final int[] collapseCounts;
 	protected int currentPos;
 	protected int maxDoc;
-	protected BitSetInterface bitSet;
+	protected RoaringBitmap bitSet;
 
 	public CollapseBaseCollector(DocIdInterface sourceCollector, int size,
 			boolean collectDocArray) {
@@ -140,12 +139,12 @@ public class CollapseBaseCollector extends
 	}
 
 	@Override
-	final public BitSetInterface getBitSet() {
+	final public RoaringBitmap getBitSet() {
 		if (bitSet != null)
 			return bitSet;
-		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
+		bitSet = new RoaringBitmap();
 		for (int id : ids)
-			bitSet.set(id);
+			bitSet.add(id);
 		return bitSet;
 	}
 

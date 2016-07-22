@@ -38,6 +38,7 @@ import com.jaeksoft.searchlib.facet.FacetFieldList;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.schema.Indexed;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Facet.OrderByEnum;
 
 public class FacetController extends AbstractQueryController {
 
@@ -115,6 +116,10 @@ public class FacetController extends AbstractQueryController {
 		return booleanValues;
 	}
 
+	public OrderByEnum[] getOrderByValues() {
+		return OrderByEnum.values();
+	}
+
 	public String[] getCollapsingValues() {
 		return booleanValues;
 	}
@@ -125,7 +130,8 @@ public class FacetController extends AbstractQueryController {
 			if (selectedFacet == null)
 				return;
 			((AbstractSearchRequest) getRequest()).getFacetFieldList().put(
-					new FacetField(selectedFacet, 0, false, false, null));
+					new FacetField(selectedFacet, 0, false, false, null, null,
+							null));
 			reload();
 		}
 	}

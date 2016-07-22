@@ -64,8 +64,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		concatSeparator = '|';
 	}
 
-	public FieldMap(String multilineText, char fieldSeparator,
-			char concatSeparator) throws IOException {
+	public FieldMap(String multilineText, char fieldSeparator, char concatSeparator) throws IOException {
 		StringReader sr = null;
 		BufferedReader br = null;
 		this.concatSeparator = concatSeparator;
@@ -80,18 +79,16 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				String source = cols[0];
 				String target = cols[1];
 				String analyzer = cols.length > 2 ? cols[2] : null;
-				Float boost = cols.length > 3 ? Float.parseFloat(cols[3])
-						: null;
-				add(new SourceField(source, concatSeparator), new TargetField(
-						target, analyzer, boost, null));
+				Float boost = cols.length > 3 ? Float.parseFloat(cols[3]) : null;
+				add(new SourceField(source, concatSeparator), new TargetField(target, analyzer, boost, null));
 			}
 		} finally {
 			IOUtils.close(br, sr);
 		}
 	}
 
-	public FieldMap(File file) throws XPathExpressionException,
-			ParserConfigurationException, SAXException, IOException {
+	public FieldMap(File file)
+			throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		super(file, "/map");
 		concatSeparator = '|';
 	}
@@ -112,19 +109,16 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 	}
 
 	@Override
-	protected void writeTarget(XmlWriter xmlWriter, TargetField target)
-			throws SAXException {
+	protected void writeTarget(XmlWriter xmlWriter, TargetField target) throws SAXException {
 	}
 
-	private void addFieldContent(FieldContent fc, TargetField targetField,
-			IndexDocument target) throws IOException {
+	private void addFieldContent(FieldContent fc, TargetField targetField, IndexDocument target) throws IOException {
 		if (fc == null)
 			return;
 		targetField.addFieldValueItems(fc.getValues(), target);
 	}
 
-	public void mapIndexDocument(IndexDocument source, IndexDocument target)
-			throws IOException {
+	public void mapIndexDocument(IndexDocument source, IndexDocument target) throws IOException {
 		for (GenericLink<SourceField, TargetField> link : getList()) {
 			SourceField sourceField = link.getSource();
 			if (sourceField.isUnique()) {
@@ -139,8 +133,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		}
 	}
 
-	public void mapIndexDocument(ResultDocument source, IndexDocument target)
-			throws IOException {
+	public void mapIndexDocument(ResultDocument source, IndexDocument target) throws IOException {
 		for (GenericLink<SourceField, TargetField> link : getList()) {
 			SourceField sourceField = link.getSource();
 			if (sourceField.isUnique()) {
@@ -153,8 +146,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		}
 	}
 
-	public void mapIndexDocumentJson(String target,
-			ResultDocument sourceDocument, IndexDocument targetDocument)
+	public void mapIndexDocumentJson(String target, ResultDocument sourceDocument, IndexDocument targetDocument)
 			throws JsonProcessingException {
 		Map<String, List<String>> map = new TreeMap<String, List<String>>();
 		for (GenericLink<SourceField, TargetField> link : getList()) {
@@ -163,8 +155,7 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 				continue;
 			SourceField sourceField = link.getSource();
 			String source = sourceField.getUniqueName();
-			FieldValue fieldValue = sourceDocument.getReturnFields()
-					.get(source);
+			FieldValue fieldValue = sourceDocument.getReturnFields().get(source);
 			if (fieldValue == null)
 				continue;
 			if (fieldValue.getValuesCount() == 0)
@@ -180,13 +171,11 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 		targetDocument.setString(target, json);
 	}
 
-	public void cacheAnalyzers(AnalyzerList analyzerList, LanguageEnum lang)
-			throws SearchLibException {
+	public void cacheAnalyzers(AnalyzerList analyzerList, LanguageEnum lang) throws SearchLibException {
 		for (GenericLink<SourceField, TargetField> link : getList()) {
 			TargetField target = link.getTarget();
 			if (target == null)
-				throw new SearchLibException("No target field for "
-						+ link.getSource());
+				throw new SearchLibException("No target field for " + link.getSource());
 			target.setCachedAnalyzer(analyzerList, lang);
 		}
 	}
@@ -205,7 +194,9 @@ public class FieldMap extends FieldMapGeneric<SourceField, TargetField> {
 	 * Return a map with all different boost for one target name
 	 * 
 	 * @param target
+	 *            the target field
 	 * @param boostMap
+	 *            a boost map
 	 */
 	public void populateBoosts(String target, Map<Float, TargetField> boostMap) {
 		if (target == null || boostMap == null)

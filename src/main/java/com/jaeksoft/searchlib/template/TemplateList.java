@@ -32,7 +32,9 @@ public enum TemplateList {
 
 	FILE_CRAWLER(new FileCrawler()),
 
-	USERS_CREDENTIALS(new UsersCredentialsIndex());
+	USERS_CREDENTIALS(new UsersCredentialsIndex()),
+
+	MULTI_INDEX(new MultiIndex());
 
 	private TemplateAbstract template;
 

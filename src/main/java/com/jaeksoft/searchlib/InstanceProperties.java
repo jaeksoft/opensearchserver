@@ -1,54 +1,46 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2011-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.jaeksoft.searchlib.util.*;
+import com.jaeksoft.searchlib.web.StartStopListener;
+import com.jaeksoft.searchlib.webservice.ApiIdentifier;
+import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+import redis.clients.jedis.Jedis;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
-import redis.clients.jedis.Jedis;
-
-import com.jaeksoft.searchlib.util.FileUtils;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.NetworksUtils;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.web.StartStopListener;
-import com.jaeksoft.searchlib.webservice.ApiIdentifier;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class InstanceProperties {
 
@@ -86,6 +78,16 @@ public class InstanceProperties {
 
 	private final boolean chroot;
 
+	private final boolean disableScheduler;
+
+	private final boolean disableWebCrawler;
+
+	private final boolean disableFileCrawler;
+
+	private final String silentBackupUrl;
+
+	private final static String REPLICATION_NODEPATH = "/instanceProperties/replication";
+
 	private final static String LIMIT_NODEPATH = "/instanceProperties/limit";
 
 	private final static String LIMIT_CHROOT_ATTR = "chroot";
@@ -102,6 +104,14 @@ public class InstanceProperties {
 
 	private final static String LIMIT_REQUEST_PER_MONTH = "requestPerMonth";
 
+	private final static String DISABLE_SCHEDULER = "disableScheduler";
+
+	private final static String DISABLE_WEBCRAWLER = "disableWebCrawler";
+
+	private final static String DISABLE_FILECRAWLER = "disableFileCrawler";
+
+	private final static String SILENT_BACKUP_URL = "silentBackupUrl";
+
 	private final static String REDIS_API_NODE = "/instanceProperties/redisApi";
 
 	private final static String REDIS_API_HOSTNAME_ATTR = "hostname";
@@ -111,35 +121,30 @@ public class InstanceProperties {
 	private final static String REDIS_API_AUTH_ATTR = "auth";
 
 	public InstanceProperties(File xmlFile)
-			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, URISyntaxException {
+			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
+			URISyntaxException {
 		nextApiTime = System.currentTimeMillis();
 		countApiCall = 0;
 		countApiWait = 0;
 		lastTimeRequestPerMonthStore = 0;
 		requestPerMonthCount = 0;
 		if (xmlFile.exists()) {
-			requestperMonthFile = new File(xmlFile.getParent(),
-					"requestPerMonth.txt");
+			requestperMonthFile = new File(xmlFile.getParent(), "requestPerMonth.txt");
 			loadRequestPerMonth();
 			XPathParser xpp = new XPathParser(xmlFile);
 			Node node = xpp.getNode(LIMIT_NODEPATH);
 			if (node != null) {
-				maxDocumentLimit = XPathParser.getAttributeLong(node,
-						LIMIT_MAXDOCUMENTLIMIT_ATTR);
-				chroot = "yes".equalsIgnoreCase(XPathParser.getAttributeString(
-						node, LIMIT_CHROOT_ATTR));
-				minCrawlerDelay = XPathParser.getAttributeValue(node,
-						LIMIT_MINCRAWLERDELAY_ATTR);
-				maxIndexNumber = XPathParser.getAttributeValue(node,
-						LIMIT_MAX_INDEX_NUMBER_ATTR);
-				maxStorage = XPathParser.getAttributeLong(node,
-						LIMIT_MAX_STORAGE_ATTR);
-				maxApiRate = XPathParser.getAttributeValue(node,
-						LIMIT_MAX_API_RATE);
-				requestPerMonth = XPathParser.getAttributeValue(node,
-						LIMIT_REQUEST_PER_MONTH);
+				maxDocumentLimit = XPathParser.getAttributeLong(node, LIMIT_MAXDOCUMENTLIMIT_ATTR);
+				chroot = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, LIMIT_CHROOT_ATTR));
+				minCrawlerDelay = XPathParser.getAttributeValue(node, LIMIT_MINCRAWLERDELAY_ATTR);
+				maxIndexNumber = XPathParser.getAttributeValue(node, LIMIT_MAX_INDEX_NUMBER_ATTR);
+				maxStorage = XPathParser.getAttributeLong(node, LIMIT_MAX_STORAGE_ATTR);
+				maxApiRate = XPathParser.getAttributeValue(node, LIMIT_MAX_API_RATE);
+				requestPerMonth = XPathParser.getAttributeValue(node, LIMIT_REQUEST_PER_MONTH);
 				minApiDelay = maxApiRate != 0 ? 1000 / maxApiRate : 0;
+				disableScheduler = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, DISABLE_SCHEDULER));
+				disableWebCrawler = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, DISABLE_WEBCRAWLER));
+				disableFileCrawler = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, DISABLE_FILECRAWLER));
 			} else {
 				maxDocumentLimit = 0;
 				chroot = false;
@@ -149,20 +154,29 @@ public class InstanceProperties {
 				maxApiRate = 0;
 				requestPerMonth = 0;
 				minApiDelay = 0;
+				disableScheduler = false;
+				disableWebCrawler = false;
+				disableFileCrawler = false;
 			}
+
+			node = xpp.getNode(REPLICATION_NODEPATH);
+			if (node != null) {
+				silentBackupUrl = XPathParser.getAttributeString(node, SILENT_BACKUP_URL);
+			} else {
+				silentBackupUrl = null;
+			}
+
 			node = xpp.getNode(REDIS_API_NODE);
 			if (node != null) {
-				redisApiServerHostname = XPathParser.getAttributeString(node,
-						REDIS_API_HOSTNAME_ATTR);
-				redisApiServerPort = XPathParser.getAttributeValue(node,
-						REDIS_API_PORT_ATTR);
-				redisApiAuth = XPathParser.getAttributeString(node,
-						REDIS_API_AUTH_ATTR);
+				redisApiServerHostname = XPathParser.getAttributeString(node, REDIS_API_HOSTNAME_ATTR);
+				redisApiServerPort = XPathParser.getAttributeValue(node, REDIS_API_PORT_ATTR);
+				redisApiAuth = XPathParser.getAttributeString(node, REDIS_API_AUTH_ATTR);
 			} else {
 				redisApiServerHostname = null;
 				redisApiServerPort = 0;
 				redisApiAuth = null;
 			}
+
 		} else {
 			requestperMonthFile = null;
 			maxDocumentLimit = 0;
@@ -176,6 +190,10 @@ public class InstanceProperties {
 			redisApiServerHostname = null;
 			redisApiServerPort = 0;
 			redisApiAuth = null;
+			disableScheduler = false;
+			disableWebCrawler = false;
+			disableFileCrawler = false;
+			silentBackupUrl = null;
 		}
 	}
 
@@ -214,42 +232,47 @@ public class InstanceProperties {
 		return chroot;
 	}
 
+	public boolean isDisableScheduler() {
+		return disableScheduler;
+	}
+
+	public boolean isDisableWebCrawler() {
+		return disableWebCrawler;
+	}
+
+	public boolean isDisableFileCrawler() {
+		return disableFileCrawler;
+	}
+
 	public final boolean checkChrootQuietly(File file) throws IOException {
 		if (!chroot)
 			return true;
-		return FileUtils.isSubDirectory(
-				StartStopListener.OPENSEARCHSERVER_DATA_FILE, file);
+		return FileUtils.isSubDirectory(StartStopListener.OPENSEARCHSERVER_DATA_FILE, file);
 	}
 
 	public final void checkChroot(File file) throws IOException {
 		if (!checkChrootQuietly(file))
 			throw new IOException(
-					"You are not allowed to reach this location in the file system: "
-							+ file.getAbsolutePath());
+					"You are not allowed to reach this location in the file system: " + file.getAbsolutePath());
 	}
 
-	public final void checkMaxDocumentLimit() throws SearchLibException,
-			IOException {
+	public final void checkMaxDocumentLimit() throws SearchLibException, IOException {
 		if (maxDocumentLimit == 0)
 			return;
 		long count = ClientCatalog.countAllDocuments();
 		if (count < maxDocumentLimit)
 			return;
 		throw new SearchLibException(
-				"The maximum number of allowable documents has been reached ("
-						+ maxDocumentLimit + ")");
+				"The maximum number of allowable documents has been reached (" + maxDocumentLimit + ")");
 	}
 
-	public final void checkMaxIndexNumber() throws SearchLibException,
-			IOException {
+	public final void checkMaxIndexNumber() throws SearchLibException, IOException {
 		if (maxIndexNumber == 0)
 			return;
 		long count = ClientCatalog.getClientCatalog(null).size();
 		if (count < maxIndexNumber)
 			return;
-		throw new SearchLibException(
-				"The maximum number of allowable index has been reached ("
-						+ maxIndexNumber + ")");
+		throw new SearchLibException("The maximum number of allowable index has been reached (" + maxIndexNumber + ")");
 	}
 
 	public final void checkMaxStorageLimit() throws SearchLibException {
@@ -259,8 +282,7 @@ public class InstanceProperties {
 		if (size <= maxStorage)
 			return;
 		throw new SearchLibException(
-				"The maximum storage size has been reached ("
-						+ StringUtils.humanBytes(maxStorage) + ")");
+				"The maximum storage size has been reached (" + StringUtils.humanBytes(maxStorage) + ")");
 	}
 
 	protected final void checkApiRate() throws InterruptedException {
@@ -297,8 +319,7 @@ public class InstanceProperties {
 		synchronized (requestperMonthFile) {
 			if (!requestperMonthFile.exists())
 				resetRequestPerMonthCount();
-			FileUtils.write(requestperMonthFile,
-					Integer.toString(getRequestPerMonthCount()));
+			FileUtils.write(requestperMonthFile, Integer.toString(getRequestPerMonthCount()));
 			lastTimeRequestPerMonthStore = t + 10000;
 		}
 	}
@@ -353,17 +374,15 @@ public class InstanceProperties {
 		storeRequestPerMonthCount(t);
 	}
 
-	private final static SimpleDateFormat REDIS_STATS_DAYFORMAT = new SimpleDateFormat(
-			"yyyyMMdd");
+	private final static SimpleDateFormat REDIS_STATS_DAYFORMAT = new SimpleDateFormat("yyyyMMdd");
 
-	protected final void checkRedisApi(String apiKey, ApiIdentifier apiId,
-			String remoteIpAddress) throws WebApplicationException {
+	protected final void checkRedisApi(String apiKey, ApiIdentifier apiId, String remoteIpAddress)
+			throws WebApplicationException {
 		if (redisApiServerHostname == null)
 			return;
 		if (apiKey == null || apiKey.length() == 0)
 			throw new WebApplicationException(Status.FORBIDDEN);
-		Jedis jedis = new Jedis(redisApiServerHostname, redisApiServerPort,
-				10000);
+		Jedis jedis = new Jedis(redisApiServerHostname, redisApiServerPort, 10000);
 		try {
 			if (redisApiAuth != null && redisApiAuth.length() > 0)
 				jedis.auth(redisApiAuth);
@@ -386,8 +405,7 @@ public class InstanceProperties {
 					if (subnetInfo.isInRange(remoteIpAddress))
 						bAllowed = true;
 			if (!bAllowed) {
-				Logging.warn("Authentication failure: " + apiKey + " "
-						+ remoteIpAddress);
+				Logging.warn("Authentication failure: " + apiKey + " " + remoteIpAddress);
 				throw new WebApplicationException(Status.FORBIDDEN);
 			}
 			String statKey;
@@ -411,9 +429,8 @@ public class InstanceProperties {
 		checkApiRequestPerMonth();
 	}
 
-	public final void checkApi(String apiKey, ApiIdentifier apiId,
-			String remoteAddr) throws WebApplicationException,
-			InterruptedException {
+	public final void checkApi(String apiKey, ApiIdentifier apiId, String remoteAddr)
+			throws WebApplicationException, InterruptedException {
 		checkApiRate();
 		checkRedisApi(apiKey, apiId, remoteAddr);
 	}
@@ -458,4 +475,7 @@ public class InstanceProperties {
 		return redisApiServerPort;
 	}
 
+	public String getSilentBackupUrl() {
+		return silentBackupUrl;
+	}
 }

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -27,6 +27,7 @@ package com.jaeksoft.searchlib.result.collector.docsethit;
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.AbstractExtendsCollector;
@@ -34,8 +35,6 @@ import com.jaeksoft.searchlib.result.collector.CollectorInterface;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class DocIdBufferCollector
 		extends
@@ -44,11 +43,11 @@ public class DocIdBufferCollector
 
 	final private IntBufferedArrayInterface idsBuffer;
 	private int[] ids;
-	private BitSetInterface bitSet;
+	private RoaringBitmap bitSet;
 
 	public DocIdBufferCollector(final DocSetHitBaseCollector base) {
 		super(base);
-		bitSet = BitSetFactory.INSTANCE.newInstance(base.getMaxDoc());
+		bitSet = new RoaringBitmap();
 		idsBuffer = IntBufferedArrayFactory.INSTANCE.newInstance(base
 				.getMaxDoc());
 		ids = null;
@@ -72,7 +71,7 @@ public class DocIdBufferCollector
 	final public void collectDoc(final int docId) throws IOException {
 		parent.collectDoc(docId);
 		idsBuffer.add(docId);
-		bitSet.set(docId);
+		bitSet.add(docId);
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public class DocIdBufferCollector
 	}
 
 	@Override
-	final public BitSetInterface getBitSet() {
+	final public RoaringBitmap getBitSet() {
 		return bitSet;
 	}
 

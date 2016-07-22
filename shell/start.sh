@@ -6,7 +6,7 @@ cd `dirname "$0"`
 #
 LANG=en_US.UTF-8
 export LANG
-JAVA_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8"
+JAVA_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8 -Djava.protocol.handler.pkgs=jcifs"
 
 # The directory containing the indexes (must be exported)
 OPENSEARCHSERVER_DATA=data
@@ -22,8 +22,6 @@ SERVER_PORT=9090
 eval java $JAVA_OPTS -jar opensearchserver.jar \
         -extractDirectory server \
         -httpPort ${SERVER_PORT} \
-        -Djava.protocol.handler.pkgs=jcifs \
-        -Doss.externalparser.classpath=lib/ext/* \
         -uriEncoding UTF-8 \
         >> "logs/oss.log" 2>&1 "&"
 

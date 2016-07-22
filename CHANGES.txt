@@ -1,8 +1,21 @@
-release date=12:00 04.01.2015,version=1.5.13,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
- * GH-1502: A scheduler task able to launch a crawl script
- * GH-1494: Error HttpHostConnectException should not abort the crawl session
- * GH-1480: Multithreaded OCR 
- * GH-1476: New index template for credentials storing
- * GH-1475: Add an encryption filter 
- * GH-1471: Authentication based on external index
- * GH-1470: Renderer: Add range to date facet
+release date=12:00 04.04.2016,version=1.5.14,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1796: Silent backup replication
+ * GH-1791: Disabling the Scheduler, the WebCrawler and the FileCrawler
+ * GH-1780: Create a Scheduler using Rest API
+ * GH-1773: Crawler - API to delete URL browser
+ * GH-1768: Limit the crawl depth in the web crawler
+ * GH-1756: Crawler Status for All Crawlers trough API Call
+ * GH-1755: Add and Remove sitemaps from index trough the REST API / php client
+ * GH-1749: Web service method for web properties
+ * GH-1746: Add HTTP connection time out
+ * GH-1745: Can't access Privileges tab in last snapshots
+ * GH-1729: org.apache.cxf.interceptor.Fault, Tomcat 7.0.53, when starting crawl
+ * GH-1706: Autocompletion thread should be interruptible
+ * GH-1700: Tomcat version update 7.0.68
+ * GH-1697: Ignored Number of suggestion for auto-completion
+ * GH-1696: Scheduler URL database error
+ * GH-1689: Disabling link detection
+ * GH-1676: Support of PhantomJS in the HTMLParser
+ * GH-1671: Add a customizable char tokenizer
+ * GH-1669: An XML/JSON API for field terms extractions
+ * GH-1659: Crawler deadlocks after running while serving requests

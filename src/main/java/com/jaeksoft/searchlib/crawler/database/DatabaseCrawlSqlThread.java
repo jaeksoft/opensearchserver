@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -35,7 +35,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.jaeksoft.pojodbc.Query;
+import com.jaeksoft.pojodbc.Transaction;
+import com.jaeksoft.pojodbc.connection.JDBCConnection;
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
@@ -47,9 +51,6 @@ import com.jaeksoft.searchlib.util.DatabaseUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
-import com.opensearchserver.pojodbc.Query;
-import com.opensearchserver.pojodbc.Transaction;
-import com.opensearchserver.pojodbc.connection.JDBCConnection;
 
 public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
@@ -57,19 +58,17 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	private final DatabaseCrawlSql databaseCrawl;
 
-	public DatabaseCrawlSqlThread(Client client,
-			DatabaseCrawlMaster crawlMaster, DatabaseCrawlSql databaseCrawl,
+	public DatabaseCrawlSqlThread(Client client, DatabaseCrawlMaster crawlMaster, DatabaseCrawlSql databaseCrawl,
 			Variables variables, InfoCallback infoCallback) {
 		super(client, crawlMaster, databaseCrawl, infoCallback);
 		this.databaseCrawl = (DatabaseCrawlSql) databaseCrawl.duplicate();
 		this.databaseCrawl.applyVariables(variables);
 	}
 
-	private boolean index(Transaction transaction,
-			List<IndexDocument> indexDocumentList, int limit,
-			List<String> pkList) throws NoSuchAlgorithmException, IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException {
+	private boolean index(Transaction transaction, List<IndexDocument> indexDocumentList, int limit,
+			List<String> pkList) throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
+					InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException,
+					InterruptedException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -83,28 +82,23 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			rwl.w.unlock();
 		}
 
-		DatabaseUtils.update(transaction, pkList, null,
-				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
+		DatabaseUtils.update(transaction, pkList, null, databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
 		pkList.clear();
 		indexDocumentList.clear();
 		if (infoCallback != null)
-			infoCallback.setInfo(updatedIndexDocumentCount
-					+ " document(s) indexed");
+			infoCallback.setInfo(updatedIndexDocumentCount + " document(s) indexed");
 		sleepMs(databaseCrawl.getMsSleep());
 		return true;
 	}
 
-	private boolean delete(Transaction transaction,
-			List<String> deleteDocumentList, int limit)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException {
+	private boolean delete(Transaction transaction, List<String> deleteDocumentList, int limit)
+			throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, InterruptedException {
 		int i = deleteDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
 		setStatus(CrawlStatus.DELETION);
-		client.deleteDocuments(client.getSchema().getUniqueField(),
-				deleteDocumentList);
+		client.deleteDocuments(client.getSchema().getUniqueField(), deleteDocumentList);
 		rwl.w.lock();
 		try {
 			pendingDeleteDocumentCount -= i;
@@ -113,26 +107,23 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			rwl.w.unlock();
 		}
 
-		DatabaseUtils.update(transaction, deleteDocumentList, null,
-				databaseCrawl.getSqlUpdateMode(), databaseCrawl.getSqlUpdate());
+		DatabaseUtils.update(transaction, deleteDocumentList, null, databaseCrawl.getSqlUpdateMode(),
+				databaseCrawl.getSqlUpdate());
 
 		deleteDocumentList.clear();
 		if (infoCallback != null)
-			infoCallback.setInfo(updatedDeleteDocumentCount
-					+ " document(s) deleted");
+			infoCallback.setInfo(updatedDeleteDocumentCount + " document(s) deleted");
 		sleepMs(databaseCrawl.getMsSleep());
 		return true;
 	}
 
-	final private void runner_update(Transaction transaction,
-			ResultSet resultSet, TreeSet<String> columns)
-			throws NoSuchAlgorithmException, SQLException, IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, InterruptedException {
+	final private void runner_update(Transaction transaction, ResultSet resultSet, TreeSet<String> columns)
+			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException, SyntaxError,
+			InterruptedException {
 		String dbPrimaryKey = databaseCrawl.getPrimaryKey();
 		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
-		int bf = databaseCrawl.getBufferSize();
+		int bufferSize = databaseCrawl.getBufferSize();
 
 		IndexDocument indexDocument = null;
 		IndexDocument lastFieldContent = null;
@@ -142,11 +133,25 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
 		List<String> pkList = new ArrayList<String>(0);
 
-		FieldMapContext context = new FieldMapContext(client,
-				databaseCrawl.getLang());
+		FieldMapContext context = new FieldMapContext(client, databaseCrawl.getLang());
 
 		Set<String> filePathSet = new TreeSet<String>();
-		while (resultSet.next() && !isAborted()) {
+		int faultTolerancy = 10;
+
+		while (!isAborted()) {
+
+			try {
+				if (!resultSet.next())
+					break;
+				faultTolerancy = 10;
+			} catch (SQLException e) {
+				if (faultTolerancy <= 0)
+					throw e;
+				Logging.error(e.getMessage() + " Vendor Error Number: " + e.getErrorCode() + " Counters: "
+						+ this.getCountInfo(), e);
+				faultTolerancy--;
+				continue;
+			}
 
 			if (dbPrimaryKey != null && dbPrimaryKey.length() == 0)
 				dbPrimaryKey = null;
@@ -160,7 +165,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				lastPrimaryKey = pKey;
 			}
 			if (!merge) {
-				if (index(transaction, indexDocumentList, bf, pkList))
+				if (index(transaction, indexDocumentList, bufferSize, pkList))
 					setStatus(CrawlStatus.CRAWL);
 				indexDocument = new IndexDocument(context.lang);
 				indexDocumentList.add(indexDocument);
@@ -170,8 +175,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			}
 			LanguageEnum lang = databaseCrawl.getLang();
 			IndexDocument newFieldContents = new IndexDocument(lang);
-			databaseFieldMap.mapResultSet(context, resultSet, columns,
-					newFieldContents, filePathSet);
+			databaseFieldMap.mapResultSet(context, resultSet, columns, newFieldContents, filePathSet);
 			if (merge && lastFieldContent != null) {
 				indexDocument.addIfNotAlreadyHere(newFieldContents);
 			} else
@@ -181,11 +185,9 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		index(transaction, indexDocumentList, 0, pkList);
 	}
 
-	final private void runner_delete(Transaction transaction,
-			ResultSet resultSet, TreeSet<String> columns)
-			throws NoSuchAlgorithmException, SQLException, IOException,
-			URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException {
+	final private void runner_delete(Transaction transaction, ResultSet resultSet, TreeSet<String> columns)
+			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		List<String> deleteKeyList = new ArrayList<String>(0);
 		String uniqueKeyDeleteField = databaseCrawl.getUniqueKeyDeleteField();
 		int bf = databaseCrawl.getBufferSize();
@@ -214,7 +216,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		try {
 			transaction = databaseCrawl.getNewTransaction(connectionManager);
 			Query query = transaction.prepare(databaseCrawl.getSqlSelect());
-			query.getStatement().setFetchSize(databaseCrawl.getBufferSize());
+			query.getStatement().setFetchSize(databaseCrawl.getFetchSize());
 			ResultSet resultSet = query.getResultSet();
 
 			setStatus(CrawlStatus.CRAWL);

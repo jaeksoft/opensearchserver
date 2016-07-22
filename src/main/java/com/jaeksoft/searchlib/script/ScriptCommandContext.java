@@ -42,6 +42,7 @@ import java.util.TreeSet;
 
 import org.apache.http.client.ClientProtocolException;
 
+import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
@@ -54,7 +55,6 @@ import com.jaeksoft.searchlib.script.commands.Selectors;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Variables;
-import com.opensearchserver.pojodbc.Transaction;
 
 public class ScriptCommandContext implements Closeable {
 
@@ -153,8 +153,7 @@ public class ScriptCommandContext implements Closeable {
 		return variables.replace(text);
 	}
 
-	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum)
-			throws ScriptException {
+	public void setBrowserDriver(BrowserDriverEnum browserDriverEnum) throws ScriptException {
 		close();
 		try {
 			if (browserDriverEnum != null)
@@ -213,8 +212,7 @@ public class ScriptCommandContext implements Closeable {
 			return;
 		if (commandList.size() == 0)
 			return;
-		onErrorNextCommands = commandList.toArray(new CommandEnum[commandList
-				.size()]);
+		onErrorNextCommands = commandList.toArray(new CommandEnum[commandList.size()]);
 	}
 
 	public OnError getOnError() {
@@ -225,8 +223,7 @@ public class ScriptCommandContext implements Closeable {
 		return onErrorNextCommands;
 	}
 
-	public void executeSqlUpdate(String sql) throws SQLException,
-			ScriptException {
+	public void executeSqlUpdate(String sql) throws SQLException, ScriptException {
 		if (transaction == null)
 			throw new ScriptException("Not database connection");
 		transaction.update(sql);
@@ -263,12 +260,10 @@ public class ScriptCommandContext implements Closeable {
 		return updatedDocumentCount;
 	}
 
-	public void subscript(String scriptName, Variables variables)
-			throws ScriptException {
+	public void subscript(String scriptName, Variables variables) throws ScriptException {
 		ScriptLinesRunner runner = null;
 		try {
-			List<ScriptLine> scriptLines = config.getScriptManager()
-					.getContent(scriptName);
+			List<ScriptLine> scriptLines = config.getScriptManager().getContent(scriptName);
 			if (scriptLines == null)
 				return;
 			addVariables(variables);
@@ -292,20 +287,17 @@ public class ScriptCommandContext implements Closeable {
 			throw new ScriptException("No directory path given");
 		if (directory.exists()) {
 			if (!directory.isDirectory())
-				throw new ScriptException("The path is not a directory: "
-						+ directory.getAbsolutePath());
+				throw new ScriptException("The path is not a directory: " + directory.getAbsolutePath());
 		} else {
 			directory.mkdirs();
 			if (!directory.exists())
-				throw new ScriptException("Unable to create the directory: "
-						+ directory.getAbsolutePath());
+				throw new ScriptException("Unable to create the directory: " + directory.getAbsolutePath());
 		}
 		List<CookieItem> cookies = currentWebDriver.getCookies();
 		HttpDownloader downloader = null;
 		try {
 			downloader = config.getWebCrawlMaster().getNewHttpDownloader(true);
-			DownloadItem downloadItem = downloader
-					.get(uri, null, null, cookies);
+			DownloadItem downloadItem = downloader.get(uri, null, null, cookies);
 			String fileName = downloadItem.getFileName();
 			File file = new File(directory, fileName);
 			int i = 0;

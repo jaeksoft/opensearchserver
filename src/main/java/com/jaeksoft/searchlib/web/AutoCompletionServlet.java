@@ -47,17 +47,15 @@ public class AutoCompletionServlet extends AbstractServlet {
 	 */
 	private static final long serialVersionUID = 1432959171606102988L;
 
-	private void query(ServletTransaction transaction, Client client,
-			User user, String name) throws SearchLibException, IOException {
-		if (user != null
-				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
+	private void query(ServletTransaction transaction, Client client, User user, String name)
+			throws SearchLibException, IOException {
+		if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 			throw new SearchLibException("Not permitted");
-		Integer rows = transaction.getParameterInteger("rows", 10);
+		Integer rows = transaction.getParameterInteger("rows");
 		String query = transaction.getParameterString("query");
 		AutoCompletionItem autoCompItem = null;
 		if (StringUtils.isEmpty(name)) {
-			Collection<AutoCompletionItem> collection = client
-					.getAutoCompletionManager().getItems();
+			Collection<AutoCompletionItem> collection = client.getAutoCompletionManager().getItems();
 			if (collection == null)
 				return;
 			Iterator<AutoCompletionItem> iterator = collection.iterator();
@@ -70,44 +68,38 @@ public class AutoCompletionServlet extends AbstractServlet {
 			return;
 		transaction.setResponseContentType("text/plain");
 		PrintWriter pw = transaction.getWriter("UTF-8");
-		AbstractResultSearch result = autoCompItem.search(query, rows);
+		if (rows == null)
+			rows = autoCompItem.getRows();
+		AbstractResultSearch<?> result = autoCompItem.search(query, rows);
 		if (result == null)
 			return;
 		if (result.getDocumentCount() <= 0)
 			return;
 		for (ResultDocument document : result)
-			pw.println(document.getValueContent(
-					AutoCompletionItem.autoCompletionSchemaFieldTerm, 0));
+			pw.println(document.getValueContent(AutoCompletionItem.autoCompletionSchemaFieldTerm, 0));
 	}
 
-	private void set(ServletTransaction transaction, Client client, User user,
-			String name) throws SearchLibException {
-		if (user != null
-				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+	private void set(ServletTransaction transaction, Client client, User user, String name) throws SearchLibException {
+		if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
 			throw new SearchLibException("Not permitted");
 		String[] fields = transaction.getParameterValues("field");
-		AutoCompletionItem autoComp = client.getAutoCompletionManager()
-				.getItem(name);
+		AutoCompletionItem autoComp = client.getAutoCompletionManager().getItem(name);
 		if (autoComp == null)
-			throw new SearchLibException("Autocompletion item not found "
-					+ name);
+			throw new SearchLibException("Autocompletion item not found " + name);
 		autoComp.setField(fields);
 		autoComp.save();
 		transaction.addXmlResponse("Status", "OK");
 		transaction.addXmlResponse("Field", ArrayUtils.toString(fields, ""));
 	}
 
-	private void build(ServletTransaction transaction, Client client,
-			User user, String name) throws SearchLibException, IOException {
-		if (user != null
-				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_UPDATE))
+	private void build(ServletTransaction transaction, Client client, User user, String name)
+			throws SearchLibException, IOException {
+		if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_UPDATE))
 			throw new SearchLibException("Not permitted");
 		int bufferSize = transaction.getParameterInteger("bufferSize", 1000);
-		AutoCompletionItem autoComp = client.getAutoCompletionManager()
-				.getItem(name);
+		AutoCompletionItem autoComp = client.getAutoCompletionManager().getItem(name);
 		if (autoComp == null)
-			throw new SearchLibException("Autocompletion item not found "
-					+ name);
+			throw new SearchLibException("Autocompletion item not found " + name);
 		int result = autoComp.build(14400, bufferSize, null);
 		transaction.addXmlResponse("Status", "OK");
 		transaction.addXmlResponse("Count", Integer.toString(result));
@@ -115,8 +107,7 @@ public class AutoCompletionServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 			User user = transaction.getLoggedUser();
 			Client client = transaction.getClient();

@@ -81,8 +81,7 @@ public abstract class AbstractManager {
 	public void setCurrentTaskLog(TaskLog taskLog) throws SearchLibException {
 		synchronized (this) {
 			if (currentTaskLog != null)
-				throw new SearchLibException("A task is already running: "
-						+ currentTaskLog.getTask().getName());
+				throw new SearchLibException("A task is already running: " + currentTaskLog.getTask().getName());
 			if (taskLog != null)
 				synchronized (taskToCheck) {
 					taskToCheck.add(taskLog.getTask());
@@ -91,21 +90,18 @@ public abstract class AbstractManager {
 		}
 	}
 
-	protected final String findIndexedFieldOfTargetIndex(FieldMap fieldMap,
-			String sourceField) throws SearchLibException {
+	protected final String findIndexedFieldOfTargetIndex(FieldMap fieldMap, String sourceField)
+			throws SearchLibException {
 
-		List<TargetField> mappedPath = fieldMap.getLinks(new SourceField(
-				sourceField));
+		List<TargetField> mappedPath = fieldMap.getLinks(new SourceField(sourceField));
 
 		if (mappedPath == null || mappedPath.isEmpty())
 			return null;
 
-		SchemaFieldList targetSchemaFieldList = targetClient.getSchema()
-				.getFieldList();
+		SchemaFieldList targetSchemaFieldList = targetClient.getSchema().getFieldList();
 		SchemaField targetUniqueField = targetSchemaFieldList.getUniqueField();
 		for (TargetField targetField : mappedPath) {
-			SchemaField field = targetSchemaFieldList
-					.get(targetField.getName());
+			SchemaField field = targetSchemaFieldList.get(targetField.getName());
 			if (field.getIndexed() != Indexed.YES)
 				continue;
 			if (targetUniqueField != null)
@@ -137,8 +133,7 @@ public abstract class AbstractManager {
 		return !isCurrentTaskLogExists();
 	}
 
-	public boolean waitForTask(TaskAbstract taskAbstract, long secTimeOut)
-			throws InterruptedException {
+	public boolean waitForTask(TaskAbstract taskAbstract, long secTimeOut) throws InterruptedException {
 		long timeOut = System.currentTimeMillis() + 1000 * secTimeOut;
 		while (timeOut > System.currentTimeMillis()) {
 			synchronized (taskToCheck) {
@@ -152,8 +147,7 @@ public abstract class AbstractManager {
 	}
 
 	public static Date getPastDate(long fetchInterval, String intervalUnit) {
-		return new TimeInterval(intervalUnit, fetchInterval).getPastDate(System
-				.currentTimeMillis());
+		return new TimeInterval(intervalUnit, fetchInterval).getPastDate(System.currentTimeMillis());
 	}
 
 	private class SynchronizedOuterCollector implements OuterCollector {
@@ -168,8 +162,7 @@ public abstract class AbstractManager {
 
 		private final TaskLog taskLog;
 
-		private SynchronizedOuterCollector(String field, int buffer,
-				TaskLog taskLog) {
+		private SynchronizedOuterCollector(String field, int buffer, TaskLog taskLog) {
 			this.total = 0;
 			this.field = field;
 			this.buffer = buffer;
@@ -198,15 +191,14 @@ public abstract class AbstractManager {
 
 	}
 
-	protected long synchronizeIndex(AbstractSearchRequest searchRequest,
-			String targetField, String dbField, int bufferSize, TaskLog taskLog)
-			throws SearchLibException {
+	protected long synchronizeIndex(AbstractSearchRequest searchRequest, String targetField, String dbField,
+			int bufferSize, TaskLog taskLog) throws SearchLibException {
 		setCurrentTaskLog(taskLog);
 		try {
 			if (targetField == null)
 				throw new SearchLibException("The primary field is not mapped");
-			SynchronizedOuterCollector outerCollector = new SynchronizedOuterCollector(
-					targetField, bufferSize, taskLog);
+			SynchronizedOuterCollector outerCollector = new SynchronizedOuterCollector(targetField, bufferSize,
+					taskLog);
 			searchRequest = (AbstractSearchRequest) searchRequest.duplicate();
 			JoinItem joinItem = new JoinItem();
 			joinItem.setIndexName(targetClient.getIndexName());
@@ -214,32 +206,16 @@ public abstract class AbstractManager {
 			joinItem.setLocalField(targetField);
 			joinItem.setOuterCollector(outerCollector);
 			searchRequest.getJoinList().add(joinItem);
-			AbstractResultSearch result = (AbstractResultSearch) dbClient
-					.request(searchRequest);
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
 			outerCollector.delete();
 			if (taskLog != null) {
-				taskLog.setInfo("URLs: (Found / Deleted: "
-						+ result.getNumFound() + " / " + outerCollector.total);
+				taskLog.setInfo("URLs: (Found / Deleted: " + result.getNumFound() + " / " + outerCollector.total);
 			}
 			return outerCollector.total;
 		} catch (InstantiationException e) {
 			throw new SearchLibException(e);
 		} catch (IllegalAccessException e) {
 			throw new SearchLibException(e);
-		} finally {
-			resetCurrentTaskLog();
-		}
-	}
-
-	final public void reload(boolean optimize, TaskLog taskLog)
-			throws SearchLibException {
-		setCurrentTaskLog(taskLog);
-		try {
-			if (optimize) {
-				dbClient.reload();
-				dbClient.optimize();
-			}
-			targetClient.reload();
 		} finally {
 			resetCurrentTaskLog();
 		}

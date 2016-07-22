@@ -30,20 +30,21 @@ package com.jaeksoft.searchlib.render;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.api.ApiManager;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -58,14 +59,13 @@ import com.jaeksoft.searchlib.web.ServletTransaction;
 public class RenderOpenSearch implements Render {
 
 	private PrintWriter writer;
-	private AbstractResultSearch result;
+	private AbstractResultSearch<?> result;
 	private AbstractSearchRequest searchRequest;
 	private Matcher controlMatcher;
 	private String serverURL;
 	private String outputEncoding;
 
-	public RenderOpenSearch(AbstractResultSearch result, String serverURL,
-			String outputEncoding) {
+	public RenderOpenSearch(AbstractResultSearch<?> result, String serverURL, String outputEncoding) {
 		this.result = result;
 		this.searchRequest = result.getRequest();
 		this.serverURL = serverURL;
@@ -79,8 +79,7 @@ public class RenderOpenSearch implements Render {
 		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
 	}
 
-	private void renderPrefix() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
+	private void renderPrefix() throws ParseException, SyntaxError, SearchLibException, IOException {
 		String encoding = null;
 		if (outputEncoding != null && !outputEncoding.equals(""))
 			encoding = outputEncoding;
@@ -113,9 +112,8 @@ public class RenderOpenSearch implements Render {
 		writer.println("</rss>");
 	}
 
-	private void renderDocuments() throws IOException, ParseException,
-			SyntaxError, XPathExpressionException,
-			ParserConfigurationException, SAXException, SearchLibException {
+	private void renderDocuments() throws IOException, ParseException, SyntaxError, XPathExpressionException,
+			ParserConfigurationException, SAXException, SearchLibException, TransformerConfigurationException {
 		AbstractSearchRequest searchRequest = result.getRequest();
 		int start = searchRequest.getStart();
 		int end = result.getDocumentCount() + searchRequest.getStart();
@@ -139,9 +137,8 @@ public class RenderOpenSearch implements Render {
 
 	}
 
-	private void renderDocument(int pos) throws IOException, ParseException,
-			SyntaxError, XPathExpressionException,
-			ParserConfigurationException, SAXException, SearchLibException {
+	private void renderDocument(int pos) throws IOException, ParseException, SyntaxError, XPathExpressionException,
+			ParserConfigurationException, SAXException, SearchLibException, TransformerConfigurationException {
 
 		writer.println("<item>");
 		ResultDocument doc = result.getDocument(pos, null);
@@ -160,31 +157,26 @@ public class RenderOpenSearch implements Render {
 		writer.println("\t</item>");
 	}
 
-	private void renderField(ResultDocument doc, ReturnField field)
-			throws IOException, XPathExpressionException,
-			ParserConfigurationException, SAXException {
+	private void renderField(ResultDocument doc, ReturnField field) throws IOException, XPathExpressionException,
+			ParserConfigurationException, SAXException, TransformerConfigurationException, SearchLibException {
 		String fieldName = field.getName();
 		List<FieldValueItem> values = doc.getValues(field);
 		String openSearchtitleField = getFieldMap("opensearch", "title");
-		String openSearchDescriptionField = getFieldMap("opensearch",
-				"description");
+		String openSearchDescriptionField = getFieldMap("opensearch", "description");
 		String openSearchUrlField = getFieldMap("opensearch", "url");
 		if (values != null)
 			for (FieldValueItem v : values) {
 
-				if (openSearchtitleField != null
-						&& openSearchtitleField.equalsIgnoreCase(fieldName)) {
+				if (openSearchtitleField != null && openSearchtitleField.equalsIgnoreCase(fieldName)) {
 					writer.print("\t<title>");
 					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
 					writer.println("</title>");
 				} else if (openSearchDescriptionField != null
-						&& openSearchDescriptionField
-								.equalsIgnoreCase(fieldName)) {
+						&& openSearchDescriptionField.equalsIgnoreCase(fieldName)) {
 					writer.print("\t<description>");
 					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
 					writer.println("</description>");
-				} else if (openSearchUrlField != null
-						&& openSearchUrlField.equalsIgnoreCase(fieldName)) {
+				} else if (openSearchUrlField != null && openSearchUrlField.equalsIgnoreCase(fieldName)) {
 					writer.print("\t<link>");
 					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
 					writer.println("</link>");
@@ -203,36 +195,32 @@ public class RenderOpenSearch implements Render {
 	}
 
 	private String getFieldMap(String apiName, String field)
-			throws XPathExpressionException, ParserConfigurationException,
-			SAXException, IOException {
-		return ApiManager.getMappedValue(apiName, field);
+			throws XPathExpressionException, ParserConfigurationException, SAXException, IOException,
+			TransformerConfigurationException, SearchLibException {
+		return searchRequest.getConfig().getApiManager().getMappedValue(apiName, field);
 	}
 
 	private void renderSnippetValue(ResultDocument doc, SnippetField field)
-			throws IOException, XPathExpressionException,
-			ParserConfigurationException, SAXException {
+			throws IOException, XPathExpressionException, ParserConfigurationException, SAXException,
+			TransformerConfigurationException, SearchLibException {
 		String fieldName = field.getName();
 		List<FieldValueItem> snippets = doc.getSnippetValues(field);
 		if (snippets == null)
 			return;
 		String openSearchtitleField = getFieldMap("opensearch", "title");
-		String openSearchDescriptionField = getFieldMap("opensearch",
-				"description");
+		String openSearchDescriptionField = getFieldMap("opensearch", "description");
 		String openSearchUrlField = getFieldMap("opensearch", "url");
 		for (FieldValueItem snippet : snippets) {
 
-			if (openSearchtitleField != null
-					&& openSearchtitleField.equalsIgnoreCase(fieldName)) {
+			if (openSearchtitleField != null && openSearchtitleField.equalsIgnoreCase(fieldName)) {
 				writer.print("\t<title>");
 				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
 				writer.println("</title>");
-			} else if (openSearchDescriptionField != null
-					&& openSearchDescriptionField.equalsIgnoreCase(fieldName)) {
+			} else if (openSearchDescriptionField != null && openSearchDescriptionField.equalsIgnoreCase(fieldName)) {
 				writer.print("\t<description>");
 				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
 				writer.println("</description>");
-			} else if (openSearchUrlField != null
-					&& openSearchUrlField.equalsIgnoreCase(fieldName)) {
+			} else if (openSearchUrlField != null && openSearchUrlField.equalsIgnoreCase(fieldName)) {
 				writer.print("\t<link>");
 				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
 				writer.println("</link>");
@@ -254,13 +242,13 @@ public class RenderOpenSearch implements Render {
 		writer.print("\t\t<OpenSearchServer:");
 		writer.print(facetField.getName());
 		writer.println(">");
-		for (FacetItem facetItem : facet) {
+		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			writer.print("\t\t<OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
 			writer.print(">");
-			writer.print(facetItem.getCount());
+			writer.print(facetItem.getValue().count);
 			writer.print("</OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
 			writer.print(">");
 		}
 		writer.print("</OpenSearchServer:");

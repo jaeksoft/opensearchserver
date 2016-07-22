@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -80,6 +80,12 @@
 				</template>
 			</listbox>
 			<label value="Enter the language of the indexed documents" />
+		</row>
+		<row>
+			<label value="Fetch size: " />
+			<intbox cols="5"
+				value="@bind(dbCrawlList.currentCrawl.fetchSize)" />
+			<label value="Enter the fetch size (JDBC)" />
 		</row>
 		<row>
 			<label value="Buffer size: " />

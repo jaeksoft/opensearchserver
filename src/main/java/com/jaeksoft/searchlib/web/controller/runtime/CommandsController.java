@@ -26,7 +26,6 @@ package com.jaeksoft.searchlib.web.controller.runtime;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +41,6 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.scheduler.TaskItem;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
 import com.jaeksoft.searchlib.scheduler.task.TaskDeleteAll;
-import com.jaeksoft.searchlib.scheduler.task.TaskMergeDataIndex;
-import com.jaeksoft.searchlib.scheduler.task.TaskOptimizeIndex;
-import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.webservice.command.CommandImpl;
@@ -52,17 +48,12 @@ import com.jaeksoft.searchlib.webservice.command.CommandImpl;
 @AfterCompose(superclass = true)
 public class CommandsController extends CommonController {
 
-	private TaskItem taskOptimize = null;
 	private TaskItem taskTruncate = null;
-	private TaskItem taskMerge = null;
-
-	private String mergeIndex = null;
 
 	private class DeleteAlert extends AlertController {
 
 		protected DeleteAlert() throws InterruptedException {
-			super(
-					"Please, confirm that you want to delete all the documents in the main index",
+			super("Please, confirm that you want to delete all the documents in the main index",
 					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
 		}
 
@@ -79,20 +70,6 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	public boolean isRunningOptimize() throws SearchLibException {
-		Client client = getClient();
-		if (client == null)
-			return false;
-		if (taskOptimize != null) {
-			if (taskOptimize.isRunning())
-				return true;
-			if (taskOptimize.getLastExecution() == null)
-				return true;
-			taskOptimize = null;
-		}
-		return client.isOptimizing();
-	}
-
 	public boolean isRunningTruncate() {
 		if (taskTruncate == null)
 			return false;
@@ -104,19 +81,8 @@ public class CommandsController extends CommonController {
 		return false;
 	}
 
-	public boolean isRunningMerge() {
-		if (taskMerge == null)
-			return false;
-		if (taskMerge.isRunning())
-			return true;
-		if (taskMerge.getLastExecution() == null)
-			return true;
-		taskMerge = null;
-		return false;
-	}
-
 	public boolean isTaskRunning() throws SearchLibException {
-		return isRunningOptimize() || isRunningTruncate() || isRunningMerge();
+		return isRunningTruncate();
 	}
 
 	public CommandsController() throws SearchLibException {
@@ -168,42 +134,12 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	@Command
-	@NotifyChange("*")
-	public void onOptimize() throws SearchLibException, IOException,
-			URISyntaxException, InterruptedException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return;
-			if (isRunningOptimize())
-				throw new SearchLibException(
-						"The optimization is already running");
-			taskOptimize = new TaskItem(client, new TaskOptimizeIndex());
-			TaskManager.executeTask(client, taskOptimize, null);
-		}
-	}
-
 	public String getOnlineStatus() throws SearchLibException {
 		synchronized (this) {
 			Client client = getClient();
 			if (client == null)
 				return null;
 			return client.isOnline() ? "Online" : "Offline";
-		}
-	}
-
-	public String getOptimizeStatus() throws SearchLibException, IOException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			if (!client.isOnline())
-				return "Unknown";
-			if (client.isOptimizing())
-				return "Running";
-			return client.getStatistics().isOptimized() ? "Optimized"
-					: "Not optimized";
 		}
 	}
 
@@ -245,8 +181,7 @@ public class CommandsController extends CommonController {
 				return null;
 			List<String> list = new ArrayList<String>(0);
 			String currentName = client.getIndexName();
-			for (ClientCatalogItem item : ClientCatalog
-					.getClientCatalog(getLoggedUser())) {
+			for (ClientCatalogItem item : ClientCatalog.getClientCatalog(getLoggedUser())) {
 				String v = item.getIndexName();
 				if (!v.equals(currentName))
 					list.add(v);
@@ -255,108 +190,36 @@ public class CommandsController extends CommonController {
 		}
 	}
 
-	@Command
-	@NotifyChange("*")
-	public void onMergeData() throws SearchLibException, IOException,
-			URISyntaxException, InterruptedException {
-		synchronized (this) {
-			User user = getLoggedUser();
-			Client client = getClient();
-			if (client == null)
-				return;
-			if (isRunningMerge())
-				throw new SearchLibException("A merge is already running");
-			TaskMergeDataIndex taskMergeDataIndex = new TaskMergeDataIndex();
-			taskMerge = new TaskItem(client, taskMergeDataIndex);
-
-			taskMergeDataIndex.setValues(taskMerge.getProperties(), mergeIndex,
-					user != null ? user.getName() : null,
-					user != null ? user.getApiKey() : null);
-			TaskManager.executeTask(client, taskMerge, null);
-		}
-	}
-
-	public String getMergeStatus() throws SearchLibException, IOException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			return client.getMergeStatus();
-		}
-	}
-
-	@NotifyChange("*")
-	public void setMergeIndex(String index) {
-		synchronized (this) {
-			this.mergeIndex = index;
-		}
-	}
-
-	public String getMergeIndex() {
-		synchronized (this) {
-			return this.mergeIndex;
-		}
-	}
-
-	public String getReloadXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getReloadXmlApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getReloadXML(getLoggedUser(), getClient());
 	}
 
-	public String getReloadJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getReloadJsonApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getReloadJSON(getLoggedUser(), getClient());
 	}
 
-	public String getOptimizeXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getOptimizeXML(getLoggedUser(), getClient());
-	}
-
-	public String getOptimizeJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getOptimizeJSON(getLoggedUser(), getClient());
-	}
-
-	public String getOnlineXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getOnlineXmlApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getOnlineXML(getLoggedUser(), getClient());
 	}
 
-	public String getOnlineJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getOnlineJsonApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getOnlineJSON(getLoggedUser(), getClient());
 	}
 
-	public String getOfflineXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getOfflineXmlApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getOfflineXML(getLoggedUser(), getClient());
 	}
 
-	public String getOfflineJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getOfflineJsonApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getOfflineJSON(getLoggedUser(), getClient());
 	}
 
-	public String getTruncateXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getTruncateXmlApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getTruncateXML(getLoggedUser(), getClient());
 	}
 
-	public String getTruncateJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
+	public String getTruncateJsonApi() throws UnsupportedEncodingException, SearchLibException {
 		return CommandImpl.getTruncateJSON(getLoggedUser(), getClient());
 	}
 
-	public String getMergeXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getMergeXML(getLoggedUser(), getClient(),
-				getMergeIndex());
-	}
-
-	public String getMergeJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return CommandImpl.getMergeJSON(getLoggedUser(), getClient(),
-				getMergeIndex());
-	}
 }

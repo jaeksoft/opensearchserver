@@ -1,28 +1,36 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
-
 package com.jaeksoft.searchlib.replication;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.process.ThreadItem;
+import com.jaeksoft.searchlib.util.*;
+import com.jaeksoft.searchlib.web.PushServlet;
+import com.jaeksoft.searchlib.web.controller.CommonController;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -30,22 +38,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.process.ThreadItem;
-import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.PushServlet;
-import com.jaeksoft.searchlib.web.controller.CommonController;
-
-public class ReplicationItem extends
-		ThreadItem<ReplicationItem, ReplicationThread> {
+public class ReplicationItem extends ThreadItem<ReplicationItem, ReplicationThread> {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -69,26 +62,20 @@ public class ReplicationItem extends
 
 	public final static String[] NOT_PUSHED_DATA_PATH = { "screenshot" };
 
-	public final static String[] NOT_PUSHED_PATH = { "replication.xml",
-			"replication_old.xml", "jobs.xml", "jobs_old.xml", "report",
-			"statstore" };
+	public final static String[] NOT_PUSHED_PATH =
+			{ "replication.xml", "replication_old.xml", "jobs.xml", "jobs_old.xml", "report", "statstore" };
 
-	public final static String[] NOT_PUSHED_PATH_NODB = { "web_crawler_url",
-			"file_crawler_url" };
+	public final static String[] NOT_PUSHED_PATH_NODB = { "web_crawler_url", "file_crawler_url" };
 
 	public final static String[] NOT_PUSHED_INDEX = { "index" };
 
-	public ReplicationItem(ReplicationMaster crawlMaster, String name) {
+	public ReplicationItem(ReplicationMaster crawlMaster) {
 		super(crawlMaster);
 		replicationType = ReplicationType.MAIN_INDEX;
 	}
 
-	public ReplicationItem(ReplicationMaster crawlMaster) {
-		this(crawlMaster, null);
-	}
-
 	public ReplicationItem() {
-		this(null, null);
+		this((ReplicationMaster) null);
 	}
 
 	public ReplicationItem(ReplicationItem item) {
@@ -96,8 +83,28 @@ public class ReplicationItem extends
 		this.copy(item);
 	}
 
-	public ReplicationItem(ReplicationMaster crawlMaster, XPathParser xpp,
-			Node node) throws MalformedURLException, URISyntaxException {
+	public ReplicationItem(ReplicationMaster crawlMaster, String indexName, String url)
+			throws MalformedURLException, URISyntaxException {
+		this(crawlMaster);
+		this.name = null;
+		URL u = new URL(url);
+		setInstanceUrl(
+				u.getProtocol() + "://" + u.getHost() + (u.getPort() == -1 ? StringUtils.EMPTY : ':' + u.getPort()) + u
+						.getPath());
+		setIndexName(indexName);
+		String userInfo = u.getUserInfo();
+		if (userInfo != null && !userInfo.isEmpty()) {
+			String[] auth = StringUtils.split(userInfo, ':');
+			setLogin(auth[0]);
+			if (auth.length > 1)
+				setApiKey(auth[1]);
+		}
+		setReplicationType(ReplicationType.BACKUP_INDEX);
+		setSecTimeOut(60000);
+		updateName();
+	}
+
+	public ReplicationItem(ReplicationMaster crawlMaster, Node node) throws MalformedURLException, URISyntaxException {
 		this(crawlMaster);
 		this.name = null;
 		String url = XPathParser.getAttributeString(node, "instanceUrl");
@@ -108,8 +115,7 @@ public class ReplicationItem extends
 		String encodedApiKey = XPathParser.getAttributeString(node, "apiKey");
 		if (encodedApiKey != null && encodedApiKey.length() > 0)
 			setApiKey(StringUtils.base64decode(encodedApiKey));
-		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(
-				node, "replicationType")));
+		setReplicationType(ReplicationType.find(XPathParser.getAttributeString(node, "replicationType")));
 		setSecTimeOut(XPathParser.getAttributeValue(node, "timeOut"));
 		updateName();
 	}
@@ -131,17 +137,14 @@ public class ReplicationItem extends
 		}
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
-			String encodedApiKey = (apiKey != null && apiKey.length() > 0) ? new String(
-					StringUtils.base64encode(apiKey)) : "";
-			xmlWriter.startElement("replicationItem", "instanceUrl",
-					instanceUrl.toExternalForm(), "indexName", indexName,
-					"login", login, "apiKey", encodedApiKey, "replicationType",
-					replicationType.name(), "timeOut",
-					Integer.toString(secTimeOut));
+			String encodedApiKey =
+					(apiKey != null && apiKey.length() > 0) ? new String(StringUtils.base64encode(apiKey)) : "";
+			xmlWriter.startElement("replicationItem", "instanceUrl", instanceUrl.toExternalForm(), "indexName",
+					indexName, "login", login, "apiKey", encodedApiKey, "replicationType", replicationType.name(),
+					"timeOut", Integer.toString(secTimeOut));
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
@@ -149,13 +152,11 @@ public class ReplicationItem extends
 	}
 
 	/**
-	 * @param instanceUrl
-	 *            the instanceUrl to set
+	 * @param url the instanceUrl to set
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public void setInstanceUrl(String url) throws MalformedURLException,
-			URISyntaxException {
+	public void setInstanceUrl(String url) throws MalformedURLException, URISyntaxException {
 		rwl.w.lock();
 		try {
 			this.instanceUrl = LinkUtils.newEncodedURL(url);
@@ -171,8 +172,7 @@ public class ReplicationItem extends
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public String getInstanceUrl() throws MalformedURLException,
-			URISyntaxException {
+	public String getInstanceUrl() throws MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (instanceUrl != null)
@@ -184,8 +184,7 @@ public class ReplicationItem extends
 		try {
 			if (instanceUrl != null)
 				return instanceUrl.toExternalForm();
-			instanceUrl = LinkUtils.newEncodedURL(CommonController.getBaseUrl()
-					.toString());
+			instanceUrl = LinkUtils.newEncodedURL(CommonController.getBaseUrl().toString());
 			return instanceUrl.toExternalForm();
 		} finally {
 			rwl.w.unlock();
@@ -193,13 +192,11 @@ public class ReplicationItem extends
 	}
 
 	/**
-	 * @param indexName
-	 *            the indexName to set
+	 * @param indexName the indexName to set
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	public void setIndexName(String indexName) throws MalformedURLException,
-			URISyntaxException {
+	public void setIndexName(String indexName) throws MalformedURLException, URISyntaxException {
 		rwl.w.lock();
 		try {
 			this.indexName = indexName;
@@ -223,8 +220,7 @@ public class ReplicationItem extends
 	}
 
 	/**
-	 * @param apiKey
-	 *            the apiKey to set
+	 * @param apiKey the apiKey to set
 	 */
 	public void setApiKey(String apiKey) {
 		rwl.w.lock();
@@ -249,8 +245,7 @@ public class ReplicationItem extends
 	}
 
 	/**
-	 * @param login
-	 *            the login to set
+	 * @param login the login to set
 	 */
 	public void setLogin(String login) {
 		rwl.w.lock();
@@ -291,8 +286,7 @@ public class ReplicationItem extends
 		}
 	}
 
-	public String getCachedUrl() throws UnsupportedEncodingException,
-			MalformedURLException, URISyntaxException {
+	public String getCachedUrl() throws UnsupportedEncodingException, MalformedURLException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (cachedUrl != null)
@@ -344,8 +338,7 @@ public class ReplicationItem extends
 	}
 
 	/**
-	 * @param replicationType
-	 *            the replicationType to set
+	 * @param replicationType the replicationType to set
 	 */
 	public void setReplicationType(ReplicationType replicationType) {
 		rwl.w.lock();
@@ -374,8 +367,7 @@ public class ReplicationItem extends
 	}
 
 	/**
-	 * @param secTimeOut
-	 *            the secTimeOut to set
+	 * @param secTimeOut the secTimeOut to set
 	 */
 	public void setSecTimeOut(int secTimeOut) {
 		rwl.w.lock();

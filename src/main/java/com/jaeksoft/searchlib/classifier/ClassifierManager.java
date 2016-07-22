@@ -58,8 +58,7 @@ public class ClassifierManager implements UpdateInterfaces.Before {
 
 	private Client client;
 
-	public ClassifierManager(Client client, File directory)
-			throws XPathExpressionException, SearchLibException,
+	public ClassifierManager(Client client, File directory) throws XPathExpressionException, SearchLibException,
 			ParserConfigurationException, SAXException, IOException {
 		this.client = client;
 		classifierArray = null;
@@ -144,7 +143,9 @@ public class ClassifierManager implements UpdateInterfaces.Before {
 	 * Write the classifier list in XML
 	 * 
 	 * @param xmlWriter
+	 *            the destination writer
 	 * @throws SAXException
+	 *             inherited error
 	 */
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
@@ -159,8 +160,7 @@ public class ClassifierManager implements UpdateInterfaces.Before {
 	}
 
 	@Override
-	public void update(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	public void update(Schema schema, IndexDocument document) throws SearchLibException {
 		Classifier[] classifiers = getActiveArray();
 		if (classifiers == null)
 			return;

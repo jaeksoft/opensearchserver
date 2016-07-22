@@ -53,29 +53,25 @@ public class DeleteServlet extends AbstractServlet {
 	private static final long serialVersionUID = -2663934578246659291L;
 
 	private int deleteUniqDoc(Client client, String field, String value)
-			throws NoSuchAlgorithmException, IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+			throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, HttpException {
 		SchemaFieldList schemaFieldList = client.getSchema().getFieldList();
-		SchemaField schemaField = field != null ? schemaFieldList.get(field)
-				: schemaFieldList.getUniqueField();
+		SchemaField schemaField = field != null ? schemaFieldList.get(field) : schemaFieldList.getUniqueField();
 		if (schemaField == null)
 			throw new SearchLibException("Field not found: " + field);
 		return client.deleteDocument(schemaField.getName(), value);
 	}
 
 	private int deleteByQuery(Client client, String q)
-			throws SearchLibException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, ParseException,
-			SyntaxError, URISyntaxException, InterruptedException {
+			throws SearchLibException, IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, ParseException, SyntaxError, URISyntaxException, InterruptedException {
 		AbstractSearchRequest request = new SearchPatternRequest(client);
 		request.setQueryString(q);
 		return client.deleteDocuments(request);
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 			String indexName = transaction.getIndexName();
 			User user = transaction.getLoggedUser();
@@ -92,22 +88,19 @@ public class DeleteServlet extends AbstractServlet {
 			else if (q != null)
 				result = deleteByQuery(client, q);
 			transaction.addXmlResponse("Status", "OK");
-			transaction.addXmlResponse("Deleted", result.toString());
+			if (result != null)
+				transaction.addXmlResponse("Deleted", result.toString());
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
-	public static boolean delete(URI uri, String indexName, String login,
-			String apikey, String uniqueField, int secTimeOut)
-			throws SearchLibException {
+	public static boolean delete(URI uri, String indexName, String login, String apikey, String uniqueField,
+			int secTimeOut) throws SearchLibException {
 		try {
-			XPathParser xpp = call(
-					secTimeOut,
-					buildUri(uri, "/delete", indexName, login, apikey, "uniq="
-							+ uniqueField));
-			return "OK".equals(xpp
-					.getNodeString("/response/entry[@key='Status'"));
+			XPathParser xpp = call(secTimeOut,
+					buildUri(uri, "/delete", indexName, login, apikey, "uniq=" + uniqueField));
+			return "OK".equals(xpp.getNodeString("/response/entry[@key='Status'"));
 		} catch (IllegalStateException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -117,16 +110,11 @@ public class DeleteServlet extends AbstractServlet {
 		}
 	}
 
-	public static boolean deleteDocument(URI uri, String indexName,
-			String login, String apikey, int docId, int secTimeOut)
-			throws SearchLibException {
+	public static boolean deleteDocument(URI uri, String indexName, String login, String apikey, int docId,
+			int secTimeOut) throws SearchLibException {
 		try {
-			XPathParser xpp = call(
-					secTimeOut,
-					buildUri(uri, "/delete", indexName, login, apikey, "id="
-							+ docId));
-			return "OK".equals(xpp
-					.getNodeString("/response/entry[@key='Status'"));
+			XPathParser xpp = call(secTimeOut, buildUri(uri, "/delete", indexName, login, apikey, "id=" + docId));
+			return "OK".equals(xpp.getNodeString("/response/entry[@key='Status'"));
 		} catch (SearchLibException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

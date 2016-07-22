@@ -8,9 +8,53 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
-OpenSearchServer 1.5.13 (DEV)
+OpenSearchServer 1.5.14
 
 New features:
+- GH-1796: Silent backup replication
+- GH-1791: Disabling the Scheduler, the WebCrawler and the FileCrawler
+- GH-1780: Create a Scheduler using Rest API
+- GH-1773: Crawler - API to delete URL browser
+- GH-1768: Limit the crawl depth in the web crawler
+- GH-1756: Crawler Status for All Crawlers trough API Call
+- GH-1755: Add and Remove sitemaps from index trough the REST API / php client
+- GH-1749: Web service method for web properties
+- GH-1746: Add HTTP connection time out
+- GH-1706: Autocompletion thread should be interruptible
+- GH-1700: Tomcat version update 7.0.68
+- GH-1689: Disabling link detection
+- GH-1676: Support of PhantomJS in the HTMLParser
+- GH-1671: Add a customizable char tokenizer
+- GH-1669: An XML/JSON API for field terms extractions
+
+Bug fixes:
+- GH-1745: Can't access "Privileges" tab in last snapshots
+- GH-1729: org.apache.cxf.interceptor.Fault, Tomcat 7.0.53, when starting crawl
+- GH-1697: Ignored Number of suggestion for auto-completion
+- GH-1697: Scheduler URL database error
+- GH-1674: Faulty cookie support with HttpClient
+- GH-1659: Crawler deadlocks after running while serving requests
+
+OpenSearchServer 1.5.13
+
+New features:
+- GH-1653: REST Crawler - HTTP Header authentication method
+- GH-1652: REST Crawler - an integrated sequence for paginated APIs support
+- GH-1648: File event scheduler task
+- GH-1635: For SMB crawling and AD login SID should also be extracted
+- GH-1624: Add the field host in the field mapping of the file crawler
+- GH-1617: The REST crawler should support local files indexation
+- GH-1611: Support of multiple indexes
+- GH-1601: Use compressed bit set for less memory consumption
+- GH-1598: Facets can be limited in number
+- GH-1597: Facets can be sorted by term or count
+- GH-1595: Parallel sorting to better use multi-core system
+- GH-1582: Programmatically retrieving hosts from Web index
+- GH-1562: Fault tolerancy in the database crawler
+- GH-1559: Handle short date format in sitemap (yyyy-mm-dd)
+- GH-1541: Ability to disable obeying robots.txt using the API
+- GH-1537: Collapsing size to 0 merges the returned field
+- GH-1524: Add fetch size parameter in the database crawler
 - GH-1502: A scheduler task able to launch a crawl script
 - GH-1480: Multithreaded OCR 
 - GH-1476: New index template for credentials storing
@@ -19,6 +63,8 @@ New features:
 - GH-1470: Renderer: Add range to date facet
 
 Bug fixes:
+- GH-1592: The pattern inclusion API (v2) failed to inject the URLs in the URL database
+- GH-1509: Hunspell native implementation is slow
 - GH-1494: Error HttpHostConnectException should not abort the crawl session
 
 OpenSearchServer 1.5.12

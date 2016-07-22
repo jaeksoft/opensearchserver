@@ -41,7 +41,7 @@ import com.jaeksoft.searchlib.util.ThreadUtils;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "info")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class IndexInfo {
 
 	final public String indexName;
@@ -62,8 +62,7 @@ public class IndexInfo {
 		loaded = null;
 	}
 
-	public IndexInfo(ClientCatalogItem clientCatalogItem) throws IOException,
-			SearchLibException {
+	public IndexInfo(ClientCatalogItem clientCatalogItem) throws IOException, SearchLibException {
 		indexName = clientCatalogItem.getIndexName();
 		lastModified = clientCatalogItem.getLastModifiedDate();
 		numDocs = clientCatalogItem.getNumDocs();

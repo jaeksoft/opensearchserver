@@ -73,21 +73,15 @@ public class CrawlCacheManager implements Closeable {
 
 	private File propFile;
 
-	public CrawlCacheManager(File confDir) throws InstantiationException,
-			IllegalAccessException, IOException {
+	public CrawlCacheManager(File confDir) throws InstantiationException, IllegalAccessException, IOException {
 		crawlCache = null;
 		propFile = new File(confDir, CRAWLCACHE_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
-		enabled = "true".equals(properties.getProperty(
-				CRAWLCACHE_PROPERTY_ENABLED, "false"));
-		expirationValue = Integer.parseInt(properties.getProperty(
-				CRAWLCACHE_PROPERTY_EXPIRATION_VALUE, "0"));
-		expirationUnit = properties.getProperty(
-				CRAWCACHE_PROPERTY_EXPIRATION_UNIT, "days");
-		crawlCacheProvider = CrawlCacheProviderEnum.find(properties
-				.getProperty(CRAWCACHE_PROPERTY_PROVIDER_TYPE));
-		configuration = properties
-				.getProperty(CRAWCACHE_PROPERTY_CONFIGURATION);
+		enabled = "true".equals(properties.getProperty(CRAWLCACHE_PROPERTY_ENABLED, "false"));
+		expirationValue = Integer.parseInt(properties.getProperty(CRAWLCACHE_PROPERTY_EXPIRATION_VALUE, "0"));
+		expirationUnit = properties.getProperty(CRAWCACHE_PROPERTY_EXPIRATION_UNIT, "days");
+		crawlCacheProvider = CrawlCacheProviderEnum.find(properties.getProperty(CRAWCACHE_PROPERTY_PROVIDER_TYPE));
+		configuration = properties.getProperty(CRAWCACHE_PROPERTY_CONFIGURATION);
 		crawlCache = crawlCacheProvider.getNewInstance();
 		try {
 			setEnabled(enabled);
@@ -99,8 +93,7 @@ public class CrawlCacheManager implements Closeable {
 	private static CrawlCacheManager INSTANCE = null;
 	final private static ReadWriteLock rwlInstance = new ReadWriteLock();
 
-	public static final CrawlCacheManager getGlobalInstance()
-			throws SearchLibException {
+	public static final CrawlCacheManager getGlobalInstance() throws SearchLibException {
 		rwlInstance.r.lock();
 		try {
 			if (INSTANCE != null)
@@ -112,8 +105,7 @@ public class CrawlCacheManager implements Closeable {
 		try {
 			if (INSTANCE != null)
 				return INSTANCE;
-			return INSTANCE = new CrawlCacheManager(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+			return INSTANCE = new CrawlCacheManager(StartStopListener.OPENSEARCHSERVER_DATA_FILE);
 		} catch (InvalidPropertiesFormatException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -127,8 +119,7 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	public static final CrawlCacheManager getInstance(Config config)
-			throws SearchLibException {
+	public static final CrawlCacheManager getInstance(Config config) throws SearchLibException {
 		CrawlCacheManager crawlCacheManager = config.getCrawlCacheManager();
 		if (crawlCacheManager.isEnabled())
 			return crawlCacheManager;
@@ -137,17 +128,12 @@ public class CrawlCacheManager implements Closeable {
 
 	private void save() throws IOException {
 		Properties properties = new Properties();
-		properties.setProperty(CRAWLCACHE_PROPERTY_ENABLED,
-				Boolean.toString(enabled));
-		properties.setProperty(CRAWLCACHE_PROPERTY_EXPIRATION_VALUE,
-				Long.toString(expirationValue));
-		properties.setProperty(CRAWCACHE_PROPERTY_EXPIRATION_UNIT,
-				expirationUnit);
-		properties.setProperty(CRAWCACHE_PROPERTY_PROVIDER_TYPE,
-				crawlCacheProvider.name());
+		properties.setProperty(CRAWLCACHE_PROPERTY_ENABLED, Boolean.toString(enabled));
+		properties.setProperty(CRAWLCACHE_PROPERTY_EXPIRATION_VALUE, Long.toString(expirationValue));
+		properties.setProperty(CRAWCACHE_PROPERTY_EXPIRATION_UNIT, expirationUnit);
+		properties.setProperty(CRAWCACHE_PROPERTY_PROVIDER_TYPE, crawlCacheProvider.name());
 		if (configuration != null)
-			properties.setProperty(CRAWCACHE_PROPERTY_CONFIGURATION,
-					configuration);
+			properties.setProperty(CRAWCACHE_PROPERTY_CONFIGURATION, configuration);
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
@@ -180,8 +166,7 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	public InputStream storeCache(DownloadItem downloadItem)
-			throws IOException, JSONException {
+	public InputStream storeCache(DownloadItem downloadItem) throws IOException, JSONException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
@@ -209,8 +194,7 @@ public class CrawlCacheManager implements Closeable {
 		return System.currentTimeMillis() - l;
 	}
 
-	public DownloadItem loadCache(URI uri) throws IOException, JSONException,
-			URISyntaxException {
+	public DownloadItem loadCache(URI uri) throws IOException, JSONException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
@@ -235,8 +219,7 @@ public class CrawlCacheManager implements Closeable {
 	public long flushCache(boolean expiration) throws IOException {
 		rwl.r.lock();
 		try {
-			long exp = expiration ? getExpirationDate() : System
-					.currentTimeMillis();
+			long exp = expiration ? getExpirationDate() : System.currentTimeMillis();
 			return crawlCache.flush(exp);
 		} finally {
 			rwl.r.unlock();
@@ -263,6 +246,7 @@ public class CrawlCacheManager implements Closeable {
 	 * @param enabled
 	 *            the enabled to set
 	 * @throws IOException
+	 *             inherited error
 	 */
 	public void setEnabled(boolean enabled) throws IOException {
 		rwl.w.lock();
@@ -303,6 +287,7 @@ public class CrawlCacheManager implements Closeable {
 	 * @param expirationValue
 	 *            the expirationValue to set
 	 * @throws IOException
+	 *             inherited error
 	 */
 	public void setExpirationValue(long expirationValue) throws IOException {
 		rwl.w.lock();
@@ -314,8 +299,7 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	private final static String[] expirationUnitValues = { "days", "hours",
-			"minutes" };
+	private final static String[] expirationUnitValues = { "days", "hours", "minutes" };
 
 	public String[] getExpirationUnitValues() {
 		return expirationUnitValues;
@@ -337,6 +321,7 @@ public class CrawlCacheManager implements Closeable {
 	 * @param expirationUnit
 	 *            the expirationUnit to set
 	 * @throws IOException
+	 *             inherited error
 	 */
 	public void setExpirationUnit(String expirationUnit) throws IOException {
 		rwl.w.lock();
@@ -359,13 +344,16 @@ public class CrawlCacheManager implements Closeable {
 	 * @param crawlCacheProvider
 	 *            the crawlCacheProvider to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IllegalAccessException
+	 *             inherited error
 	 * @throws InstantiationException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
 	public void setCrawlCacheProvider(CrawlCacheProviderEnum crawlCacheProvider)
-			throws SearchLibException, InstantiationException,
-			IllegalAccessException, IOException {
+			throws SearchLibException, InstantiationException, IllegalAccessException, IOException {
 		rwl.w.lock();
 		try {
 			if (enabled)
@@ -396,10 +384,11 @@ public class CrawlCacheManager implements Closeable {
 	 * @param configuration
 	 *            the configuration to set
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setConfiguration(String configuration)
-			throws SearchLibException, IOException {
+	public void setConfiguration(String configuration) throws SearchLibException, IOException {
 		rwl.w.lock();
 		try {
 			if (enabled)

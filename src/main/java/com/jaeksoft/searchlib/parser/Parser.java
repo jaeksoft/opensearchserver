@@ -108,8 +108,7 @@ public abstract class Parser extends ParserFactory {
 		detectedLinks.add(link);
 	}
 
-	public boolean popupateResult(int resultPos, IndexDocument indexDocument)
-			throws IOException {
+	public boolean popupateResult(int resultPos, IndexDocument indexDocument) throws IOException {
 		if (resultItems == null)
 			return false;
 		if (resultPos >= resultItems.size())
@@ -118,17 +117,16 @@ public abstract class Parser extends ParserFactory {
 		return true;
 	}
 
-	protected abstract void parseContent(StreamLimiter streamLimiter,
-			LanguageEnum lang) throws IOException, SearchLibException;
+	protected abstract void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+			throws IOException, SearchLibException;
 
 	private final String getErrorText(Throwable t) {
-		return StringUtils.fastConcat("Error while working on URL: ",
-				streamLimiter.getOriginURL(), " : ", t.getMessage());
+		return StringUtils.fastConcat("Error while working on URL: ", streamLimiter.getOriginURL(), " : ",
+				t.getMessage());
 	}
 
-	final public void doParserContentExternal(
-			final IndexDocument sourceDocument,
-			final StreamLimiter streamLimiter, final LanguageEnum lang) {
+	final public void doParserContentExternal(final IndexDocument sourceDocument, final StreamLimiter streamLimiter,
+			final LanguageEnum lang) {
 		if (!externalAllowed) {
 			doParserContent(null, sourceDocument, streamLimiter, lang);
 			return;
@@ -139,8 +137,7 @@ public abstract class Parser extends ParserFactory {
 		File tempDir = null;
 		try {
 			tempDir = FileUtils.createTempDirectory("oss-external-parser", "");
-			ExternalParser.doParserContent(this, tempDir, sourceDocument,
-					streamLimiter, lang);
+			ExternalParser.doParserContent(this, tempDir, sourceDocument, streamLimiter, lang);
 		} catch (IOException e) {
 			this.error = e;
 			Logging.warn(getErrorText(e), e);
@@ -161,8 +158,7 @@ public abstract class Parser extends ParserFactory {
 		}
 	}
 
-	final public void doParserContent(final ParserSelector parserSelector,
-			final IndexDocument sourceDocument,
+	final public void doParserContent(final ParserSelector parserSelector, final IndexDocument sourceDocument,
 			final StreamLimiter streamLimiter, final LanguageEnum lang) {
 		this.parserSelector = parserSelector;
 		if (sourceDocument != null)
@@ -184,16 +180,25 @@ public abstract class Parser extends ParserFactory {
 		return streamLimiter;
 	}
 
-	public String getMd5size() throws NoSuchAlgorithmException, LimitException,
-			IOException {
+	public String getMd5size() throws NoSuchAlgorithmException, LimitException, IOException {
 		String hash = null;
 		if (streamLimiter != null)
 			hash = streamLimiter.getMD5Hash() + '_' + streamLimiter.getSize();
 		return hash;
 	}
 
-	public boolean equals(Parser one) {
-		return this.getClass().getName().equals(one.getClass().getName());
+	@Override
+	public int hashCode() {
+		return this.getClass().getName().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == null)
+			return false;
+		if (!(o instanceof Parser))
+			return false;
+		return this.hashCode() == o.hashCode();
 	}
 
 	public String getFirstLang() {
@@ -207,10 +212,8 @@ public abstract class Parser extends ParserFactory {
 		return null;
 	}
 
-	public void mergeFiles(File fileDir, File destFile)
-			throws SearchLibException {
-		throw new SearchLibException(
-				"This parser does not support file merge feature");
+	public void mergeFiles(File fileDir, File destFile) throws SearchLibException {
+		throw new SearchLibException("This parser does not support file merge feature");
 	}
 
 }

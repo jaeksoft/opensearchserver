@@ -1,47 +1,42 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.replication;
+
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.process.ThreadAbstract;
+import com.jaeksoft.searchlib.scheduler.TaskLog;
+import com.jaeksoft.searchlib.util.*;
+import com.jaeksoft.searchlib.web.PushServlet;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.process.ThreadAbstract;
-import com.jaeksoft.searchlib.scheduler.TaskLog;
-import com.jaeksoft.searchlib.util.FileUtils;
-import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.LastModifiedAndSize;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.util.RecursiveDirectoryBrowser;
-import com.jaeksoft.searchlib.web.PushServlet;
-
-public class ReplicationThread extends ThreadAbstract<ReplicationThread>
-		implements RecursiveDirectoryBrowser.CallBack {
+public class ReplicationThread extends ThreadAbstract<ReplicationThread> implements RecursiveDirectoryBrowser.CallBack {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
@@ -67,10 +62,8 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	private final long initVersion;
 
-	protected ReplicationThread(Client client,
-			ReplicationMaster replicationMaster,
-			ReplicationItem replicationItem, InfoCallback infoCallback)
-			throws SearchLibException {
+	protected ReplicationThread(Client client, ReplicationMaster replicationMaster, ReplicationItem replicationItem,
+			InfoCallback infoCallback) throws SearchLibException {
 		super(client, replicationMaster, replicationItem, infoCallback);
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.replicationType = replicationItem.getReplicationType();
@@ -111,10 +104,9 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	}
 
 	private void initNotPushedList() {
-		filesNotPushed = new ArrayList<File>(0);
-		dirsNotPushed = new ArrayList<File>(0);
-		getReplicationItem().getReplicationType().addNotPushedPath(
-				sourceDirectory, filesNotPushed, dirsNotPushed);
+		filesNotPushed = new ArrayList<>(0);
+		dirsNotPushed = new ArrayList<>(0);
+		getReplicationItem().getReplicationType().addNotPushedPath(sourceDirectory, filesNotPushed, dirsNotPushed);
 	}
 
 	@Override
@@ -132,8 +124,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	public void release() {
 		Exception e = getException();
 		if (e != null)
-			setInfo("Error: " + e.getMessage() != null ? e.getMessage() : e
-					.toString());
+			setInfo("Error: " + e.getMessage() != null ? e.getMessage() : e.toString());
 		else if (isAborted())
 			setInfo("Aborted");
 		else
@@ -143,8 +134,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	public void push() throws SearchLibException {
 		ReplicationItem replicationItem = getReplicationItem();
 		try {
-			setTotalSize(new LastModifiedAndSize(sourceDirectory, false)
-					.getSize());
+			setTotalSize(new LastModifiedAndSize(sourceDirectory, false).getSize());
 			addCheckedSize(sourceDirectory.length());
 			PushServlet.call_init(getReplicationItem());
 			new RecursiveDirectoryBrowser(sourceDirectory, this);
@@ -206,9 +196,8 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 	public String getStatInfo() {
 		rwl.r.lock();
 		try {
-			return getProgress() + "% completed - " + filesSent
-					+ " file(s) sent - "
-					+ FileUtils.byteCountToDisplaySize(bytesSent) + " sent";
+			return getProgress() + "% completed - " + filesSent + " file(s) sent - " + FileUtils
+					.byteCountToDisplaySize(bytesSent) + " sent";
 		} finally {
 			rwl.r.unlock();
 		}
@@ -216,8 +205,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 
 	private void checkVersion() throws SearchLibException {
 		if (initVersion != client.getIndex().getVersion())
-			throw new SearchLibException(
-					"Replication process aborted. The index has changed.");
+			throw new SearchLibException("Replication process aborted. The index has changed.");
 	}
 
 	@Override
@@ -228,8 +216,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread>
 			long length = file.length();
 			if (file.isFile()) {
 				if (checkFilePush(file)) {
-					if (!PushServlet.call_file_exist(client, replicationItem,
-							file)) {
+					if (!PushServlet.call_file_exist(client, replicationItem, file)) {
 						PushServlet.call_file(client, replicationItem, file);
 						incFilesSent(length);
 					}

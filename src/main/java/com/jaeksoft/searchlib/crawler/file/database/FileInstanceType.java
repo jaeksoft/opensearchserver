@@ -90,10 +90,11 @@ public enum FileInstanceType {
 	 * 
 	 * @return a new instance of the FileInstanceAbstract
 	 * @throws InstantiationException
+	 *             if the class can not be created
 	 * @throws IllegalAccessException
+	 *             if the class can not be created
 	 */
-	public FileInstanceAbstract getNewInstance() throws InstantiationException,
-			IllegalAccessException {
+	public FileInstanceAbstract getNewInstance() throws InstantiationException, IllegalAccessException {
 		return classInstance.newInstance();
 	}
 

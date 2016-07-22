@@ -64,6 +64,8 @@ public class FileItemFieldEnum extends ExtensibleEnum<ItemField> {
 
 	public final ItemField parser = new ItemField(this, "parser");
 
+	public final ItemField host = new ItemField(this, "host");
+
 	public final ItemField time = new ItemField(this, "time");
 
 	public final ItemField userAllow = new ItemField(this, "userAllow");

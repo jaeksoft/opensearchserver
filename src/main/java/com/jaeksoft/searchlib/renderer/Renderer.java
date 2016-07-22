@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.renderer;
@@ -51,6 +51,7 @@ import com.jaeksoft.searchlib.renderer.log.RendererLogField;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginEnum;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface.User;
+import com.jaeksoft.searchlib.renderer.plugin.AuthRendererTokens;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
@@ -58,7 +59,7 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.RendererServlet;
 
-public class Renderer implements Comparable<Renderer> {
+public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 
 	private final static String RENDERER_SESSION_USER = "rendererUser";
 	private final static String RENDERER_ITEM_ROOTNODE_NAME = "renderer";
@@ -161,6 +162,8 @@ public class Renderer implements Comparable<Renderer> {
 
 	private RendererJspEnum defaultJsp;
 
+	private final AuthRendererTokens tokens;
+
 	public Renderer() {
 		name = null;
 		requestName = null;
@@ -174,6 +177,7 @@ public class Renderer implements Comparable<Renderer> {
 		filtersTitleText = "Active filters";
 		facetWidth = "200px";
 		logEnabled = false;
+		tokens = new AuthRendererTokens();
 		fields = new ArrayList<RendererField>();
 		filters = new ArrayList<RendererFilter>();
 		sorts = new ArrayList<RendererSort>(0);
@@ -197,85 +201,59 @@ public class Renderer implements Comparable<Renderer> {
 		defaultJsp = RendererJspEnum.SimpleHtml;
 	}
 
-	public Renderer(XPathParser xpp) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException {
+	public Renderer(XPathParser xpp)
+			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		this();
 		Node rootNode = xpp.getNode(RENDERER_ITEM_ROOTNODE_NAME);
 		if (rootNode == null)
 			return;
-		setName(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_NAME));
-		setRequestName(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_REQUEST));
-		setSearchButtonLabel(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL));
-		setNoResultFoundText(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT));
-		setOneResultFoundText(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT));
-		setResultsFoundText(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT));
-		setLogoutText(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT));
-		setClearFiltersText(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT));
-		setFiltersTitleText(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT));
-		setContentTypeField(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE));
-		setFilenameField(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
-		setHocrField(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
-		setAutocompletionName(XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME));
-		setDefaultJsp(RendererJspEnum.find(XPathParser.getAttributeString(
-				rootNode, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP)));
+		setName(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_NAME));
+		setRequestName(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_REQUEST));
+		setSearchButtonLabel(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL));
+		setNoResultFoundText(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT));
+		setOneResultFoundText(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT));
+		setResultsFoundText(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT));
+		setLogoutText(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT));
+		setClearFiltersText(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT));
+		setFiltersTitleText(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT));
+		setContentTypeField(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE));
+		setFilenameField(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
+		setHocrField(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
+		setAutocompletionName(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME));
+		setDefaultJsp(
+				RendererJspEnum.find(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP)));
 
 		Node authNode = xpp.getNode(rootNode, RENDERER_ITEM_AUTH_NODE);
 		if (authNode != null) {
-			setAuthUsername(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_USERNAME));
-			setAuthPassword(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_PASSWORD));
-			setAuthDomain(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_DOMAIN));
-			setAuthIndex(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_INDEX));
-			setAuthServer(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
-			setAuthPluginClass(XPathParser.getAttributeString(authNode,
-					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS));
+			setAuthUsername(XPathParser.getAttributeString(authNode, RENDERER_ITEM_AUTH_ATTR_USERNAME));
+			setAuthPassword(XPathParser.getAttributeString(authNode, RENDERER_ITEM_AUTH_ATTR_PASSWORD));
+			setAuthDomain(XPathParser.getAttributeString(authNode, RENDERER_ITEM_AUTH_ATTR_DOMAIN));
+			setAuthIndex(XPathParser.getAttributeString(authNode, RENDERER_ITEM_AUTH_ATTR_INDEX));
+			setAuthServer(XPathParser.getAttributeString(authNode, RENDERER_ITEM_AUTH_ATTR_SERVER_HOST));
+			setAuthPluginClass(XPathParser.getAttributeString(authNode, RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS));
 		}
 
-		String p = XPathParser.getAttributeString(rootNode,
-				RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH);
+		String p = XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH);
 		if (p == null || p.length() == 0)
 			p = "200px";
 		setFacetWidth(p);
-		setHeader(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_HEADER,
-				true));
-		setFooter(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_FOOTER,
-				true));
+		setHeader(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_HEADER, true));
+		setFooter(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_FOOTER, true));
 		setCss(xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_CSS, true));
-		NodeList nodeFilterList = xpp.getNodeList(rootNode,
-				RENDERER_ITEM_NODE_NAME_FILTER);
+		NodeList nodeFilterList = xpp.getNodeList(rootNode, RENDERER_ITEM_NODE_NAME_FILTER);
 		for (int i = 0; i < nodeFilterList.getLength(); i++)
 			addFilter(new RendererFilter(xpp, nodeFilterList.item(i)));
-		NodeList nodeFieldList = xpp.getNodeList(rootNode,
-				RENDERER_ITEM_NODE_NAME_FIELD);
+		NodeList nodeFieldList = xpp.getNodeList(rootNode, RENDERER_ITEM_NODE_NAME_FIELD);
 		for (int i = 0; i < nodeFieldList.getLength(); i++)
 			addField(new RendererField(xpp, nodeFieldList.item(i)));
-		NodeList nodeSortList = xpp.getNodeList(rootNode,
-				RENDERER_ITEM_NODE_NAME_SORT);
+		NodeList nodeSortList = xpp.getNodeList(rootNode, RENDERER_ITEM_NODE_NAME_SORT);
 		for (int i = 0; i < nodeSortList.getLength(); i++)
 			addSort(new RendererSort(xpp, nodeSortList.item(i)));
-		NodeList nodeLogList = xpp.getNodeList(rootNode,
-				RENDERER_ITEM_NODE_LOG_FIELD);
+		NodeList nodeLogList = xpp.getNodeList(rootNode, RENDERER_ITEM_NODE_LOG_FIELD);
 		for (int j = 0; j < nodeLogList.getLength(); j++)
 			addLogField(new RendererLogField(xpp, nodeLogList.item(j)));
-		setLogEnabled(Boolean.parseBoolean(XPathParser.getAttributeString(
-				rootNode, RENDERER_ITEM_ROOT_ATTR_LOGENABLED)));
+		setLogEnabled(
+				Boolean.parseBoolean(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_LOGENABLED)));
 		if (css == null || css.length() == 0)
 			css = getOldCss(xpp, rootNode);
 	}
@@ -288,9 +266,7 @@ public class Renderer implements Comparable<Renderer> {
 	public void setDefaultCss() throws SearchLibException {
 		InputStream is = null;
 		try {
-			is = getClass()
-					.getResourceAsStream(
-							"/com/jaeksoft/searchlib/template/common/renderers/default.xml");
+			is = getClass().getResourceAsStream("/com/jaeksoft/searchlib/template/common/renderers/default.xml");
 			Renderer r = new Renderer(new XPathParser(is));
 			setCss(r.css);
 		} catch (XPathExpressionException e) {
@@ -317,12 +293,11 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Return the old CSS stylesheet
-	 * 
+	 *
 	 * @return
 	 * @throws XPathExpressionException
 	 */
-	private String getOldCss(XPathParser xpp, Node rootNode)
-			throws XPathExpressionException {
+	private String getOldCss(XPathParser xpp, Node rootNode) throws XPathExpressionException {
 
 		final String RENDERER_ITEM_NODE_COMMON_STYLE = "style";
 		final String RENDERER_ITEM_NODE_INPUT_STYLE = "inputStyle";
@@ -341,53 +316,40 @@ public class Renderer implements Comparable<Renderer> {
 		final String RENDERER_ITEM_NODE_FACET_STYLE = "facetStyle";
 		final String RENDERER_ITEM_NODE_RESULT_STYLE = "resultStyle";
 
-		String commonStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_COMMON_STYLE, true);
+		String commonStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_COMMON_STYLE, true);
 
-		String inputStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_INPUT_STYLE, true);
+		String inputStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_INPUT_STYLE, true);
 
-		String buttonStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_BUTTON_STYLE, true);
+		String buttonStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_BUTTON_STYLE, true);
 
-		String documentFoundStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, true);
+		String documentFoundStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_DOCUMENTFOUND_STYLE, true);
 
-		String pagingStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_PAGING_STYLE, true);
+		String pagingStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_PAGING_STYLE, true);
 
-		String currentPageStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_CURRENTPAGE_STYLE, true);
+		String currentPageStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_CURRENTPAGE_STYLE, true);
 
-		String autocompleteStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, true);
+		String autocompleteStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, true);
 
-		String autocompleteListStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE, true);
+		String autocompleteListStyle =
+				xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE, true);
 
-		String autocompleteLinkStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE, true);
+		String autocompleteLinkStyle =
+				xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE, true);
 
-		String autocompleteLinkHoverStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE, true);
+		String autocompleteLinkHoverStyle =
+				xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE, true);
 
-		String aactive = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AACTIVE, true);
+		String aactive = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AACTIVE, true);
 
-		String ahover = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AHOVER, true);
+		String ahover = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AHOVER, true);
 
-		String alink = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_ALINK, true);
+		String alink = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_ALINK, true);
 
-		String avisited = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_AVISITED, true);
+		String avisited = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AVISITED, true);
 
-		String facetStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_FACET_STYLE, true);
+		String facetStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_FACET_STYLE, true);
 
-		String resultStyle = xpp.getSubNodeTextIfAny(rootNode,
-				RENDERER_ITEM_NODE_RESULT_STYLE, true);
+		String resultStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_RESULT_STYLE, true);
 
 		rwl.w.lock();
 		try {
@@ -406,8 +368,7 @@ public class Renderer implements Comparable<Renderer> {
 				writeCss(pw, "#ossautocomplete", autocompleteStyle);
 				writeCss(pw, "#ossautocompletelist", autocompleteListStyle);
 				writeCss(pw, ".ossautocomplete_link", autocompleteLinkStyle);
-				writeCss(pw, ".ossautocomplete_link_over",
-						autocompleteLinkHoverStyle);
+				writeCss(pw, ".ossautocomplete_link_over", autocompleteLinkHoverStyle);
 				writeCss(pw, ".ossnumfound", documentFoundStyle);
 				writeCss(pw, ".oss-paging", pagingStyle);
 				writeCss(pw, ".oss-currentpage", currentPageStyle);
@@ -417,8 +378,7 @@ public class Renderer implements Comparable<Renderer> {
 				int i = 0;
 				for (RendererField rendererField : fields) {
 					i++;
-					writeCss(pw, ".ossfieldrdr" + i,
-							rendererField.getOldStyle());
+					writeCss(pw, ".ossfieldrdr" + i, rendererField.getOldStyle());
 				}
 				return sw.toString();
 			} finally {
@@ -543,7 +503,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Move filter up
-	 * 
+	 *
 	 * @param filter
 	 */
 	public void filterUp(RendererFilter filter) {
@@ -561,7 +521,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Move filter down
-	 * 
+	 *
 	 * @param filter
 	 */
 	public void filterDown(RendererFilter filter) {
@@ -579,7 +539,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Move field up
-	 * 
+	 *
 	 * @param field
 	 */
 	public void fieldUp(RendererField field) {
@@ -597,7 +557,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Move field down
-	 * 
+	 *
 	 * @param field
 	 */
 	public void fieldDown(RendererField field) {
@@ -659,7 +619,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Move sort up
-	 * 
+	 *
 	 * @param sort
 	 */
 	public void sortUp(RendererSort sort) {
@@ -677,7 +637,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	/**
 	 * Move sort down
-	 * 
+	 *
 	 * @param sort
 	 */
 	public void sortDown(RendererSort sort) {
@@ -703,8 +663,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param name the name to set
 	 */
 	public void setName(String name) {
 		rwl.w.lock();
@@ -728,8 +687,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param name
-	 *            the requestName to set
+	 * @param name the requestName to set
 	 */
 	public void setRequestName(String requestName) {
 		rwl.w.lock();
@@ -753,8 +711,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param searchButtonLabel
-	 *            the searchButtonLabel to set
+	 * @param searchButtonLabel the searchButtonLabel to set
 	 */
 	public void setSearchButtonLabel(String searchButtonLabel) {
 		rwl.w.lock();
@@ -787,31 +744,22 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement(RENDERER_ITEM_ROOTNODE_NAME,
-					RENDERER_ITEM_ROOT_ATTR_NAME, name,
-					RENDERER_ITEM_ROOT_ATTR_REQUEST, requestName,
-					RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL,
-					searchButtonLabel,
-					RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT,
-					noResultFoundText,
-					RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT,
-					oneResultFoundText,
-					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText,
-					RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT, logoutText,
-					RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT, clearFiltersText,
-					RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT, filtersTitleText,
-					RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH, facetWidth,
-					RENDERER_ITEM_ROOT_ATTR_LOGENABLED,
-					Boolean.toString(logEnabled),
-					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE,
-					contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
-					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR,
-					hocrField, RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME,
-					autocompletionName, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP,
-					defaultJsp == null ? null : defaultJsp.name());
+			xmlWriter.startElement(RENDERER_ITEM_ROOTNODE_NAME, RENDERER_ITEM_ROOT_ATTR_NAME, name,
+					RENDERER_ITEM_ROOT_ATTR_REQUEST, requestName, RENDERER_ITEM_ROOT_ATTR_SEARCHBUTTONLABEL,
+					searchButtonLabel, RENDERER_ITEM_ROOT_ATTR_NORESULTFOUNDTEXT, noResultFoundText,
+					RENDERER_ITEM_ROOT_ATTR_ONERESULTFOUNDTEXT, oneResultFoundText,
+					RENDERER_ITEM_ROOT_ATTR_RESULTSFOUNDTEXT, resultsFoundText, RENDERER_ITEM_ROOT_ATTR_LOGOUTTEXT,
+					logoutText, RENDERER_ITEM_ROOT_ATTR_CLEARFILTERSTEXT, clearFiltersText,
+					RENDERER_ITEM_ROOT_ATTR_FILTERSTITLETEXT, filtersTitleText, RENDERER_ITEM_ROOT_ATTR_FACET_WIDTH,
+					facetWidth, RENDERER_ITEM_ROOT_ATTR_LOGENABLED, Boolean.toString(logEnabled),
+					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE, contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
+					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR, hocrField,
+					RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME, autocompletionName,
+					RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP, defaultJsp == null ? null : defaultJsp.name());
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -823,21 +771,21 @@ public class Renderer implements Comparable<Renderer> {
 			for (RendererSort sort : sorts)
 				sort.writeXml(xmlWriter, RENDERER_ITEM_NODE_NAME_SORT);
 			for (RendererLogField logReportField : logFields)
-				logReportField
-						.writeXml(xmlWriter, RENDERER_ITEM_NODE_LOG_FIELD);
+				logReportField.writeXml(xmlWriter, RENDERER_ITEM_NODE_LOG_FIELD);
 
-			xmlWriter.startElement(RENDERER_ITEM_AUTH_NODE,
-					RENDERER_ITEM_AUTH_ATTR_USERNAME, authUsername,
-					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword,
-					RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
-					RENDERER_ITEM_AUTH_ATTR_INDEX, authIndex,
-					RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
+			xmlWriter.startElement(RENDERER_ITEM_AUTH_NODE, RENDERER_ITEM_AUTH_ATTR_USERNAME, authUsername,
+					RENDERER_ITEM_AUTH_ATTR_PASSWORD, authPassword, RENDERER_ITEM_AUTH_ATTR_DOMAIN, authDomain,
+					RENDERER_ITEM_AUTH_ATTR_INDEX, authIndex, RENDERER_ITEM_AUTH_ATTR_SERVER_HOST, authServer,
 					RENDERER_ITEM_AUTH_ATTR_PLUGIN_CLASS, authPluginClass);
 			xmlWriter.endElement();
 			xmlWriter.endElement();
 		} finally {
 			rwl.r.unlock();
 		}
+	}
+
+	public AuthRendererTokens getTokens() {
+		return tokens;
 	}
 
 	public String getApiUrl() throws UnsupportedEncodingException {
@@ -849,8 +797,7 @@ public class Renderer implements Comparable<Renderer> {
 		}
 	}
 
-	public String getIFrameHtmlCode(String width, String height)
-			throws UnsupportedEncodingException {
+	public String getIFrameHtmlCode(String width, String height) throws UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -913,7 +860,6 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * 
 	 * @param noResultFoundText
 	 */
 	public void setNoResultFoundText(String noResultFoundText) {
@@ -935,7 +881,6 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * 
 	 * @param logoutText
 	 */
 	public void setLogoutText(String logoutText) {
@@ -980,8 +925,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param footer
-	 *            the footer to set
+	 * @param footer the footer to set
 	 */
 	public void setFooter(String footer) {
 		rwl.w.lock();
@@ -1005,8 +949,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param header
-	 *            the header to set
+	 * @param header the header to set
 	 */
 	public void setHeader(String header) {
 		rwl.w.lock();
@@ -1030,8 +973,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param facetWidth
-	 *            the facetWidth to set
+	 * @param facetWidth the facetWidth to set
 	 */
 	public void setFacetWidth(String facetWidth) {
 		rwl.w.lock();
@@ -1055,8 +997,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param css
-	 *            the css to set
+	 * @param css the css to set
 	 */
 	public void setCss(String css) {
 		rwl.w.lock();
@@ -1124,8 +1065,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param contentTypeField
-	 *            the contentTypeField to set
+	 * @param contentTypeField the contentTypeField to set
 	 */
 	public void setContentTypeField(String contentTypeField) {
 		if (contentTypeField != null)
@@ -1142,8 +1082,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param filenameField
-	 *            the filenameField to set
+	 * @param filenameField the filenameField to set
 	 */
 	public void setFilenameField(String filenameField) {
 		if (filenameField != null)
@@ -1160,8 +1099,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param hocrField
-	 *            the hocrField to set
+	 * @param hocrField the hocrField to set
 	 */
 	public void setHocrField(String hocrField) {
 		if (hocrField != null)
@@ -1178,8 +1116,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authUsername
-	 *            the authUsername to set
+	 * @param authUsername the authUsername to set
 	 */
 	public void setAuthUsername(String authUsername) {
 		this.authUsername = authUsername;
@@ -1193,8 +1130,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authPassword
-	 *            the authPassword to set
+	 * @param authPassword the authPassword to set
 	 */
 	public void setAuthPassword(String authPassword) {
 		this.authPassword = authPassword;
@@ -1208,8 +1144,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authDomain
-	 *            the authDomain to set
+	 * @param authDomain the authDomain to set
 	 */
 	public void setAuthDomain(String authDomain) {
 		this.authDomain = authDomain;
@@ -1223,8 +1158,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authIndex
-	 *            the authIndex to set
+	 * @param authIndex the authIndex to set
 	 */
 	public void setAuthIndex(String authIndex) {
 		this.authIndex = authIndex;
@@ -1238,8 +1172,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authServer
-	 *            the authServer to set
+	 * @param authServer the authServer to set
 	 */
 	public void setAuthServer(String authServer) {
 		this.authServer = authServer;
@@ -1253,8 +1186,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authUserAllowField
-	 *            the authUserAllowField to set
+	 * @param authUserAllowField the authUserAllowField to set
 	 */
 	public void setAuthUserAllowField(String authUserAllowField) {
 		this.authUserAllowField = authUserAllowField;
@@ -1268,8 +1200,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authGroupAllowField
-	 *            the authGroupAllowField to set
+	 * @param authGroupAllowField the authGroupAllowField to set
 	 */
 	public void setAuthGroupAllowField(String authGroupAllowField) {
 		this.authGroupAllowField = authGroupAllowField;
@@ -1283,8 +1214,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authUserDenyField
-	 *            the authUserDenyField to set
+	 * @param authUserDenyField the authUserDenyField to set
 	 */
 	public void setAuthUserDenyField(String authUserDenyField) {
 		this.authUserDenyField = authUserDenyField;
@@ -1298,8 +1228,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authGroupDenyField
-	 *            the authGroupDenyField to set
+	 * @param authGroupDenyField the authGroupDenyField to set
 	 */
 	public void setAuthGroupDenyField(String authGroupDenyField) {
 		this.authGroupDenyField = authGroupDenyField;
@@ -1307,8 +1236,7 @@ public class Renderer implements Comparable<Renderer> {
 
 	public void setAuthType(String authTypeName) {
 		AuthPluginEnum authPlugin = AuthPluginEnum.find(authTypeName);
-		authPluginClass = authPlugin == null ? authTypeName : authPlugin
-				.getClassName();
+		authPluginClass = authPlugin == null ? authTypeName : authPlugin.getClassName();
 	}
 
 	public String getAuthType() {
@@ -1321,29 +1249,27 @@ public class Renderer implements Comparable<Renderer> {
 		return authPlugin != null && authPlugin != AuthPluginEnum.NO_AUTH;
 	}
 
-	private AuthPluginInterface getNewAuthPluginInterface()
-			throws SearchLibException {
+	public boolean isLogout() {
+		AuthPluginEnum authPlugin = AuthPluginEnum.find(authPluginClass);
+		return authPlugin != null && authPlugin.isLogout();
+	}
+
+	private AuthPluginInterface getNewAuthPluginInterface() throws SearchLibException {
 		if (authPluginClass == null || authPluginClass.length() == 0)
 			return null;
 		try {
-			return (AuthPluginInterface) Class.forName(authPluginClass)
-					.newInstance();
+			return (AuthPluginInterface) Class.forName(authPluginClass).newInstance();
 		} catch (InstantiationException e) {
-			throw new SearchLibException(
-					"Unable to instance the authentication plugin", e);
+			throw new SearchLibException("Unable to instance the authentication plugin", e);
 		} catch (IllegalAccessException e) {
-			throw new SearchLibException(
-					"Unable to instance the authentication plugin", e);
+			throw new SearchLibException("Unable to instance the authentication plugin", e);
 		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(
-					"Unable to instance the authentication plugin", e);
+			throw new SearchLibException("Unable to instance the authentication plugin", e);
 		}
 	}
 
-	public AuthPluginInterface.User configureAuthRequest(
-			AbstractSearchRequest searchRequest,
-			HttpServletRequest servletRequest) throws ParseException,
-			IOException, SearchLibException {
+	public AuthPluginInterface.User configureAuthRequest(AbstractSearchRequest searchRequest,
+			HttpServletRequest servletRequest) throws ParseException, IOException, SearchLibException {
 
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
@@ -1353,8 +1279,7 @@ public class Renderer implements Comparable<Renderer> {
 			session.removeAttribute(RENDERER_SESSION_USER);
 			throw new NoUserException("Logout");
 		}
-		AuthPluginInterface.User user = (User) session
-				.getAttribute(RENDERER_SESSION_USER);
+		AuthPluginInterface.User user = (User) session.getAttribute(RENDERER_SESSION_USER);
 		if (user == null)
 			user = authPlugin.getUser(this, servletRequest);
 		if (user == null)
@@ -1368,8 +1293,8 @@ public class Renderer implements Comparable<Renderer> {
 		return user;
 	}
 
-	public AuthPluginInterface.User testAuthRequest(String login,
-			String password) throws IOException, SearchLibException {
+	public AuthPluginInterface.User testAuthRequest(String login, String password)
+			throws IOException, SearchLibException {
 		AuthPluginInterface authPlugin = getNewAuthPluginInterface();
 		if (authPlugin == null)
 			return null;
@@ -1384,8 +1309,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param authPluginClass
-	 *            the authPluginClass to set
+	 * @param authPluginClass the authPluginClass to set
 	 */
 	public void setAuthPluginClass(String authPluginClass) {
 		this.authPluginClass = authPluginClass;
@@ -1399,8 +1323,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param autocompletionName
-	 *            the autocompletionName to set
+	 * @param autocompletionName the autocompletionName to set
 	 */
 	public void setAutocompletionName(String autocompletionName) {
 		this.autocompletionName = autocompletionName;
@@ -1414,12 +1337,10 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param defaultJsp
-	 *            the defaultJsp to set
+	 * @param defaultJsp the defaultJsp to set
 	 */
 	public void setDefaultJsp(RendererJspEnum defaultJsp) {
-		this.defaultJsp = defaultJsp == null ? RendererJspEnum.SimpleHtml
-				: defaultJsp;
+		this.defaultJsp = defaultJsp == null ? RendererJspEnum.SimpleHtml : defaultJsp;
 	}
 
 	/**
@@ -1430,8 +1351,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param clearFiltersText
-	 *            the clearFiltersText to set
+	 * @param clearFiltersText the clearFiltersText to set
 	 */
 	public void setClearFiltersText(String clearFiltersText) {
 		this.clearFiltersText = clearFiltersText;
@@ -1445,8 +1365,7 @@ public class Renderer implements Comparable<Renderer> {
 	}
 
 	/**
-	 * @param filtersTitleText
-	 *            the filtersTitleText to set
+	 * @param filtersTitleText the filtersTitleText to set
 	 */
 	public void setFiltersTitleText(String filtersTitleText) {
 		this.filtersTitleText = filtersTitleText;

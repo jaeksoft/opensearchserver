@@ -25,6 +25,7 @@ package com.jaeksoft.searchlib.webservice.query.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,10 +35,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jaeksoft.searchlib.facet.FacetItem;
-import com.jaeksoft.searchlib.facet.FacetList;
-import com.jaeksoft.searchlib.result.AbstractResultSearch;
-import com.jaeksoft.searchlib.webservice.query.search.FacetFieldItem;
+import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class FacetResult {
@@ -54,12 +53,12 @@ public class FacetResult {
 
 	}
 
-	public FacetResult(AbstractResultSearch result, String field) {
+	public FacetResult(Facet facet) {
 		terms = new ArrayList<FacetFieldItem>();
-		FacetList facetList = result.getFacetList();
-		fieldName = field;
-		for (FacetItem facet : facetList.getByField(field.trim()))
-			terms.add(new FacetFieldItem(facet.getCount(), facet.getTerm()));
+		fieldName = facet.getFacetField().getName();
+		for (Map.Entry<String, FacetCounter> facetItem : facet)
+			terms.add(new FacetFieldItem(facetItem.getValue().count, facetItem
+					.getKey()));
 	}
 
 	private FacetResult(JSONObject json) throws JSONException {

@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -24,7 +24,6 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,10 +32,6 @@ import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,8 +39,6 @@ import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
-import com.jaeksoft.searchlib.analysis.PerFieldAnalyzer;
-import com.jaeksoft.searchlib.authentication.AuthManager;
 import com.jaeksoft.searchlib.collapse.CollapseFunctionField;
 import com.jaeksoft.searchlib.collapse.CollapseParameters;
 import com.jaeksoft.searchlib.collapse.CollapseParameters.Mode;
@@ -63,13 +56,8 @@ import com.jaeksoft.searchlib.filter.TermFilter;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.geo.GeoParameters;
 import com.jaeksoft.searchlib.geo.GeoParameters.DistanceReturn;
-import com.jaeksoft.searchlib.index.ReaderAbstract;
-import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.result.AbstractResult;
-import com.jaeksoft.searchlib.result.ResultSearchSingle;
-import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.scoring.AdvancedScore;
@@ -89,23 +77,15 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
 		RequestInterfaces.FilterListInterface {
 
-	private transient Query boostedComplexQuery;
-	private transient Query notBoostedComplexQuery;
-	private transient Query snippetSimpleQuery;
-
-	protected transient PerFieldAnalyzer analyzer;
-
-	protected transient QueryParser queryParser;
-
 	private FilterList filterList;
 	private JoinList joinList;
-	private boolean allowLeadingWildcard;
+	protected boolean allowLeadingWildcard;
 	protected int phraseSlop;
 	protected OperatorEnum defaultOperator;
 	private SnippetFieldList snippetFieldList;
 	private ReturnFieldList returnFieldList;
 	private FacetFieldList facetFieldList;
-	private List<BoostQuery> boostingQueries;
+	protected List<BoostQuery> boostingQueries;
 	private SortFieldList sortFieldList;
 	private String collapseField;
 	private int collapseMax;
@@ -114,10 +94,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	private Set<CollapseFunctionField> collapseFunctionFields;
 	private int start;
 	private int rows;
-	private LanguageEnum lang;
-	private String queryString;
+	protected volatile LanguageEnum lang;
+	protected String queryString;
 	private AdvancedScore advancedScore;
-	private String queryParsed;
 	private boolean withSortValues;
 	protected boolean emptyReturnsAll;
 	private final GeoParameters geoParameters = new GeoParameters();
@@ -131,8 +110,6 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	@Override
 	protected void setDefaultValues() {
 		super.setDefaultValues();
-		this.queryParser = null;
-		this.queryParsed = null;
 		this.filterList = new FilterList(this.config);
 		this.joinList = new JoinList(this.config);
 		this.allowLeadingWildcard = false;
@@ -153,14 +130,9 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.start = 0;
 		this.rows = 10;
 		this.lang = null;
-		this.snippetSimpleQuery = null;
-		this.boostedComplexQuery = null;
-		this.notBoostedComplexQuery = null;
-		this.analyzer = null;
 		this.queryString = null;
 		this.advancedScore = null;
 		this.withSortValues = false;
-		this.queryParsed = null;
 		this.emptyReturnsAll = true;
 		this.forFilter = false;
 	}
@@ -203,55 +175,21 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.start = searchRequest.start;
 		this.rows = searchRequest.rows;
 		this.lang = searchRequest.lang;
-		this.snippetSimpleQuery = null;
-		this.boostedComplexQuery = null;
-		this.notBoostedComplexQuery = null;
-		this.analyzer = null;
 		this.queryString = searchRequest.queryString;
 		this.advancedScore = AdvancedScore.copy(searchRequest.advancedScore);
-		this.queryParsed = null;
 		this.emptyReturnsAll = searchRequest.emptyReturnsAll;
 		this.forFilter = searchRequest.forFilter;
 	}
 
 	@Override
 	protected void resetNoLock() {
-		this.queryParser = null;
-		this.queryParsed = null;
-		this.snippetSimpleQuery = null;
-		this.boostedComplexQuery = null;
-		this.notBoostedComplexQuery = null;
-		this.analyzer = null;
 		if (snippetFieldList != null)
 			for (SnippetField snippetField : snippetFieldList)
 				snippetField.reset();
 		filterList.reset();
 	}
 
-	private PerFieldAnalyzer checkAnalyzer() throws SearchLibException {
-		if (analyzer == null)
-			analyzer = config.getSchema().getQueryPerFieldAnalyzer(lang);
-		return analyzer;
-	}
-
-	public PerFieldAnalyzer getAnalyzer() throws SearchLibException {
-		rwl.r.lock();
-		try {
-			if (analyzer != null)
-				return analyzer;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			checkAnalyzer();
-			return analyzer;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public int getPhraseSlop() {
+	final public int getPhraseSlop() {
 		rwl.r.lock();
 		try {
 			return phraseSlop;
@@ -260,7 +198,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setPhraseSlop(int value) {
+	final public void setPhraseSlop(int value) {
 		rwl.w.lock();
 		try {
 			phraseSlop = value;
@@ -269,7 +207,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public boolean getEmptyReturnsAll() {
+	final public boolean getEmptyReturnsAll() {
 		rwl.r.lock();
 		try {
 			return emptyReturnsAll;
@@ -278,7 +216,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setEmptyReturnsAll(boolean value) {
+	final public void setEmptyReturnsAll(boolean value) {
 		rwl.w.lock();
 		try {
 			emptyReturnsAll = value;
@@ -287,117 +225,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	protected abstract Query newSnippetQuery(String queryString)
-			throws IOException, ParseException, SyntaxError, SearchLibException;
-
-	public Query getSnippetQuery() throws IOException, ParseException,
-			SyntaxError, SearchLibException {
-		rwl.r.lock();
-		try {
-			if (snippetSimpleQuery != null)
-				return snippetSimpleQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (snippetSimpleQuery != null)
-				return snippetSimpleQuery;
-			getQueryParser();
-			checkAnalyzer();
-			snippetSimpleQuery = newSnippetQuery(queryString);
-			return snippetSimpleQuery;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	protected abstract Query newComplexQuery(String queryString)
-			throws ParseException, SyntaxError, SearchLibException, IOException;
-
-	private Query newComplexQuery() throws ParseException, SearchLibException,
-			SyntaxError, IOException {
-		getQueryParser();
-		checkAnalyzer();
-		Query query = newComplexQuery(queryString);
-		if (query == null)
-			query = new BooleanQuery();
-		return query;
-	}
-
-	public Query getNotBoostedQuery() throws ParseException,
-			SearchLibException, SyntaxError, IOException {
-		rwl.r.lock();
-		try {
-			if (notBoostedComplexQuery != null)
-				return notBoostedComplexQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (notBoostedComplexQuery != null)
-				return notBoostedComplexQuery;
-			notBoostedComplexQuery = newComplexQuery();
-			return notBoostedComplexQuery;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	@Override
-	public Query getQuery() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
-		rwl.r.lock();
-		try {
-			if (boostedComplexQuery != null)
-				return boostedComplexQuery;
-		} finally {
-			rwl.r.unlock();
-		}
-		rwl.w.lock();
-		try {
-			if (boostedComplexQuery != null)
-				return boostedComplexQuery;
-			boostedComplexQuery = newComplexQuery();
-			for (BoostQuery boostQuery : boostingQueries)
-				boostedComplexQuery = boostQuery.getNewQuery(
-						boostedComplexQuery, queryParser);
-			queryParsed = boostedComplexQuery.toString();
-			return boostedComplexQuery;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	private QueryParser getQueryParser() throws ParseException,
-			SearchLibException {
-		if (queryParser != null)
-			return queryParser;
-		Schema schema = getConfig().getSchema();
-		SchemaField field = schema.getFieldList().getDefaultField();
-		if (field == null)
-			throw new SearchLibException(
-					"Please select a default field in the schema");
-		queryParser = new QueryParser(Version.LUCENE_36, field.getName(),
-				checkAnalyzer());
-		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
-		queryParser.setPhraseSlop(phraseSlop);
-		queryParser.setDefaultOperator(defaultOperator.lucop);
-		queryParser.setLowercaseExpandedTerms(false);
-		return queryParser;
-	}
-
-	public void setBoostedComplexQuery(Query query) {
-		rwl.w.lock();
-		try {
-			boostedComplexQuery = query;
-		} finally {
-			rwl.w.unlock();
-		}
-	}
-
-	public String getQueryString() {
+	final public String getQueryString() {
 		rwl.r.lock();
 		try {
 			return queryString;
@@ -406,30 +234,20 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	final public String getQueryParsed() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
-		getQuery();
-		rwl.r.lock();
-		try {
-			return queryParsed;
-		} finally {
-			rwl.r.unlock();
-		}
+	protected void setQueryStringNoLock(String q) {
+		queryString = q;
 	}
 
-	public void setQueryString(String q) {
+	final public void setQueryString(String q) {
 		rwl.w.lock();
 		try {
-			queryString = q;
-			boostedComplexQuery = null;
-			notBoostedComplexQuery = null;
-			snippetSimpleQuery = null;
+			setQueryStringNoLock(q);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public AdvancedScore getAdvancedScore() {
+	final public AdvancedScore getAdvancedScore() {
 		rwl.r.lock();
 		try {
 			return advancedScore;
@@ -464,7 +282,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public JoinList getJoinList() {
+	final public JoinList getJoinList() {
 		rwl.r.lock();
 		try {
 			return this.joinList;
@@ -484,7 +302,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void addFilter(String req, boolean negative) throws ParseException {
+	final public void addFilter(String req, boolean negative)
+			throws ParseException {
 		rwl.w.lock();
 		try {
 			this.filterList.add(new QueryFilter(req, negative,
@@ -494,7 +313,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void addTermFilter(String field, String term, boolean negative) {
+	final public void addTermFilter(String field, String term, boolean negative) {
 		rwl.w.lock();
 		try {
 			this.filterList.add(new TermFilter(field, term, negative,
@@ -520,7 +339,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public SnippetFieldList getSnippetFieldList() {
+	final public SnippetFieldList getSnippetFieldList() {
 		rwl.r.lock();
 		try {
 			return this.snippetFieldList;
@@ -530,7 +349,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public ReturnFieldList getReturnFieldList() {
+	final public ReturnFieldList getReturnFieldList() {
 		rwl.r.lock();
 		try {
 			return this.returnFieldList;
@@ -555,7 +374,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void addReturnField(String fieldName) throws SearchLibException {
+	final public void addReturnField(String fieldName)
+			throws SearchLibException {
 		rwl.w.lock();
 		try {
 			addReturnFieldNoLock(config.getSchema().getFieldList(), fieldName);
@@ -564,7 +384,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public SortFieldList getSortFieldList() {
+	final public SortFieldList getSortFieldList() {
 		rwl.r.lock();
 		try {
 			return this.sortFieldList;
@@ -607,7 +427,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public boolean isJoin() {
+	final public boolean isJoin() {
 		rwl.r.lock();
 		try {
 			if (joinList == null)
@@ -637,7 +457,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void addSort(final int joinNumber, final String fieldName,
+	final public void addSort(final int joinNumber, final String fieldName,
 			final boolean desc, final boolean nullFirst) {
 		rwl.w.lock();
 		try {
@@ -648,7 +468,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public FacetFieldList getFacetFieldList() {
+	final public FacetFieldList getFacetFieldList() {
 		rwl.r.lock();
 		try {
 			return this.facetFieldList;
@@ -657,7 +477,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setCollapseField(String collapseField) {
+	final public void setCollapseField(String collapseField) {
 		rwl.w.lock();
 		try {
 			this.collapseField = collapseField;
@@ -666,7 +486,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setCollapseMax(int collapseMax) {
+	final public void setCollapseMax(int collapseMax) {
 		rwl.w.lock();
 		try {
 			this.collapseMax = collapseMax;
@@ -675,7 +495,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public String getCollapseField() {
+	final public String getCollapseField() {
 		rwl.r.lock();
 		try {
 			return this.collapseField;
@@ -684,7 +504,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public int getCollapseMax() {
+	final public int getCollapseMax() {
 		rwl.r.lock();
 		try {
 			return this.collapseMax;
@@ -693,7 +513,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public Collection<CollapseFunctionField> getCollapseFunctionFields() {
+	final public Collection<CollapseFunctionField> getCollapseFunctionFields() {
 		rwl.r.lock();
 		try {
 			return this.collapseFunctionFields;
@@ -702,7 +522,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void addCollapseFunctionField(CollapseFunctionField functionField) {
+	final public void addCollapseFunctionField(
+			CollapseFunctionField functionField) {
 		if (functionField == null)
 			return;
 		rwl.w.lock();
@@ -716,7 +537,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void removeCollapseFunctionField(CollapseFunctionField functionField) {
+	final public void removeCollapseFunctionField(
+			CollapseFunctionField functionField) {
 		rwl.w.lock();
 		try {
 			collapseFunctionFields.remove(functionField);
@@ -727,7 +549,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public int getStart() {
+	final public int getStart() {
 		rwl.r.lock();
 		try {
 			return this.start;
@@ -736,7 +558,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setStart(int start) {
+	final public void setStart(int start) {
 		rwl.w.lock();
 		try {
 			this.start = start;
@@ -745,7 +567,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public boolean isWithSortValues() {
+	final public boolean isWithSortValues() {
 		rwl.r.lock();
 		try {
 			return withSortValues;
@@ -754,7 +576,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setWithSortValues(boolean withSortValues) {
+	final public void setWithSortValues(boolean withSortValues) {
 		rwl.w.lock();
 		try {
 			this.withSortValues = withSortValues;
@@ -763,7 +585,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public int getRows() {
+	final public int getRows() {
 		rwl.r.lock();
 		try {
 			return this.rows;
@@ -772,7 +594,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public LanguageEnum getLang() {
+	final public LanguageEnum getLang() {
 		rwl.r.lock();
 		try {
 			return this.lang;
@@ -781,7 +603,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setRows(int rows) {
+	final public void setRows(int rows) {
 		rwl.w.lock();
 		try {
 			this.rows = rows;
@@ -790,7 +612,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public int getEnd() {
+	final public int getEnd() {
 		rwl.r.lock();
 		try {
 			return this.start + this.rows;
@@ -800,7 +622,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		rwl.r.lock();
 		try {
 			StringBuilder sb = new StringBuilder();
@@ -813,7 +635,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			sb.append(" Rows: ");
 			sb.append(rows);
 			sb.append(" Query: ");
-			sb.append(boostedComplexQuery);
+			sb.append(queryString);
 			sb.append(" Facet: " + getFacetFieldList().toString());
 			if (getCollapseMode() != CollapseParameters.Mode.OFF)
 				sb.append(" Collapsing Mode: " + getCollapseMode() + " Type: "
@@ -825,19 +647,22 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setLang(LanguageEnum lang) {
+	protected void setLangNoLock(LanguageEnum lang) {
+		if (this.lang == lang)
+			return;
+		this.lang = lang;
+	}
+
+	final public void setLang(LanguageEnum lang) {
 		rwl.w.lock();
 		try {
-			if (this.lang == lang)
-				return;
-			this.lang = lang;
-			analyzer = null;
+			setLangNoLock(lang);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public String getDefaultOperator() {
+	final public String getDefaultOperator() {
 		rwl.r.lock();
 		try {
 			return defaultOperator.toString();
@@ -850,7 +675,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		setDefaultOperator(OperatorEnum.find(value));
 	}
 
-	public void setDefaultOperator(OperatorEnum operator) {
+	final public void setDefaultOperator(OperatorEnum operator) {
 		rwl.w.lock();
 		try {
 			defaultOperator = operator;
@@ -859,7 +684,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setCollapseMode(CollapseParameters.Mode mode) {
+	final public void setCollapseMode(CollapseParameters.Mode mode) {
 		rwl.w.lock();
 		try {
 			this.collapseMode = mode;
@@ -868,7 +693,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public CollapseParameters.Mode getCollapseMode() {
+	final public CollapseParameters.Mode getCollapseMode() {
 		rwl.r.lock();
 		try {
 			return this.collapseMode;
@@ -877,7 +702,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setCollapseType(CollapseParameters.Type type) {
+	final public void setCollapseType(CollapseParameters.Type type) {
 		rwl.w.lock();
 		try {
 			this.collapseType = type;
@@ -886,7 +711,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public CollapseParameters.Type getCollapseType() {
+	final public CollapseParameters.Type getCollapseType() {
 		rwl.r.lock();
 		try {
 			return this.collapseType;
@@ -899,9 +724,10 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		return geoParameters;
 	}
 
-	public boolean isFacet() {
+	final public boolean isFacet() {
 		rwl.r.lock();
 		try {
+
 			if (facetFieldList == null)
 				return false;
 			return facetFieldList.size() > 0;
@@ -910,7 +736,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public boolean isCollapsing() {
+	final public boolean isCollapsing() {
 		rwl.r.lock();
 		try {
 			if (collapseMode == Mode.OFF)
@@ -923,7 +749,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public BoostQuery[] getBoostingQueries() {
+	final public BoostQuery[] getBoostingQueries() {
 		rwl.r.lock();
 		try {
 			BoostQuery[] queries = new BoostQuery[boostingQueries.size()];
@@ -933,7 +759,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setBoostingQuery(BoostQuery oldOne, BoostQuery newOne) {
+	final public void setBoostingQuery(BoostQuery oldOne, BoostQuery newOne) {
 		rwl.w.lock();
 		try {
 			if (oldOne != null) {
@@ -1130,7 +956,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public void setFromServletNoLock(final ServletTransaction transaction,
+	protected void setFromServletNoLock(final ServletTransaction transaction,
 			final String prefix) throws SyntaxError, SearchLibException {
 		super.setFromServletNoLock(transaction, prefix);
 
@@ -1280,33 +1106,6 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	public AbstractResult<?> execute(ReaderInterface reader)
-			throws SearchLibException {
-		try {
-			AuthManager authManager = config.getAuthManager();
-			if (authManager.isEnabled()
-					&& !(this instanceof SearchFilterRequest)) {
-				authManager.apply(this);
-			}
-			return new ResultSearchSingle((ReaderAbstract) reader, this);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (ParseException e) {
-			throw new SearchLibException(e);
-		} catch (SyntaxError e) {
-			throw new SearchLibException(e);
-		} catch (SearchLibException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		}
-	}
-
-	@Override
 	public abstract String getInfo();
 
 	public boolean isForFilter() {
@@ -1318,7 +1117,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	public void setForFilter(boolean b) {
+	final public void setForFilter(boolean b) {
 		rwl.w.lock();
 		try {
 			forFilter = b;
@@ -1326,4 +1125,5 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			rwl.w.unlock();
 		}
 	}
+
 }

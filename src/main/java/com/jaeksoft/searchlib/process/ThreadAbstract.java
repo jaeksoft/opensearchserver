@@ -26,20 +26,17 @@ package com.jaeksoft.searchlib.process;
 
 import java.lang.Thread.State;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.scheduler.TaskLog;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.web.StartStopListener.ShutdownWaitInterface;
 
-public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
-		Runnable, InfoCallback {
-
-	final private ReadWriteLock rwl = new ReadWriteLock();
+public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Runnable, InfoCallback {
 
 	private final Config config;
 
@@ -49,7 +46,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	private volatile String info;
 
-	private volatile boolean abort;
+	private volatile AtomicBoolean abort;
 
 	private volatile Thread thread;
 
@@ -65,17 +62,15 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	protected final TaskLog taskLog;
 
-	protected ThreadAbstract(Config config,
-			ThreadMasterAbstract<?, T> threadMaster,
-			ThreadItem<?, T> threadItem, InfoCallback infoCallback) {
+	protected ThreadAbstract(Config config, ThreadMasterAbstract<?, T> threadMaster, ThreadItem<?, T> threadItem,
+			InfoCallback infoCallback) {
 		this.config = config;
 		this.threadItem = threadItem;
 		this.threadMaster = threadMaster;
 		this.infoCallback = infoCallback;
-		taskLog = infoCallback != null && infoCallback instanceof TaskLog ? (TaskLog) infoCallback
-				: null;
+		taskLog = infoCallback != null && infoCallback instanceof TaskLog ? (TaskLog) infoCallback : null;
 		exception = null;
-		abort = false;
+		abort = new AtomicBoolean(false);
 		thread = null;
 		info = null;
 		startTime = 0;
@@ -89,61 +84,31 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 	@Override
 	public String getInfo() {
-		rwl.r.lock();
-		try {
-			return info;
-		} finally {
-			rwl.r.unlock();
-		}
+		return info;
 	}
 
 	@Override
 	public void setInfo(String info) {
-		rwl.w.lock();
-		try {
-			this.info = info;
-		} finally {
-			rwl.w.unlock();
-		}
+		this.info = info;
 	}
 
 	public boolean isAborted() {
-		rwl.w.lock();
-		try {
-			if (!abort && taskLog != null)
-				if (taskLog.isAbortRequested())
-					abort = true;
-			return abort;
-		} finally {
-			rwl.w.unlock();
-		}
+		if (!abort.get() && taskLog != null)
+			if (taskLog.isAbortRequested())
+				abort.set(true);
+		return abort.get();
 	}
 
 	public void abort() {
-		rwl.w.lock();
-		try {
-			abort = true;
-		} finally {
-			rwl.w.unlock();
-		}
+		abort.set(true);
 	}
 
 	public Exception getException() {
-		rwl.r.lock();
-		try {
-			return exception;
-		} finally {
-			rwl.r.unlock();
-		}
+		return exception;
 	}
 
 	protected void setException(Exception e) {
-		rwl.w.lock();
-		try {
-			this.exception = e;
-		} finally {
-			rwl.w.unlock();
-		}
+		this.exception = e;
 	}
 
 	public boolean isAborting() {
@@ -155,7 +120,12 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 		@Override
 		public boolean done() {
-			return getStartTime() != 0;
+			if (getStartTime() != 0 || getEndTime() != 0)
+				return true;
+			State state = getThreadState();
+			if (state == State.NEW)
+				return false;
+			return state == State.RUNNABLE;
 		}
 
 	}
@@ -164,7 +134,11 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 
 		@Override
 		public boolean done() {
-			return !isRunning();
+			if (getStartTime() == 0)
+				return true;
+			if (getEndTime() != 0)
+				return true;
+			return getThreadState() == State.TERMINATED;
 		}
 
 	}
@@ -177,67 +151,46 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 		return ThreadUtils.waitUntil(secTimeOut, new EndInterface());
 	}
 
-	protected void sleepMs(long ms) {
-		try {
-			while (ms > 0 && !isAborted()) {
-				Thread.sleep(1000);
-				ms -= 1000;
-			}
-		} catch (InterruptedException e) {
-			Logging.warn(e.getMessage(), e);
+	protected void sleepMs(long ms) throws InterruptedException {
+		while (ms > 0 && !isAborted()) {
+			Thread.sleep(1000);
+			ms -= 1000;
 		}
 	}
 
-	protected void sleepSec(int sec) {
+	protected void sleepSec(int sec) throws InterruptedException {
 		if (sec == 0)
 			return;
 		sleepMs(sec * 1000);
 	}
 
 	protected void idle() {
-		rwl.w.lock();
-		try {
-			idleTime = System.currentTimeMillis();
-		} finally {
-			rwl.w.unlock();
-		}
+		idleTime = System.currentTimeMillis();
 	}
 
 	protected boolean isIdleTimeExhausted(long seconds) {
-		rwl.r.lock();
-		try {
-			if (seconds == 0)
-				return false;
-			long timeElapsed = (System.currentTimeMillis() - idleTime) / 1000;
-			return timeElapsed > seconds;
-		} finally {
-			rwl.r.unlock();
-		}
-
+		if (seconds == 0)
+			return false;
+		long timeElapsed = (System.currentTimeMillis() - idleTime) / 1000;
+		return timeElapsed > seconds;
 	}
 
 	public String getCurrentMethod() {
-		rwl.r.lock();
-		try {
-			if (thread == null)
-				return "No thread";
-			StackTraceElement[] ste = thread.getStackTrace();
-			if (ste == null)
-				return "No stack";
-			if (ste.length == 0)
-				return "Empty stack";
-			StackTraceElement element = ste[0];
-			for (StackTraceElement e : ste) {
-				if (e.getClassName().contains("jaeksoft")) {
-					element = e;
-					break;
-				}
+		if (thread == null)
+			return "No thread";
+		StackTraceElement[] ste = thread.getStackTrace();
+		if (ste == null)
+			return "No stack";
+		if (ste.length == 0)
+			return "Empty stack";
+		StackTraceElement element = ste[0];
+		for (StackTraceElement e : ste) {
+			if (e.getClassName().contains("jaeksoft")) {
+				element = e;
+				break;
 			}
-			return element.getClassName() + '.' + element.getMethodName()
-					+ " (" + element.getLineNumber() + ")";
-		} finally {
-			rwl.r.unlock();
 		}
+		return element.getClassName() + '.' + element.getMethodName() + " (" + element.getLineNumber() + ")";
 	}
 
 	protected abstract void runner() throws Exception;
@@ -258,29 +211,19 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	}
 
 	final private void initStart() {
-		rwl.w.lock();
-		try {
-			exception = null;
-			abort = false;
-			info = null;
-			endTime = 0;
-			startTime = System.currentTimeMillis();
-			thread = Thread.currentThread();
-			thread.setName(getThreadName());
-			idleTime = startTime;
-		} finally {
-			rwl.w.unlock();
-		}
+		exception = null;
+		abort.set(false);
+		info = null;
+		endTime = 0;
+		startTime = System.currentTimeMillis();
+		thread = Thread.currentThread();
+		thread.setName(getThreadName());
+		idleTime = startTime;
 	}
 
 	final private void initEnd() {
-		rwl.w.lock();
-		try {
-			thread = null;
-			endTime = System.currentTimeMillis();
-		} finally {
-			rwl.w.unlock();
-		}
+		thread = null;
+		endTime = System.currentTimeMillis();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -307,56 +250,44 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	}
 
 	final public boolean isRunning() {
-		rwl.r.lock();
-		try {
-			if (thread == null)
-				return false;
-			switch (thread.getState()) {
-			case NEW:
-				return false;
-			case BLOCKED:
-				return true;
-			case RUNNABLE:
-				return true;
-			case TERMINATED:
-				return false;
-			case TIMED_WAITING:
-				return true;
-			case WAITING:
-				return true;
-			}
+		Thread td = thread;
+		if (td == null)
 			return false;
-		} finally {
-			rwl.r.unlock();
+		switch (td.getState()) {
+		case NEW:
+			return false;
+		case BLOCKED:
+			return true;
+		case RUNNABLE:
+			return true;
+		case TERMINATED:
+			return false;
+		case TIMED_WAITING:
+			return true;
+		case WAITING:
+			return true;
 		}
+		return false;
 	}
 
 	final public State getThreadState() {
-		rwl.r.lock();
-		try {
-			if (thread == null)
-				return null;
-			return thread.getState();
-		} finally {
-			rwl.r.unlock();
-		}
+		Thread td = thread;
+		if (td == null)
+			return null;
+		return td.getState();
 	}
 
 	final public String getThreadStatus() {
-		rwl.r.lock();
-		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append(this.hashCode());
-			if (thread == null)
-				return sb.toString();
-			sb.append('/');
-			sb.append(thread.hashCode());
-			sb.append(' ');
-			sb.append(thread.getState().toString());
+		Thread td = thread;
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.hashCode());
+		if (td == null)
 			return sb.toString();
-		} finally {
-			rwl.r.unlock();
-		}
+		sb.append('/');
+		sb.append(td.hashCode());
+		sb.append(' ');
+		sb.append(td.getState().toString());
+		return sb.toString();
 	}
 
 	protected ThreadItem<?, T> getThreadItem() {
@@ -364,12 +295,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	}
 
 	final public void execute(int secTimeOut) {
-		rwl.w.lock();
-		try {
-			startTime = 0;
-		} finally {
-			rwl.w.unlock();
-		}
+		startTime = 0;
 		config.getThreadPool().execute(this);
 		waitForStart(secTimeOut);
 	}
@@ -382,34 +308,22 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements
 	 * @return the startTime
 	 */
 	public long getStartTime() {
-		rwl.r.lock();
-		try {
-			return startTime;
-		} finally {
-			rwl.r.unlock();
-		}
+		return startTime;
 	}
 
 	public long getDuration() {
-		rwl.r.lock();
-		try {
-			if (startTime == 0)
-				return 0;
-			if (endTime != 0)
-				return endTime - startTime;
-			return System.currentTimeMillis() - startTime;
-		} finally {
-			rwl.r.unlock();
-		}
+		long st = startTime;
+		long et = endTime;
+		if (st == 0)
+			return 0;
+		if (et != 0)
+			return et - st;
+		return System.currentTimeMillis() - st;
 	}
 
 	public long getEndTime() {
-		rwl.r.lock();
-		try {
-			return endTime;
-		} finally {
-			rwl.r.unlock();
-		}
+		return endTime;
+
 	}
 
 	@Override

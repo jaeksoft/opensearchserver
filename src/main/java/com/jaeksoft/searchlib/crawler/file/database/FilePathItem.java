@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.fileInstances.SmbFileInstance.SmbSecurityPermissions;
 import com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift.SwiftToken.AuthType;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
@@ -53,6 +54,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * For CIFS/SMB
 	 */
 	private String domain;
+	private SmbSecurityPermissions smbSecurityPermissions;
+	private String keyTabPath;
+	private String krb5IniPath;
 
 	/**
 	 * For SWIFT
@@ -79,12 +83,15 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		host = null;
 		path = null;
 		domain = null;
+		keyTabPath = null;
+		krb5IniPath = null;
 		username = null;
 		password = null;
 		withSub = false;
 		enabled = false;
 		ignoreHiddenFiles = false;
 		delay = 0;
+		smbSecurityPermissions = null;
 		swiftAuthType = null;
 		swiftTenant = null;
 		swiftAuthURL = null;
@@ -103,6 +110,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		destFilePath.host = host;
 		destFilePath.path = path;
 		destFilePath.domain = domain;
+		destFilePath.keyTabPath = keyTabPath;
+		destFilePath.krb5IniPath = krb5IniPath;
+		destFilePath.smbSecurityPermissions = smbSecurityPermissions;
 		destFilePath.username = username;
 		destFilePath.password = password;
 		destFilePath.enabled = enabled;
@@ -118,6 +128,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * Set the type
 	 * 
 	 * @param type
+	 *            the fileinstance type to set
 	 */
 	public void setType(FileInstanceType type) {
 		this.type = type;
@@ -159,6 +170,57 @@ public class FilePathItem implements Comparable<FilePathItem> {
 			if (domain.length() == 0)
 				domain = null;
 		this.domain = domain;
+	}
+
+	/**
+	 * @return the krb5IniPath
+	 */
+	public String getKrb5IniPath() {
+		return krb5IniPath;
+	}
+
+	/**
+	 * @param krb5IniPath
+	 *            the krb5IniPath to set
+	 */
+	public void setKrb5IniPath(String krb5IniPath) {
+		if (krb5IniPath != null)
+			if (krb5IniPath.length() == 0)
+				krb5IniPath = null;
+		this.krb5IniPath = krb5IniPath;
+	}
+
+	/**
+	 * @return the keyTabPath
+	 */
+	public String getKeyTabPath() {
+		return keyTabPath;
+	}
+
+	/**
+	 * @param keyTabPath
+	 *            the keyTabPath to set
+	 */
+	public void setKeyTabPath(String keyTabPath) {
+		if (keyTabPath != null)
+			if (keyTabPath.length() == 0)
+				keyTabPath = null;
+		this.keyTabPath = keyTabPath;
+	}
+
+	/**
+	 * @return the smbSecurityPermissions
+	 */
+	public SmbSecurityPermissions getSmbSecurityPermissions() {
+		return smbSecurityPermissions;
+	}
+
+	/**
+	 * @param smbSecurityPermissions
+	 *            the smbSecurityPermissions to set
+	 */
+	public void setSmbSecurityPermissions(SmbSecurityPermissions smbSecurityPermissions) {
+		this.smbSecurityPermissions = smbSecurityPermissions;
 	}
 
 	/**
@@ -250,12 +312,14 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * Create a new FilePathItem instance by reading XML
 	 * 
 	 * @param node
-	 * @return
+	 *            the node with the parameters
+	 * @return a new FilePathItem
 	 * @throws SearchLibException
+	 *             inherited error
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public static FilePathItem fromXml(Config config, Node node)
-			throws SearchLibException, IOException {
+	public static FilePathItem fromXml(Config config, Node node) throws SearchLibException, IOException {
 		FilePathItem filePathItem = new FilePathItem(config);
 		String path = DomUtils.getFirstTextNode(node, "fpath");
 		if (path == null)
@@ -265,6 +329,11 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (type != null)
 			filePathItem.setType(FileInstanceType.findByName(type));
 		filePathItem.setDomain(DomUtils.getAttributeText(node, "domain"));
+		filePathItem.setKeyTabPath(DomUtils.getAttributeText(node, "keyTabPath"));
+		filePathItem.setKrb5IniPath(DomUtils.getAttributeText(node, "krb5IniPath"));
+
+		filePathItem.setSmbSecurityPermissions(
+				SmbSecurityPermissions.find(DomUtils.getAttributeText(node, "smbSecurityPermissions")));
 		filePathItem.setUsername(DomUtils.getAttributeText(node, "username"));
 		String password = DomUtils.getAttributeText(node, "password");
 		if (password != null)
@@ -272,27 +341,19 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		filePathItem.setHost(DomUtils.getAttributeText(node, "host"));
 		String withSubString = DomUtils.getAttributeText(node, "withSub");
 		filePathItem.setWithSubDir("yes".equalsIgnoreCase(withSubString));
-		String ignoreHiddenFiles = DomUtils.getAttributeText(node,
-				"ignoreHiddenFiles");
-		filePathItem.setIgnoreHiddenFiles("yes"
-				.equalsIgnoreCase(ignoreHiddenFiles));
+		String ignoreHiddenFiles = DomUtils.getAttributeText(node, "ignoreHiddenFiles");
+		filePathItem.setIgnoreHiddenFiles("yes".equalsIgnoreCase(ignoreHiddenFiles));
 		String enabled = DomUtils.getAttributeText(node, "enabled");
 		filePathItem.setEnabled("yes".equalsIgnoreCase(enabled));
 		String delay = DomUtils.getAttributeText(node, "delay");
 		if (delay != null)
 			filePathItem.setDelay(Integer.parseInt(delay));
-		filePathItem.setSwiftAuthType(AuthType.find(DomUtils.getAttributeText(
-				node, "swiftAuthType")));
-		filePathItem.setSwiftTenant(DomUtils.getAttributeText(node,
-				"swiftTenant"));
-		filePathItem.setSwiftAuthURL(DomUtils.getAttributeText(node,
-				"swiftAuthURL"));
-		filePathItem.setSwiftContainer(DomUtils.getAttributeText(node,
-				"swiftContainer"));
-		filePathItem.setExclusionPatterns(DomUtils.getFirstTextNode(node,
-				"exclusionPatterns"));
-		filePathItem.setFtpUsePassiveMode(DomUtils.getAttributeBoolean(node,
-				"ftpUsePassiveMode", true));
+		filePathItem.setSwiftAuthType(AuthType.find(DomUtils.getAttributeText(node, "swiftAuthType")));
+		filePathItem.setSwiftTenant(DomUtils.getAttributeText(node, "swiftTenant"));
+		filePathItem.setSwiftAuthURL(DomUtils.getAttributeText(node, "swiftAuthURL"));
+		filePathItem.setSwiftContainer(DomUtils.getAttributeText(node, "swiftContainer"));
+		filePathItem.setExclusionPatterns(DomUtils.getFirstTextNode(node, "exclusionPatterns"));
+		filePathItem.setFtpUsePassiveMode(DomUtils.getAttributeBoolean(node, "ftpUsePassiveMode", true));
 		return filePathItem;
 	}
 
@@ -300,23 +361,24 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * Write the FilePathItem in XML format
 	 * 
 	 * @param xmlWriter
+	 *            the writer to use
 	 * @param nodeName
+	 *            the name of the node to write
 	 * @throws SAXException
+	 *             inherited error
 	 * @throws UnsupportedEncodingException
+	 *             inherited error
 	 */
-	public void writeXml(XmlWriter xmlWriter, String nodeName)
-			throws SAXException, UnsupportedEncodingException {
-		xmlWriter.startElement(nodeName, "type", type.getName(), "domain",
-				domain, "username", username, "password",
-				password == null ? null : StringUtils.base64encode(password),
-				"host", host, "withSub", withSub ? "yes" : "no",
-				"ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no",
-				"enabled", enabled ? "yes" : "no", "delay", Integer
-						.toString(delay), "swiftAuthType",
-				swiftAuthType != null ? swiftAuthType.name() : null,
-				"swiftTenant", swiftTenant, "swiftAuthURL", swiftAuthURL,
-				"swiftContainer", swiftContainer, "ftpUsePassiveMode", Boolean
-						.toString(ftpUsePassiveMode));
+	public void writeXml(XmlWriter xmlWriter, String nodeName) throws SAXException, UnsupportedEncodingException {
+		xmlWriter.startElement(nodeName, "type", type.getName(), "domain", domain, "krb5IniPath", krb5IniPath,
+				"keyTabPath", keyTabPath, "smbSecurityPermissions",
+				smbSecurityPermissions != null ? smbSecurityPermissions.name() : null, "username", username, "password",
+				password == null ? null : StringUtils.base64encode(password), "host", host, "withSub",
+				withSub ? "yes" : "no", "ignoreHiddenFiles", ignoreHiddenFiles ? "yes" : "no", "enabled",
+				enabled ? "yes" : "no", "delay", Integer.toString(delay), "swiftAuthType",
+				swiftAuthType != null ? swiftAuthType.name() : null, "swiftTenant", swiftTenant, "swiftAuthURL",
+				swiftAuthURL, "swiftContainer", swiftContainer, "ftpUsePassiveMode",
+				Boolean.toString(ftpUsePassiveMode));
 		if (path != null) {
 			xmlWriter.startElement("fpath");
 			xmlWriter.textNode(path);
@@ -348,6 +410,10 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		if (domain != null)
 			if ((c = domain.compareTo(fpi.domain)) != 0)
 				return c;
+		if ((c = StringUtils.compareNullValues(krb5IniPath, fpi.krb5IniPath)) != 0)
+			return c;
+		if ((c = StringUtils.compareNullValues(keyTabPath, fpi.keyTabPath)) != 0)
+			return c;
 		if ((c = StringUtils.compareNullValues(username, fpi.username)) != 0)
 			return c;
 		if (username != null)
@@ -396,9 +462,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 		return sb.toString();
 	}
 
-	public String check() throws InstantiationException,
-			IllegalAccessException, SearchLibException, URISyntaxException,
-			UnsupportedEncodingException {
+	public String check() throws URISyntaxException, IOException {
 		if (Logging.isDebug)
 			Logging.debug("CHECK " + this.toString());
 		return FileInstanceAbstract.create(this, null, path).check();
@@ -490,9 +554,9 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	 * @param exclusionPattern
 	 *            the exclusionPattern to set
 	 * @throws IOException
+	 *             inherited error
 	 */
-	public void setExclusionPatterns(String exclusionPatterns)
-			throws IOException {
+	public void setExclusionPatterns(String exclusionPatterns) throws IOException {
 		this.exclusionPatterns = exclusionPatterns;
 		exclusionMatchers = RegExpUtils.wildcardMatcherArray(exclusionPatterns);
 	}

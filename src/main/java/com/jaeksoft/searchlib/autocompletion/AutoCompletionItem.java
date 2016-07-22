@@ -303,7 +303,7 @@ public class AutoCompletionItem implements Closeable,
 		}
 	}
 
-	public AbstractResultSearch search(String query, Integer rows)
+	public AbstractResultSearch<?> search(String query, Integer rows)
 			throws SearchLibException {
 		rwl.r.lock();
 		try {
@@ -316,7 +316,8 @@ public class AutoCompletionItem implements Closeable,
 			query = QueryUtils.replaceControlChars(query.replace("\"", ""));
 			searchRequest.setQueryString(query);
 			searchRequest.setRows(rows);
-			return (AbstractResultSearch) autoCompClient.request(searchRequest);
+			return (AbstractResultSearch<?>) autoCompClient
+					.request(searchRequest);
 		} finally {
 			rwl.r.unlock();
 		}

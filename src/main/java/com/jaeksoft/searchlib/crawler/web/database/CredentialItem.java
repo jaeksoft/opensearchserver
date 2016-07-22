@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -31,16 +31,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 
-import jcifs.UniAddress;
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbException;
-import jcifs.smb.SmbSession;
-
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -51,12 +47,19 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
+import jcifs.UniAddress;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbException;
+import jcifs.smb.SmbSession;
+
 public class CredentialItem {
 
 	public enum CredentialType {
 		BASIC_DIGEST("Basic or Digest"),
 
-		NTLM("NTLMv1, NTLMv2, or NTLM2SessionResponse");
+		NTLM("NTLMv1, NTLMv2, or NTLM2SessionResponse"),
+
+		HTTP_HEADER("HTTP Header");
 
 		private final String label;
 
@@ -97,8 +100,8 @@ public class CredentialItem {
 		domain = null;
 	}
 
-	public CredentialItem(CredentialType type, String pattern, String username,
-			String password, String workstation, String domain) {
+	public CredentialItem(CredentialType type, String pattern, String username, String password, String workstation,
+			String domain) {
 		this.type = type;
 		this.pattern = pattern;
 		this.username = username;
@@ -110,25 +113,17 @@ public class CredentialItem {
 	public static CredentialItem fromXml(Node node) {
 		CredentialItem credentialItem = new CredentialItem();
 		credentialItem.setPattern(DomUtils.getText(node));
-		credentialItem.setUsername(StringUtils.base64decode(DomUtils
-				.getAttributeText(node, "username")));
-		credentialItem.setPassword(StringUtils.base64decode(DomUtils
-				.getAttributeText(node, "password")));
-		credentialItem.setWorkstation(StringUtils.base64decode(DomUtils
-				.getAttributeText(node, "workstation")));
-		credentialItem.setDomain(StringUtils.base64decode(DomUtils
-				.getAttributeText(node, "domain")));
-		credentialItem.setType(CredentialType.find(DomUtils.getAttributeText(
-				node, "type")));
+		credentialItem.setUsername(StringUtils.base64decode(DomUtils.getAttributeText(node, "username")));
+		credentialItem.setPassword(StringUtils.base64decode(DomUtils.getAttributeText(node, "password")));
+		credentialItem.setWorkstation(StringUtils.base64decode(DomUtils.getAttributeText(node, "workstation")));
+		credentialItem.setDomain(StringUtils.base64decode(DomUtils.getAttributeText(node, "domain")));
+		credentialItem.setType(CredentialType.find(DomUtils.getAttributeText(node, "type")));
 		return credentialItem;
 	}
 
-	public void writeXml(XmlWriter xmlWriter)
-			throws UnsupportedEncodingException, SAXException {
-		xmlWriter.startElement("credential", "username",
-				StringUtils.base64encode(username), "password",
-				StringUtils.base64encode(password), "workstation",
-				StringUtils.base64encode(workstation), "domain",
+	public void writeXml(XmlWriter xmlWriter) throws UnsupportedEncodingException, SAXException {
+		xmlWriter.startElement("credential", "username", StringUtils.base64encode(username), "password",
+				StringUtils.base64encode(password), "workstation", StringUtils.base64encode(workstation), "domain",
 				StringUtils.base64encode(domain), "type", type.name());
 		xmlWriter.textNode(pattern);
 		xmlWriter.endElement();
@@ -265,18 +260,19 @@ public class CredentialItem {
 		this.type = type;
 	}
 
-	public void setUpCredentials(CredentialsProvider credentialProvider) {
+	public void setUpCredentials(CredentialsProvider credentialProvider, HttpRequestBase httpBaseRequest) {
 		if (StringUtils.isEmpty(username))
 			return;
 		Credentials credentials = null;
 		switch (type) {
 		case BASIC_DIGEST:
-			credentials = new UsernamePasswordCredentials(getUsername(),
-					getPassword());
+			credentials = new UsernamePasswordCredentials(getUsername(), getPassword());
 			break;
 		case NTLM:
-			credentials = new NTCredentials(getUsername(), getPassword(),
-					getWorkstation(), getDomain());
+			credentials = new NTCredentials(getUsername(), getPassword(), getWorkstation(), getDomain());
+			break;
+		case HTTP_HEADER:
+			httpBaseRequest.addHeader(username, password);
 			break;
 		}
 		if (credentials != null)
@@ -287,13 +283,12 @@ public class CredentialItem {
 		return type == CredentialType.NTLM;
 	}
 
-	public void checkAuth(String serverHostname) throws UnknownHostException,
-			SmbException, SearchLibException {
+	public void checkAuth(String serverHostname) throws UnknownHostException, SmbException, SearchLibException {
 		switch (type) {
 		case NTLM:
 			UniAddress uniaddress = UniAddress.getByName(serverHostname);
-			NtlmPasswordAuthentication ntlmpasswordauthentication = new NtlmPasswordAuthentication(
-					domain, username, password);
+			NtlmPasswordAuthentication ntlmpasswordauthentication = new NtlmPasswordAuthentication(domain, username,
+					password);
 			SmbSession.logon(uniaddress, ntlmpasswordauthentication);
 			break;
 		default:

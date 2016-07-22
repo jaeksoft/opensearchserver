@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
@@ -38,8 +40,7 @@ import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskFileCrawlerStart extends TaskAbstract {
 
-	final private TaskPropertyDef propRunOnce = new TaskPropertyDef(
-			TaskPropertyType.listBox, "Run once", "Run once",
+	final private TaskPropertyDef propRunOnce = new TaskPropertyDef(TaskPropertyType.listBox, "Run once", "Run once",
 			"Choose if the crawler will run once or indefinitely", 10);
 
 	final private TaskPropertyDef[] taskPropertyDefs = { propRunOnce };
@@ -55,8 +56,7 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		if (propertyDef == propRunOnce)
 			return ClassPropertyEnum.BOOLEAN_LIST;
 		return null;
@@ -70,15 +70,14 @@ public class TaskFileCrawlerStart extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		CrawlFileMaster crawlMaster = client.getFileCrawlMaster();
 		if (crawlMaster.isRunning()) {
 			taskLog.setInfo("Already running");
 			return;
 		}
-		boolean runOnce = Boolean
-				.parseBoolean(properties.getValue(propRunOnce));
+		boolean runOnce = Boolean.parseBoolean(properties.getValue(propRunOnce));
 		crawlMaster.start(runOnce);
 		if (!crawlMaster.waitForStart(600))
 			taskLog.setInfo("Not started after 10 minutes");

@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -71,19 +72,19 @@ public class OcrManager implements Closeable {
 
 	private File propFile;
 
-	private OcrManager(File dataDir) throws InvalidPropertiesFormatException,
-			IOException, InstantiationException, IllegalAccessException {
+	private final Semaphore tesseractSemaphore;
+
+	private OcrManager(File dataDir)
+			throws InvalidPropertiesFormatException, IOException, InstantiationException, IllegalAccessException {
 		propFile = new File(dataDir, OCR_PROPERTY_FILE);
 		Properties properties = PropertiesUtils.loadFromXml(propFile);
-		enabled = "true".equalsIgnoreCase(properties.getProperty(
-				OCR_PROPERTY_ENABLED, "false"));
-		defaultLanguage = TesseractLanguageEnum.find(properties.getProperty(
-				OCR_PROPERTY_DEFAULT_LANGUAGE,
-				TesseractLanguageEnum.None.name()));
+		enabled = "true".equalsIgnoreCase(properties.getProperty(OCR_PROPERTY_ENABLED, "false"));
+		defaultLanguage = TesseractLanguageEnum
+				.find(properties.getProperty(OCR_PROPERTY_DEFAULT_LANGUAGE, TesseractLanguageEnum.None.name()));
 		tesseractPath = properties.getProperty(OCR_PROPERTY_TESSERACT_PATH);
-		hocrFileExtension = properties.getProperty(
-				OCR_PROPERTY_HOCR_FILE_EXTENSION, "hocr");
+		hocrFileExtension = properties.getProperty(OCR_PROPERTY_HOCR_FILE_EXTENSION, "hocr");
 		setEnabled(enabled);
+		tesseractSemaphore = new Semaphore(Runtime.getRuntime().availableProcessors() / 2 + 1);
 	}
 
 	private static OcrManager INSTANCE = null;
@@ -101,8 +102,7 @@ public class OcrManager implements Closeable {
 		try {
 			if (INSTANCE != null)
 				return INSTANCE;
-			return INSTANCE = new OcrManager(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE);
+			return INSTANCE = new OcrManager(StartStopListener.OPENSEARCHSERVER_DATA_FILE);
 		} catch (InvalidPropertiesFormatException e) {
 			throw new SearchLibException(e);
 		} catch (IOException e) {
@@ -122,11 +122,9 @@ public class OcrManager implements Closeable {
 		if (tesseractPath != null)
 			properties.setProperty(OCR_PROPERTY_TESSERACT_PATH, tesseractPath);
 		if (defaultLanguage != null)
-			properties.setProperty(OCR_PROPERTY_DEFAULT_LANGUAGE,
-					defaultLanguage.name());
+			properties.setProperty(OCR_PROPERTY_DEFAULT_LANGUAGE, defaultLanguage.name());
 		if (hocrFileExtension != null)
-			properties.setProperty(OCR_PROPERTY_HOCR_FILE_EXTENSION,
-					hocrFileExtension);
+			properties.setProperty(OCR_PROPERTY_HOCR_FILE_EXTENSION, hocrFileExtension);
 		PropertiesUtils.storeToXml(properties, propFile);
 	}
 
@@ -197,8 +195,8 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	private final static Pattern tesseractCheckPattern = Pattern.compile(
-			"Usage:.*tesseract.* imagename.* outputbase", Pattern.DOTALL);
+	private final static Pattern tesseractCheckPattern = Pattern.compile("Usage:.*tesseract.* imagename.* outputbase",
+			Pattern.DOTALL);
 
 	public void checkTesseract() throws SearchLibException {
 		rwl.r.lock();
@@ -214,8 +212,7 @@ public class OcrManager implements Closeable {
 			ExecuteUtils.run(args, 60, sbResult, 1);
 			String result = sbResult.toString();
 			if (!tesseractCheckPattern.matcher(result).find())
-				throw new SearchLibException("Wrong returned message: "
-						+ result);
+				throw new SearchLibException("Wrong returned message: " + result);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (InterruptedException e) {
@@ -225,70 +222,65 @@ public class OcrManager implements Closeable {
 		}
 	}
 
-	private String checkOutputPath(File outputFile, boolean hocr)
-			throws SearchLibException {
+	private String checkOutputPath(File outputFile, boolean hocr) throws SearchLibException {
 		String outputPath = outputFile.getAbsolutePath();
 		if (hocr) {
 			if (!outputPath.endsWith(".html") && !outputPath.endsWith(".hocr"))
-				throw new SearchLibException(
-						"Output file must ends with .txt, .html or .hocr ("
-								+ outputPath + ")");
+				throw new SearchLibException("Output file must ends with .txt, .html or .hocr (" + outputPath + ")");
 			outputPath = outputPath.substring(0, outputPath.length() - 5);
 		} else {
 			if (!outputPath.endsWith(".txt"))
-				throw new SearchLibException(
-						"Output file must ends with .txt, .html or .hocr ("
-								+ outputPath + ")");
+				throw new SearchLibException("Output file must ends with .txt, .html or .hocr (" + outputPath + ")");
 			outputPath = outputPath.substring(0, outputPath.length() - 4);
 		}
 		return outputPath;
 	}
 
-	public void ocerize(File input, File outputFile, LanguageEnum lang,
-			boolean hocr) throws SearchLibException, IOException,
-			InterruptedException {
-		rwl.r.lock();
+	public void ocerize(File input, File outputFile, LanguageEnum lang, boolean hocr)
+			throws SearchLibException, IOException, InterruptedException {
+		tesseractSemaphore.acquire();
 		try {
-			if (!enabled)
-				return;
-			if (tesseractPath == null || tesseractPath.length() == 0)
-				throw new SearchLibException("No path for the OCR");
-			List<String> args = new ArrayList<String>();
-			args.add(tesseractPath);
-			args.add(input.getAbsolutePath());
-			args.add(checkOutputPath(outputFile, hocr));
-			args.add("-psm 1");
-			TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
-			if (tle == null)
-				tle = defaultLanguage;
-			if (tle != null && tle != TesseractLanguageEnum.None)
-				args.add("-l " + tle.option);
-			if (hocr)
-				args.add("hocr");
-			int ev = ExecuteUtils.run(args, 3600, null, null);
-			if (ev == 3)
-				Logging.warn("Image format not supported by Tesseract ("
-						+ input.getName() + ")");
+			rwl.r.lock();
+			try {
+				if (!enabled)
+					return;
+				if (tesseractPath == null || tesseractPath.length() == 0)
+					throw new SearchLibException("No path for the OCR");
+				List<String> args = new ArrayList<String>();
+				args.add(tesseractPath);
+				args.add(input.getAbsolutePath());
+				args.add(checkOutputPath(outputFile, hocr));
+				args.add("-psm 1");
+				TesseractLanguageEnum tle = TesseractLanguageEnum.find(lang);
+				if (tle == null)
+					tle = defaultLanguage;
+				if (tle != null && tle != TesseractLanguageEnum.None)
+					args.add("-l " + tle.option);
+				if (hocr)
+					args.add("hocr");
+				int ev = ExecuteUtils.run(args, 3600, null, null);
+				if (ev == 3)
+					Logging.warn("Image format not supported by Tesseract (" + input.getName() + ")");
+			} finally {
+				rwl.r.unlock();
+			}
 		} finally {
-			rwl.r.unlock();
+			tesseractSemaphore.release();
 		}
 	}
 
 	private final static String OCR_IMAGE_FORMAT = "jpg";
 
-	public void ocerizeImage(Image image, File outputFile, LanguageEnum lang,
-			boolean hocr) throws InterruptedException, IOException,
-			SearchLibException {
+	public void ocerizeImage(Image image, File outputFile, LanguageEnum lang, boolean hocr)
+			throws InterruptedException, IOException, SearchLibException {
 		File imageFile = null;
 		try {
 			RenderedImage renderedImage = ImageUtils.toBufferedImage(image);
-			imageFile = File
-					.createTempFile("ossocrimg", '.' + OCR_IMAGE_FORMAT);
+			imageFile = File.createTempFile("ossocrimg", '.' + OCR_IMAGE_FORMAT);
 			ImageIO.write(renderedImage, OCR_IMAGE_FORMAT, imageFile);
 			image.flush();
 			if (imageFile.length() == 0)
-				throw new SearchLibException("Empty image "
-						+ imageFile.getAbsolutePath());
+				throw new SearchLibException("Empty image " + imageFile.getAbsolutePath());
 			ocerize(imageFile, outputFile, lang, hocr);
 		} finally {
 			Logging.debug(imageFile);
@@ -314,8 +306,7 @@ public class OcrManager implements Closeable {
 	 *            the defaultLanguage to set
 	 * @throws IOException
 	 */
-	public void setDefaultLanguage(TesseractLanguageEnum defaultLanguage)
-			throws IOException {
+	public void setDefaultLanguage(TesseractLanguageEnum defaultLanguage) throws IOException {
 		rwl.w.lock();
 		try {
 			this.defaultLanguage = defaultLanguage;

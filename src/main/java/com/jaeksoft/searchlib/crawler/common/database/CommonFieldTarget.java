@@ -57,10 +57,8 @@ public class CommonFieldTarget extends TargetField {
 
 	private Matcher findRegexpMatcher;
 
-	public CommonFieldTarget(String targetName, boolean removeTag,
-			boolean convertHtmlEntities, boolean filePath,
-			String filePathPrefix, boolean crawlFile, boolean crawlUrl,
-			String findRegexTag, String replaceRegexTag) {
+	public CommonFieldTarget(String targetName, boolean removeTag, boolean convertHtmlEntities, boolean filePath,
+			String filePathPrefix, boolean crawlFile, boolean crawlUrl, String findRegexTag, String replaceRegexTag) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
@@ -97,40 +95,31 @@ public class CommonFieldTarget extends TargetField {
 		convertHtmlEntities = false;
 		List<Node> nodeList = DomUtils.getNodes(targetNode, "filter");
 		for (Node node : nodeList) {
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
-					"removeTag")))
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "removeTag")))
 				removeTag = true;
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
-					"convertHtmlEntities")))
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "convertHtmlEntities")))
 				convertHtmlEntities = true;
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
-					"filePath")))
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "filePath")))
 				filePath = true;
 			filePathPrefix = DomUtils.getAttributeText(node, "filePathPrefix");
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
-					"crawlFile")))
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlFile")))
 				crawlFile = true;
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node,
-					"crawlUrl")))
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlUrl")))
 				crawlUrl = true;
 			List<Node> nl = DomUtils.getNodes(node, "findRegexpTag");
 			if (nl.size() > 0)
-				findRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0)
-						.getTextContent());
+				findRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0).getTextContent());
 			nl = DomUtils.getNodes(node, "replaceRegexpTag");
 			if (nl.size() > 0)
-				replaceRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0)
-						.getTextContent());
+				replaceRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0).getTextContent());
 			checkRegexpPattern();
 		}
 	}
 
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no",
-				"convertHtmlEntities", convertHtmlEntities ? "yes" : "no",
-				"filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no",
-				"crawlUrl", crawlUrl ? "yes" : "no");
+		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no", "convertHtmlEntities",
+				convertHtmlEntities ? "yes" : "no", "filePath", filePath ? "yes" : "no", "filePathPrefix",
+				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no", "crawlUrl", crawlUrl ? "yes" : "no");
 		if (findRegexpTag != null) {
 			xmlWriter.startElement("findRegexpTag");
 			xmlWriter.textNode(StringEscapeUtils.escapeXml(findRegexpTag));
@@ -205,7 +194,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param findRegexTag
+	 * @param findRegexpTag
 	 *            the findRegexTag to set
 	 */
 	public void setFindRegexpTag(String findRegexpTag) {
@@ -221,8 +210,7 @@ public class CommonFieldTarget extends TargetField {
 		if (findRegexpTag != null)
 			if (findRegexpTag.trim().length() == 0)
 				findRegexpTag = null;
-		findRegexpMatcher = findRegexpTag == null ? null : Pattern.compile(
-				findRegexpTag).matcher("");
+		findRegexpMatcher = findRegexpTag == null ? null : Pattern.compile(findRegexpTag).matcher("");
 		if (replaceRegexpTag == null)
 			replaceRegexpTag = StringUtils.EMPTY;
 	}

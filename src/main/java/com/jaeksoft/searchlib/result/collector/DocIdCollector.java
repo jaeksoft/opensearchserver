@@ -24,28 +24,26 @@
 
 package com.jaeksoft.searchlib.result.collector;
 
-import it.unimi.dsi.fastutil.Swapper;
-
 import java.io.IOException;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.roaringbitmap.RoaringBitmap;
 
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
+import it.unimi.dsi.fastutil.Swapper;
 
 public class DocIdCollector implements DocIdInterface, Swapper {
 
 	private final int maxDoc;
 	private final int[] ids;
 	private int currentPos;
-	private BitSetInterface bitSet;
+	private RoaringBitmap bitSet;
 	private final int classType = getClass().hashCode();
 
 	public DocIdCollector(final int maxDoc, final int maxSize) {
 		this.maxDoc = maxDoc;
 		ids = new int[maxSize];
 		currentPos = 0;
-		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
+		bitSet = new RoaringBitmap();
 	}
 
 	private DocIdCollector(final DocIdCollector source) {
@@ -71,8 +69,10 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	final public void collectDoc(final int doc) throws IOException {
+		if (doc == -1)
+			return;
 		ids[currentPos++] = doc;
-		bitSet.set(doc);
+		bitSet.add(doc);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 
 	@Override
 	final public void doSwap(final int a, final int b) {
-		doSwap(a, b);
+		swap(a, b);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	@Override
-	final public BitSetInterface getBitSet() {
+	final public RoaringBitmap getBitSet() {
 		return bitSet;
 	}
 
@@ -109,8 +109,7 @@ public class DocIdCollector implements DocIdInterface, Swapper {
 	}
 
 	@Override
-	public <T extends CollectorInterface> T getCollector(
-			final Class<T> collectorType) {
+	public <T extends CollectorInterface> T getCollector(final Class<T> collectorType) {
 		return null;
 	}
 

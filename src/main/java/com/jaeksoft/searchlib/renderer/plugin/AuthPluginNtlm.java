@@ -70,16 +70,24 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 	@Override
 	public User getUser(Renderer renderer, HttpServletRequest request)
 			throws IOException {
-
 		String remoteUser = request.getRemoteUser();
 		if (remoteUser == null)
 			remoteUser = request.getHeader("X-OSS-REMOTE-USER");
+		return getUser(renderer, remoteUser, null);
+	}
+
+	@Override
+	public User getUser(Renderer renderer, String remoteUser,
+			String ignoredPassword) throws IOException {
 		ActiveDirectory activeDirectory = null;
 		if (StringUtils.isEmpty(remoteUser))
 			throw new AuthException("No user");
 		int i = remoteUser.indexOf('@');
 		if (i != -1)
 			remoteUser = remoteUser.substring(0, i);
+		i = remoteUser.indexOf('\\');
+		if (i != -1)
+			remoteUser = remoteUser.substring(i + 1);
 		try {
 			String domain = renderer.getAuthDomain();
 
@@ -105,9 +113,9 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 					"DistinguishedName");
 			if (!StringUtils.isEmpty(dnUser))
 				activeDirectory.findUserGroup(dnUser, groups);
-			user = new User(userId, remoteUser, null,
-					ActiveDirectory.toArray(groups),
-					ActiveDirectory.getDisplayString(domain, remoteUser));
+			user = new User(userId, remoteUser, null, ActiveDirectory.toArray(
+					groups, "everyone"), ActiveDirectory.getDisplayString(
+					domain, remoteUser));
 
 			Logging.info("USER authenticated: " + user + " DN=" + dnUser);
 
@@ -120,11 +128,5 @@ public class AuthPluginNtlm implements AuthPluginInterface {
 		} finally {
 			IOUtils.close(activeDirectory);
 		}
-	}
-
-	@Override
-	public User getUser(Renderer renderer, String login, String password)
-			throws IOException {
-		throw new IOException("Not implemented");
 	}
 }

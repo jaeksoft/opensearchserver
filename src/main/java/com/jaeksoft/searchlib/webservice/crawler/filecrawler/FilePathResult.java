@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.util.StringUtils;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class FilePathResult {
 
 	public enum FileRepositoryType {
@@ -164,17 +164,14 @@ public class FilePathResult {
 		withSubDirectory = filePathItem.isWithSubDir();
 		ignoreHiddenFiles = filePathItem.isIgnoreHiddenFiles();
 		exclusionPatterns = filePathItem.getExclusionPatterns() == null ? null
-				: Arrays.asList(StringUtils.splitLines(filePathItem
-						.getExclusionPatterns()));
+				: Arrays.asList(StringUtils.splitLines(filePathItem.getExclusionPatterns()));
 		delayPerFile = filePathItem.getDelay();
-		ftpUsePassiveMode = type != null
-				&& (type == FileRepositoryType.FTP || type == FileRepositoryType.FTPS) ? filePathItem
-				.isFtpUsePassiveMode() : null;
+		ftpUsePassiveMode = type != null && (type == FileRepositoryType.FTP || type == FileRepositoryType.FTPS)
+				? filePathItem.isFtpUsePassiveMode() : null;
 	}
 
 	public static List<FilePathResult> create(List<FilePathItem> filePathItems) {
-		List<FilePathResult> results = new ArrayList<FilePathResult>(
-				filePathItems == null ? 0 : filePathItems.size());
+		List<FilePathResult> results = new ArrayList<FilePathResult>(filePathItems == null ? 0 : filePathItems.size());
 		if (filePathItems != null)
 			for (FilePathItem filePathItem : filePathItems)
 				results.add(new FilePathResult(filePathItem));

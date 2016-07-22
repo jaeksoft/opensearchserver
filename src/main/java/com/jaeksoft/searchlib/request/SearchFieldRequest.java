@@ -55,10 +55,11 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery.SearchField.Mode;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.Facet.OrderByEnum;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.FragmenterEnum;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
 
-public class SearchFieldRequest extends AbstractSearchRequest implements
+public class SearchFieldRequest extends AbstractLocalSearchRequest implements
 		RequestInterfaces.ReturnedFieldInterface,
 		RequestInterfaces.FilterListInterface {
 
@@ -332,13 +333,18 @@ public class SearchFieldRequest extends AbstractSearchRequest implements
 	 *            The field can contains several values
 	 * @param postCollapsing
 	 *            The number is calculated after collapsing
+	 * @param limit
+	 *            The maximum number of facet to return
+	 * @param orderBy
+	 *            The sort order for the facet
 	 * @param ranges
 	 *            An optional list of ranges
 	 */
 	public void addFacet(String fieldName, int minCount, boolean multivalued,
-			boolean postCollapsing, List<Range> ranges) {
+			boolean postCollapsing, Integer limit, OrderByEnum orderBy,
+			List<Range> ranges) {
 		FacetField facetField = new FacetField(fieldName, minCount,
-				multivalued, postCollapsing, ranges);
+				multivalued, postCollapsing, limit, orderBy, ranges);
 		getFacetFieldList().put(facetField);
 	}
 

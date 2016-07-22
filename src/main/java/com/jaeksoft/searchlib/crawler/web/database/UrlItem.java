@@ -1,35 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.database;
-
-import java.io.IOException;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.crawler.TargetStatus;
@@ -43,6 +36,13 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.LinkUtils;
+
+import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class UrlItem {
 
@@ -74,6 +74,7 @@ public class UrlItem {
 	private LinkItem.Origin origin;
 	private List<String> headers;
 	private int backlinkCount;
+	private int depth;
 	private String urlWhen;
 
 	protected UrlItem() {
@@ -105,60 +106,40 @@ public class UrlItem {
 		origin = null;
 		headers = null;
 		backlinkCount = 0;
+		depth = 0;
 		urlWhen = null;
 	}
 
 	protected void init(ResultDocument doc) {
 		setUrl(doc.getValueContent(UrlItemFieldEnum.INSTANCE.url.getName(), 0));
-		setHost(doc
-				.getValueContent(UrlItemFieldEnum.INSTANCE.host.getName(), 0));
+		setHost(doc.getValueContent(UrlItemFieldEnum.INSTANCE.host.getName(), 0));
 		setSubHost(doc.getValues(UrlItemFieldEnum.INSTANCE.subhost.getName()));
 		addOutLinks(doc.getValues(UrlItemFieldEnum.INSTANCE.outlink.getName()));
 		addInLinks(doc.getValues(UrlItemFieldEnum.INSTANCE.inlink.getName()));
-		setContentDispositionFilename(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.contentDispositionFilename.getName(),
-				0));
-		setContentBaseType(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.contentBaseType.getName(), 0));
-		setContentTypeCharset(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0));
-		setContentLength(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.contentLength.getName(), 0));
-		setContentEncoding(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), 0));
-		setLang(doc
-				.getValueContent(UrlItemFieldEnum.INSTANCE.lang.getName(), 0));
-		setLangMethod(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.langMethod.getName(), 0));
-		setWhen(doc
-				.getValueContent(UrlItemFieldEnum.INSTANCE.when.getName(), 0));
-		setRobotsTxtStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.getName(), 0));
-		setFetchStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.fetchStatus.getName(), 0));
-		setResponseCode(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.responseCode.getName(), 0));
-		setParserStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.parserStatus.getName(), 0));
-		setIndexStatusInt(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
-		setMd5size(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.md5size.getName(), 0));
-		setLastModifiedDate(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(), 0));
-		setContentUpdateDate(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.contentUpdateDate.getName(), 0));
-		setParentUrl(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.parentUrl.getName(), 0));
-		setRedirectionUrl(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(), 0));
-		setOrigin(LinkItem.findOrigin(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.origin.getName(), 0)));
+		setContentDispositionFilename(
+				doc.getValueContent(UrlItemFieldEnum.INSTANCE.contentDispositionFilename.getName(), 0));
+		setContentBaseType(doc.getValueContent(UrlItemFieldEnum.INSTANCE.contentBaseType.getName(), 0));
+		setContentTypeCharset(doc.getValueContent(UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0));
+		setContentLength(doc.getValueContent(UrlItemFieldEnum.INSTANCE.contentLength.getName(), 0));
+		setContentEncoding(doc.getValueContent(UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), 0));
+		setLang(doc.getValueContent(UrlItemFieldEnum.INSTANCE.lang.getName(), 0));
+		setLangMethod(doc.getValueContent(UrlItemFieldEnum.INSTANCE.langMethod.getName(), 0));
+		setWhen(doc.getValueContent(UrlItemFieldEnum.INSTANCE.when.getName(), 0));
+		setRobotsTxtStatusInt(doc.getValueContent(UrlItemFieldEnum.INSTANCE.robotsTxtStatus.getName(), 0));
+		setFetchStatusInt(doc.getValueContent(UrlItemFieldEnum.INSTANCE.fetchStatus.getName(), 0));
+		setResponseCode(doc.getValueContent(UrlItemFieldEnum.INSTANCE.responseCode.getName(), 0));
+		setParserStatusInt(doc.getValueContent(UrlItemFieldEnum.INSTANCE.parserStatus.getName(), 0));
+		setIndexStatusInt(doc.getValueContent(UrlItemFieldEnum.INSTANCE.indexStatus.getName(), 0));
+		setMd5size(doc.getValueContent(UrlItemFieldEnum.INSTANCE.md5size.getName(), 0));
+		setLastModifiedDate(doc.getValueContent(UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(), 0));
+		setContentUpdateDate(doc.getValueContent(UrlItemFieldEnum.INSTANCE.contentUpdateDate.getName(), 0));
+		setParentUrl(doc.getValueContent(UrlItemFieldEnum.INSTANCE.parentUrl.getName(), 0));
+		setRedirectionUrl(doc.getValueContent(UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(), 0));
+		setOrigin(LinkItem.findOrigin(doc.getValueContent(UrlItemFieldEnum.INSTANCE.origin.getName(), 0)));
 		addHeaders(doc.getValues(UrlItemFieldEnum.INSTANCE.headers.getName()));
-		setBacklinkCount(doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(), 0));
-		urlWhen = doc.getValueContent(
-				UrlItemFieldEnum.INSTANCE.urlWhen.getName(), 0);
+		setBacklinkCount(doc.getValueContent(UrlItemFieldEnum.INSTANCE.backlinkCount.getName(), 0));
+		setDepth(doc.getValueContent(UrlItemFieldEnum.INSTANCE.depth.getName(), 0));
+		urlWhen = doc.getValueContent(UrlItemFieldEnum.INSTANCE.urlWhen.getName(), 0);
 	}
 
 	private void addHeaders(List<FieldValueItem> headersList) {
@@ -492,11 +473,9 @@ public class UrlItem {
 		this.contentUpdateDate = d;
 	}
 
-	final static ThreadSafeSimpleDateFormat whenDateFormat = new ThreadSafeSimpleDateFormat(
-			"yyyyMMddHHmmss");
+	final static ThreadSafeSimpleDateFormat whenDateFormat = new ThreadSafeSimpleDateFormat("yyyyMMddHHmmss");
 
-	final static ThreadSafeDecimalFormat longFormat = new ThreadSafeDecimalFormat(
-			"00000000000000");
+	final static ThreadSafeDecimalFormat longFormat = new ThreadSafeDecimalFormat("00000000000000");
 
 	protected void setWhen(String d) {
 		if (d == null) {
@@ -538,94 +517,57 @@ public class UrlItem {
 	}
 
 	public void populate(IndexDocument indexDocument) throws IOException {
-		indexDocument.setString(UrlItemFieldEnum.INSTANCE.url.getName(),
-				getUrl());
-		indexDocument.setString(UrlItemFieldEnum.INSTANCE.when.getName(),
-				whenDateFormat.format(when));
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.url.getName(), getUrl());
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.when.getName(), whenDateFormat.format(when));
 		if (url != null) {
-			indexDocument.setString(UrlItemFieldEnum.INSTANCE.host.getName(),
-					url.getHost());
-			indexDocument.setStringList(
-					UrlItemFieldEnum.INSTANCE.subhost.getName(),
-					buildSubHost(url.getHost()));
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.host.getName(), url.getHost());
+			indexDocument.setStringList(UrlItemFieldEnum.INSTANCE.subhost.getName(), buildSubHost(url.getHost()));
 		}
 		if (inLinks != null)
-			indexDocument.setStringList(
-					UrlItemFieldEnum.INSTANCE.inlink.getName(), inLinks);
+			indexDocument.setStringList(UrlItemFieldEnum.INSTANCE.inlink.getName(), inLinks);
 		if (outLinks != null)
-			indexDocument.setStringList(
-					UrlItemFieldEnum.INSTANCE.outlink.getName(), outLinks);
+			indexDocument.setStringList(UrlItemFieldEnum.INSTANCE.outlink.getName(), outLinks);
 		if (responseCode != null)
-			indexDocument.setObject(
-					UrlItemFieldEnum.INSTANCE.responseCode.getName(),
-					responseCode);
+			indexDocument.setObject(UrlItemFieldEnum.INSTANCE.responseCode.getName(), responseCode);
 		if (contentDispositionFilename != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.contentDispositionFilename
-							.getName(), contentDispositionFilename);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentDispositionFilename.getName(),
+					contentDispositionFilename);
 		if (contentBaseType != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.contentBaseType.getName(),
-					contentBaseType);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentBaseType.getName(), contentBaseType);
 		if (contentTypeCharset != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(),
-					contentTypeCharset);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), contentTypeCharset);
 		if (contentLength != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.contentLength.getName(),
-					longFormat.format(contentLength));
+			indexDocument
+					.setString(UrlItemFieldEnum.INSTANCE.contentLength.getName(), longFormat.format(contentLength));
 		if (contentEncoding != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.contentEncoding.getName(),
-					contentEncoding);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentEncoding.getName(), contentEncoding);
 		if (lang != null)
-			indexDocument.setString(UrlItemFieldEnum.INSTANCE.lang.getName(),
-					lang);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.lang.getName(), lang);
 		if (langMethod != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.langMethod.getName(), langMethod);
-		indexDocument.setObject(
-				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.getName(),
-				robotsTxtStatus.value);
-		indexDocument.setObject(
-				UrlItemFieldEnum.INSTANCE.fetchStatus.getName(),
-				fetchStatus.value);
-		indexDocument.setObject(
-				UrlItemFieldEnum.INSTANCE.parserStatus.getName(),
-				parserStatus.value);
-		indexDocument.setObject(
-				UrlItemFieldEnum.INSTANCE.indexStatus.getName(),
-				indexStatus.value);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.langMethod.getName(), langMethod);
+		indexDocument.setObject(UrlItemFieldEnum.INSTANCE.robotsTxtStatus.getName(), robotsTxtStatus.value);
+		indexDocument.setObject(UrlItemFieldEnum.INSTANCE.fetchStatus.getName(), fetchStatus.value);
+		indexDocument.setObject(UrlItemFieldEnum.INSTANCE.parserStatus.getName(), parserStatus.value);
+		indexDocument.setObject(UrlItemFieldEnum.INSTANCE.indexStatus.getName(), indexStatus.value);
 		if (md5size != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.md5size.getName(), md5size);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.md5size.getName(), md5size);
 		if (lastModifiedDate != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(),
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.lastModifiedDate.getName(),
 					whenDateFormat.format(lastModifiedDate));
 		if (contentUpdateDate != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.contentUpdateDate.getName(),
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.contentUpdateDate.getName(),
 					whenDateFormat.format(contentUpdateDate));
 		if (parentUrl != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.parentUrl.getName(), parentUrl);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.parentUrl.getName(), parentUrl);
 		if (redirectionUrl != null)
-			indexDocument.setString(
-					UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(),
-					redirectionUrl);
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.redirectionUrl.getName(), redirectionUrl);
 		if (origin != null)
-			indexDocument.setString(UrlItemFieldEnum.INSTANCE.origin.getName(),
-					origin.name());
+			indexDocument.setString(UrlItemFieldEnum.INSTANCE.origin.getName(), origin.name());
 		if (headers != null)
-			indexDocument.setStringList(
-					UrlItemFieldEnum.INSTANCE.headers.getName(), headers);
-		indexDocument.setString(
-				UrlItemFieldEnum.INSTANCE.backlinkCount.getName(),
-				longFormat.format(backlinkCount));
-		indexDocument.setString(UrlItemFieldEnum.INSTANCE.urlWhen.getName(),
-				urlWhen);
+			indexDocument.setStringList(UrlItemFieldEnum.INSTANCE.headers.getName(), headers);
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.backlinkCount.getName(), longFormat.format(backlinkCount));
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.depth.getName(), longFormat.format(depth));
+		indexDocument.setString(UrlItemFieldEnum.INSTANCE.urlWhen.getName(), urlWhen);
 	}
 
 	public String getLang() {
@@ -690,8 +632,7 @@ public class UrlItem {
 	}
 
 	/**
-	 * @param backLinkCount
-	 *            the backLinkCount to set
+	 * @param v the backLinkCount to set
 	 */
 	private void setBacklinkCount(String v) {
 		if (v == null)
@@ -706,11 +647,39 @@ public class UrlItem {
 	}
 
 	/**
-	 * @param backLinkCount
-	 *            the backLinkCount to set
+	 * @param backLinkCount the backLinkCount to set
 	 */
 	public void setBacklinkCount(int backLinkCount) {
 		this.backlinkCount = backLinkCount;
+	}
+
+	/**
+	 * @return the depth
+	 */
+	public int getDepth() {
+		return depth;
+	}
+
+	/**
+	 * @param depth the depth to set
+	 */
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	/**
+	 * @param v the depth to set
+	 */
+	private void setDepth(String v) {
+		if (v == null)
+			return;
+		if (v.length() == 0)
+			return;
+		try {
+			depth = longFormat.parse(v).intValue();
+		} catch (ParseException e) {
+			Logging.error(e.getMessage(), e);
+		}
 	}
 
 	public void checkUrlWhen() {

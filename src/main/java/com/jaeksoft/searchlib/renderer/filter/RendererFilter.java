@@ -202,8 +202,9 @@ public class RendererFilter {
 		properties = getRenderFilterInstance().getDefaultProperties();
 	}
 
-	public List<RendererFilterItem> getFilterItems(AbstractResultSearch result)
-			throws InstantiationException, IllegalAccessException, IOException {
+	public List<RendererFilterItem> getFilterItems(
+			AbstractResultSearch<?> result) throws InstantiationException,
+			IllegalAccessException, IOException {
 		if (filterType == null)
 			return null;
 		List<RendererFilterItem> filterItem = new ArrayList<RendererFilterItem>();

@@ -24,12 +24,17 @@
 
 package com.jaeksoft.searchlib.web;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.xml.transform.TransformerConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -47,6 +52,9 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 public class RendererServlet extends AbstractServlet {
@@ -67,6 +75,23 @@ public class RendererServlet extends AbstractServlet {
 		transaction.forward(path);
 	}
 
+	final private void token(Renderer renderer, String username,
+			String password, PrintWriter pw) throws IOException,
+			SearchLibException, TransformerConfigurationException, SAXException {
+		AuthPluginInterface.User rendererUser = renderer.testAuthRequest(
+				username, password);
+		if (rendererUser == null)
+			throw new SearchLibException("Authentication failed");
+		String token = renderer.getTokens().generateToken(
+				rendererUser.username, rendererUser.password);
+		XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
+		xmlWriter.startElement("response");
+		xmlWriter.startElement("token");
+		xmlWriter.textNode(token);
+		xmlWriter.endElement();
+		xmlWriter.endElement();
+	}
+
 	@Override
 	protected void doRequest(ServletTransaction transaction)
 			throws ServletException {
@@ -83,6 +108,19 @@ public class RendererServlet extends AbstractServlet {
 					transaction.getParameterString("name"));
 			if (renderer == null)
 				throw new SearchLibException("The renderer has not been found");
+
+			// Generate Auth token
+			if (transaction.getMethod() == Method.GET) {
+				String username = transaction.getParameterString("username");
+				String password = transaction.getParameterString("password");
+				if (!StringUtils.isEmpty(username)
+						&& !StringUtils.isEmpty(password)) {
+					transaction.setResponseContentType("text/xml");
+					PrintWriter pw = transaction.getWriter("UTF-8");
+					token(renderer, username, password, pw);
+					return;
+				}
+			}
 
 			String query = transaction.getParameterString("query");
 			AbstractSearchRequest searchRequest = (AbstractSearchRequest) client
@@ -117,7 +155,7 @@ public class RendererServlet extends AbstractServlet {
 					searchRequest
 							.setStart(searchRequest.getRows() * (page - 1));
 				}
-				AbstractResultSearch result = (AbstractResultSearch) client
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
 						.request(searchRequest);
 				transaction.setRequestAttribute("result", result);
 				if (result != null) {
@@ -139,7 +177,7 @@ public class RendererServlet extends AbstractServlet {
 					facetRequest.setStart(searchRequest.getStart());
 					facetRequest.setRows(searchRequest.getRows());
 					renderer.configureAuthRequest(facetRequest, servletRequest);
-					AbstractResultSearch facetResult = (AbstractResultSearch) client
+					AbstractResultSearch<?> facetResult = (AbstractResultSearch<?>) client
 							.request(facetRequest);
 					transaction.setRequestAttribute("facetResult", facetResult);
 				}
@@ -178,6 +216,7 @@ public class RendererServlet extends AbstractServlet {
 			forward(transaction, renderer,
 					StringUtils.fastConcat("/WEB-INF/jsp/", jsp));
 		} catch (AuthException e) {
+			ThreadUtils.sleepMs(1000);
 			transaction.setRequestAttribute("error", e.getMessage());
 			forward(transaction, renderer, "/WEB-INF/jsp/login.jsp");
 		} catch (NoUserException e) {

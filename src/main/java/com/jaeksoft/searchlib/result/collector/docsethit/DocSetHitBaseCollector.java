@@ -31,11 +31,10 @@ import java.util.List;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.Scorer;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.CollectorInterface;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 final public class DocSetHitBaseCollector extends
 		AbstractBaseCollector<DocSetHitCollectorInterface> implements
@@ -103,13 +102,12 @@ final public class DocSetHitBaseCollector extends
 
 			public final Integer docBase;
 			public final IndexReader indexReader;
-			public final BitSetInterface docBitSet;
+			public final RoaringBitmap docBitSet;
 
 			private Segment(int docBase, IndexReader reader) {
 				this.docBase = docBase;
 				this.indexReader = reader;
-				this.docBitSet = BitSetFactory.INSTANCE.newInstance(reader
-						.maxDoc());
+				this.docBitSet = new RoaringBitmap();
 			}
 		}
 
@@ -133,7 +131,7 @@ final public class DocSetHitBaseCollector extends
 		public void collect(final int doc) throws IOException {
 			score = null;
 			lastCollector.collectDoc(doc + currentDocBase);
-			currentSegment.docBitSet.set(doc);
+			currentSegment.docBitSet.add(doc);
 		}
 
 	}

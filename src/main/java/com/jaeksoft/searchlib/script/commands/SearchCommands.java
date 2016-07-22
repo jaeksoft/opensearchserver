@@ -55,7 +55,7 @@ public class SearchCommands {
 			super(commandEnum);
 		}
 
-		protected AbstractResultSearch search(ScriptCommandContext context,
+		protected AbstractResultSearch<?> search(ScriptCommandContext context,
 				String template, String query) throws ScriptException {
 			try {
 				Client client = (Client) context.getConfig();
@@ -66,7 +66,7 @@ public class SearchCommands {
 				AbstractSearchRequest searchRequest = (AbstractSearchRequest) request;
 				if (!query.isEmpty())
 					searchRequest.setQueryString(query);
-				return (AbstractResultSearch) client.request(searchRequest);
+				return (AbstractResultSearch<?>) client.request(searchRequest);
 			} catch (SearchLibException e) {
 				throw new ScriptException(e);
 			}
@@ -97,7 +97,7 @@ public class SearchCommands {
 			Variables documentVariables = new Variables();
 			context.addVariables(searchVariables, documentVariables);
 			try {
-				AbstractResultSearch result = this.search(context, template,
+				AbstractResultSearch<?> result = this.search(context, template,
 						query);
 				searchVariables.put("search:numfound",
 						Integer.toString(result.getNumFound()));
@@ -179,7 +179,8 @@ public class SearchCommands {
 			CommandEnum command = StringUtils.isEmpty(cmd) ? null : CommandEnum
 					.find(cmd);
 
-			AbstractResultSearch result = this.search(context, template, query);
+			AbstractResultSearch<?> result = this.search(context, template,
+					query);
 			SearchResult searchResult = new SearchResult(result);
 			try {
 				Object object = jsonPath.read(JsonUtils

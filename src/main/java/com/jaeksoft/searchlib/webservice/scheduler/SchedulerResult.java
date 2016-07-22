@@ -43,7 +43,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class SchedulerResult extends CommonResult {
 
 	public final boolean isRunning;
@@ -58,7 +58,7 @@ public class SchedulerResult extends CommonResult {
 	public final List<TaskInfo> taskInfos;
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.NON_NULL)
 	public static class TaskInfo {
 
 		public final String name;

@@ -26,9 +26,9 @@ package com.jaeksoft.searchlib.analysis.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.lucene.analysis.TokenStream;
 
@@ -43,7 +43,7 @@ public class DeduplicateTokenPositionsFilter extends FilterFactory {
 
 		protected DedupAllTokenPositionsFilter(TokenStream input) {
 			super(input);
-			this.tokens = new TreeMap<String, List<Position>>();
+			this.tokens = new HashMap<String, List<Position>>();
 		}
 
 		@Override

@@ -1,33 +1,30 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.LinkedList;
-
+import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -35,30 +32,30 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathManager;
-import com.jaeksoft.searchlib.crawler.file.database.FilePropertyManager;
+import com.jaeksoft.searchlib.crawler.file.database.*;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
+import org.apache.http.HttpException;
 
-public class CrawlFileMaster extends
-		CrawlMasterAbstract<CrawlFileMaster, CrawlFileThread> {
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+
+public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlFileThread> {
 
 	private FileCrawlQueue fileCrawlQueue;
 
 	private final LinkedList<FilePathItem> filePathList;
 
-	public CrawlFileMaster(Config config) throws SearchLibException {
+	public CrawlFileMaster(Config config) throws IOException {
 		super(config);
-		FilePropertyManager filePropertyManager = config
-				.getFilePropertyManager();
+		FilePropertyManager filePropertyManager = config.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config);
 		filePathList = new LinkedList<FilePathItem>();
 		if (filePropertyManager.getCrawlEnabled().getValue()) {
-			Logging.info("The file crawler is starting for "
-					+ config.getIndexName());
+			Logging.info("The file crawler is starting for " + config.getIndexName());
 			start(false);
 		}
 	}
@@ -67,8 +64,14 @@ public class CrawlFileMaster extends
 	public void runner() throws Exception {
 		Config config = getConfig();
 		FilePropertyManager propertyManager = config.getFilePropertyManager();
-		fileCrawlQueue.setMaxBufferSize(propertyManager
-				.getIndexDocumentBufferSize().getValue());
+
+		fileCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());
+
+		if (ClientFactory.INSTANCE.properties.isDisableFileCrawler()) {
+			abort();
+			propertyManager.getCrawlEnabled().setValue(false);
+			throw new InterruptedException("The webcrawler is disabled.");
+		}
 
 		while (!isAborted()) {
 
@@ -77,8 +80,7 @@ public class CrawlFileMaster extends
 			fileCrawlQueue.setStatistiques(currentStats);
 
 			int threadNumber = propertyManager.getMaxThreadNumber().getValue();
-			String schedulerJobName = propertyManager
-					.getSchedulerAfterSession().getValue();
+			String schedulerJobName = propertyManager.getSchedulerAfterSession().getValue();
 
 			synchronized (filePathList) {
 				filePathList.clear();
@@ -92,8 +94,7 @@ public class CrawlFileMaster extends
 				if (filePathItem == null)
 					break;
 
-				CrawlFileThread crawlThread = new CrawlFileThread(config, this,
-						currentStats, filePathItem);
+				CrawlFileThread crawlThread = new CrawlFileThread(config, this, currentStats, filePathItem);
 				add(crawlThread);
 
 				while (getThreadsCount() >= threadNumber && !isAborted())
@@ -107,13 +108,10 @@ public class CrawlFileMaster extends
 			}
 			setStatus(CrawlStatus.INDEXATION);
 			fileCrawlQueue.index(true);
-			if (fileCrawlQueue.hasContainedData())
-				config.getFileManager().reload(false, null);
 
 			if (schedulerJobName != null && schedulerJobName.length() > 0) {
 				setStatus(CrawlStatus.EXECUTE_SCHEDULER_JOB);
-				TaskManager.getInstance().executeJob(config.getIndexName(),
-						schedulerJobName);
+				TaskManager.getInstance().executeJob(config.getIndexName(), schedulerJobName);
 			}
 
 			if (isOnce())
@@ -124,10 +122,23 @@ public class CrawlFileMaster extends
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	private void extractFilePathList() throws IOException, ParseException,
-			SyntaxError, URISyntaxException, ClassNotFoundException,
-			InterruptedException, SearchLibException, InstantiationException,
-			IllegalAccessException {
+	public void crawlDirectory(FilePathItem filePathItem, String path)
+			throws SearchLibException, NoSuchAlgorithmException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, URISyntaxException, IOException, HttpException, InterruptedException {
+		Config config = getConfig();
+		FilePropertyManager propertyManager = config.getFilePropertyManager();
+		fileCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());
+		CrawlFileThread crawlThread = new CrawlFileThread(getConfig(), this, null, filePathItem);
+		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(filePathItem, null, path);
+		if (fileInstance.getFileType() != FileTypeEnum.directory)
+			return;
+		crawlThread.browse(fileInstance, false);
+		fileCrawlQueue.index(true);
+	}
+
+	private void extractFilePathList()
+			throws IOException, ParseException, SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		Config config = getConfig();
 		setStatus(CrawlStatus.EXTRACTING_FILEPATHLIST);
 

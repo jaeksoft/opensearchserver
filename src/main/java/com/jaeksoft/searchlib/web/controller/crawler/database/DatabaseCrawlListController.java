@@ -47,15 +47,13 @@ import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerCon
 
 @AfterCompose(superclass = true)
 public class DatabaseCrawlListController
-		extends
-		CommonFieldTargetCrawlerController<DatabaseCrawlAbstract, DatabaseCrawlThread, DatabaseCrawlMaster> {
+		extends CommonFieldTargetCrawlerController<DatabaseCrawlAbstract, DatabaseCrawlThread, DatabaseCrawlMaster> {
 
 	private transient DatabaseCrawlList dbCrawlList;
 
 	private DatabaseCrawlEnum dbCrawlType;
 
-	public DatabaseCrawlListController() throws SearchLibException,
-			NamingException {
+	public DatabaseCrawlListController() throws SearchLibException, NamingException {
 		super();
 	}
 
@@ -84,8 +82,7 @@ public class DatabaseCrawlListController
 	}
 
 	public String[] getDriverClassList() {
-		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
-				.getClass().getClassLoader());
+		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp().getClass().getClassLoader());
 	}
 
 	@Override
@@ -111,12 +108,12 @@ public class DatabaseCrawlListController
 		setSelectedCrawl(null);
 		DatabaseCrawlAbstract newCrawl = null;
 		switch (dbCrawlType) {
+		default:
 		case DB_SQL:
 			newCrawl = new DatabaseCrawlSql(getCrawlMaster(), getProperties());
 			break;
 		case DB_MONGO_DB:
-			newCrawl = new DatabaseCrawlMongoDb(getCrawlMaster(),
-					getProperties());
+			newCrawl = new DatabaseCrawlMongoDb(getCrawlMaster(), getProperties());
 			break;
 		}
 		setCurrentCrawl(newCrawl);
@@ -161,8 +158,7 @@ public class DatabaseCrawlListController
 	}
 
 	@Override
-	protected void doDelete(DatabaseCrawlAbstract crawlItem)
-			throws SearchLibException {
+	protected void doDelete(DatabaseCrawlAbstract crawlItem) throws SearchLibException {
 		getClient().getDatabaseCrawlList().remove(crawlItem);
 	}
 

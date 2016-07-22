@@ -33,10 +33,14 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.facet.FacetField;
+import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.webservice.CommonResult;
@@ -45,6 +49,7 @@ import com.jaeksoft.searchlib.webservice.query.document.DocumentResult;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@JsonInclude(Include.NON_NULL)
 public class SearchResult extends CommonResult {
 
 	@XmlElement(name = "document")
@@ -86,13 +91,14 @@ public class SearchResult extends CommonResult {
 		maxScore = 0;
 	}
 
-	public SearchResult(AbstractResultSearch result) {
+	public SearchResult(AbstractResultSearch<?> result) {
 		super(true, null);
 		try {
 			AbstractSearchRequest searchRequest = result.getRequest();
 			documents = new ArrayList<DocumentResult>(0);
 			facets = new ArrayList<FacetResult>(0);
-			query = searchRequest.getQueryParsed();
+			query = searchRequest instanceof AbstractLocalSearchRequest
+					? ((AbstractLocalSearchRequest) searchRequest).getQueryParsed() : searchRequest.getQueryString();
 			start = searchRequest.getStart();
 			rows = searchRequest.getRows();
 			numFound = result.getNumFound();
@@ -102,9 +108,10 @@ public class SearchResult extends CommonResult {
 
 			DocumentResult.populateDocumentList(result, documents);
 
-			if (searchRequest.getFacetFieldList().size() > 0)
-				for (FacetField FacetField : searchRequest.getFacetFieldList())
-					facets.add(new FacetResult(result, FacetField.getName()));
+			FacetList facetList = result.getFacetList();
+			if (facetList != null)
+				for (Facet facet : facetList)
+					facets.add(new FacetResult(facet));
 
 		} catch (ParseException e) {
 			throw new CommonServices.CommonServiceException(e);

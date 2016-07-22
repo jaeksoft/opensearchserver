@@ -1,35 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -37,16 +30,22 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.logreport.ErrorParserLogger;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils.WaitInterface;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StartStopListener implements ServletContextListener {
 
 	public static File OPENSEARCHSERVER_DATA_FILE = null;
 
-	private final static ReadWriteLock rwl = new ReadWriteLock();
+	private static final AtomicBoolean active = new AtomicBoolean(false);
 
-	private static boolean active = false;
+	private static final AtomicBoolean started = new AtomicBoolean(false);
 
 	public static String REALPATH_WEBINF_CLASSES = null;
 
@@ -54,6 +53,8 @@ public class StartStopListener implements ServletContextListener {
 
 	private static void initDataDir(ServletContext servletContext) {
 		String single_data = System.getenv("OPENSEARCHSERVER_DATA");
+		if (single_data == null)
+			single_data = System.getProperty("OPENSEARCHSERVER_DATA");
 		String multi_data = System.getenv("OPENSEARCHSERVER_MULTIDATA");
 		if (multi_data == null)
 			multi_data = System.getenv("OPENSHIFT_DATA_DIR");
@@ -65,43 +66,42 @@ public class StartStopListener implements ServletContextListener {
 		} else if (single_data != null)
 			OPENSEARCHSERVER_DATA_FILE = new File(single_data);
 		else
-			OPENSEARCHSERVER_DATA_FILE = new File(
-					System.getProperty("user.home"), "opensearchserver_data");
+			OPENSEARCHSERVER_DATA_FILE = new File(System.getProperty("user.home"), "opensearchserver_data");
 		if (!OPENSEARCHSERVER_DATA_FILE.exists())
 			OPENSEARCHSERVER_DATA_FILE.mkdir();
-		System.out.println("OPENSEARCHSERVER_DATA_FILE IS: "
-				+ OPENSEARCHSERVER_DATA_FILE);
+		System.out.println("OPENSEARCHSERVER_DATA_FILE IS: " + OPENSEARCHSERVER_DATA_FILE);
 	}
 
 	private static void initDataDir(File data_directory) {
 		if (OPENSEARCHSERVER_DATA_FILE != null)
-			throw new RuntimeException("Data directory already set: "
-					+ OPENSEARCHSERVER_DATA_FILE.getAbsolutePath());
+			throw new RuntimeException("Data directory already set: " + OPENSEARCHSERVER_DATA_FILE.getAbsolutePath());
 		if (data_directory.exists()) {
 			if (!data_directory.isDirectory())
-				throw new RuntimeException(data_directory.getAbsolutePath()
-						+ " is not a directory");
+				throw new RuntimeException(data_directory.getAbsolutePath() + " is not a directory");
 		}
 		OPENSEARCHSERVER_DATA_FILE = data_directory;
 		if (!OPENSEARCHSERVER_DATA_FILE.exists())
 			OPENSEARCHSERVER_DATA_FILE.mkdir();
 	}
 
-	public static void setActive(boolean active) {
-		rwl.w.lock();
-		try {
-			StartStopListener.active = active;
-		} finally {
-			rwl.w.unlock();
-		}
+	public static boolean isShutdown() {
+		return !active.get();
 	}
 
-	public static boolean isShutdown() {
-		rwl.r.lock();
-		try {
-			return StartStopListener.active == false;
-		} finally {
-			rwl.r.unlock();
+	public static boolean isStarted() {
+		return started.get();
+	}
+
+	public static class StartedWaitInterface implements WaitInterface {
+
+		@Override
+		public boolean done() {
+			return started.get();
+		}
+
+		@Override
+		public boolean abort() {
+			return false;
 		}
 	}
 
@@ -119,7 +119,8 @@ public class StartStopListener implements ServletContextListener {
 	}
 
 	public final static void shutdown() {
-		setActive(false);
+		active.set(false);
+		started.set(false);
 		Logging.info("OSS SHUTDOWN");
 		try {
 			TaskManager.getInstance().stop();
@@ -152,12 +153,13 @@ public class StartStopListener implements ServletContextListener {
 			Logging.info("OSS starts loading index(es)");
 			ClientCatalog.openAll();
 			Logging.info("OSS ends loading index(es)");
+			started.set(true);
 		}
 
 	}
 
 	private static final void start() {
-		setActive(true);
+		active.set(true);
 
 		Logging.initLogger();
 		Logging.info("OSS IS STARTING ");
@@ -180,8 +182,7 @@ public class StartStopListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		ServletContext servletContext = contextEvent.getServletContext();
-		REALPATH_WEBINF_CLASSES = servletContext
-				.getRealPath("/WEB-INF/classes");
+		REALPATH_WEBINF_CLASSES = servletContext.getRealPath("/WEB-INF/classes");
 		REALPATH_WEBINF_LIB = servletContext.getRealPath("/WEB-INF/lib");
 		initDataDir(servletContext);
 		try {

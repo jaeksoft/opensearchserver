@@ -1,57 +1,57 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2011-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.index;
 
-import java.util.Collection;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.schema.Schema;
 
+import java.util.Collection;
+
 public interface UpdateInterfaces {
 
-	public static interface Before extends UpdateInterfaces {
+	interface Before extends UpdateInterfaces {
 
-		public void update(final Schema schema, final IndexDocument document)
-				throws SearchLibException;
+		void update(final Schema schema, final IndexDocument document) throws SearchLibException;
 	}
 
-	public static interface After extends UpdateInterfaces {
+	interface After extends UpdateInterfaces {
 
-		public void update(final IndexDocument document)
-				throws SearchLibException;
+		void update(final IndexDocument document) throws SearchLibException;
 
-		public void update(final Collection<IndexDocument> documents)
-				throws SearchLibException;
+		void update(final Collection<IndexDocument> documents) throws SearchLibException;
 	}
 
-	public static interface Delete extends UpdateInterfaces {
+	interface Delete extends UpdateInterfaces {
 
-		public void delete(final String field, final String value)
-				throws SearchLibException;
+		void delete(final String field, final String value) throws SearchLibException;
 
-		public void delete(final String field, final Collection<String> values)
-				throws SearchLibException;
+		void delete(final String field, final Collection<String> values) throws SearchLibException;
+	}
+
+	interface Reload extends UpdateInterfaces {
+
+		void reload() throws SearchLibException;
 	}
 }

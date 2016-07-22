@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class TaskCronExpression {
+	public class TaskCronExpression {
 
 	private String seconds;
 

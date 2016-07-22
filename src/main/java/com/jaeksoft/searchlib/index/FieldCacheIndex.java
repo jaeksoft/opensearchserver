@@ -28,15 +28,11 @@ import java.util.Collection;
 
 public class FieldCacheIndex {
 
-	public final long version;
-
 	public final String[] lookup;
 
 	public final int[] order;
 
-	public FieldCacheIndex(final long version, final String[] lookup,
-			final int[] order) {
-		this.version = version;
+	public FieldCacheIndex(final String[] lookup, final int[] order) {
 		this.lookup = lookup;
 		this.order = order;
 	}

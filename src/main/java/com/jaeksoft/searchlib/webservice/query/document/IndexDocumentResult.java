@@ -45,7 +45,7 @@ import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class IndexDocumentResult {
 
 	public final List<IndexField> fields;
@@ -63,7 +63,7 @@ public class IndexDocumentResult {
 	}
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.NON_NULL)
 	public static class IndexField {
 
 		public final String field;
@@ -74,17 +74,15 @@ public class IndexDocumentResult {
 			this(null, null, null);
 		}
 
-		public IndexField(String field, FieldValue storedFieldValue,
-				List<IndexTerm> terms) {
+		public IndexField(String field, FieldValue storedFieldValue, List<IndexTerm> terms) {
 			this.field = field;
-			this.stored = storedFieldValue == null ? null : storedFieldValue
-					.getValueStringList();
+			this.stored = storedFieldValue == null ? null : storedFieldValue.getValueStringList();
 			this.terms = terms;
 		}
 	}
 
 	@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.NON_NULL)
 	public static class IndexTerm {
 
 		public final String t;
@@ -97,8 +95,7 @@ public class IndexDocumentResult {
 			this(null, 0, null, null);
 		}
 
-		private IndexTerm(String term, int frequency, int[] positions,
-				TermVectorOffsetInfo[] offsetInfos) {
+		private IndexTerm(String term, int frequency, int[] positions, TermVectorOffsetInfo[] offsetInfos) {
 			this.t = term;
 			this.p = positions;
 			this.f = frequency;
@@ -126,38 +123,35 @@ public class IndexDocumentResult {
 			int[] frequencies = termVector.getTermFrequencies();
 			List<IndexTerm> indexTerms = new ArrayList<IndexTerm>(terms.length);
 			if (termVector instanceof TermPositionVector)
-				toListPosition((TermPositionVector) termVector, terms,
-						frequencies, indexTerms);
+				toListPosition((TermPositionVector) termVector, terms, frequencies, indexTerms);
 			else
 				toListFreq(termVector, terms, frequencies, indexTerms);
 			return indexTerms;
 		}
 
-		private final static void toListPosition(TermPositionVector termVector,
-				String[] terms, int[] frequencies, List<IndexTerm> indexTerms) {
+		private final static void toListPosition(TermPositionVector termVector, String[] terms, int[] frequencies,
+				List<IndexTerm> indexTerms) {
 			int i = 0;
 			for (String term : terms) {
-				IndexTerm indexTerm = new IndexTerm(term, frequencies[i],
-						termVector.getTermPositions(i),
+				IndexTerm indexTerm = new IndexTerm(term, frequencies[i], termVector.getTermPositions(i),
 						termVector.getOffsets(i));
 				indexTerms.add(indexTerm);
 				i++;
 			}
 		}
 
-		private final static void toListFreq(TermFreqVector termVector,
-				String[] terms, int[] frequencies, List<IndexTerm> indexTerms) {
+		private final static void toListFreq(TermFreqVector termVector, String[] terms, int[] frequencies,
+				List<IndexTerm> indexTerms) {
 			int i = 0;
 			for (String term : terms) {
-				IndexTerm indexTerm = new IndexTerm(term, frequencies[i], null,
-						null);
+				IndexTerm indexTerm = new IndexTerm(term, frequencies[i], null, null);
 				indexTerms.add(indexTerm);
 				i++;
 			}
 		}
 
-		public static List<IndexTerm> toList(ReaderInterface reader,
-				String field, int docId) throws SearchLibException, IOException {
+		public static List<IndexTerm> toList(ReaderInterface reader, String field, int docId)
+				throws SearchLibException, IOException {
 			TermEnum te = reader.getTermEnum(new Term(field, ""));
 			if (te == null)
 				return null;
@@ -173,8 +167,7 @@ public class IndexDocumentResult {
 				int[] positions = new int[tp.freq()];
 				for (int i = 0; i < positions.length; i++)
 					positions[i] = tp.nextPosition();
-				IndexTerm indexTerm = new IndexTerm(term, positions.length,
-						positions, null);
+				IndexTerm indexTerm = new IndexTerm(term, positions.length, positions, null);
 				indexTerms.add(indexTerm);
 			} while (te.next());
 			te.close();

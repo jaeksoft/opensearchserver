@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.learning;
@@ -50,7 +50,7 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 
-public class Learner implements InfoCallback {
+public class Learner implements InfoCallback, XmlWriter.Interface {
 
 	private final static String LEARNER_ITEM_ROOT_NODE_NAME = "learner";
 	private final static String LEARNER_ITEM_ROOT_ATTR_NAME = "name";
@@ -128,8 +128,7 @@ public class Learner implements InfoCallback {
 				targetFieldMap.copyTo(target.targetFieldMap);
 				target.maxRank = maxRank;
 				target.minScore = minScore;
-				target.setRunningStatus(this.getRunningStatus(),
-						this.getLastRunInfo());
+				target.setRunningStatus(this.getRunningStatus(), this.getLastRunInfo());
 			} finally {
 				target.rwl.w.unlock();
 			}
@@ -139,36 +138,26 @@ public class Learner implements InfoCallback {
 	}
 
 	protected Learner(Client client, File file)
-			throws ParserConfigurationException, SAXException, IOException,
-			XPathExpressionException, SearchLibException {
+			throws ParserConfigurationException, SAXException, IOException, XPathExpressionException,
+			SearchLibException {
 		this(client);
 		if (!file.exists())
 			return;
 		Document document = DomUtils.readXml(new StreamSource(file), false);
-		Node rootNode = DomUtils.getFirstNode(document,
-				LEARNER_ITEM_ROOT_NODE_NAME);
+		Node rootNode = DomUtils.getFirstNode(document, LEARNER_ITEM_ROOT_NODE_NAME);
 		if (rootNode == null)
 			return;
-		setName(XPathParser.getAttributeString(rootNode,
-				LEARNER_ITEM_ROOT_ATTR_NAME));
-		setActive("yes".equalsIgnoreCase(XPathParser.getAttributeString(
-				rootNode, LEARNER_ITEM_ROOT_ATTR_ACTIVE)));
-		setSearchRequest(XPathParser.getAttributeString(rootNode,
-				LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST));
-		setMinScore(XPathParser.getAttributeDouble(rootNode,
-				LEARNER_ITEM_ROOT_ATTR_MIN_SCORE));
-		setMaxRank(XPathParser.getAttributeValue(rootNode,
-				LEARNER_ITEM_ROOT_ATTR_MAX_RANK));
-		setBuffer(XPathParser.getAttributeValue(rootNode,
-				LEARNER_ITEM_ROOT_ATTR_BUFFER));
-		sourceFieldMap.load(DomUtils.getFirstNode(rootNode,
-				LEARNER_ITEM_MAP_SRC_NODE_NAME));
-		targetFieldMap.load(DomUtils.getFirstNode(rootNode,
-				LEARNER_ITEM_MAP_TGT_NODE_NAME));
+		setName(XPathParser.getAttributeString(rootNode, LEARNER_ITEM_ROOT_ATTR_NAME));
+		setActive("yes".equalsIgnoreCase(XPathParser.getAttributeString(rootNode, LEARNER_ITEM_ROOT_ATTR_ACTIVE)));
+		setSearchRequest(XPathParser.getAttributeString(rootNode, LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST));
+		setMinScore(XPathParser.getAttributeDouble(rootNode, LEARNER_ITEM_ROOT_ATTR_MIN_SCORE));
+		setMaxRank(XPathParser.getAttributeValue(rootNode, LEARNER_ITEM_ROOT_ATTR_MAX_RANK));
+		setBuffer(XPathParser.getAttributeValue(rootNode, LEARNER_ITEM_ROOT_ATTR_BUFFER));
+		sourceFieldMap.load(DomUtils.getFirstNode(rootNode, LEARNER_ITEM_MAP_SRC_NODE_NAME));
+		targetFieldMap.load(DomUtils.getFirstNode(rootNode, LEARNER_ITEM_MAP_TGT_NODE_NAME));
 	}
 
 	/**
-	 * 
 	 * @return
 	 */
 	public FieldMap getSourceFieldMap() {
@@ -190,8 +179,7 @@ public class Learner implements InfoCallback {
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param name the name to set
 	 */
 	public void setName(String name) {
 		rwl.w.lock();
@@ -215,8 +203,7 @@ public class Learner implements InfoCallback {
 	}
 
 	/**
-	 * @param active
-	 *            the active to set
+	 * @param active the active to set
 	 */
 	public void setActive(boolean active) {
 		rwl.w.lock();
@@ -239,16 +226,14 @@ public class Learner implements InfoCallback {
 		}
 	}
 
+	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement(LEARNER_ITEM_ROOT_NODE_NAME,
-					LEARNER_ITEM_ROOT_ATTR_NAME, name,
-					LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST, searchRequest,
-					LEARNER_ITEM_ROOT_ATTR_ACTIVE, active ? "yes" : "no",
-					LEARNER_ITEM_ROOT_ATTR_MAX_RANK, Integer.toString(maxRank),
-					LEARNER_ITEM_ROOT_ATTR_MIN_SCORE,
-					Double.toString(minScore), LEARNER_ITEM_ROOT_ATTR_BUFFER,
+			xmlWriter.startElement(LEARNER_ITEM_ROOT_NODE_NAME, LEARNER_ITEM_ROOT_ATTR_NAME, name,
+					LEARNER_ITEM_ROOT_ATTR_SEARCH_REQUEST, searchRequest, LEARNER_ITEM_ROOT_ATTR_ACTIVE,
+					active ? "yes" : "no", LEARNER_ITEM_ROOT_ATTR_MAX_RANK, Integer.toString(maxRank),
+					LEARNER_ITEM_ROOT_ATTR_MIN_SCORE, Double.toString(minScore), LEARNER_ITEM_ROOT_ATTR_BUFFER,
 					Integer.toString(buffer));
 			xmlWriter.startElement(LEARNER_ITEM_MAP_SRC_NODE_NAME);
 			sourceFieldMap.store(xmlWriter);
@@ -310,8 +295,7 @@ public class Learner implements InfoCallback {
 		}
 	}
 
-	public void learn(Collection<IndexDocument> documents)
-			throws SearchLibException {
+	public void learn(Collection<IndexDocument> documents) throws SearchLibException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
@@ -323,13 +307,11 @@ public class Learner implements InfoCallback {
 		}
 	}
 
-	public void remove(String field, Collection<String> values)
-			throws SearchLibException {
+	public void remove(String field, Collection<String> values) throws SearchLibException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
-			instance.remove(client, searchRequest, field, values,
-					sourceFieldMap);
+			instance.remove(client, searchRequest, field, values, sourceFieldMap);
 		} finally {
 			rwl.r.unlock();
 		}
@@ -346,21 +328,19 @@ public class Learner implements InfoCallback {
 		}
 	}
 
-	private LearnerResultItem[] populateCustoms(LearnerResultItem[] results)
-			throws SearchLibException, ParseException {
+	private LearnerResultItem[] populateCustoms(LearnerResultItem[] results) throws SearchLibException, ParseException {
 		LearnerInterface instance = getInstance();
 		if (results == null)
 			return results;
 		LearnerResultItem[] newResults = new LearnerResultItem[results.length];
 		int i = 0;
 		for (LearnerResultItem result : results)
-			newResults[i++] = new LearnerResultItem(result,
-					instance.getCustoms(result.getName()));
+			newResults[i++] = new LearnerResultItem(result, instance.getCustoms(result.getName()));
 		return newResults;
 	}
 
-	public LearnerResultItem[] classify(Client client, String text,
-			Integer max_rank, Double min_score) throws SearchLibException {
+	public LearnerResultItem[] classify(Client client, String text, Integer max_rank, Double min_score)
+			throws SearchLibException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
@@ -384,8 +364,8 @@ public class Learner implements InfoCallback {
 		}
 	}
 
-	public LearnerResultItem[] similar(Client client, String text,
-			Integer max_rank, Double min_score) throws SearchLibException {
+	public LearnerResultItem[] similar(Client client, String text, Integer max_rank, Double min_score)
+			throws SearchLibException {
 		LearnerInterface instance = getInstance();
 		rwl.r.lock();
 		try {
@@ -414,13 +394,11 @@ public class Learner implements InfoCallback {
 		rwl.r.lock();
 		try {
 			if (isRunning())
-				throw new SearchLibException("The learner is already running: "
-						+ name);
+				throw new SearchLibException("The learner is already running: " + name);
 			if (callback == null)
 				callback = this;
 			setRunningStatus(RunningStatus.Learning, "");
-			instance.learn(client, searchRequest, sourceFieldMap, buffer,
-					callback);
+			instance.learn(client, searchRequest, sourceFieldMap, buffer, callback);
 			setRunningStatus(RunningStatus.Idle, callback.getInfo());
 		} catch (IOException e) {
 			setRunningStatus(RunningStatus.Error, e.getMessage());
@@ -435,8 +413,7 @@ public class Learner implements InfoCallback {
 
 	public void reset() throws SearchLibException, IOException {
 		if (isRunning())
-			throw new SearchLibException(
-					"Cannot reset the learner while running: " + name);
+			throw new SearchLibException("Cannot reset the learner while running: " + name);
 		LearnerInterface instance = getInstance();
 		instance.reset();
 		File f = getInstancesDataFile();
@@ -472,8 +449,7 @@ public class Learner implements InfoCallback {
 	}
 
 	/**
-	 * @param maxRank
-	 *            the maxRank to set
+	 * @param maxRank the maxRank to set
 	 */
 	public void setMaxRank(int maxRank) {
 		rwl.w.lock();
@@ -497,8 +473,7 @@ public class Learner implements InfoCallback {
 	}
 
 	/**
-	 * @param minScore
-	 *            the minScore to set
+	 * @param minScore the minScore to set
 	 */
 	public void setMinScore(double minScore) {
 		rwl.w.lock();
@@ -522,8 +497,7 @@ public class Learner implements InfoCallback {
 	}
 
 	/**
-	 * @param buffer
-	 *            the buffer to set
+	 * @param buffer the buffer to set
 	 */
 	public void setBuffer(int buffer) {
 		rwl.w.lock();
@@ -549,11 +523,9 @@ public class Learner implements InfoCallback {
 	}
 
 	/**
-	 * @param RunningStatus
-	 *            the RunningStatus to set
+	 * @param RunningStatus the RunningStatus to set
 	 */
-	protected void setRunningStatus(RunningStatus runningStatus,
-			String lastRunInfo) {
+	protected void setRunningStatus(RunningStatus runningStatus, String lastRunInfo) {
 		rwlStatusLock.w.lock();
 		try {
 			if (runningStatus != null)

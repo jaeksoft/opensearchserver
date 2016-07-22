@@ -1,3 +1,4 @@
+#! /bin/sh
 # OpenSearchServer start
 #
 
@@ -18,12 +19,13 @@ fi
 
 export OPENSEARCHSERVER_DATA
 export OPENSEARCHSERVER_MULTIDATA
+export OPENSEARCHSERVER_DEBUG
 
 OPENSEARCHSERVER_DIR=/var/lib/opensearchserver
 OPENSEARCHSERVER_SHARE=/usr/share/opensearchserver
 OPENSEARCHSERVER_JAR=$OPENSEARCHSERVER_SHARE/opensearchserver.jar
 SERVER_DIR=$OPENSEARCHSERVER_DIR/server
-SERVER_OPTS="$JAVA_OPTS -Dfile.encoding=UTF-8 -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8"
+SERVER_OPTS="$JAVA_OPTS -Djava.protocol.handler.pkgs=jcifs -Dfile.encoding=UTF-8 -jar $OPENSEARCHSERVER_JAR -extractDirectory $SERVER_DIR -httpPort $SERVER_PORT -uriEncoding UTF-8"
 SERVER_LOG=/var/log/opensearchserver/server.out
 SERVER_PID="/var/run/opensearchserver.pid"
 export SERVER_USER=opensearchserver

@@ -32,11 +32,13 @@ public class LinkItem {
 	final private String url;
 	final private String parentUrl;
 	final private Origin origin;
+	final private int depth;
 
-	public LinkItem(String url, Origin origin, String parentUrl) {
+	public LinkItem(String url, Origin origin, String parentUrl, int depth) {
 		this.url = url;
 		this.origin = origin;
 		this.parentUrl = parentUrl;
+		this.depth = depth;
 	}
 
 	public String getUrl() {
@@ -49,6 +51,10 @@ public class LinkItem {
 
 	public String getParentUrl() {
 		return parentUrl;
+	}
+
+	public int getDepth() {
+		return depth;
 	}
 
 	public static Origin findOrigin(String valueContent) {

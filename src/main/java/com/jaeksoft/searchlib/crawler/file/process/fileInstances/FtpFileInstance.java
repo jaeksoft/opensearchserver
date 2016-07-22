@@ -30,7 +30,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -42,7 +41,6 @@ import org.apache.commons.net.ftp.FTPFileFilter;
 import org.apache.commons.net.ftp.FTPReply;
 
 import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -50,8 +48,7 @@ import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 
-public class FtpFileInstance extends FileInstanceAbstract implements
-		FileInstanceAbstract.SecurityInterface {
+public class FtpFileInstance extends FileInstanceAbstract implements FileInstanceAbstract.SecurityInterface {
 
 	private FTPFile ftpFile;
 
@@ -59,11 +56,9 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		ftpFile = null;
 	}
 
-	protected FtpFileInstance(FilePathItem filePathItem,
-			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
-		init(filePathItem, parent,
-				LinkUtils.concatPath(parent.getPath(), ftpFile.getName()));
+	protected FtpFileInstance(FilePathItem filePathItem, FtpFileInstance parent, FTPFile ftpFile)
+			throws URISyntaxException, UnsupportedEncodingException {
+		init(filePathItem, parent, LinkUtils.concatPath(parent.getPath(), ftpFile.getName()));
 		this.ftpFile = ftpFile;
 	}
 
@@ -89,8 +84,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		return ftpFile;
 	}
 
-	protected FTPClient ftpConnect() throws SocketException, IOException,
-			NoSuchAlgorithmException {
+	protected FTPClient ftpConnect() throws SocketException, IOException {
 		FilePathItem fpi = getFilePathItem();
 		FTPClient ftp = null;
 		try {
@@ -132,15 +126,13 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		}
 	}
 
-	protected FtpFileInstance newInstance(FilePathItem filePathItem,
-			FtpFileInstance parent, FTPFile ftpFile) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	protected FtpFileInstance newInstance(FilePathItem filePathItem, FtpFileInstance parent, FTPFile ftpFile)
+			throws URISyntaxException, UnsupportedEncodingException {
 		return new FtpFileInstance(filePathItem, parent, ftpFile);
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(FTPFile[] files)
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -156,8 +148,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 		private final boolean ignoreHiddenFiles;
 		private final boolean fileOnly;
 
-		public FtpInstanceFileFilter(boolean ignoreHiddenFiles,
-				boolean fileOnly, Matcher[] exclusionMatchers) {
+		public FtpInstanceFileFilter(boolean ignoreHiddenFiles, boolean fileOnly, Matcher[] exclusionMatchers) {
 			this.exclusionMatchers = exclusionMatchers;
 			this.ignoreHiddenFiles = ignoreHiddenFiles;
 			this.fileOnly = fileOnly;
@@ -182,49 +173,26 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws SearchLibException {
+	public FileInstanceAbstract[] listFilesOnly() throws IOException, URISyntaxException {
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(
-					getPath(),
-					new FtpInstanceFileFilter(filePathItem
-							.isIgnoreHiddenFiles(), true, filePathItem
-							.getExclusionMatchers()));
+			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(filePathItem.isIgnoreHiddenFiles(), true,
+					filePathItem.getExclusionMatchers()));
 			return buildFileInstanceArray(files);
-		} catch (SocketException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} finally {
 			ftpQuietDisconnect(f);
 		}
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws SearchLibException {
+	public FileInstanceAbstract[] listFilesAndDirectories() throws IOException, URISyntaxException {
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(
-					getPath(),
-					new FtpInstanceFileFilter(filePathItem
-							.isIgnoreHiddenFiles(), false, filePathItem
-							.getExclusionMatchers()));
+			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(filePathItem.isIgnoreHiddenFiles(),
+					false, filePathItem.getExclusionMatchers()));
 			return buildFileInstanceArray(files);
-		} catch (SocketException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
 		} finally {
 			ftpQuietDisconnect(f);
 		}
@@ -245,10 +213,15 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 	}
 
 	@Override
-	public String getFileName() throws SearchLibException {
+	public String getFileName() {
 		if (ftpFile == null)
 			return null;
 		return ftpFile.getName();
+	}
+
+	@Override
+	public void delete() throws IOException {
+		throw new IOException("Delete not implemented");
 	}
 
 	@Override
@@ -258,8 +231,6 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 			f = ftpConnect();
 			f.setFileType(FTP.BINARY_FILE_TYPE);
 			return f.retrieveFileStream(getPath());
-		} catch (NoSuchAlgorithmException e) {
-			throw new IOException(e);
 		} finally {
 			ftpQuietDisconnect(f);
 		}
@@ -277,8 +248,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements
 			accesses.add(access);
 		}
 
-		if (ftpFile
-				.hasPermission(FTPFile.GROUP_ACCESS, FTPFile.READ_PERMISSION)) {
+		if (ftpFile.hasPermission(FTPFile.GROUP_ACCESS, FTPFile.READ_PERMISSION)) {
 			SecurityAccess access = new SecurityAccess();
 			access.setGrant(SecurityAccess.Grant.ALLOW);
 			access.setType(SecurityAccess.Type.GROUP);

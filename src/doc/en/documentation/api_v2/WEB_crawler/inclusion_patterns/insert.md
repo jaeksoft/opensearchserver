@@ -17,6 +17,7 @@ Use this API to insert patterns in the inclusion list.
 **URL parameters:**
 - _**index_name**_ (required): The name of the index.
 - _**replace**_ (optional): Set it to _true_ to replace all the patterns already present.
+- _**inject_urls**_ (optional)=Set it to _true_ to inject the derived URL in the URL database.
 
 **Raw data (PUT):**
 An array of patterns.

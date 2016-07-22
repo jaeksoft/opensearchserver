@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
-import com.opensearchserver.pojodbc.Transaction;
 
 public class DatabaseUtils {
 
@@ -66,9 +66,8 @@ public class DatabaseUtils {
 		return sb.toString();
 	}
 
-	final public static void update(Transaction transaction, String pk,
-			String error, SqlUpdateMode sqlUpdateMode, String sqlUpdate)
-			throws SQLException {
+	final public static void update(Transaction transaction, String pk, String error, SqlUpdateMode sqlUpdateMode,
+			String sqlUpdate) throws SQLException {
 		if (sqlUpdateMode != SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY)
 			return;
 		String sql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, pk);
@@ -77,9 +76,8 @@ public class DatabaseUtils {
 		transaction.update(sql);
 	}
 
-	final public static void update(Transaction transaction,
-			List<String> pkList, String error, SqlUpdateMode sqlUpdateMode,
-			String sqlUpdate) throws SQLException {
+	final public static void update(Transaction transaction, List<String> pkList, String error,
+			SqlUpdateMode sqlUpdateMode, String sqlUpdate) throws SQLException {
 		if (sqlUpdateMode == SqlUpdateMode.NO_CALL)
 			return;
 		String lastSql = null;
@@ -91,13 +89,11 @@ public class DatabaseUtils {
 				transaction.update(lastSql);
 			}
 		} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_LIST) {
-			lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
-					toIdList(pkList, false));
+			lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, toIdList(pkList, false));
 			lastSql = lastSql.replace(ERROR_VARIABLE_NAME, error);
 			transaction.update(lastSql);
 		} else if (sqlUpdateMode == SqlUpdateMode.PRIMARY_KEY_CHAR_LIST) {
-			lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME,
-					toIdList(pkList, true));
+			lastSql = sqlUpdate.replace(PRIMARY_KEY_VARIABLE_NAME, toIdList(pkList, true));
 			lastSql = lastSql.replace(ERROR_VARIABLE_NAME, error);
 			transaction.update(lastSql);
 		}

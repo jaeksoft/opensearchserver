@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,14 +28,13 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.index.ReaderAbstract;
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdCollector;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.result.collector.JoinDocInterface;
-import com.jaeksoft.searchlib.util.bitset.BitSetFactory;
-import com.jaeksoft.searchlib.util.bitset.BitSetInterface;
 
 public class JoinDocCollector extends
 		AbstractBaseCollector<JoinCollectorInterface> implements
@@ -46,7 +45,7 @@ public class JoinDocCollector extends
 	final int[] srcIds;
 	final int joinResultSize;
 	private final int[][] foreignDocIdsArray;
-	private BitSetInterface bitSet = null;
+	private RoaringBitmap bitSet = null;
 
 	private final static int[][] EMPTY = new int[0][0];
 
@@ -172,12 +171,13 @@ public class JoinDocCollector extends
 	}
 
 	final public static DocIdInterface getDocIdInterface(int maxDoc,
-			int joinPosition, JoinDocCollector joinDocColletor)
+			int joinPosition, JoinDocCollector joinDocCollector)
 			throws IOException {
 		DocIdCollector docIdCollector = new DocIdCollector(maxDoc,
-				joinDocColletor.srcIds.length);
-		for (int[] foreinDocs : joinDocColletor.getForeignDocIdsArray())
-			docIdCollector.collectDoc(foreinDocs[joinPosition]);
+				joinDocCollector.srcIds.length);
+		for (int[] foreignDocs : joinDocCollector.getForeignDocIdsArray())
+			if (foreignDocs != null)
+				docIdCollector.collectDoc(foreignDocs[joinPosition]);
 		return docIdCollector;
 	}
 
@@ -207,11 +207,12 @@ public class JoinDocCollector extends
 	}
 
 	@Override
-	public BitSetInterface getBitSet() {
+	public RoaringBitmap getBitSet() {
 		if (bitSet != null)
 			return bitSet;
-		bitSet = BitSetFactory.INSTANCE.newInstance(maxDoc);
-		bitSet.set(srcIds);
+		bitSet = new RoaringBitmap();
+		for (int srcId : srcIds)
+			bitSet.add(srcId);
 		return bitSet;
 	}
 

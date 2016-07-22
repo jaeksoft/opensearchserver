@@ -46,7 +46,7 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.analysis.TokenTerm;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractSearchRequest;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -104,7 +104,7 @@ public class IndexLookupFilter extends FilterFactory {
 	public TokenStream create(TokenStream tokenStream)
 			throws SearchLibException {
 		Client indexClient = ClientCatalog.getClient(indexName);
-		AbstractSearchRequest searchRequest = (AbstractSearchRequest) indexClient
+		AbstractLocalSearchRequest searchRequest = (AbstractLocalSearchRequest) indexClient
 				.getNewRequest(requestName);
 		searchRequest.setDefaultOperator("OR");
 		return new IndexLookupTokenFilter(tokenStream, indexClient,
@@ -114,7 +114,7 @@ public class IndexLookupFilter extends FilterFactory {
 	public static class IndexLookupTokenFilter extends AbstractTermFilter {
 
 		private final Client indexClient;
-		private final AbstractSearchRequest searchRequest;
+		private final AbstractLocalSearchRequest searchRequest;
 		private final String[] returnFields;
 		private final String requestedField;
 
@@ -124,8 +124,8 @@ public class IndexLookupFilter extends FilterFactory {
 		private int currentQueuePos;
 
 		public IndexLookupTokenFilter(TokenStream input, Client indexClient,
-				AbstractSearchRequest searchRequest, String requestedField,
-				String returnField, int batchBuffer) {
+				AbstractLocalSearchRequest searchRequest,
+				String requestedField, String returnField, int batchBuffer) {
 			super(input);
 			tokenQueue = new ArrayList<TokenTerm>(0);
 			this.batchBuffer = batchBuffer;
@@ -169,7 +169,7 @@ public class IndexLookupFilter extends FilterFactory {
 						Occur.SHOULD);
 			searchRequest.setBoostedComplexQuery(bq);
 			searchRequest.setRows(collectedTokenBuffer.size());
-			AbstractResultSearch result = (AbstractResultSearch) indexClient
+			AbstractResultSearch<?> result = (AbstractResultSearch<?>) indexClient
 					.request(searchRequest);
 			collectedTokenBuffer.clear();
 			if (result.getNumFound() == 0)

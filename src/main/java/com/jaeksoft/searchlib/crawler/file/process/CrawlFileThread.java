@@ -24,16 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.process;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpException;
-
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -43,16 +33,19 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
-import com.jaeksoft.searchlib.crawler.file.database.FileCrawlQueue;
-import com.jaeksoft.searchlib.crawler.file.database.FileInfo;
-import com.jaeksoft.searchlib.crawler.file.database.FileItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileManager;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
+import com.jaeksoft.searchlib.crawler.file.database.*;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpException;
 
-public class CrawlFileThread extends
-		CrawlThreadAbstract<CrawlFileThread, CrawlFileMaster> {
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+
+public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlFileMaster> {
 
 	private final CrawlFileMaster crawlMaster;
 	private final FileCrawlQueue crawlQueue;
@@ -62,9 +55,8 @@ public class CrawlFileThread extends
 	private volatile FileItem currentFileItem;
 	private long nextTimeTarget;
 
-	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster,
-			CrawlStatistics sessionStats, FilePathItem filePathItem)
-			throws SearchLibException {
+	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster, CrawlStatistics sessionStats,
+			FilePathItem filePathItem) throws SearchLibException {
 		super(config, crawlMaster, null, null);
 		this.fileManager = config.getFileManager();
 		this.crawlMaster = (CrawlFileMaster) getThreadMaster();
@@ -76,7 +68,7 @@ public class CrawlFileThread extends
 		this.currentFileItem = null;
 	}
 
-	private void sleepInterval(long max) {
+	private void sleepInterval(long max) throws InterruptedException {
 		long c = System.currentTimeMillis();
 		long ms = nextTimeTarget - c;
 		nextTimeTarget = c + delayBetweenAccesses;
@@ -87,10 +79,9 @@ public class CrawlFileThread extends
 		sleepMs(ms);
 	}
 
-	private void browse(FileInstanceAbstract fileInstance)
-			throws SearchLibException, URISyntaxException,
-			NoSuchAlgorithmException, IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+	void browse(FileInstanceAbstract fileInstance, boolean recursive) throws SearchLibException, URISyntaxException,
+			NoSuchAlgorithmException, IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException, InterruptedException {
 		if (isAborted() || crawlMaster.isAborted())
 			return;
 		if (fileInstance == null)
@@ -102,11 +93,13 @@ public class CrawlFileThread extends
 			return;
 		switch (fileType) {
 		case directory:
+			if (!recursive)
+				break;
 			FileInstanceAbstract[] files = checkDirectory(fileInstance);
 			if (files == null)
 				break;
 			for (FileInstanceAbstract file : files)
-				browse(file);
+				browse(file, recursive);
 			break;
 		case file:
 			if (!checkFile(fileItem))
@@ -127,19 +120,17 @@ public class CrawlFileThread extends
 	public void runner() throws Exception {
 
 		CrawlFileMaster crawlMaster = (CrawlFileMaster) getThreadMaster();
-		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster
-				.getCrawlQueue();
+		FileCrawlQueue crawlQueue = (FileCrawlQueue) crawlMaster.getCrawlQueue();
 
-		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(
-				filePathItem, null, filePathItem.getPath());
+		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(filePathItem, null, filePathItem.getPath());
 
-		browse(fileInstance);
+		browse(fileInstance, true);
 
 		crawlQueue.index(!crawlMaster.isRunning());
 	}
 
 	private CrawlFile crawl(FileInstanceAbstract fileInstance, FileItem fileItem)
-			throws SearchLibException {
+			throws SearchLibException, InterruptedException {
 
 		long startTime = System.currentTimeMillis();
 
@@ -148,16 +139,14 @@ public class CrawlFileThread extends
 		setStatus(CrawlStatus.CRAWL);
 		currentStats.incUrlCount();
 
-		CrawlFile crawl = new CrawlFile(fileInstance, fileItem, getConfig(),
-				currentStats);
+		CrawlFile crawl = new CrawlFile(fileInstance, fileItem, getConfig(), currentStats);
 
 		// Fetch started
 		currentStats.incFetchedCount();
 
 		crawl.download();
 
-		if (fileItem.getFetchStatus() == FetchStatus.FETCHED
-				&& fileItem.getParserStatus() == ParserStatus.PARSED
+		if (fileItem.getFetchStatus() == FetchStatus.FETCHED && fileItem.getParserStatus() == ParserStatus.PARSED
 				&& fileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 			fileItem.setIndexStatus(IndexStatus.TO_INDEX);
 			currentStats.incParsedCount();
@@ -168,15 +157,13 @@ public class CrawlFileThread extends
 		return crawl;
 	}
 
-	final private void smartDelete(FileCrawlQueue crawlQueue, FileInfo fileInfo)
-			throws SearchLibException {
+	final private void smartDelete(FileCrawlQueue crawlQueue, FileInfo fileInfo) throws SearchLibException {
 		crawlQueue.delete(currentStats, fileInfo.getUri());
 		if (fileInfo.getFileType() != FileTypeEnum.directory)
 			return;
 		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();
 		try {
-			fileManager.getFileInfoList(new URI(fileInfo.getUri()),
-					indexFileMap);
+			fileManager.getFileInfoList(new URI(fileInfo.getUri()), indexFileMap);
 			for (FileInfo fi : indexFileMap.values())
 				smartDelete(crawlQueue, fi);
 		} catch (UnsupportedEncodingException e) {
@@ -186,10 +173,8 @@ public class CrawlFileThread extends
 		}
 	}
 
-	private FileInstanceAbstract[] checkDirectory(
-			FileInstanceAbstract fileInstance)
-			throws UnsupportedEncodingException, SearchLibException,
-			URISyntaxException {
+	private FileInstanceAbstract[] checkDirectory(FileInstanceAbstract fileInstance)
+			throws SearchLibException, URISyntaxException, IOException {
 
 		// Load directory from Index
 		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();
@@ -204,8 +189,8 @@ public class CrawlFileThread extends
 					smartDelete(crawlQueue, fileInfo);
 
 		// Remove existing files from the map
-		FileInstanceAbstract[] files = withSubDir ? fileInstance
-				.listFilesAndDirectories() : fileInstance.listFilesOnly();
+		FileInstanceAbstract[] files = withSubDir ? fileInstance.listFilesAndDirectories()
+				: fileInstance.listFilesOnly();
 		if (files != null)
 			for (FileInstanceAbstract file : files)
 				indexFileMap.remove(file.getURI().toASCIIString());
@@ -219,8 +204,7 @@ public class CrawlFileThread extends
 	}
 
 	private boolean checkFile(FileItem fileItem)
-			throws UnsupportedEncodingException, SearchLibException,
-			URISyntaxException {
+			throws UnsupportedEncodingException, SearchLibException, URISyntaxException {
 		FileInfo oldFileInfo = fileManager.getFileInfo(fileItem.getUri());
 		// The file is a new file
 		if (oldFileInfo == null) {

@@ -25,23 +25,24 @@
 package com.jaeksoft.searchlib.render;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.json.simple.JSONObject;
 
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
-public class RenderSearchJson
-		extends
-		AbstractRenderDocumentsJson<AbstractSearchRequest, AbstractResultSearch> {
+public class RenderSearchJson<T extends AbstractSearchRequest> extends
+		AbstractRenderDocumentsJson<T, AbstractResultSearch<T>> {
 
 	private boolean indent;
 
-	public RenderSearchJson(AbstractResultSearch result, boolean jsonIndent) {
+	public RenderSearchJson(AbstractResultSearch<T> result, boolean jsonIndent) {
 		super(result);
 		this.indent = jsonIndent;
 	}
@@ -67,10 +68,10 @@ public class RenderSearchJson
 	@SuppressWarnings("unchecked")
 	private void renderFacet(Facet facet, ArrayList<JSONObject> jsonFacetList)
 			throws Exception {
-		for (FacetItem facetItem : facet) {
+		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			JSONObject jsonFacet = new JSONObject();
-			jsonFacet.put("name", facetItem.getTerm());
-			jsonFacet.put("value", facetItem.getCount());
+			jsonFacet.put("name", facetItem.getKey());
+			jsonFacet.put("value", facetItem.getValue().count);
 			jsonFacetList.add(jsonFacet);
 		}
 
@@ -80,7 +81,9 @@ public class RenderSearchJson
 	@Override
 	public void render() throws Exception {
 		JSONObject jsonResponse = new JSONObject();
-		renderPrefix(jsonResponse, request.getQueryParsed());
+		String queryParsed = request instanceof AbstractLocalSearchRequest ? ((AbstractLocalSearchRequest) request)
+				.getQueryParsed() : request.getQueryString();
+		renderPrefix(jsonResponse, queryParsed);
 		renderDocuments(jsonResponse);
 		renderFacets(jsonResponse);
 		JSONObject json = new JSONObject();

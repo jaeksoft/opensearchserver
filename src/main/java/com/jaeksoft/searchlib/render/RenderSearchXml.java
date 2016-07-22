@@ -26,24 +26,26 @@ package com.jaeksoft.searchlib.render;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.facet.FacetField;
-import com.jaeksoft.searchlib.facet.FacetItem;
 import com.jaeksoft.searchlib.facet.FacetList;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
 
-public class RenderSearchXml extends
-		AbstractRenderDocumentsXml<AbstractSearchRequest, AbstractResultSearch> {
+public class RenderSearchXml<T extends AbstractSearchRequest> extends
+		AbstractRenderDocumentsXml<T, AbstractResultSearch<T>> {
 
-	public RenderSearchXml(AbstractResultSearch result) {
+	public RenderSearchXml(AbstractResultSearch<T> result) {
 		super(result);
 	}
 
@@ -85,11 +87,11 @@ public class RenderSearchXml extends
 		writer.print("\t\t<field name=\"");
 		writer.print(facetField.getName());
 		writer.println("\">");
-		for (FacetItem facetItem : facet) {
+		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			writer.print("\t\t\t<facet name=\"");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getTerm()));
+			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
 			writer.print("\">");
-			writer.print(facetItem.getCount());
+			writer.print(facetItem.getValue().count);
 			writer.print("</facet>");
 		}
 		writer.println("\t\t</field>");
@@ -107,7 +109,9 @@ public class RenderSearchXml extends
 
 	@Override
 	public void render() throws Exception {
-		renderPrefix(0, request.getQueryParsed());
+		String queryParsed = request instanceof AbstractLocalSearchRequest ? ((AbstractLocalSearchRequest) request)
+				.getQueryParsed() : request.getQueryString();
+		renderPrefix(0, queryParsed);
 		renderDocuments();
 		renderFacets();
 		renderTimers();

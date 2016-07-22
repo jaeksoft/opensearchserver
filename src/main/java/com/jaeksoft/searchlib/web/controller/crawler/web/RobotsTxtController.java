@@ -64,8 +64,8 @@ public class RobotsTxtController extends CrawlerController {
 		return pageSize;
 	}
 
-	public RobotsTxt[] getRobotsTxtList() throws SearchLibException,
-			MalformedURLException, URISyntaxException, ClassNotFoundException {
+	public RobotsTxt[] getRobotsTxtList()
+			throws SearchLibException, MalformedURLException, URISyntaxException, ClassNotFoundException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -75,8 +75,7 @@ public class RobotsTxtController extends CrawlerController {
 			robotsTxtList = client.getRobotsTxtCache().getRobotsTxtList();
 			return robotsTxtList;
 		}
-		RobotsTxt robotsTxt = client.getRobotsTxtCache().findRobotsTxt(
-				searchString);
+		RobotsTxt robotsTxt = client.getRobotsTxtCache().findRobotsTxt(searchString);
 		if (robotsTxt == null)
 			return null;
 		selectedRobotsTxt = robotsTxt;
@@ -85,7 +84,7 @@ public class RobotsTxtController extends CrawlerController {
 		return robotsTxtList;
 	}
 
-	public PropertyItem<Boolean> getEnabled() throws SearchLibException {
+	public PropertyItem<Boolean> getEnabled() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -93,18 +92,16 @@ public class RobotsTxtController extends CrawlerController {
 	}
 
 	@Command
-	public void onSearch() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void onSearch() throws IOException, URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		selectedRobotsTxt = null;
 		robotsTxtList = null;
 		reload();
 	}
 
 	@Command
-	public void onReset() throws IOException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException {
+	public void onReset() throws IOException, URISyntaxException, SearchLibException, InstantiationException,
+			IllegalAccessException, ClassNotFoundException, HttpException {
 		searchString = null;
 		onSearch();
 	}

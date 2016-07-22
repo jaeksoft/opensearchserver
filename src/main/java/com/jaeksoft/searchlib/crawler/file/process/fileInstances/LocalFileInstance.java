@@ -33,7 +33,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 
-import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
 import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
 import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
@@ -75,9 +74,8 @@ public class LocalFileInstance extends FileInstanceAbstract {
 		file = null;
 	}
 
-	private LocalFileInstance(FilePathItem filePathItem,
-			FileInstanceAbstract parent, File file) throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	private LocalFileInstance(FilePathItem filePathItem, FileInstanceAbstract parent, File file)
+			throws URISyntaxException, UnsupportedEncodingException {
 		init(filePathItem, parent, file.getAbsolutePath());
 		this.file = file;
 	}
@@ -102,8 +100,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	private FileInstanceAbstract[] buildFileInstanceArray(File[] files)
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
+			throws URISyntaxException, UnsupportedEncodingException {
 		if (files == null)
 			return null;
 		FileInstanceAbstract[] fileInstances = new FileInstanceAbstract[files.length];
@@ -114,16 +111,12 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesAndDirectories()
-			throws URISyntaxException, SearchLibException,
-			UnsupportedEncodingException {
-		return buildFileInstanceArray(file
-				.listFiles(new LocalFileFilter(false)));
+	public FileInstanceAbstract[] listFilesAndDirectories() throws URISyntaxException, UnsupportedEncodingException {
+		return buildFileInstanceArray(file.listFiles(new LocalFileFilter(false)));
 	}
 
 	@Override
-	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException,
-			SearchLibException, UnsupportedEncodingException {
+	public FileInstanceAbstract[] listFilesOnly() throws URISyntaxException, UnsupportedEncodingException {
 		return buildFileInstanceArray(file.listFiles(new LocalFileFilter(true)));
 	}
 
@@ -138,6 +131,11 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
+	public void delete() throws IOException {
+		file.delete();
+	}
+
+	@Override
 	public FileInputStream getInputStream() throws IOException {
 		if (file == null)
 			return null;
@@ -145,7 +143,7 @@ public class LocalFileInstance extends FileInstanceAbstract {
 	}
 
 	@Override
-	public String getFileName() throws SearchLibException {
+	public String getFileName() {
 		return file.getName();
 	}
 

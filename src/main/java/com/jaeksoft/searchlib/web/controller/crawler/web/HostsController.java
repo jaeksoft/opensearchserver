@@ -24,6 +24,7 @@
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
 import java.util.List;
+import java.util.Map;
 
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
@@ -32,13 +33,13 @@ import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
 @AfterCompose(superclass = true)
 public class HostsController extends CommonController {
 
-	private transient List<FacetItem> hostFacetList;
+	private transient List<Map.Entry<String, FacetCounter>> hostFacetList;
 
 	private transient int minHostFacetCount;
 
@@ -69,7 +70,8 @@ public class HostsController extends CommonController {
 		}
 	}
 
-	public List<FacetItem> getHostFacetList() throws SearchLibException {
+	public List<Map.Entry<String, FacetCounter>> getHostFacetList()
+			throws SearchLibException {
 		synchronized (this) {
 			if (hostFacetList != null)
 				return hostFacetList;

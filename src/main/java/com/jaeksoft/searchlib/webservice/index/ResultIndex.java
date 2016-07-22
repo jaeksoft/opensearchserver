@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.NON_NULL)
 public class ResultIndex extends CommonResult {
 
 	final public String name;
@@ -48,8 +48,7 @@ public class ResultIndex extends CommonResult {
 		infos = null;
 	}
 
-	public ResultIndex(ClientCatalogItem clientCatalogItem) throws IOException,
-			SearchLibException {
+	public ResultIndex(ClientCatalogItem clientCatalogItem) throws IOException, SearchLibException {
 		super(true, null);
 		name = clientCatalogItem.getIndexName();
 		this.infos = new IndexInfo(clientCatalogItem);

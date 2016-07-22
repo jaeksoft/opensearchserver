@@ -1,40 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.authentication;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -46,6 +34,16 @@ import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class AuthManager implements UpdateInterfaces.Before {
 
@@ -82,8 +80,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 	private final static String AUTH_ATTR_DEFAULT_USER = "defaultUser";
 	private final static String AUTH_ATTR_DEFAULT_GROUP = "defaultGroup";
 
-	public AuthManager(Config config, File indexDir) throws SAXException,
-			IOException, ParserConfigurationException {
+	public AuthManager(Config config, File indexDir) throws SAXException, IOException, ParserConfigurationException {
 		this.config = config;
 		authFile = new File(indexDir, AUTH_CONFIG_FILENAME);
 		if (!authFile.exists())
@@ -93,21 +90,14 @@ public class AuthManager implements UpdateInterfaces.Before {
 		Node authNode = DomUtils.getFirstNode(docNode, AUTH_ITEM_ROOT_NODE);
 		if (authNode == null)
 			return;
-		enabled = DomUtils.getAttributeBoolean(authNode, AUTH_ATTR_ENABLED,
-				false);
+		enabled = DomUtils.getAttributeBoolean(authNode, AUTH_ATTR_ENABLED, false);
 		index = DomUtils.getAttributeText(authNode, AUTH_ATTR_INDEX);
-		userAllowField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_USER_ALLOW_FIELD);
-		userDenyField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_USER_DENY_FIELD);
-		groupAllowField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_GROUP_ALLOW_FIELD);
-		groupDenyField = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_GROUP_DENY_FIELD);
-		defaultUser = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_DEFAULT_USER);
-		defaultGroup = DomUtils.getAttributeText(authNode,
-				AUTH_ATTR_DEFAULT_GROUP);
+		userAllowField = DomUtils.getAttributeText(authNode, AUTH_ATTR_USER_ALLOW_FIELD);
+		userDenyField = DomUtils.getAttributeText(authNode, AUTH_ATTR_USER_DENY_FIELD);
+		groupAllowField = DomUtils.getAttributeText(authNode, AUTH_ATTR_GROUP_ALLOW_FIELD);
+		groupDenyField = DomUtils.getAttributeText(authNode, AUTH_ATTR_GROUP_DENY_FIELD);
+		defaultUser = DomUtils.getAttributeText(authNode, AUTH_ATTR_DEFAULT_USER);
+		defaultGroup = DomUtils.getAttributeText(authNode, AUTH_ATTR_DEFAULT_GROUP);
 	}
 
 	/**
@@ -123,13 +113,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param userAllowField
-	 *            the userAllowField to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param userAllowField the userAllowField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setUserAllowField(String userAllowField) throws IOException,
-			SearchLibException {
+	public void setUserAllowField(String userAllowField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.userAllowField = userAllowField;
@@ -152,13 +140,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param groupAllowField
-	 *            the groupAllowField to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param groupAllowField the groupAllowField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setGroupAllowField(String groupAllowField) throws IOException,
-			SearchLibException {
+	public void setGroupAllowField(String groupAllowField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.groupAllowField = groupAllowField;
@@ -181,13 +167,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param userDenyField
-	 *            the userDenyField to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param userDenyField the userDenyField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setUserDenyField(String userDenyField) throws IOException,
-			SearchLibException {
+	public void setUserDenyField(String userDenyField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.userDenyField = userDenyField;
@@ -210,13 +194,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param groupDenyField
-	 *            the groupDenyField to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param groupDenyField the groupDenyField to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setGroupDenyField(String groupDenyField) throws IOException,
-			SearchLibException {
+	public void setGroupDenyField(String groupDenyField) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.groupDenyField = groupDenyField;
@@ -239,13 +221,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param enabled
-	 *            the enabled to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param enabled the enabled to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setEnabled(boolean enabled) throws IOException,
-			SearchLibException {
+	public void setEnabled(boolean enabled) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.enabled = enabled;
@@ -268,8 +248,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param index
-	 *            the index to set
+	 * @param index the index to set
 	 */
 	public void setIndex(String index) {
 		rwl.w.lock();
@@ -293,13 +272,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param defaultUser
-	 *            the defaultUser to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param defaultUser the defaultUser to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setDefaultUser(String defaultUser) throws IOException,
-			SearchLibException {
+	public void setDefaultUser(String defaultUser) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.defaultUser = defaultUser;
@@ -322,13 +299,11 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	/**
-	 * @param defaultGroup
-	 *            the defaultGroup to set
-	 * @throws SearchLibException
-	 * @throws IOException
+	 * @param defaultGroup the defaultGroup to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
-	public void setDefaultGroup(String defaultGroup) throws IOException,
-			SearchLibException {
+	public void setDefaultGroup(String defaultGroup) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			this.defaultGroup = defaultGroup;
@@ -343,14 +318,10 @@ public class AuthManager implements UpdateInterfaces.Before {
 		try {
 			pw = new PrintWriter(authFile, "UTF-8");
 			XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
-			xmlWriter.startElement(AUTH_ITEM_ROOT_NODE, AUTH_ATTR_ENABLED,
-					Boolean.toString(enabled), AUTH_ATTR_INDEX, index,
-					AUTH_ATTR_USER_ALLOW_FIELD, userAllowField,
-					AUTH_ATTR_USER_DENY_FIELD, userDenyField,
-					AUTH_ATTR_GROUP_ALLOW_FIELD, groupAllowField,
-					AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField,
-					AUTH_ATTR_DEFAULT_USER, defaultUser,
-					AUTH_ATTR_DEFAULT_GROUP, defaultGroup);
+			xmlWriter.startElement(AUTH_ITEM_ROOT_NODE, AUTH_ATTR_ENABLED, Boolean.toString(enabled), AUTH_ATTR_INDEX,
+					index, AUTH_ATTR_USER_ALLOW_FIELD, userAllowField, AUTH_ATTR_USER_DENY_FIELD, userDenyField,
+					AUTH_ATTR_GROUP_ALLOW_FIELD, groupAllowField, AUTH_ATTR_GROUP_DENY_FIELD, groupDenyField,
+					AUTH_ATTR_DEFAULT_USER, defaultUser, AUTH_ATTR_DEFAULT_GROUP, defaultGroup);
 			xmlWriter.endElement();
 		} catch (TransformerConfigurationException e) {
 			throw new SearchLibException(e);
@@ -362,21 +333,18 @@ public class AuthManager implements UpdateInterfaces.Before {
 	}
 
 	@Override
-	public void update(Schema schema, IndexDocument document)
-			throws SearchLibException {
+	public void update(Schema schema, IndexDocument document) throws SearchLibException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
 				return;
 			if (isJoin_noLock())
 				return;
-			if (!StringUtils.isEmpty(defaultUser)
-					&& !StringUtils.isEmpty(userAllowField)) {
+			if (!StringUtils.isEmpty(defaultUser) && !StringUtils.isEmpty(userAllowField)) {
 				if (!document.hasContent(userAllowField))
 					document.add(userAllowField, defaultUser, null);
 			}
-			if (!StringUtils.isEmpty(defaultGroup)
-					&& !StringUtils.isEmpty(groupAllowField)) {
+			if (!StringUtils.isEmpty(defaultGroup) && !StringUtils.isEmpty(groupAllowField)) {
 				if (!document.hasContent(groupAllowField))
 					document.add(groupAllowField, defaultGroup, null);
 			}
@@ -400,8 +368,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 		}
 	}
 
-	final public void apply(final AbstractSearchRequest searchRequest)
-			throws SearchLibException, IOException {
+	final public void apply(final AbstractSearchRequest searchRequest) throws SearchLibException, IOException {
 		if (!isJoin())
 			searchRequest.getFilterList().addAuthFilter();
 		else

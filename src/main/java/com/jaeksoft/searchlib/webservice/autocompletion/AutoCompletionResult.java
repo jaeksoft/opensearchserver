@@ -51,7 +51,7 @@ public class AutoCompletionResult extends CommonResult {
 		terms = null;
 	}
 
-	public AutoCompletionResult(AbstractResultSearch result) {
+	public AutoCompletionResult(AbstractResultSearch<?> result) {
 		super(true, null);
 		if (result == null)
 			return;

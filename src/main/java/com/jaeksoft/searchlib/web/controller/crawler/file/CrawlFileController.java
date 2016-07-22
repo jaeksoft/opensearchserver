@@ -69,7 +69,7 @@ public class CrawlFileController extends CrawlerController {
 		reload();
 	}
 
-	public FilePropertyManager getProperties() throws SearchLibException {
+	public FilePropertyManager getProperties() throws SearchLibException, IOException {
 		Client client = getClient();
 		if (client == null)
 			return null;
@@ -81,7 +81,11 @@ public class CrawlFileController extends CrawlerController {
 		Client client = getClient();
 		if (client == null)
 			return null;
-		return client.getFileCrawlMaster();
+		try {
+			return client.getFileCrawlMaster();
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		}
 	}
 
 }

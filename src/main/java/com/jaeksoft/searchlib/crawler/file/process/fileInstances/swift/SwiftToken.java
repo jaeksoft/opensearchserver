@@ -39,7 +39,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
 import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -77,36 +77,37 @@ public class SwiftToken {
 
 	private final List<HeaderItem> authHeaders;
 
-	public SwiftToken(HttpDownloader httpDownloader, String authUrl,
-			String username, String password, AuthType authType, String tenant)
-			throws URISyntaxException, ClientProtocolException, IOException,
-			JSONException, SearchLibException {
+	public SwiftToken(HttpDownloader httpDownloader, String authUrl, String username, String password,
+			AuthType authType, String tenant)
+					throws URISyntaxException, ClientProtocolException, IOException, JSONException {
 
 		authHeaders = new ArrayList<HeaderItem>(1);
 
 		DownloadItem downloadItem = null;
 		switch (authType) {
 		case KEYSTONE:
-			downloadItem = keystoneRequest(httpDownloader, authUrl, username,
-					tenant, password);
+			downloadItem = keystoneRequest(httpDownloader, authUrl, username, tenant, password);
 			break;
 		case IAM:
 			downloadItem = iamRequest(httpDownloader, authUrl, username, tenant);
 			break;
 		}
 		if (downloadItem == null)
-			throw new SearchLibException("Authentication failed");
+			throw new ClientProtocolException("Authentication failed");
 
-		downloadItem.checkNoErrorRange(200, 204);
+		try {
+			downloadItem.checkNoErrorRange(200, 204);
+		} catch (WrongStatusCodeException e) {
+			throw new IOException(e);
+		}
 
 		String jsonString = downloadItem.getContentAsString();
 		JSONObject json = new JSONObject(jsonString);
 
 		if (json.has("error")) {
 			JSONObject jsonError = json.getJSONObject("error");
-			String msg = jsonError.has("message") ? jsonError
-					.getString("message") : jsonError.toString();
-			throw new SearchLibException(msg);
+			String msg = jsonError.has("message") ? jsonError.getString("message") : jsonError.toString();
+			throw new IOException(msg);
 		}
 
 		JSONObject jsonAccess = json.getJSONObject("access");
@@ -137,11 +138,9 @@ public class SwiftToken {
 		authHeaders.add(new HeaderItem(X_Auth_Token, authToken));
 	}
 
-	private DownloadItem keystoneRequest(HttpDownloader httpDownloader,
-			String authUrl, String username, String tenantName, String password)
-			throws JSONException, URISyntaxException, ClientProtocolException,
-			UnsupportedEncodingException, IOException, IllegalStateException,
-			SearchLibException {
+	private DownloadItem keystoneRequest(HttpDownloader httpDownloader, String authUrl, String username,
+			String tenantName, String password) throws JSONException, URISyntaxException, ClientProtocolException,
+					UnsupportedEncodingException, IOException, IllegalStateException {
 		JSONObject jsonPasswordCredentials = new JSONObject();
 		jsonPasswordCredentials.put("username", username);
 		jsonPasswordCredentials.put("password", password);
@@ -153,14 +152,12 @@ public class SwiftToken {
 		URI uri = new URI(authUrl + "/tokens");
 		List<HeaderItem> headers = new ArrayList<HeaderItem>(1);
 		headers.add(new HeaderItem("Accept", "application/json"));
-		return httpDownloader.post(uri, null, headers, null, new StringEntity(
-				json.toString(), ContentType.APPLICATION_JSON));
+		return httpDownloader.post(uri, null, headers, null,
+				new StringEntity(json.toString(), ContentType.APPLICATION_JSON));
 	}
 
-	private DownloadItem iamRequest(HttpDownloader httpDownloader,
-			String authUrl, String username, String tenantname)
-			throws URISyntaxException, ClientProtocolException, IOException,
-			IllegalStateException, SearchLibException {
+	private DownloadItem iamRequest(HttpDownloader httpDownloader, String authUrl, String username, String tenantname)
+			throws URISyntaxException, ClientProtocolException, IOException, IllegalStateException {
 		username = LinkUtils.UTF8_URL_Encode(username);
 		StringBuilder u = new StringBuilder(authUrl);
 		u.append("/users/");
@@ -173,28 +170,23 @@ public class SwiftToken {
 		return httpDownloader.get(uri, null, headers, null);
 	}
 
-	final public List<HeaderItem> getAuthTokenHeader(
-			final List<HeaderItem> headerList) {
+	final public List<HeaderItem> getAuthTokenHeader(final List<HeaderItem> headerList) {
 		if (headerList == null)
 			return this.authHeaders;
 		headerList.add(new HeaderItem(X_Auth_Token, authToken));
 		return headerList;
 	}
 
-	final public URI getContainerURI(final String container)
-			throws URISyntaxException {
-		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
-				: internalURL);
+	final public URI getContainerURI(final String container) throws URISyntaxException {
+		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL : internalURL);
 		if (!container.startsWith("/"))
 			sb.append('/');
 		sb.append(container);
 		return new URI(sb.toString());
 	}
 
-	final public URI getPathURI(final String container, final String path)
-			throws URISyntaxException {
-		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
-				: internalURL);
+	final public URI getPathURI(final String container, final String path) throws URISyntaxException {
+		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL : internalURL);
 		if (!container.startsWith("/"))
 			sb.append('/');
 		sb.append(container);
@@ -203,11 +195,9 @@ public class SwiftToken {
 		return new URI(sb.toString());
 	}
 
-	final public URI getURI(final String container, final String path,
-			final boolean prefixAndDelimiter) throws URISyntaxException,
-			UnsupportedEncodingException {
-		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL
-				: internalURL);
+	final public URI getURI(final String container, final String path, final boolean prefixAndDelimiter)
+			throws URISyntaxException, UnsupportedEncodingException {
+		StringBuilder sb = new StringBuilder(publicURL != null ? publicURL : internalURL);
 		if (!container.startsWith("/"))
 			sb.append('/');
 		sb.append(container);

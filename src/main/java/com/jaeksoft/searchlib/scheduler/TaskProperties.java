@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2016 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.config.Config;
@@ -39,16 +40,14 @@ public class TaskProperties {
 
 	private TaskProperty[] cache;
 
-	public TaskProperties(Config config, TaskAbstract task,
-			TaskPropertyDef[] propertyDefs) {
+	public TaskProperties(Config config, TaskAbstract task, TaskPropertyDef[] propertyDefs) {
 		map = new LinkedHashMap<TaskPropertyDef, TaskProperty>();
 		if (propertyDefs == null)
 			return;
 		cache = new TaskProperty[propertyDefs.length];
 		int i = 0;
 		for (TaskPropertyDef propertyDef : propertyDefs) {
-			TaskProperty taskProperty = new TaskProperty(config, task,
-					propertyDef);
+			TaskProperty taskProperty = new TaskProperty(config, task, propertyDef);
 			map.put(propertyDef, taskProperty);
 			cache[i++] = taskProperty;
 		}
@@ -67,13 +66,12 @@ public class TaskProperties {
 
 	public Integer getValueInteger(TaskPropertyDef propertyDef) {
 		String s = getValue(propertyDef);
-		return s == null ? null : Integer.parseInt(s);
+		return StringUtils.isEmpty(s) ? null : Integer.parseInt(s);
 	}
 
-	public boolean getValueBoolean(TaskPropertyDef propertyDef,
-			boolean defaultValue) {
+	public boolean getValueBoolean(TaskPropertyDef propertyDef, boolean defaultValue) {
 		String s = getValue(propertyDef);
-		return s == null ? defaultValue : Boolean.parseBoolean(s);
+		return StringUtils.isEmpty(s) ? defaultValue : Boolean.parseBoolean(s);
 	}
 
 	public void setValue(TaskPropertyDef propertyDef, String value) {
@@ -87,8 +85,7 @@ public class TaskProperties {
 		setValue(taskProperty.getDef(), taskProperty.getValue());
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
 		if (cache != null)
 			for (TaskProperty taskProperty : cache)
 				taskProperty.writeXml(xmlWriter);

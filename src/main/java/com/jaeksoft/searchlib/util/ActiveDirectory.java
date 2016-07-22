@@ -36,9 +36,9 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -46,8 +46,9 @@ import com.jaeksoft.searchlib.Logging;
 
 public class ActiveDirectory implements Closeable {
 
-	private DirContext dirContext = null;
-	private String domainSearchName = null;
+	private final DirContext dirContext;
+
+	private final String domainSearchName;
 
 	public ActiveDirectory(String serverName, String username, String password,
 			String domain) throws NamingException {
@@ -56,15 +57,18 @@ public class ActiveDirectory implements Closeable {
 		Properties properties = new Properties();
 		properties.put(Context.INITIAL_CONTEXT_FACTORY,
 				"com.sun.jndi.ldap.LdapCtxFactory");
-		properties.put(Context.PROVIDER_URL,
-				StringUtils.fastConcat("LDAP://", serverName));
-		properties.put(Context.SECURITY_PRINCIPAL,
-				StringUtils.fastConcat(username, "@", domain));
-		properties.put(Context.SECURITY_CREDENTIALS, password);
-		properties.put("java.naming.ldap.attributes.binary", "objectSID");
-		properties.put(Context.REFERRAL, "follow");
-		dirContext = new InitialDirContext(properties);
+
 		domainSearchName = getDomainSearch(domain);
+		String login = StringUtils.fastConcat(username, "@", domain);
+		if (serverName != null) {
+			properties.put(Context.PROVIDER_URL,
+					StringUtils.fastConcat("ldap://", serverName, ":389"));
+		}
+		properties.put(Context.SECURITY_PRINCIPAL, login);
+		properties.put(Context.SECURITY_CREDENTIALS, password);
+		properties.put(Context.REFERRAL, "follow");
+		properties.put("java.naming.ldap.attributes.binary", "objectSID");
+		dirContext = new InitialLdapContext(properties, null);
 	}
 
 	public final static String ATTR_CN = "cn";
@@ -95,18 +99,20 @@ public class ActiveDirectory implements Closeable {
 
 	public NamingEnumeration<SearchResult> findUser(String username)
 			throws NamingException {
-		return find(StringUtils.fastConcat(
-				"(&(objectClass=User)(sAMAccountName=", username, "))"),
-				ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID,
-				ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
+		return find(
+				StringUtils.fastConcat(
+						"(&(objectCategory=person)(objectClass=user)(samAccountType=805306368)(sAMAccountName=",
+						username, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
+				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private NamingEnumeration<SearchResult> findGroup(String group)
 			throws NamingException {
-		return find(StringUtils.fastConcat(
-				"(&(objectClass=Group)(sAMAccountName=", group, "))"), ATTR_CN,
-				ATTR_MAIL, ATTR_GIVENNAME, ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME,
-				ATTR_MEMBEROF, ATTR_DN);
+		return find(
+				StringUtils.fastConcat(
+						"(&(objectCategory=group)(objectClass=group)(samAccountType=268435456)(sAMAccountName=",
+						group, "))"), ATTR_CN, ATTR_MAIL, ATTR_GIVENNAME,
+				ATTR_OBJECTSID, ATTR_SAMACCOUNTNAME, ATTR_MEMBEROF, ATTR_DN);
 	}
 
 	private void findGroups(Collection<ADGroup> groups,
@@ -141,13 +147,14 @@ public class ActiveDirectory implements Closeable {
 			throws NamingException {
 		String filter = StringUtils.fastConcat(
 				"(member:1.2.840.113556.1.4.1941:=", userDN, ')');
-		NamingEnumeration<SearchResult> results = find(filter, ATTR_DN);
+		NamingEnumeration<SearchResult> results = find(filter, ATTR_OBJECTSID,
+				ATTR_DN);
 		while (results.hasMore()) {
 			SearchResult searchResult = results.next();
 			Attributes groupAttrs = searchResult.getAttributes();
 			Logging.info("ATTRS: " + groupAttrs.toString());
-			ADGroup adGroup = new ADGroup(getStringAttribute(groupAttrs,
-					ATTR_DN));
+			ADGroup adGroup = new ADGroup(getObjectSID(groupAttrs),
+					getStringAttribute(groupAttrs, ATTR_DN));
 			collector.add(adGroup);
 		}
 	}
@@ -157,7 +164,6 @@ public class ActiveDirectory implements Closeable {
 		try {
 			if (dirContext != null)
 				dirContext.close();
-			dirContext = null;
 		} catch (NamingException e) {
 			Logging.warn(e);
 		}
@@ -189,18 +195,20 @@ public class ActiveDirectory implements Closeable {
 		NamingEnumeration<?> membersOf = tga.getAll();
 		while (membersOf.hasMore()) {
 			Object memberObject = membersOf.next();
-			groups.add(new ADGroup(memberObject.toString()));
+			groups.add(new ADGroup(getObjectSID(attrs), memberObject.toString()));
 		}
 		membersOf.close();
 	}
 
 	public static class ADGroup {
 
+		public final String sid;
 		public final String cn1;
 		public final String cn2;
 		public final String dc;
 
-		private ADGroup(final String memberOf) {
+		private ADGroup(final String sid, final String memberOf) {
+			this.sid = sid;
 			String[] parts = StringUtils.split(memberOf, ',');
 			String lcn1 = null;
 			String lcn2 = null;
@@ -224,7 +232,8 @@ public class ActiveDirectory implements Closeable {
 		}
 	}
 
-	public static String[] toArray(Collection<ADGroup> groups) {
+	public static String[] toArray(Collection<ADGroup> groups,
+			String... additionalGroups) {
 		TreeSet<String> groupSet = new TreeSet<String>();
 		for (ADGroup group : groups) {
 			if ("builtin".equalsIgnoreCase(group.cn2))
@@ -232,23 +241,31 @@ public class ActiveDirectory implements Closeable {
 			else
 				groupSet.add(StringUtils.fastConcat(group.dc, '\\', group.cn1)
 						.toLowerCase());
+			groupSet.add(group.sid);
 		}
+		if (additionalGroups != null)
+			for (String additionalGroup : additionalGroups)
+				groupSet.add(additionalGroup);
 		return groupSet.toArray(new String[groupSet.size()]);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NamingException {
 		System.out.println(getDisplayString("sp.int.fr", "01234"));
 		System.out
 				.println(new ADGroup(
+						null,
 						"CN=GG-TEST-TEST-TEST,OU=Groupes Ressource,OU=Groupes,OU=DSCP,DC=sp,DC=pn,DC=int"));
 	}
 
 	private static String getDomainSearch(String domain) {
 		String[] dcs = StringUtils.split(domain, '.');
 		StringBuilder sb = new StringBuilder();
+		boolean first = true;
 		for (String dc : dcs) {
-			if (sb.length() > 0)
+			if (!first)
 				sb.append(',');
+			else
+				first = false;
 			sb.append("dc=");
 			sb.append(dc);
 		}

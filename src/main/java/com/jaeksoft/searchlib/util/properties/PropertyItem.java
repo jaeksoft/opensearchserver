@@ -1,39 +1,39 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
- * 
+ * <p/>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p/>
  * http://www.open-search-server.com
- * 
+ * <p/>
  * This file is part of OpenSearchServer.
- *
+ * <p/>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p/>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p/>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.util.properties;
+
+import com.jaeksoft.searchlib.SearchLibException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.jaeksoft.searchlib.SearchLibException;
-
 public class PropertyItem<T extends Comparable<T>> {
 
-	private PropertyManager propertyManager;
+	private final PropertyManager propertyManager;
 
 	private List<PropertyItemListener> listeners;
 
@@ -45,14 +45,14 @@ public class PropertyItem<T extends Comparable<T>> {
 
 	private T max;
 
-	public PropertyItem(PropertyManager propertyManager, String name, T value,
-			T min, T max) {
+	public PropertyItem(PropertyManager propertyManager, String name, T value, T min, T max) {
 		this.propertyManager = propertyManager;
 		this.name = name;
 		this.value = value;
 		this.listeners = null;
 		this.min = min;
 		this.max = max;
+		propertyManager.add(this);
 	}
 
 	public void addListener(PropertyItemListener listener) {
@@ -95,6 +95,10 @@ public class PropertyItem<T extends Comparable<T>> {
 				listener.hasBeenSet(this);
 	}
 
+	void setValueObject(Comparable value) throws IOException, SearchLibException {
+		this.setValue((T) value);
+	}
+
 	public Boolean isValue() {
 		if (value.getClass().isAssignableFrom(Boolean.class))
 			return Boolean.class.cast(value);
@@ -102,6 +106,9 @@ public class PropertyItem<T extends Comparable<T>> {
 	}
 
 	public void put(Properties properties) {
-		properties.put(name, value.toString());
+		if (value == null)
+			properties.remove(name);
+		else
+			properties.put(name, value.toString());
 	}
 }

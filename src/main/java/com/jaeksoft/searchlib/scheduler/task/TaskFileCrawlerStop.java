@@ -24,6 +24,8 @@
 
 package com.jaeksoft.searchlib.scheduler.task;
 
+import java.io.IOException;
+
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -47,8 +49,7 @@ public class TaskFileCrawlerStop extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties) {
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties) {
 		return null;
 	}
 
@@ -58,8 +59,8 @@ public class TaskFileCrawlerStop extends TaskAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		CrawlFileMaster crawlMaster = client.getFileCrawlMaster();
 		if (!crawlMaster.isRunning()) {
 			taskLog.setInfo("Was not running");

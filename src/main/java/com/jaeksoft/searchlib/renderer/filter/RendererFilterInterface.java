@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.result.AbstractResultSearch;
 
 public interface RendererFilterInterface {
 
-	void populate(AbstractResultSearch facetResult,
+	void populate(AbstractResultSearch<?> facetResult,
 			List<RendererFilterItem> filterItem);
 
 	String getDefaultProperties();

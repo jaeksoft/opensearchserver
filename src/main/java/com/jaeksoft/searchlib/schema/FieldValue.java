@@ -137,6 +137,15 @@ public class FieldValue extends AbstractField<FieldValue> {
 			valueList.add(value);
 	}
 
+	public void addValues(List<FieldValueItem> values) {
+		if (values == null || values.size() == 0)
+			return;
+		if (valueList == null)
+			valueList = new ArrayList<FieldValueItem>(values.size());
+		for (FieldValueItem value : values)
+			valueList.add(value);
+	}
+
 	public void addValue(FieldValueItem value) {
 		if (value == null)
 			return;

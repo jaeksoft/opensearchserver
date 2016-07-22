@@ -62,16 +62,16 @@
 		</hbox>
 	</vbox>
 	<listbox mold="paging" pageSize="10"
-		model="@load(queryReports.reportSet)"
-		visible="@load(queryReports.reportSetExists)">
+		model="@load(queryReports.reportList)"
+		visible="@load(queryReports.reportListExists)">
 		<listhead>
 			<listheader label="Keywords" />
 			<listheader label="Frequency" />
 		</listhead>
 		<template name="model" var="facet">
 			<listitem>
-				<listcell label="@load(facet.term)" />
-				<listcell label="@load(facet.count)" />
+				<listcell label="@load(facet.key)" />
+				<listcell label="@load(facet.value.count)" />
 			</listitem>
 		</template>
 	</listbox>

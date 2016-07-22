@@ -25,7 +25,7 @@
 package com.jaeksoft.searchlib.join;
 
 import java.io.IOException;
-import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
@@ -57,12 +57,11 @@ public class JoinResult {
 
 	private transient JoinScoreInterface joinScoreInterface;
 
-	private TreeSet<String> fieldNameSet;
+	private LinkedHashSet<String> fieldNameSet;
 
 	private FacetList facetList;
 
-	public JoinResult(int joinPosition, String paramPosition,
-			boolean returnFields) {
+	public JoinResult(int joinPosition, String paramPosition, boolean returnFields) {
 		this.joinPosition = joinPosition;
 		this.paramPosition = paramPosition;
 		this.returnFields = returnFields;
@@ -72,7 +71,7 @@ public class JoinResult {
 
 	public void setForeignResult(ResultSearchSingle foreignResult) {
 		this.foreignResult = foreignResult;
-		fieldNameSet = new TreeSet<String>();
+		fieldNameSet = new LinkedHashSet<String>();
 		AbstractSearchRequest request = foreignResult.getRequest();
 		request.getReturnFieldList().populate(fieldNameSet);
 		request.getSnippetFieldList().populate(fieldNameSet);
@@ -82,11 +81,10 @@ public class JoinResult {
 		if (!(collectorInterface instanceof JoinDocInterface))
 			return;
 		this.joinDocInterface = (JoinDocInterface) collectorInterface;
-		this.joinScoreInterface = collectorInterface
-				.getCollector(JoinScoreInterface.class);
+		this.joinScoreInterface = collectorInterface.getCollector(JoinScoreInterface.class);
 	}
 
-	public AbstractResultSearch getForeignResult() {
+	public AbstractResultSearch<?> getForeignResult() {
 		return foreignResult;
 	}
 
@@ -94,16 +92,14 @@ public class JoinResult {
 		return returnFields;
 	}
 
-	final public ResultDocument getDocument(int pos, Timer timer)
-			throws SearchLibException {
+	final public ResultDocument getDocument(int pos, Timer timer) throws SearchLibException {
 		try {
 			if (joinDocInterface == null)
 				return null;
-			float score = joinScoreInterface != null ? joinScoreInterface
-					.getForeignScore(pos, joinPosition) : 0;
+			float score = joinScoreInterface != null ? joinScoreInterface.getForeignScore(pos, joinPosition) : 0;
 			return new ResultDocument(foreignResult.getRequest(), fieldNameSet,
-					joinDocInterface.getForeignDocId(pos, joinPosition),
-					foreignResult.getReader(), score, paramPosition, 0, timer);
+					joinDocInterface.getForeignDocId(pos, joinPosition), foreignResult.getReader(), score,
+					paramPosition, 0, timer);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} catch (ParseException e) {

@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -41,7 +42,7 @@ import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.facet.Facet;
-import com.jaeksoft.searchlib.facet.FacetItem;
+import com.jaeksoft.searchlib.facet.FacetCounter;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.SearchFieldRequest;
@@ -131,10 +132,10 @@ public class LibraryIndexDataTest {
 		request.addFilter("category:Article", false);
 
 		// We want facet count on category
-		request.addFacet("category", 1, false, false, null);
+		request.addFacet("category", 1, false, false, null, null, null);
 
 		// Let's execute the search request
-		AbstractResultSearch results = (AbstractResultSearch) client
+		AbstractResultSearch<?> results = (AbstractResultSearch<?>) client
 				.request(request);
 
 		// Check the number of returned document
@@ -161,10 +162,10 @@ public class LibraryIndexDataTest {
 		Facet facet = results.getFacetList().getByField("category");
 		assertNotNull(facet);
 		// Iterate over the facet items
-		for (FacetItem facetItem : facet) {
-			String term = facetItem.getTerm();
+		for (Map.Entry<String, FacetCounter> facetItem : facet) {
+			String term = facetItem.getKey();
 			assertEquals(term, "Article");
-			int count = facetItem.getCount();
+			long count = facetItem.getValue().count;
 			assertEquals(count, 2);
 		}
 	}

@@ -56,18 +56,15 @@ import com.jaeksoft.searchlib.util.map.TargetField;
 
 public class TaskPullFields extends TaskPullAbstract {
 
-	final private TaskPropertyDef propSourceQuery = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Source query", "Source query",
-			"The search query on the source index", 50);
+	final private TaskPropertyDef propSourceQuery = new TaskPropertyDef(TaskPropertyType.textBox, "Source query",
+			"Source query", "The search query on the source index", 50);
 
-	final private TaskPropertyDef propSourceMappedFields = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "Mapped fields on source",
-			"Mapped fields on source", null, 80, 5);
+	final private TaskPropertyDef propSourceMappedFields = new TaskPropertyDef(TaskPropertyType.multilineTextBox,
+			"Mapped fields on source", "Mapped fields on source", null, 80, 5);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
-			propLogin, propApiKey, propSourceQuery, propLanguage,
-			propSourceField, propTargetField, propSourceMappedFields,
-			propTargetMappedFields, propBufferSize };
+	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex, propLogin, propApiKey, propSourceQuery,
+			propLanguage, propSourceField, propTargetField, propSourceMappedFields, propTargetMappedFields,
+			propBufferSize };
 
 	@Override
 	public String getName() {
@@ -87,8 +84,8 @@ public class TaskPullFields extends TaskPullAbstract {
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException {
 		String sourceQuery = properties.getValue(propSourceQuery);
 		String sourceMappedFields = properties.getValue(propSourceMappedFields);
 
@@ -99,39 +96,34 @@ public class TaskPullFields extends TaskPullAbstract {
 			FieldMap sourceFieldMap = null;
 			if (!StringUtils.isEmpty(sourceMappedFields)) {
 				sourceFieldMap = new FieldMap(sourceMappedFields, ',', '|');
-				sourceFieldMap.cacheAnalyzers(client.getSchema()
-						.getAnalyzerList(), LanguageEnum.UNDEFINED);
+				sourceFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(), LanguageEnum.UNDEFINED);
 			}
 
-			AbstractSearchRequest searchRequest = new SearchPatternRequest(
-					executionData.sourceClient);
+			AbstractSearchRequest searchRequest = new SearchPatternRequest(executionData.sourceClient);
 			searchRequest.setQueryString(sourceQuery);
 			searchRequest.addReturnField(executionData.sourceField);
-			for (GenericLink<SourceField, TargetField> link : sourceFieldMap
-					.getList())
-				link.getSource().addReturnField(searchRequest);
+			if (sourceFieldMap != null)
+				for (GenericLink<SourceField, TargetField> link : sourceFieldMap.getList())
+					link.getSource().addReturnField(searchRequest);
 			searchRequest.setRows(executionData.bufferSize);
 			int start = 0;
 
 			for (;;) {
 				searchRequest.setStart(start);
-				AbstractResultSearch result = (AbstractResultSearch) executionData.sourceClient
+				AbstractResultSearch<?> result = (AbstractResultSearch<?>) executionData.sourceClient
 						.request(searchRequest);
 
 				if (result.getDocumentCount() <= 0)
 					break;
 
 				for (ResultDocument document : result) {
-					List<FieldValueItem> fieldValueItems = document
-							.getValues(executionData.sourceField);
+					List<FieldValueItem> fieldValueItems = document.getValues(executionData.sourceField);
 					if (CollectionUtils.isEmpty(fieldValueItems))
 						continue;
 
-					IndexDocument mappedDocument = new IndexDocument(
-							executionData.lang);
+					IndexDocument mappedDocument = new IndexDocument(executionData.lang);
 					if (sourceFieldMap != null)
-						sourceFieldMap.mapIndexDocument(document,
-								mappedDocument);
+						sourceFieldMap.mapIndexDocument(document, mappedDocument);
 
 					for (FieldValueItem fieldValueItem : fieldValueItems) {
 
@@ -141,8 +133,7 @@ public class TaskPullFields extends TaskPullAbstract {
 						if (value.length() == 0)
 							continue;
 
-						executionData.indexDocument(client, mappedDocument,
-								value, taskLog);
+						executionData.indexDocument(client, mappedDocument, value, taskLog);
 
 					}
 				}

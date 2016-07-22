@@ -1,36 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.database;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
@@ -38,6 +30,13 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import org.apache.http.HttpException;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UrlCrawlQueue extends CrawlQueueAbstract {
 
@@ -51,7 +50,7 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	private List<UrlItem> workingInsertUrlList;
 	private List<String> workingDeleteUrlList;
 
-	public UrlCrawlQueue(Config config) throws SearchLibException {
+	public UrlCrawlQueue(Config config) {
 		super(config);
 		updateCrawlList = new ArrayList<Crawl>(0);
 		insertUrlList = new ArrayList<UrlItem>(0);
@@ -62,14 +61,13 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	public void add(CrawlStatistics currentStats, Crawl crawl)
-			throws NoSuchAlgorithmException, IOException, SearchLibException,
-			URISyntaxException {
+			throws NoSuchAlgorithmException, IOException, SearchLibException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			updateCrawlList.add(crawl);
 			currentStats.incPendingUpdateCount();
-			List<LinkItem> discoverLinks = crawl.getDiscoverLinks();
-			UrlManager urlManager = getConfig().getUrlManager();
+			final List<LinkItem> discoverLinks = crawl.getDiscoverLinks();
+			final UrlManager urlManager = getConfig().getUrlManager();
 			if (discoverLinks != null) {
 				for (LinkItem link : discoverLinks)
 					insertUrlList.add(urlManager.getNewUrlItem(link));
@@ -156,24 +154,17 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 	}
 
 	@Override
-	protected void indexWork() throws SearchLibException, IOException,
-			URISyntaxException, InstantiationException, IllegalAccessException,
+	protected void indexWork()
+			throws SearchLibException, IOException, URISyntaxException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, HttpException {
-		UrlManager urlManager = getConfig().getUrlManager();
-		boolean needReload = false;
 		CrawlStatistics sessionStats = getSessionStats();
-		if (deleteCollection(workingDeleteUrlList, sessionStats))
-			needReload = true;
-		if (updateCrawls(workingUpdateCrawlList, sessionStats))
-			needReload = true;
-		if (insertCollection(workingInsertUrlList, sessionStats))
-			needReload = true;
-		if (needReload)
-			urlManager.reload(false, null);
+		deleteCollection(workingDeleteUrlList, sessionStats);
+		updateCrawls(workingUpdateCrawlList, sessionStats);
+		insertCollection(workingInsertUrlList, sessionStats);
 	}
 
-	private boolean deleteCollection(List<String> workDeleteUrlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	private boolean deleteCollection(List<String> workDeleteUrlList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workDeleteUrlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();
@@ -183,21 +174,21 @@ public class UrlCrawlQueue extends CrawlQueueAbstract {
 		return true;
 	}
 
-	private boolean updateCrawls(List<Crawl> workUpdateCrawlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	private boolean updateCrawls(List<Crawl> workUpdateCrawlList, CrawlStatistics sessionStats)
+			throws IOException, SearchLibException {
 		if (workUpdateCrawlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();
-		urlManager.updateCrawlTarget(workUpdateCrawlList, getConfig()
-				.getWebPropertyManager().getPropagateDeletion().getValue());
+		urlManager.updateCrawlTarget(workUpdateCrawlList,
+				getConfig().getWebPropertyManager().getPropagateDeletion().getValue());
 		urlManager.updateCrawlUrlDb(workUpdateCrawlList);
 		if (sessionStats != null)
 			sessionStats.addUpdatedCount(workUpdateCrawlList.size());
 		return true;
 	}
 
-	private boolean insertCollection(List<UrlItem> workInsertUrlList,
-			CrawlStatistics sessionStats) throws SearchLibException {
+	private boolean insertCollection(List<UrlItem> workInsertUrlList, CrawlStatistics sessionStats)
+			throws SearchLibException {
 		if (workInsertUrlList.size() == 0)
 			return false;
 		UrlManager urlManager = getConfig().getUrlManager();

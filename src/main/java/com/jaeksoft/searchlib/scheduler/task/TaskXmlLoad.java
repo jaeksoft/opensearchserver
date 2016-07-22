@@ -57,26 +57,24 @@ import com.jaeksoft.searchlib.util.Variables;
 
 public class TaskXmlLoad extends TaskAbstract {
 
-	final private TaskPropertyDef propUri = new TaskPropertyDef(
-			TaskPropertyType.textBox, "URI", "Uri", null, 100);
+	final private TaskPropertyDef propUri = new TaskPropertyDef(TaskPropertyType.textBox, "URI", "Uri", null, 100);
 
-	final private TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login", "Login", null, 50);
+	final private TaskPropertyDef propLogin = new TaskPropertyDef(TaskPropertyType.textBox, "Login", "Login", null, 50);
 
-	final private TaskPropertyDef propPassword = new TaskPropertyDef(
-			TaskPropertyType.password, "Password", "Password", null, 20);
+	final private TaskPropertyDef propPassword = new TaskPropertyDef(TaskPropertyType.password, "Password", "Password",
+			null, 20);
 
-	final private TaskPropertyDef propUserAgent = new TaskPropertyDef(
-			TaskPropertyType.textBox, "User agent", "UserAgent", null, 20);
+	final private TaskPropertyDef propUserAgent = new TaskPropertyDef(TaskPropertyType.textBox, "User agent",
+			"UserAgent", null, 20);
 
-	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
+	final private TaskPropertyDef propBuffersize = new TaskPropertyDef(TaskPropertyType.textBox, "Buffer size",
+			"Buffer size", null, 10);
 
-	final private TaskPropertyDef propXsl = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "XSL", "XSL", null, 100, 30);
+	final private TaskPropertyDef propXsl = new TaskPropertyDef(TaskPropertyType.multilineTextBox, "XSL", "XSL", null,
+			100, 30);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin,
-			propPassword, propUserAgent, propBuffersize, propXsl };
+	final private TaskPropertyDef[] taskPropertyDefs = { propUri, propLogin, propPassword, propUserAgent,
+			propBuffersize, propXsl };
 
 	@Override
 	public String getName() {
@@ -89,8 +87,7 @@ public class TaskXmlLoad extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		return null;
 	}
@@ -102,15 +99,15 @@ public class TaskXmlLoad extends TaskAbstract {
 		else if (propertyDef == propUserAgent)
 			try {
 				return config.getWebPropertyManager().getUserAgent().getValue();
-			} catch (SearchLibException e) {
+			} catch (IOException e) {
 				Logging.error(e);
 			}
 		return null;
 	}
 
 	@Override
-	public void execute(Client client, TaskProperties properties,
-			Variables variables, TaskLog taskLog) throws SearchLibException {
+	public void execute(Client client, TaskProperties properties, Variables variables, TaskLog taskLog)
+			throws SearchLibException, IOException {
 		String uriString = properties.getValue(propUri);
 		String login = properties.getValue(propLogin);
 		String password = properties.getValue(propPassword);
@@ -121,32 +118,23 @@ public class TaskXmlLoad extends TaskAbstract {
 		int bufferSize = 50;
 		if (p != null && p.length() > 0)
 			bufferSize = Integer.parseInt(p);
-		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader(true, userAgent, false);
+		HttpDownloader httpDownloader = client.getWebCrawlMaster().getNewHttpDownloader(true, userAgent, false);
 		try {
 			URI uri = new URI(uriString);
 			CredentialItem credentialItem = null;
 			if (login != null && password != null)
-				credentialItem = new CredentialItem(
-						CredentialType.BASIC_DIGEST, null, login, password,
-						null, null);
+				credentialItem = new CredentialItem(CredentialType.BASIC_DIGEST, null, login, password, null, null);
 			DownloadItem downloadItem = httpDownloader.get(uri, credentialItem);
 			downloadItem.checkNoErrorList(200);
 			Node xmlDoc = null;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
-				DomUtils.xslt(
-						new StreamSource(downloadItem.getContentInputStream()),
-						xsl, xmlTempResult);
-				xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult),
-						false);
+				DomUtils.xslt(new StreamSource(downloadItem.getContentInputStream()), xsl, xmlTempResult);
+				xmlDoc = DomUtils.readXml(new StreamSource(xmlTempResult), false);
 			} else
-				xmlDoc = DomUtils.readXml(
-						new InputSource(downloadItem.getContentInputStream()),
-						false);
+				xmlDoc = DomUtils.readXml(new InputSource(downloadItem.getContentInputStream()), false);
 
-			client.updateXmlDocuments(xmlDoc, bufferSize, credentialItem,
-					httpDownloader, taskLog);
+			client.updateXmlDocuments(xmlDoc, bufferSize, credentialItem, httpDownloader, taskLog);
 			client.deleteXmlDocuments(xmlDoc, bufferSize, taskLog);
 		} catch (XPathExpressionException e) {
 			throw new SearchLibException(e);

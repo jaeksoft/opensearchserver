@@ -57,9 +57,8 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		this.config = fl.config;
 		this.defaultOperator = fl.defaultOperator;
 		this.filterList = null;
-		if (fl != null)
-			for (FilterAbstract<?> f : fl)
-				add(f.duplicate());
+		for (FilterAbstract<?> f : fl)
+			add(f.duplicate());
 	}
 
 	public FilterList(Config config) {
@@ -113,26 +112,22 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 
 	@Override
 	public Iterator<FilterAbstract<?>> iterator() {
-		return filterList == null ? ImmutableSet.<FilterAbstract<?>> of()
-				.iterator() : filterList.iterator();
+		return filterList == null ? ImmutableSet.<FilterAbstract<?>> of().iterator() : filterList.iterator();
 	}
 
 	public Object[] getArray() {
 		return filterList == null ? new Object[0] : filterList.toArray();
 	}
 
-	public void writeXmlConfig(XmlWriter xmlWriter, String nodeName)
-			throws SAXException {
-		xmlWriter.startElement("filters", "defaultOperator",
-				defaultOperator.name());
+	public void writeXmlConfig(XmlWriter xmlWriter, String nodeName) throws SAXException {
+		xmlWriter.startElement("filters", "defaultOperator", defaultOperator.name());
 		if (filterList != null)
 			for (FilterAbstract<?> filter : filterList)
 				filter.writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
 	}
 
-	final public void setFromServlet(final ServletTransaction transaction,
-			final String prefix) {
+	final public void setFromServlet(final ServletTransaction transaction, final String prefix) {
 		if (filterList != null)
 			for (FilterAbstract<?> filter : filterList)
 				filter.setFromServlet(transaction, prefix);
@@ -144,17 +139,14 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 		for (String value : values)
 			if (value != null)
 				if (value.trim().length() > 0)
-					add(new QueryFilter(value, negative,
-							FilterAbstract.Source.REQUEST, null));
+					add(new QueryFilter(value, negative, FilterAbstract.Source.REQUEST, null));
 	}
 
 	public void addFromServlet(ServletTransaction transaction, String prefix) {
 		if (prefix == null)
 			prefix = StringUtils.EMPTY;
-		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "fq")), false);
-		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "fqn")), true);
+		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(prefix, "fq")), false);
+		addFromServlet(transaction.getParameterValues(StringUtils.fastConcat(prefix, "fqn")), true);
 	}
 
 	public void setParam(int pos, String param) throws SearchLibException {
