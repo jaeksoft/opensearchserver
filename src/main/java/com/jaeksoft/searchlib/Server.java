@@ -57,7 +57,7 @@ public class Server {
 		@ShortSwitch("p")
 		@SingleArgument
 		public void setHttpPort(String port) {
-			this.httpPort = port == null ? null : Integer.parseInt(port);
+			this.httpPort = StringUtils.isEmpty(port) ? null : Integer.parseInt(port);
 		}
 
 		@Option
@@ -78,8 +78,8 @@ public class Server {
 	}
 
 	private void start(boolean await) throws IOException, URISyntaxException {
-		final File srcFile = new File(
-				Server.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+		final File srcFile =
+				new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 		if (!srcFile.exists())
 			throw new IOException("The jar file or classes directory has not been found: " + srcFile);
 		final File webFile;
@@ -107,8 +107,9 @@ public class Server {
 			tomcat.getServer().await();
 	}
 
-	public static void start(String[] args, boolean await) throws IllegalAccessException, InstantiationException,
-			InvocationTargetException, IOException, URISyntaxException {
+	public static void start(String[] args, boolean await)
+			throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException,
+			URISyntaxException {
 		if (args == null)
 			args = new String[] {};
 		Arguments arguments = CommandLineParser.parse(Arguments.class, args, OptionStyle.SIMPLE);
@@ -116,8 +117,9 @@ public class Server {
 		server.start(await);
 	}
 
-	public static void main(String[] args) throws IllegalAccessException, InstantiationException,
-			InvocationTargetException, IOException, URISyntaxException {
+	public static void main(String[] args)
+			throws IllegalAccessException, InstantiationException, InvocationTargetException, IOException,
+			URISyntaxException {
 		start(args, true);
 	}
 }
