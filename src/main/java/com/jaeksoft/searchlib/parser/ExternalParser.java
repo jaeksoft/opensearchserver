@@ -36,7 +36,7 @@ import java.util.Set;
 import javax.xml.transform.TransformerConfigurationException;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;

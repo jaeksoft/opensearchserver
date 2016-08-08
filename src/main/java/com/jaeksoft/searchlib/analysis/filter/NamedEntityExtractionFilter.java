@@ -24,12 +24,6 @@
 
 package com.jaeksoft.searchlib.analysis.filter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.analysis.TokenStream;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.ClientCatalogItem;
@@ -37,6 +31,11 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.FilterFactory;
 import com.jaeksoft.searchlib.request.NamedEntityExtractionRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.TokenStream;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NamedEntityExtractionFilter extends FilterFactory {
 

@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.util.map;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.FieldContent;

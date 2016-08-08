@@ -1,45 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.index;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -57,6 +40,16 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public class IndexDocument implements Iterable<FieldContent> {
 
@@ -70,8 +63,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 
 	public IndexDocument(IndexDocument sourceDocument) {
 		this(sourceDocument.lang);
-		for (Map.Entry<String, FieldContent> entry : sourceDocument.fields
-				.entrySet())
+		for (Map.Entry<String, FieldContent> entry : sourceDocument.fields.entrySet())
 			add(entry.getKey(), entry.getValue());
 	}
 
@@ -86,8 +78,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 			this.lang = LanguageEnum.findByCode(lang.getLanguage());
 	}
 
-	private final List<String> getCopyFieldList(Node fieldNode)
-			throws XPathExpressionException {
+	private final List<String> getCopyFieldList(Node fieldNode) throws XPathExpressionException {
 		List<Node> copyNodes = DomUtils.getNodes(fieldNode, "copy");
 		if (copyNodes == null || copyNodes.size() == 0)
 			return null;
@@ -106,9 +97,12 @@ public class IndexDocument implements Iterable<FieldContent> {
 	 * &nbsp;&nbsp;<value>VALUE1</value><br/>
 	 * &nbsp;&nbsp;<value>VALUE2</value><br/>
 	 * </field>
-	 * 
-	 * @param xpp
+	 *
+	 * @param client
+	 * @param parserSelector
 	 * @param documentNode
+	 * @param urlDefaultCredential
+	 * @param httpDownloader
 	 * @throws XPathExpressionException
 	 * @throws SearchLibException
 	 * @throws ClassNotFoundException
@@ -118,29 +112,24 @@ public class IndexDocument implements Iterable<FieldContent> {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public IndexDocument(Client client, ParserSelector parserSelector,
-			Node documentNode, CredentialItem urlDefaultCredential,
-			HttpDownloader httpDownloader) throws XPathExpressionException,
-			SearchLibException, InstantiationException, IllegalAccessException,
+	public IndexDocument(Client client, ParserSelector parserSelector, Node documentNode,
+			CredentialItem urlDefaultCredential, HttpDownloader httpDownloader)
+			throws XPathExpressionException, SearchLibException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, IOException, URISyntaxException {
-		this(LanguageEnum.findByCode(XPathParser.getAttributeString(
-				documentNode, "lang")));
+		this(LanguageEnum.findByCode(XPathParser.getAttributeString(documentNode, "lang")));
 		List<Node> fieldNodes = DomUtils.getNodes(documentNode, "field");
 		for (Node fieldNode : fieldNodes) {
 			List<String> copyFieldList = getCopyFieldList(fieldNode);
-			String fieldName = XPathParser
-					.getAttributeString(fieldNode, "name");
+			String fieldName = XPathParser.getAttributeString(fieldNode, "name");
 			List<Node> valueNodes = DomUtils.getNodes(fieldNode, "value");
 			for (Node valueNode : valueNodes) {
-				boolean removeTag = "yes".equalsIgnoreCase(XPathParser
-						.getAttributeString(valueNode, "removeTag"));
-				boolean convertHtmlEntities = "yes"
-						.equalsIgnoreCase(XPathParser.getAttributeString(
-								valueNode, "convertHtmlEntities"));
+				boolean removeTag = "yes".equalsIgnoreCase(XPathParser.getAttributeString(valueNode, "removeTag"));
+				boolean convertHtmlEntities =
+						"yes".equalsIgnoreCase(XPathParser.getAttributeString(valueNode, "convertHtmlEntities"));
 
 				String textContent = valueNode.getTextContent();
 				if (convertHtmlEntities)
-					textContent = StringEscapeUtils.unescapeHtml(textContent);
+					textContent = StringEscapeUtils.unescapeHtml4(textContent);
 				if (removeTag)
 					textContent = StringUtils.removeTag(textContent);
 				Float boost = XPathParser.getAttributeFloat(valueNode, "boost");
@@ -152,46 +141,38 @@ public class IndexDocument implements Iterable<FieldContent> {
 		}
 		List<Node> binaryNodes = DomUtils.getNodes(documentNode, "binary");
 		for (Node node : binaryNodes) {
-			boolean bFaultTolerant = "yes".equalsIgnoreCase(XPathParser
-					.getAttributeString(node, "faultTolerant"));
+			boolean bFaultTolerant = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "faultTolerant"));
 			String filename = XPathParser.getAttributeString(node, "fileName");
 			if (filename == null || filename.length() == 0)
 				filename = XPathParser.getAttributeString(node, "filename");
 			String filePath = XPathParser.getAttributeString(node, "filePath");
 			if (filePath == null || filePath.length() == 0)
 				filePath = XPathParser.getAttributeString(node, "filepath");
-			String contentType = XPathParser.getAttributeString(node,
-					"contentType");
+			String contentType = XPathParser.getAttributeString(node, "contentType");
 			if (contentType == null || contentType.length() == 0)
-				contentType = XPathParser.getAttributeString(node,
-						"contenttype");
+				contentType = XPathParser.getAttributeString(node, "contenttype");
 			String content = node.getTextContent();
 			String url = XPathParser.getAttributeString(node, "url");
-			Parser parser = doBinary(url, content, filePath, filename, client,
-					parserSelector, contentType, urlDefaultCredential,
-					httpDownloader, bFaultTolerant);
+			Parser parser = doBinary(url, content, filePath, filename, client, parserSelector, contentType,
+					urlDefaultCredential, httpDownloader, bFaultTolerant);
 			if (parser != null)
 				parser.popupateResult(0, this);
 		}
 	}
 
-	private Parser doBinary(String url, String content, String filePath,
-			String filename, Client client, ParserSelector parserSelector,
-			String contentType, CredentialItem urlDefaultCredential,
+	private Parser doBinary(String url, String content, String filePath, String filename, Client client,
+			ParserSelector parserSelector, String contentType, CredentialItem urlDefaultCredential,
 			HttpDownloader httpDownloader, boolean bFaultTolerant)
-			throws IOException, URISyntaxException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SearchLibException {
+			throws IOException, URISyntaxException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SearchLibException {
 		try {
 			Parser parser = null;
 			if (url != null)
-				parser = binaryFromUrl(parserSelector, url,
-						urlDefaultCredential, httpDownloader);
+				parser = binaryFromUrl(parserSelector, url, urlDefaultCredential, httpDownloader);
 			else if (content != null && content.length() > 0)
-				parser = binaryFromBase64(parserSelector, filename,
-						contentType, content);
+				parser = binaryFromBase64(parserSelector, filename, contentType, content);
 			else if (filePath != null && filePath.length() > 0)
-				parser = binaryFromFile(parserSelector, filename, contentType,
-						filePath);
+				parser = binaryFromFile(parserSelector, filename, contentType, filePath);
 			return parser;
 		} catch (SearchLibException e) {
 			ErrorParserLogger.log(url, filename, filePath, e);
@@ -217,57 +198,44 @@ public class IndexDocument implements Iterable<FieldContent> {
 		return null;
 	}
 
-	private Parser binaryFromUrl(ParserSelector parserSelector, String url,
-			CredentialItem credentialItem, HttpDownloader httpDownloader)
-			throws SearchLibException {
+	private Parser binaryFromUrl(ParserSelector parserSelector, String url, CredentialItem credentialItem,
+			HttpDownloader httpDownloader) throws SearchLibException {
 		try {
-			DownloadItem downloadItem = httpDownloader.get(new URI(url),
-					credentialItem);
+			DownloadItem downloadItem = httpDownloader.get(new URI(url), credentialItem);
 			downloadItem.checkNoErrorList(200);
-			return parserSelector.parseStream(null, downloadItem.getFileName(),
-					downloadItem.getContentBaseType(), url,
+			return parserSelector.parseStream(null, downloadItem.getFileName(), downloadItem.getContentBaseType(), url,
 					downloadItem.getContentInputStream(), lang, null, null);
 		} catch (RuntimeException e) {
-			throw new SearchLibException(
-					"Parser error while getting binary from URL: " + url, e);
+			throw new SearchLibException("Parser error while getting binary from URL: " + url, e);
 		} catch (Exception e) {
-			throw new SearchLibException(
-					"Parser error while getting binary from URL: " + url, e);
+			throw new SearchLibException("Parser error while getting binary from URL: " + url, e);
 		}
 	}
 
-	private Parser binaryFromBase64(ParserSelector parserSelector,
-			String filename, String contentType, String content)
+	private Parser binaryFromBase64(ParserSelector parserSelector, String filename, String contentType, String content)
 			throws SearchLibException {
 		try {
-			return parserSelector.parseBase64(null, filename, contentType,
-					null, content, lang);
+			return parserSelector.parseBase64(null, filename, contentType, null, content, lang);
 		} catch (RuntimeException e) {
-			throw new SearchLibException("Parser error while getting binary : "
-					+ filename + " /" + contentType, e);
+			throw new SearchLibException("Parser error while getting binary : " + filename + " /" + contentType, e);
 		} catch (Exception e) {
-			throw new SearchLibException("Parser error while getting binary : "
-					+ filename + " /" + contentType, e);
+			throw new SearchLibException("Parser error while getting binary : " + filename + " /" + contentType, e);
 		}
 	}
 
-	private Parser binaryFromFile(ParserSelector parserSelector,
-			String filename, String contentType, String filePath)
+	private Parser binaryFromFile(ParserSelector parserSelector, String filename, String contentType, String filePath)
 			throws SearchLibException {
 		try {
 			File f = new File(filePath);
 			if (f.isDirectory())
 				f = new File(f, filename);
-			return parserSelector.parseFile(null, filename, contentType, null,
-					f, lang);
+			return parserSelector.parseFile(null, filename, contentType, null, f, lang);
 		} catch (RuntimeException e) {
-			throw new SearchLibException(
-					"Parser error while getting binary from file : " + filePath
-							+ " /" + filename, e);
+			throw new SearchLibException("Parser error while getting binary from file : " + filePath + " /" + filename,
+					e);
 		} catch (Exception e) {
-			throw new SearchLibException(
-					"Parser error while getting binary from file : " + filePath
-							+ " /" + filename, e);
+			throw new SearchLibException("Parser error while getting binary from file : " + filePath + " /" + filename,
+					e);
 		}
 	}
 
@@ -293,8 +261,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	public void add(String field, String value, Float boost) {
 		if (value == null || value.length() == 0)
 			return;
-		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value,
-				boost));
+		add(field, new FieldValueItem(FieldValueOriginEnum.EXTERNAL, value, boost));
 	}
 
 	public void addObject(String field, Object object) {
@@ -463,7 +430,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	/**
 	 * Populate the copyOf field with a reference to the fieldcontent of the
 	 * source field
-	 * 
+	 *
 	 * @param schema
 	 */
 	public void prepareCopyOf(Schema schema) {

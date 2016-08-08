@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.*;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
 import com.jaeksoft.searchlib.util.InfoCallback;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
 
 import java.io.IOException;

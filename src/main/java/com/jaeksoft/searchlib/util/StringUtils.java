@@ -1,34 +1,36 @@
-/**   
- *
- * Copyright (C) 2009-2015 Emmanuel Keller / Jaeksoft
- * 
+/**
+ * Copyright (C) 2009-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.util;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.text.WordUtils;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -36,15 +38,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang3.text.WordUtils;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
-import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 
 public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
@@ -83,8 +76,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
-	private final static Pattern removeBrPattern1 = Pattern.compile("\\.\\p{Space}+<br\\p{Space}*/?>",
-			Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeBrPattern1 =
+			Pattern.compile("\\.\\p{Space}+<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeEndTagBlockPattern1 = Pattern.compile(
 			"\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
 			Pattern.CASE_INSENSITIVE);
@@ -92,8 +85,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			"</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
 			Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeBrPattern2 = Pattern.compile("<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
-	private final static Pattern removeScriptObjectStylePattern = Pattern
-			.compile("<(script|object|style)[^>]*>[^<]*</(script|object|style)>", Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeScriptObjectStylePattern =
+			Pattern.compile("<(script|object|style)[^>]*>[^<]*</(script|object|style)>", Pattern.CASE_INSENSITIVE);
 
 	public static final String replaceConsecutiveSpaces(String source, String replace) {
 		if (isEmpty(source))
@@ -180,9 +173,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	/**
-	 * 
-	 * @param text
-	 *            the text to encode
+	 * @param text the text to encode
 	 * @return a base64 encoded string
 	 * @throws UnsupportedEncodingException
 	 */
@@ -193,9 +184,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	/**
-	 * 
-	 * @param base64String
-	 *            the base64 string to decode
+	 * @param base64String the base64 string to decode
 	 * @return a decoded string
 	 */
 	public final static String base64decode(String base64String) {
@@ -354,7 +343,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		StringBuilder sbStart = new StringBuilder(frags[0]);
 		StringBuilder sbEnd = new StringBuilder(frags[frags.length - 1]);
 		int length = sbStart.length() + sbEnd.length();
-		for (;;) {
+		for (; ; ) {
 			boolean bHandled = false;
 			if (startPos != -1 && startPos < endPos) {
 				if (frags[startPos].length() + length < maxSize) {
@@ -382,7 +371,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			FileWriter fw = new FileWriter(new File(args[1]));
 			PrintWriter pw = new PrintWriter(fw);
 			for (String line : lines)
-				pw.println(StringEscapeUtils.unescapeHtml(line));
+				pw.println(StringEscapeUtils.unescapeHtml4(line));
 			pw.close();
 			fw.close();
 		}

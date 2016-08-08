@@ -1,38 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.snippet;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.lucene.search.Query;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.CompiledAnalyzer;
@@ -40,21 +30,26 @@ import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
-import com.jaeksoft.searchlib.schema.AbstractField;
-import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
-import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.schema.*;
 import com.jaeksoft.searchlib.snippet.SnippetVectors.SnippetVector;
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.lucene.search.Query;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class SnippetField extends AbstractField<SnippetField> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1989504404725110730L;
 
@@ -71,8 +66,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	private transient CompiledAnalyzer queryAnalyzer;
 	private transient CompiledAnalyzer indexAnalyzer;
 
-	private SnippetField(String fieldName, String tag, String separator,
-			int maxSnippetSize, int maxSnippetNumber,
+	private SnippetField(String fieldName, String tag, String separator, int maxSnippetSize, int maxSnippetNumber,
 			FragmenterAbstract fragmenterTemplate, int timeLimit) {
 		super(fieldName);
 		this.snippetQueries = null;
@@ -90,8 +84,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 	@Override
 	public SnippetField duplicate() {
-		return new SnippetField(name, tag, separator, maxSnippetSize,
-				maxSnippetNumber, fragmenterTemplate, timeLimit);
+		return new SnippetField(name, tag, separator, maxSnippetSize, maxSnippetNumber, fragmenterTemplate, timeLimit);
 	}
 
 	public String getFragmenter() {
@@ -116,8 +109,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	/**
-	 * @param tag
-	 *            the tag to set
+	 * @param tag the tag to set
 	 */
 	public void setTag(String tag) {
 		this.tag = tag == null ? null : tag.intern();
@@ -137,13 +129,11 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	/**
-	 * @param separator
-	 *            the separator to set
+	 * @param separator the separator to set
 	 */
 	public void setSeparator(String separator) {
 		this.separator = separator == null ? null : separator.intern();
-		unescapedSeparator = separator == null ? null : StringEscapeUtils
-				.unescapeHtml(separator).intern();
+		unescapedSeparator = separator == null ? null : StringEscapeUtils.unescapeHtml4(separator).intern();
 	}
 
 	/**
@@ -154,8 +144,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	/**
-	 * @param maxSnippetSize
-	 *            the maxSnippetSize to set
+	 * @param maxSnippetSize the maxSnippetSize to set
 	 */
 	public void setMaxSnippetSize(int maxSnippetSize) {
 		this.maxSnippetSize = maxSnippetSize;
@@ -169,8 +158,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	/**
-	 * @param maxSnippetNumber
-	 *            the maxSnippetNumber to set
+	 * @param maxSnippetNumber the maxSnippetNumber to set
 	 */
 	public void setMaxSnippetNumber(int maxSnippetNumber) {
 		this.maxSnippetNumber = maxSnippetNumber;
@@ -178,33 +166,29 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 	/**
 	 * Retourne la liste des champs "snippet".
-	 * 
-	 * @param xPath
+	 *
 	 * @param node
+	 * @param source
 	 * @param target
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 */
-	public static void copySnippetFields(Node node, SchemaFieldList source,
-			SnippetFieldList target) throws InstantiationException,
-			IllegalAccessException {
+	public static void copySnippetFields(Node node, SchemaFieldList source, SnippetFieldList target)
+			throws InstantiationException, IllegalAccessException {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		String tag = XPathParser.getAttributeString(node, "tag");
 		if (tag == null)
 			tag = "em";
-		int maxSnippetNumber = XPathParser.getAttributeValue(node,
-				"maxSnippetNumber");
+		int maxSnippetNumber = XPathParser.getAttributeValue(node, "maxSnippetNumber");
 		if (maxSnippetNumber == 0)
 			maxSnippetNumber = 1;
-		int maxSnippetSize = XPathParser.getAttributeValue(node,
-				"maxSnippetSize");
+		int maxSnippetSize = XPathParser.getAttributeValue(node, "maxSnippetSize");
 		if (maxSnippetSize == 0)
 			maxSnippetSize = 200;
 		int timeLimit = DomUtils.getAttributeInteger(node, "timeLimit", 0);
 
-		FragmenterAbstract fragmenter = FragmenterAbstract
-				.newInstance(XPathParser.getAttributeString(node,
-						"fragmenterClass"));
+		FragmenterAbstract fragmenter =
+				FragmenterAbstract.newInstance(XPathParser.getAttributeString(node, "fragmenterClass"));
 		fragmenter.setAttributes(node.getAttributes());
 		String separator = XPathParser.getAttributeString(node, "separator");
 		if (separator == null)
@@ -212,9 +196,9 @@ public class SnippetField extends AbstractField<SnippetField> {
 		SchemaField schemaField = source.get(fieldName);
 		if (schemaField == null)
 			return;
-		SnippetField field = new SnippetField(schemaField.getName(), tag,
-				separator, maxSnippetSize, maxSnippetNumber, fragmenter,
-				timeLimit);
+		SnippetField field =
+				new SnippetField(schemaField.getName(), tag, separator, maxSnippetSize, maxSnippetNumber, fragmenter,
+						timeLimit);
 		target.put(field);
 	}
 
@@ -231,17 +215,16 @@ public class SnippetField extends AbstractField<SnippetField> {
 			if (snippetQueries != null)
 				return;
 			this.query = searchRequest.getSnippetQuery();
-			this.queryAnalyzer = searchRequest.getAnalyzer()
-					.getCompiledAnalyzer(name);
-			this.indexAnalyzer = searchRequest.getConfig().getSchema()
+			this.queryAnalyzer = searchRequest.getAnalyzer().getCompiledAnalyzer(name);
+			this.indexAnalyzer = searchRequest.getConfig()
+					.getSchema()
 					.getIndexPerFieldAnalyzer(searchRequest.getLang())
 					.getCompiledAnalyzer(name);
 			snippetQueries = new SnippetQueries(this.query, name);
 		}
 	}
 
-	private final void appendSubString(String text, int start, int end,
-			StringBuilder sb) {
+	private final void appendSubString(String text, int start, int end, StringBuilder sb) {
 		if (text == null)
 			return;
 		int l = text.length();
@@ -252,9 +235,8 @@ public class SnippetField extends AbstractField<SnippetField> {
 		sb.append(text.substring(start, end));
 	}
 
-	private final SnippetVector checkValue(SnippetVector currentVector,
-			Iterator<SnippetVector> vectorIterator, int startOffset,
-			Fragment fragment) {
+	private final SnippetVector checkValue(SnippetVector currentVector, Iterator<SnippetVector> vectorIterator,
+			int startOffset, Fragment fragment) {
 		if (currentVector == null)
 			return null;
 		StringBuilder result = new StringBuilder();
@@ -271,14 +253,12 @@ public class SnippetField extends AbstractField<SnippetField> {
 				appendSubString(originalText, pos, start - startOffset, result);
 				if (tags != null)
 					result.append(tags[0]);
-				appendSubString(originalText, start - startOffset, end
-						- startOffset, result);
+				appendSubString(originalText, start - startOffset, end - startOffset, result);
 				if (tags != null)
 					result.append(tags[1]);
 				pos = end - startOffset;
 			}
-			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
-					: null;
+			currentVector = vectorIterator.hasNext() ? vectorIterator.next() : null;
 		}
 		if (result.length() == 0)
 			return currentVector;
@@ -288,8 +268,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		return currentVector;
 	}
 
-	public boolean getSnippets(final int docId, final ReaderInterface reader,
-			final List<FieldValueItem> values,
+	public boolean getSnippets(final int docId, final ReaderInterface reader, final List<FieldValueItem> values,
 			final List<FieldValueItem> snippets, final Timer parentTimer)
 			throws IOException, ParseException, SyntaxError, SearchLibException {
 
@@ -297,22 +276,19 @@ public class SnippetField extends AbstractField<SnippetField> {
 			return false;
 
 		final Timer timer = new Timer(parentTimer, "SnippetField " + this.name);
-		final long halfTimeExpiration = this.timeLimit == 0 ? 0 : timer
-				.getStartOffset(this.timeLimit / 2);
-		final long expiration = this.timeLimit == 0 ? 0 : timer
-				.getStartOffset(this.timeLimit);
+		final long halfTimeExpiration = this.timeLimit == 0 ? 0 : timer.getStartOffset(this.timeLimit / 2);
+		final long expiration = this.timeLimit == 0 ? 0 : timer.getStartOffset(this.timeLimit);
 
 		FragmenterAbstract fragmenter = fragmenterTemplate.newInstance();
 		SnippetVector currentVector = null;
 
 		Timer t = new Timer(timer, "extractTermVectorIterator");
 
-		Iterator<SnippetVector> vectorIterator = SnippetVectors
-				.extractTermVectorIterator(docId, reader, snippetQueries, name,
-						values, indexAnalyzer, t, halfTimeExpiration);
+		Iterator<SnippetVector> vectorIterator =
+				SnippetVectors.extractTermVectorIterator(docId, reader, snippetQueries, name, values, indexAnalyzer, t,
+						halfTimeExpiration);
 		if (vectorIterator != null)
-			currentVector = vectorIterator.hasNext() ? vectorIterator.next()
-					: null;
+			currentVector = vectorIterator.hasNext() ? vectorIterator.next() : null;
 
 		t.end(null);
 
@@ -341,8 +317,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 		Fragment fragment = fragments.first();
 		while (fragment != null) {
-			currentVector = checkValue(currentVector, vectorIterator,
-					startOffset, fragment);
+			currentVector = checkValue(currentVector, vectorIterator, startOffset, fragment);
 			startOffset += fragment.getOriginalText().length();
 			fragment = fragment.next();
 		}
@@ -368,8 +343,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 				if (sc > maxSearchScore)
 					maxSearchScore = sc;
 				scoreFragments.add(fragment);
-				fragment = Fragment
-						.findNextHighlightedFragment(fragment.next());
+				fragment = Fragment.findNextHighlightedFragment(fragment.next());
 				scoredFragment++;
 				if (expiration != 0) {
 					if (System.currentTimeMillis() > expiration) {
@@ -382,17 +356,13 @@ public class SnippetField extends AbstractField<SnippetField> {
 			t.end("fragmentScore " + scoredFragment + " " + expired);
 
 			for (Fragment frag : scoreFragments)
-				bestScoreFragment = Fragment.bestScore(bestScoreFragment, frag,
-						maxSearchScore, maxSnippetSize);
+				bestScoreFragment = Fragment.bestScore(bestScoreFragment, frag, maxSearchScore, maxSnippetSize);
 
 			if (bestScoreFragment != null) {
-				SnippetBuilder snippetBuilder = new SnippetBuilder(
-						maxSnippetSize, unescapedSeparator, tags,
-						bestScoreFragment);
+				SnippetBuilder snippetBuilder =
+						new SnippetBuilder(maxSnippetSize, unescapedSeparator, tags, bestScoreFragment);
 				if (snippetBuilder.length() > 0)
-					snippets.add(new FieldValueItem(
-							FieldValueOriginEnum.SNIPPET, snippetBuilder
-									.toString()));
+					snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET, snippetBuilder.toString()));
 				fragments.remove(snippetBuilder.getFragments());
 				result = true;
 				continue;
@@ -400,11 +370,10 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 			if (fragments.first() == null)
 				break;
-			SnippetBuilder snippetBuilder = new SnippetBuilder(maxSnippetSize,
-					unescapedSeparator, tags, fragments.first());
+			SnippetBuilder snippetBuilder =
+					new SnippetBuilder(maxSnippetSize, unescapedSeparator, tags, fragments.first());
 			if (snippetBuilder.length() > 0) {
-				snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET,
-						snippetBuilder.toString()));
+				snippets.add(new FieldValueItem(FieldValueOriginEnum.SNIPPET, snippetBuilder.toString()));
 				fragments.remove(snippetBuilder.getFragments());
 			}
 		}
@@ -418,13 +387,10 @@ public class SnippetField extends AbstractField<SnippetField> {
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("field", "name", name, "tag", tag, "separator",
-				separator, "maxSnippetSize", Integer.toString(maxSnippetSize),
-				"maxSnippetNumber", Integer.toString(maxSnippetNumber),
-				"fragmenterClass",
-				fragmenterTemplate != null ? fragmenterTemplate.getClass()
-						.getSimpleName() : null, "timeLimit", Long
-						.toString(timeLimit));
+		xmlWriter.startElement("field", "name", name, "tag", tag, "separator", separator, "maxSnippetSize",
+				Integer.toString(maxSnippetSize), "maxSnippetNumber", Integer.toString(maxSnippetNumber),
+				"fragmenterClass", fragmenterTemplate != null ? fragmenterTemplate.getClass().getSimpleName() : null,
+				"timeLimit", Long.toString(timeLimit));
 		xmlWriter.endElement();
 	}
 
@@ -433,8 +399,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 		int c = super.compareTo(f);
 		if (c != 0)
 			return c;
-		if ((c = fragmenterTemplate.getClass().getName()
-				.compareTo(f.fragmenterTemplate.getClass().getName())) != 0)
+		if ((c = fragmenterTemplate.getClass().getName().compareTo(f.fragmenterTemplate.getClass().getName())) != 0)
 			return c;
 		if ((c = tag.compareTo(f.tag)) != 0)
 			return c;
@@ -455,8 +420,7 @@ public class SnippetField extends AbstractField<SnippetField> {
 	}
 
 	/**
-	 * @param timeLimit
-	 *            the timeLimit to set
+	 * @param timeLimit the timeLimit to set
 	 */
 	public void setTimeLimit(int timeLimit) {
 		this.timeLimit = timeLimit;

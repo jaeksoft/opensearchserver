@@ -27,7 +27,7 @@ package com.jaeksoft.searchlib.ocr;
 import java.awt.Rectangle;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 
