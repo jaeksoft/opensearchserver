@@ -1,7 +1,7 @@
 /**
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -36,6 +36,7 @@ import com.jaeksoft.searchlib.crawler.file.database.*;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.scheduler.TaskManager;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import org.apache.http.HttpException;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlF
 		super(config);
 		FilePropertyManager filePropertyManager = config.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config);
-		filePathList = new LinkedList<FilePathItem>();
+		filePathList = new LinkedList<>();
 		if (filePropertyManager.getCrawlEnabled().getValue()) {
 			Logging.info("The file crawler is starting for " + config.getIndexName());
 			start(false);
@@ -94,7 +95,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlF
 				if (filePathItem == null)
 					break;
 
-				CrawlFileThread crawlThread = new CrawlFileThread(config, this, currentStats, filePathItem);
+				CrawlFileThread crawlThread = new CrawlFileThread(config, this, currentStats, filePathItem, null);
 				add(crawlThread);
 
 				while (getThreadsCount() >= threadNumber && !isAborted())
@@ -122,17 +123,17 @@ public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlF
 		setStatus(CrawlStatus.NOT_RUNNING);
 	}
 
-	public void crawlDirectory(FilePathItem filePathItem, String path)
+	public void crawlDirectory(final FilePathItem filePathItem, final String path, final InfoCallback infoCallback)
 			throws SearchLibException, NoSuchAlgorithmException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, URISyntaxException, IOException, HttpException, InterruptedException {
-		Config config = getConfig();
-		FilePropertyManager propertyManager = config.getFilePropertyManager();
+		final Config config = getConfig();
+		final FilePropertyManager propertyManager = config.getFilePropertyManager();
 		fileCrawlQueue.setMaxBufferSize(propertyManager.getIndexDocumentBufferSize().getValue());
-		CrawlFileThread crawlThread = new CrawlFileThread(getConfig(), this, null, filePathItem);
+		final CrawlFileThread crawlThread = new CrawlFileThread(getConfig(), this, null, filePathItem, infoCallback);
 		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(filePathItem, null, path);
 		if (fileInstance.getFileType() != FileTypeEnum.directory)
 			return;
-		crawlThread.browse(fileInstance, false);
+		crawlThread.browse(fileInstance, 1);
 		fileCrawlQueue.index(true);
 	}
 

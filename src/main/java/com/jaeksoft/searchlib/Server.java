@@ -28,7 +28,7 @@ public class Server {
 		if (!baseDir.exists())
 			baseDir.mkdir();
 		tomcat = new Tomcat();
-		tomcat.noDefaultWebXmlPath();
+		tomcat.setHostname(arguments.address);
 		tomcat.setPort(arguments.httpPort == null ? 9090 : arguments.httpPort);
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
 		tomcat.getHost().setAppBase(baseDir.getAbsolutePath());
@@ -40,6 +40,7 @@ public class Server {
 	public static class Arguments {
 
 		private String extractDirectory = null;
+		private String address = null;
 		private Integer httpPort = null;
 		private String uriEncoding = null;
 		private boolean resetExtract = false;
@@ -61,6 +62,14 @@ public class Server {
 		}
 
 		@Option
+		@LongSwitch("address")
+		@ShortSwitch("a")
+		@SingleArgument
+		public void setAddress(String hostname) {
+			this.address = StringUtils.isEmpty(hostname) ? "localhost" : hostname;
+		}
+
+		@Option
 		@LongSwitch("uriEncoding")
 		@ShortSwitch("u")
 		@SingleArgument
@@ -77,7 +86,7 @@ public class Server {
 		}
 	}
 
-	private void start(boolean await) throws IOException, URISyntaxException {
+	private void start(final boolean await) throws IOException, URISyntaxException {
 		final File srcFile =
 				new File(Server.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 		if (!srcFile.exists())

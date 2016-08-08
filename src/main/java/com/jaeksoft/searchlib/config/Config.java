@@ -573,10 +573,11 @@ public abstract class Config implements ThreadFactory {
 		}
 	}
 
-	private void saveCfrXml(ReadWriteLock lock, File directory, String name, XmlWriter.Interface writer)
-			throws SearchLibException {
+	private void saveCfrXml(final ReadWriteLock lock, final File directory, String name,
+			final XmlWriter.Interface writer) throws SearchLibException {
 		try {
-			final ConfigFileRotation cfr = configFiles.get(directory, URLEncoder.encode(name, "UTF-8") + ".xml");
+			final ConfigFileRotation cfr =
+					configFiles.get(directory, StringUtils.appendIfMissing(URLEncoder.encode(name, "UTF-8"), ".xml"));
 			if (!replicationLock.rl.tryLock())
 				throw new SearchLibException("Replication in process");
 			try {
@@ -1086,8 +1087,8 @@ public abstract class Config implements ThreadFactory {
 		try {
 			if (statisticsList != null)
 				return statisticsList;
-			statisticsList = StatisticsList
-					.fromXmlConfig(xppConfig, xppConfig.getNode("/configuration/statistics"), getStatStorage());
+			statisticsList = StatisticsList.fromXmlConfig(xppConfig, xppConfig.getNode("/configuration/statistics"),
+					getStatStorage());
 			return statisticsList;
 		} catch (XPathExpressionException | DOMException | ReflectiveOperationException | IOException e) {
 			throw new SearchLibException(e);
