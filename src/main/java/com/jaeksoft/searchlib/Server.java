@@ -28,7 +28,7 @@ public class Server {
 		if (!baseDir.exists())
 			baseDir.mkdir();
 		tomcat = new Tomcat();
-		tomcat.setHostname(arguments.address);
+		tomcat.setHostname(StringUtils.isEmpty(arguments.address) ? "localhost" : arguments.address);
 		tomcat.setPort(arguments.httpPort == null ? 9090 : arguments.httpPort);
 		tomcat.setBaseDir(baseDir.getAbsolutePath());
 		tomcat.getHost().setAppBase(baseDir.getAbsolutePath());
