@@ -58,7 +58,7 @@ public class Server {
 		@ShortSwitch("p")
 		@SingleArgument
 		public void setHttpPort(String port) {
-			this.httpPort = StringUtils.isEmpty(port) ? null : Integer.parseInt(port);
+			this.httpPort = port;
 		}
 
 		@Option
@@ -66,7 +66,7 @@ public class Server {
 		@ShortSwitch("a")
 		@SingleArgument
 		public void setAddress(String hostname) {
-			this.address = StringUtils.isEmpty(hostname) ? "localhost" : hostname;
+			this.address = hostname;
 		}
 
 		@Option
