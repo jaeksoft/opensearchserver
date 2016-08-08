@@ -58,7 +58,7 @@ public class Server {
 		@ShortSwitch("p")
 		@SingleArgument
 		public void setHttpPort(String port) {
-			this.httpPort = port;
+			this.httpPort = port == null ? null : Integer.parseInt(port);
 		}
 
 		@Option
