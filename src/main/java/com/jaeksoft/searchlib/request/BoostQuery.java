@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BoostingQuery;
 import org.apache.lucene.search.Query;

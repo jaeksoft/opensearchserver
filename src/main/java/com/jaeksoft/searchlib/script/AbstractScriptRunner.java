@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.script;
 
 import java.io.Closeable;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;

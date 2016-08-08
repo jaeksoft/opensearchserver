@@ -31,7 +31,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.IOUtils;

@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.result.collector.docsethit;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.result.collector.AbstractBaseCollector;

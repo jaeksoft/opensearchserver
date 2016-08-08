@@ -54,7 +54,7 @@ import com.jaeksoft.searchlib.webservice.RestApplication;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import com.jaeksoft.searchlib.config.Config;
 import org.apache.lucene.search.Query;
 import org.xml.sax.SAXException;

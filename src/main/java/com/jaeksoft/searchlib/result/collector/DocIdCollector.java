@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.result.collector;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.roaringbitmap.RoaringBitmap;
 
 import it.unimi.dsi.fastutil.Swapper;
