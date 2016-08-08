@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.file.process;
@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
 import com.jaeksoft.searchlib.crawler.file.database.*;
 import com.jaeksoft.searchlib.crawler.file.spider.CrawlFile;
+import com.jaeksoft.searchlib.util.InfoCallback;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpException;
 
@@ -56,8 +57,8 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 	private long nextTimeTarget;
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster, CrawlStatistics sessionStats,
-			FilePathItem filePathItem) throws SearchLibException {
-		super(config, crawlMaster, null, null);
+			FilePathItem filePathItem, InfoCallback infoCallback) throws SearchLibException {
+		super(config, crawlMaster, null, infoCallback);
 		this.fileManager = config.getFileManager();
 		this.crawlMaster = (CrawlFileMaster) getThreadMaster();
 		this.crawlQueue = (FileCrawlQueue) crawlMaster.getCrawlQueue();
@@ -79,9 +80,10 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 		sleepMs(ms);
 	}
 
-	void browse(FileInstanceAbstract fileInstance, boolean recursive) throws SearchLibException, URISyntaxException,
-			NoSuchAlgorithmException, IOException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException, HttpException, InterruptedException {
+	void browse(final FileInstanceAbstract fileInstance, final Integer depth)
+			throws SearchLibException, URISyntaxException, NoSuchAlgorithmException, IOException,
+			InstantiationException, IllegalAccessException, ClassNotFoundException, HttpException,
+			InterruptedException {
 		if (isAborted() || crawlMaster.isAborted())
 			return;
 		if (fileInstance == null)
@@ -93,13 +95,13 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 			return;
 		switch (fileType) {
 		case directory:
-			if (!recursive)
+			if (depth != null && depth == 0)
 				break;
 			FileInstanceAbstract[] files = checkDirectory(fileInstance);
 			if (files == null)
 				break;
 			for (FileInstanceAbstract file : files)
-				browse(file, recursive);
+				browse(file, depth == null ? null : depth - 1);
 			break;
 		case file:
 			if (!checkFile(fileItem))
@@ -124,7 +126,7 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 
 		FileInstanceAbstract fileInstance = FileInstanceAbstract.create(filePathItem, null, filePathItem.getPath());
 
-		browse(fileInstance, true);
+		browse(fileInstance, null);
 
 		crawlQueue.index(!crawlMaster.isRunning());
 	}
@@ -189,8 +191,8 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 					smartDelete(crawlQueue, fileInfo);
 
 		// Remove existing files from the map
-		FileInstanceAbstract[] files = withSubDir ? fileInstance.listFilesAndDirectories()
-				: fileInstance.listFilesOnly();
+		FileInstanceAbstract[] files =
+				withSubDir ? fileInstance.listFilesAndDirectories() : fileInstance.listFilesOnly();
 		if (files != null)
 			for (FileInstanceAbstract file : files)
 				indexFileMap.remove(file.getURI().toASCIIString());
