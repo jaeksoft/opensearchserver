@@ -109,7 +109,7 @@ public class Server {
 			System.err.println("Tomcat could not be started.");
 		}
 		System.out.println("Loading WebApplication: " + webFile);
-		tomcat.addWebapp(tomcat.getHost(), StringUtils.EMPTY, webFile.getAbsolutePath());
+		tomcat.addWebapp(null, StringUtils.EMPTY, webFile.getAbsolutePath());
 
 		ThreadUtils.waitUntil(120, new StartStopListener.StartedWaitInterface());
 		if (await)
