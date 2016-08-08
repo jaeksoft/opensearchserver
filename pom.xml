@@ -673,6 +673,7 @@
                                 <includes>
                                     <include>org.apache.tomcat.embed:*</include>
                                     <include>commons-io:commons-io</include>
+                                    <include>org.apache.commons:commons-lang3</include>
                                     <incudes>com.github.jankroken:commandline</incudes>
                                 </includes>
                             </artifactSet>
