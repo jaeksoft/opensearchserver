@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jaeksoft</groupId>
@@ -31,13 +30,14 @@
         </developer>
     </developers>
 
-    <version>1.5.14-SNAPSHOT</version>
+    <version>1.5.14</version>
 
     <scm>
         <connection>scm:git:git@github.com:jaeksoft/opensearchserver.git</connection>
         <developerConnection>scm:git:git@github.com:jaeksoft/opensearchserver.git</developerConnection>
         <url>git@github.com:jaeksoft/opensearchserver.git</url>
-    </scm>
+      <tag>v1.5.14</tag>
+  </scm>
     <issueManagement>
         <url>https://github.com/jaeksoft/opensearchserver/issues</url>
     </issueManagement>
@@ -689,8 +689,7 @@
                                 </includes>
                             </artifactSet>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.jaeksoft.searchlib.Server</mainClass>
                                 </transformer>
                             </transformers>
