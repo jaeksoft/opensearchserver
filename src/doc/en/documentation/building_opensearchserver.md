@@ -21,11 +21,21 @@ git clone https://github.com/jaeksoft/opensearchserver.git
 cd opensearchserver
 ```
 
-### Use Maven to build the artifacts
+### Use Maven to build the jar, war, deb and rpm package
 ```shell
-mvn -Dgpg.skip=true package
+mvn -Dgpg.skip=true package clean package rpm:attached-rpm
 ```
 
-The artifacts are available in the target directory:
+### Use Ant to build the zip and tar.gz package
+The archive includes Apache Tomcat, as well as the start and stop scripts.
+
+```shell
+ant clean dist dist-src
+```
+
+The built zip and tar.gz archive are available here:
+
+dist/opensearchserver.tar.gz
+dist/opensearchserver.zip
 
 Alternatively, you can download [these packages at SourceForge](http://sourceforge.net/projects/opensearchserve/files/).
