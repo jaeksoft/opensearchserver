@@ -157,7 +157,7 @@ The search result has been returned.
                     {
                         "fieldName": "url",
                         "values": [
-                            "http://www.open-search-server.com/download/"
+                            "https://cloud.opensearchserver.com/opensearchserver#download"
                         ]
                     }
                 ],
