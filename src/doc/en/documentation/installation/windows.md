@@ -3,7 +3,7 @@
 ## Short Version
 
 - Make sure you have JAVA 6 or newer correctly installed
-- Download the latest stable build [zip](http://www.open-search-server.com/download/ "Download")
+- Download the latest stable build [zip](https://cloud.opensearchserver.com/opensearchserver#download "Download")
 - Deflate it and run **start.bat**, which you'll find within the OpenSearchServer folder
 - Open your favorite browser with the url [http://yourserver:9090](http://yourserver:9090) (your server being **localhost** if it's running on your local machine)
 - Enjoy discovering OpenSearchServer
@@ -22,7 +22,7 @@ In the latter two cases, you will be presented with a **Free Java Download** bu
 
 ### Downloading OpenSearchServer
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
+We recommend that you always get the latest version of OSS on [SourceForge](https://cloud.opensearchserver.com/opensearchserver#download "Download").
 
 Please download the **ZIP** package for Windows and unzip it on your disk.
 

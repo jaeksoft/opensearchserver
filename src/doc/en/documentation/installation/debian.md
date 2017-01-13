@@ -7,7 +7,7 @@ The Short Version should be sufficient ; if not use the More Detailed Version.
 ## Short version
 
 - Make sure you have a Java 7 Virtual Machine or newer correctly installed
-- Download the latest stable build [opensearchserver-X.X.X-bXXX.deb](http://www.open-search-server.com/download/  "Download")
+- Download the latest stable build [opensearchserver-X.X.X-bXXX.deb](https://cloud.opensearchserver.com/opensearchserver#download  "Download")
 - Install it with the following command: `dpkg -i opensearchserver-X.X.X-bXXX.deb`
 - Start the service using: `service opensearchserver start`
 - Open your favorite browser with the URL [http://yourserver:9090](http://yourserver:9090) (replace **yourserver** by **localhost** if it's running on your own machine)
@@ -36,7 +36,7 @@ To install OpenJDK just use your favorite package manager:
 
 ### Installing OpenSearchServer
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
+We recommend that you always get the latest version of OSS on [SourceForge](https://cloud.opensearchserver.com/opensearchserver#download "Download").
 
 Please download the **opensearchserver-X.X.X-bXXX.deb** package for Debian, then install it as in the example below:
 

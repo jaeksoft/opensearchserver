@@ -7,7 +7,7 @@ The Short Version should be sufficient ; if not use the More Detailed Version.
 ## Short version
 
 - Make sure you have a Java 6 Virtual Machine or newer correctly installed
-- Download the latest stable build [tar.gz](http://www.open-search-server.com/download/  "Download")
+- Download the latest stable build [tar.gz](https://cloud.opensearchserver.com/opensearchserver#download  "Download")
 - Deflate it and run start.sh, which you'll find within the OSS folder
 - Open your favorite browser with the URL [http://yourserver:9090](http://yourserver:9090) (replace **yourserver** by **localhost** if it's running on your own machine)
 - Enjoy discovering OpenSearchServer
@@ -41,7 +41,7 @@ To install OpenJDK just follow the instructions provided at [the openJDK site](
 
 ### Downloading OpenSearchServer
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
+We recommend that you always get the latest version of OSS on [SourceForge](https://cloud.opensearchserver.com/opensearchserver#download "Download").
 
 Please download the **tar.gz** package for Linux/BSD, then deflate it as in the example below:
 
