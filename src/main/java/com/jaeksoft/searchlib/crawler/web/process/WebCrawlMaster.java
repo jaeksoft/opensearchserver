@@ -34,9 +34,16 @@ import com.jaeksoft.searchlib.crawler.common.process.CrawlMasterAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlQueueAbstract;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatistics;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.web.database.*;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
+import com.jaeksoft.searchlib.crawler.web.database.NamedItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlCrawlQueue;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapCache;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
@@ -53,7 +60,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.LinkedHashSet;
 
 public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawlThread> {
 
@@ -186,17 +199,19 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 		HttpDownloader httpDownloader = null;
 		try {
 			httpDownloader = getNewHttpDownloader(true);
-			SiteMapList siteMapList = getConfig().getSiteMapList();
+			final SiteMapList siteMapList = getConfig().getSiteMapList();
+			final SiteMapCache siteMapCache = SiteMapCache.getInstance();
 			if (siteMapList != null && siteMapList.getArray() != null) {
 				setStatus(CrawlStatus.LOADING_SITEMAP);
-				UrlManager urlManager = getConfig().getUrlManager();
-				List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
+				final UrlManager urlManager = getConfig().getUrlManager();
+				final List<UrlItem> workInsertUrlList = new ArrayList<UrlItem>();
 				for (SiteMapItem siteMap : siteMapList.getArray()) {
-					Set<SiteMapUrl> siteMapUrlSet = siteMap.load(getNewHttpDownloader(true), null);
+					final LinkedHashSet<SiteMapUrl> siteMapUrlSet = new LinkedHashSet<>();
+					siteMap.fill(siteMapCache, getNewHttpDownloader(true), false, siteMapUrlSet);
 					for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
 
-						URI uri = siteMapUrl.getLoc();
-						String sUri = uri.toString();
+						final URI uri = siteMapUrl.getLoc();
+						final String sUri = uri.toString();
 						URL url;
 						try {
 							url = uri.toURL();
@@ -212,8 +227,8 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 								continue;
 
 						if (!urlManager.exists(sUri)) {
-							workInsertUrlList.add(urlManager
-									.getNewUrlItem(new LinkItem(sUri, LinkItem.Origin.sitemap, null, 0)));
+							workInsertUrlList.add(
+									urlManager.getNewUrlItem(new LinkItem(sUri, LinkItem.Origin.sitemap, null, 0)));
 						}
 					}
 				}

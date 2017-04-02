@@ -208,8 +208,8 @@ public class Client extends Config {
 				}
 				// Consecutive documents with same uniqueKey value are merged
 				// (multivalued)
-				if (uniqueField != null && lastDocument != null && uniqueValue != null && uniqueValue
-						.equals(lastUniqueValue)) {
+				if (uniqueField != null && lastDocument != null && uniqueValue != null && uniqueValue.equals(
+						lastUniqueValue)) {
 					lastDocument.addIfNotAlreadyHere(document);
 					continue;
 				}
@@ -290,6 +290,16 @@ public class Client extends Config {
 		} finally {
 			getStatisticsList().addDelete(timer);
 		}
+	}
+
+	public String getMergeStatus() {
+		if (!isOnline())
+			return "Unknown";
+		return isMerging() ? "Merging" : null;
+	}
+
+	public boolean isMerging() {
+		return getIndexAbstract().isMerging();
 	}
 
 	public void deleteAll() throws SearchLibException {
@@ -378,6 +388,10 @@ public class Client extends Config {
 
 	public void removeReplCheck() {
 		new File(this.getDirectory(), REPL_CHECK_FILENAME).delete();
+	}
+
+	public void mergeData(Client sourceClient) throws SearchLibException {
+		getIndexAbstract().mergeData(sourceClient.getIndexAbstract());
 	}
 
 }

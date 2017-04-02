@@ -40,6 +40,7 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -59,13 +60,7 @@ public class SiteMapList implements XmlWriter.Interface {
 		sitemapArray = null;
 		try {
 			load();
-		} catch (ParserConfigurationException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (XPathExpressionException e) {
+		} catch (ParserConfigurationException | SAXException | IOException | XPathExpressionException e) {
 			throw new SearchLibException(e);
 		}
 	}
@@ -180,17 +175,18 @@ public class SiteMapList implements XmlWriter.Interface {
 		}
 	}
 
-	public Set<SiteMapUrl> load(String hostname, HttpDownloader downloader, Set<SiteMapUrl> siteMapUrlSet)
-			throws SearchLibException {
+	public LinkedHashSet<SiteMapUrl> load(final SiteMapCache siteMapCache, final String hostname,
+			final HttpDownloader downloader, LinkedHashSet<SiteMapUrl> siteMapUrlSet)
+			throws SearchLibException, IOException, URISyntaxException {
 		rwl.r.lock();
 		try {
 			if (siteMapUrlSet == null)
-				siteMapUrlSet = new TreeSet<SiteMapUrl>();
-			Set<SiteMapItem> set = sitemapMap.get(hostname);
+				siteMapUrlSet = new LinkedHashSet<>();
+			final Set<SiteMapItem> set = sitemapMap.get(hostname);
 			if (set == null)
 				return siteMapUrlSet;
 			for (SiteMapItem item : set)
-				item.load(downloader, siteMapUrlSet);
+				item.fill(siteMapCache, downloader, false, siteMapUrlSet);
 			return siteMapUrlSet;
 		} finally {
 			rwl.r.unlock();

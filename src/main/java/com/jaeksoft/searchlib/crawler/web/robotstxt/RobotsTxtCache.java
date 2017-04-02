@@ -1,41 +1,32 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.crawler.web.GenericCache;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
@@ -43,45 +34,25 @@ import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.util.LinkUtils;
 
-public class RobotsTxtCache {
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
-	private Map<String, RobotsTxt> robotsTxtList;
+public class RobotsTxtCache extends GenericCache<String, RobotsTxt> {
 
 	private ParserSelector parserSelector;
 
 	public RobotsTxtCache() throws SearchLibException, ClassNotFoundException {
-		robotsTxtList = new TreeMap<String, RobotsTxt>();
 		parserSelector = new ParserSelector(null,
 				ParserFactory.create(null, "RobotsTxt parser", DisallowList.class.getCanonicalName()));
 	}
 
 	/**
-	 * Remove the expired robotsTxt items (relative to the t parameter)
-	 * 
-	 * @param t
-	 */
-	private void checkExpiration(long t) {
-		synchronized (robotsTxtList) {
-			Iterator<Entry<String, RobotsTxt>> it = robotsTxtList.entrySet().iterator();
-			ArrayList<String> keyToRemove = null;
-			while (it.hasNext()) {
-				Entry<String, RobotsTxt> e = it.next();
-				if (t > e.getValue().getExpirationTime()) {
-					if (keyToRemove == null)
-						keyToRemove = new ArrayList<String>();
-					keyToRemove.add(e.getKey());
-				}
-			}
-			if (keyToRemove != null)
-				for (String key : keyToRemove)
-					robotsTxtList.remove(key);
-		}
-	}
-
-	/**
 	 * Return the RobotsTxt object related to the URL.
-	 * 
-	 * @param userAgent
+	 *
+	 * @param httpDownloader
+	 * @param config
 	 * @param url
 	 * @param reloadRobotsTxt
 	 * @return
@@ -89,35 +60,23 @@ public class RobotsTxtCache {
 	 * @throws URISyntaxException
 	 * @throws IOException
 	 */
-	public RobotsTxt getRobotsTxt(HttpDownloader httpDownloader, Config config, URL url, boolean reloadRobotsTxt)
-			throws SearchLibException, URISyntaxException, IOException {
-		UrlItem urlItem = config.getUrlManager().getNewUrlItem(RobotsTxt.getRobotsUrl(url).toExternalForm());
-		String robotsKey = urlItem.getUrl();
-		synchronized (robotsTxtList) {
-			checkExpiration(System.currentTimeMillis());
-			if (reloadRobotsTxt)
-				robotsTxtList.remove(robotsKey);
-			RobotsTxt robotsTxt = robotsTxtList.get(robotsKey);
-			if (robotsTxt != null)
-				return robotsTxt;
-		}
-		Crawl crawl = new Crawl(null, urlItem, config, parserSelector);
-		crawl.download(httpDownloader);
-		synchronized (robotsTxtList) {
-			RobotsTxt robotsTxt = new RobotsTxt(crawl);
-			robotsTxtList.remove(robotsKey);
-			if (robotsTxt.isCacheable())
-				robotsTxtList.put(robotsKey, robotsTxt);
-			return robotsTxt;
-		}
+	public RobotsTxt getRobotsTxt(final HttpDownloader httpDownloader, final Config config, URL url,
+			boolean reloadRobotsTxt) throws SearchLibException, URISyntaxException, IOException {
+		final UrlItem urlItem = config.getUrlManager().getNewUrlItem(RobotsTxt.getRobotsUrl(url).toExternalForm());
+		final String robotsKey = urlItem.getUrl();
+
+		return getOrCreate(robotsKey, reloadRobotsTxt, new ItemSupplier<RobotsTxt>() {
+			@Override
+			public RobotsTxt get() throws IOException, SearchLibException {
+				Crawl crawl = new Crawl(null, urlItem, config, parserSelector);
+				crawl.download(httpDownloader);
+				return new RobotsTxt(crawl);
+			}
+		});
 	}
 
 	public RobotsTxt[] getRobotsTxtList() {
-		synchronized (robotsTxtList) {
-			RobotsTxt[] array = new RobotsTxt[robotsTxtList.size()];
-			robotsTxtList.values().toArray(array);
-			return array;
-		}
+		return getList();
 	}
 
 	private static String getRobotsUrlKey(String pattern) throws MalformedURLException, URISyntaxException {
@@ -130,8 +89,6 @@ public class RobotsTxtCache {
 	}
 
 	public RobotsTxt findRobotsTxt(String pattern) throws MalformedURLException, URISyntaxException {
-		synchronized (robotsTxtList) {
-			return robotsTxtList.get(getRobotsUrlKey(pattern));
-		}
+		return get(getRobotsUrlKey(pattern));
 	}
 }

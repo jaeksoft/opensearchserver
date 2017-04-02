@@ -1,48 +1,49 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
+
+import com.jaeksoft.searchlib.crawler.web.GenericCache;
+import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
+import com.jaeksoft.searchlib.util.LinkUtils;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
-import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
-import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
-import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
-import com.jaeksoft.searchlib.util.LinkUtils;
+public class RobotsTxt implements GenericCache.Expirable {
 
-public class RobotsTxt {
+	private final long crawlTime;
 
-	private long crawlTime;
+	private final long expirationTime;
 
-	private long expirationTime;
+	private final DisallowList disallowList;
 
-	private DisallowList disallowList;
-
-	private Crawl crawl;
+	private final Crawl crawl;
 
 	protected RobotsTxt(Crawl crawl) {
 		this.crawlTime = System.currentTimeMillis();
@@ -53,14 +54,13 @@ public class RobotsTxt {
 
 	/**
 	 * Construit l'URL d'accès au fichier robots.txt à partir d'une URL donnée
-	 * 
+	 *
 	 * @param url
 	 * @return
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
 	 */
-	protected static URL getRobotsUrl(URL url) throws MalformedURLException,
-			URISyntaxException {
+	protected static URL getRobotsUrl(URL url) throws MalformedURLException, URISyntaxException {
 		StringBuilder sb = new StringBuilder();
 		sb.append(url.getProtocol());
 		sb.append("://");
@@ -75,9 +75,9 @@ public class RobotsTxt {
 
 	/**
 	 * Return the status of the specified URL
-	 * 
-	 * @param url
+	 *
 	 * @param userAgent
+	 * @param urlItem
 	 * @return
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException
@@ -89,8 +89,7 @@ public class RobotsTxt {
 			return RobotsTxtStatus.ERROR;
 		URL url = urlItem.getURL();
 		if (url == null)
-			throw new MalformedURLException("Malformed URL: "
-					+ urlItem.getUrl());
+			throw new MalformedURLException("Malformed URL: " + urlItem.getUrl());
 		switch (code) {
 		case 400:
 		case 404:
@@ -115,10 +114,10 @@ public class RobotsTxt {
 	/**
 	 * Retourne la date d'expiration. Lorsque la date est expirée, le robots.txt
 	 * est à nouveau téléchargé.
-	 * 
+	 *
 	 * @return
 	 */
-	protected long getExpirationTime() {
+	public long getExpirationTime() {
 		return expirationTime;
 	}
 
@@ -147,6 +146,7 @@ public class RobotsTxt {
 		return urlItem.getHost();
 	}
 
+	@Override
 	public boolean isCacheable() {
 		if (crawl == null)
 			return false;

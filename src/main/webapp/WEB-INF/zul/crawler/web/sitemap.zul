@@ -1,6 +1,6 @@
 <!--
 	License Agreement for OpenSearchServer
-	Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
 	http://www.open-search-server.com
 	This file is part of OpenSearchServer.
 	OpenSearchServer is free software: you can
@@ -17,64 +17,64 @@
 	Contributor: Richard Sinelle
 -->
 <window apply="org.zkoss.bind.BindComposer"
-	viewModel="@id('siteMapCtrl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.SiteMapController')">
-	<listbox selectedItem="@bind(siteMapCtrl.selectedSiteMap)"
-		model="@load(siteMapCtrl.siteMapList.array)" mold="paging"
-		pageSize="20">
-		<listhead>
-			<listheader label="Site Map URL" align="left"
-				tooltiptext="The Site Map url">
-				<vlayout>
-					<textbox
-						value="@bind(siteMapCtrl.currentSiteMap.uri)" width="95%" />
-				</vlayout>
-			</listheader>
-			<listheader label="Action" hflex="min" align="center">
-				<vlayout>
-					<hbox visible="@load(siteMapCtrl.selected)">
-						<button label="Cancel"
-							onClick="@command('onCancel')" />
-						<space width="10px" />
-						<button label="Save"
-							onClick="@command('onSave')" />
-					</hbox>
-					<hbox visible="@load(siteMapCtrl.notSelected)">
-						<button label="Create"
-							onClick="@command('onSave')" />
-					</hbox>
-				</vlayout>
-			</listheader>
-		</listhead>
-		<template name="model" var="siteMapItem">
-			<listitem>
-				<listcell>
-					<a href="@load(siteMapItem.uri)" target="_blank">
-						<label value="@load(siteMapItem.uri)" />
-					</a>
-				</listcell>
-				<listcell>
-					<button tooltiptext="Load the Site Map URL"
-						label="Check"
-						onClick="@command('onCheck', siteMapItem=siteMapItem)" />
-					<space />
-					<button tooltiptext="Delete the Site Map URL"
-						label="Delete"
-						onClick="@command('onDelete', siteMapItem=siteMapItem)" />
-				</listcell>
-			</listitem>
-		</template>
-		<listfoot>
-			<listfooter>
-				<vbox width="100%" align="center">
-					<label>
-						Enter the URL of a SiteMap XML file. The crawler
-						will crawl the URLs includes in the SiteMap
-						file.
-					</label>
-					<a label="More information about SiteMap"
-						href="http://sitemaps.org" target="_blank" />
-				</vbox>
-			</listfooter>
-		</listfoot>
-	</listbox>
+        viewModel="@id('siteMapCtrl') @init('com.jaeksoft.searchlib.web.controller.crawler.web.SiteMapController')">
+    <listbox selectedItem="@bind(siteMapCtrl.selectedSiteMap)"
+             model="@load(siteMapCtrl.siteMapList.array)" mold="paging"
+             pageSize="20">
+        <listhead>
+            <listheader label="Site Map URL" align="left"
+                        tooltiptext="The Site Map url">
+                <vlayout>
+                    <textbox
+                            value="@bind(siteMapCtrl.currentSiteMap.uri)" width="95%"/>
+                </vlayout>
+            </listheader>
+            <listheader label="Action" hflex="min" align="center">
+                <vlayout>
+                    <hbox visible="@load(siteMapCtrl.selected)">
+                        <button label="Cancel"
+                                onClick="@command('onCancel')"/>
+                        <space width="10px"/>
+                        <button label="Save"
+                                onClick="@command('onSave')"/>
+                    </hbox>
+                    <hbox visible="@load(siteMapCtrl.notSelected)">
+                        <button label="Create"
+                                onClick="@command('onSave')"/>
+                    </hbox>
+                </vlayout>
+            </listheader>
+        </listhead>
+        <template name="model" var="siteMapItem">
+            <listitem>
+                <listcell>
+                    <a href="@load(siteMapItem.uri)" target="_blank">
+                        <label value="@load(siteMapItem.uri)"/>
+                    </a>
+                </listcell>
+                <listcell>
+                    <button tooltiptext="Load the Site Map URL"
+                            label="Check"
+                            onClick="@command('onCheck', siteMapItem=siteMapItem)"/>
+                    <space/>
+                    <button tooltiptext="Delete the Site Map URL"
+                            label="Delete"
+                            onClick="@command('onDelete', siteMapItem=siteMapItem)"/>
+                </listcell>
+            </listitem>
+        </template>
+        <listfoot>
+            <listfooter>
+                <vbox width="100%" align="center">
+                    <label>
+                        Enter the URL of a SiteMap XML file. The crawler
+                        will crawl the URLs includes in the SiteMap
+                        file.
+                    </label>
+                    <a label="More information about SiteMap"
+                       href="http://sitemaps.org" target="_blank"/>
+                </vbox>
+            </listfooter>
+        </listfoot>
+    </listbox>
 </window>

@@ -1,42 +1,27 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.xml.transform.TransformerConfigurationException;
-
-import org.xml.sax.SAXException;
-import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -54,6 +39,19 @@ import com.jaeksoft.searchlib.scheduler.task.TaskUrlManagerAction;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
+import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zul.Filedownload;
+
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @AfterCompose(superclass = true)
 public class UrlController extends CommonController {
@@ -84,7 +82,7 @@ public class UrlController extends CommonController {
 
 		private final String label;
 
-		private BatchCommandEnum(String label) {
+		BatchCommandEnum(String label) {
 			this.label = label;
 		}
 
@@ -419,18 +417,14 @@ public class UrlController extends CommonController {
 		}
 	}
 
-	private AbstractSearchRequest getSearchRequest(
-			SearchTemplate urlSearchTemplate) throws SearchLibException {
+	private AbstractSearchRequest getSearchRequest(SearchTemplate urlSearchTemplate) throws SearchLibException {
 		UrlManager urlManager = getUrlManager();
 		if (urlManager == null)
 			return null;
-		return urlManager.getSearchRequest(urlSearchTemplate, getLike(),
-				getHost(), isWithSubDomain(), getLang(), getLangMethod(),
-				getContentBaseType(), getContentTypeCharset(),
-				getContentEncoding(), getMinContentLength(),
-				getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(),
-				getResponseCode(), getParserStatus(), getIndexStatus(),
-				getEventDateStart(), getEventDateEnd(), getModifiedDateStart(),
+		return urlManager.getSearchRequest(urlSearchTemplate, getLike(), getHost(), isWithSubDomain(), getLang(),
+				getLangMethod(), getContentBaseType(), getContentTypeCharset(), getContentEncoding(),
+				getMinContentLength(), getMaxContentLength(), getRobotsTxtStatus(), getFetchStatus(), getResponseCode(),
+				getParserStatus(), getIndexStatus(), getEventDateStart(), getEventDateEnd(), getModifiedDateStart(),
 				getModifiedDateEnd());
 	}
 
@@ -441,8 +435,8 @@ public class UrlController extends CommonController {
 				return;
 			urlList = new ArrayList<UrlItem>();
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
-			totalSize = (int) urlManager.getUrlList(searchRequest,
-					getPageSize() * getActivePage(), getPageSize(), urlList);
+			totalSize =
+					(int) urlManager.getUrlList(searchRequest, getPageSize() * getActivePage(), getPageSize(), urlList);
 		}
 	}
 
@@ -485,16 +479,15 @@ public class UrlController extends CommonController {
 		}
 	}
 
-	public void onExportSiteMap() throws IOException, SearchLibException,
-			TransformerConfigurationException, SAXException {
+	public void onExportSiteMap()
+			throws IOException, SearchLibException, TransformerConfigurationException, SAXException {
 		synchronized (this) {
 			UrlManager urlManager = getUrlManager();
 			if (urlManager == null)
 				return;
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			File file = urlManager.exportSiteMap(searchRequest);
-			Filedownload.save(new FileInputStream(file),
-					"text/xml; charset-UTF-8", "OSS_SiteMap.xml");
+			Filedownload.save(new FileInputStream(file), "text/xml; charset-UTF-8", "OSS_SiteMap.xml");
 		}
 	}
 
@@ -506,8 +499,7 @@ public class UrlController extends CommonController {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			File file = urlManager.exportURLs(searchRequest);
 			try {
-				Filedownload.save(new FileInputStream(file),
-						"text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
+				Filedownload.save(new FileInputStream(file), "text/plain; charset-UTF-8", "OSS_URLs_Export.txt");
 			} finally {
 				file.delete();
 			}
@@ -522,16 +514,14 @@ public class UrlController extends CommonController {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			File file = urlManager.exportCrawlCache(searchRequest);
 			try {
-				Filedownload.save(new FileInputStream(file), "application/zip",
-						"OSS_Crawl_Export.zip");
+				Filedownload.save(new FileInputStream(file), "application/zip", "OSS_Crawl_Export.zip");
 			} finally {
 				file.delete();
 			}
 		}
 	}
 
-	private void onTask(TaskUrlManagerAction taskUrlManagerAction)
-			throws SearchLibException, InterruptedException {
+	private void onTask(TaskUrlManagerAction taskUrlManagerAction) throws SearchLibException, InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -540,27 +530,20 @@ public class UrlController extends CommonController {
 		client.getUrlManager().waitForTask(taskUrlManagerAction, 30);
 	}
 
-	public void onSetToUnfetched() throws SearchLibException,
-			InterruptedException {
+	public void onSetToUnfetched() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction
-					.setManual(searchRequest,
-							TaskUrlManagerAction.CommandSetToUnfetched,
-							getBufferSize());
+			taskUrlManagerAction.setManual(searchRequest, TaskUrlManagerAction.CommandSetToUnfetched, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
 
-	public void onSetToFetchFirst() throws SearchLibException,
-			InterruptedException {
+	public void onSetToFetchFirst() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlSearch);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(searchRequest,
-					TaskUrlManagerAction.CommandSetToFetchFirst,
-					getBufferSize());
+			taskUrlManagerAction.setManual(searchRequest, TaskUrlManagerAction.CommandSetToFetchFirst, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -568,8 +551,7 @@ public class UrlController extends CommonController {
 	public void onLoadSitemap() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(null,
-					TaskUrlManagerAction.CommandLoadSitemap, getBufferSize());
+			taskUrlManagerAction.setManual(null, TaskUrlManagerAction.CommandLoadSitemap, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -578,20 +560,16 @@ public class UrlController extends CommonController {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(searchRequest,
-					TaskUrlManagerAction.CommandDeleteSelection,
-					getBufferSize());
+			taskUrlManagerAction.setManual(searchRequest, TaskUrlManagerAction.CommandDeleteSelection, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
 
-	public void onSynchronizedIndex() throws SearchLibException,
-			InterruptedException {
+	public void onSynchronizedIndex() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			AbstractSearchRequest searchRequest = getSearchRequest(SearchTemplate.urlExport);
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(searchRequest,
-					TaskUrlManagerAction.CommandSynchronize, getBufferSize());
+			taskUrlManagerAction.setManual(searchRequest, TaskUrlManagerAction.CommandSynchronize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 
@@ -600,8 +578,7 @@ public class UrlController extends CommonController {
 	public void onOptimize() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(null,
-					TaskUrlManagerAction.CommandOptimize, getBufferSize());
+			taskUrlManagerAction.setManual(null, TaskUrlManagerAction.CommandOptimize, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -609,8 +586,7 @@ public class UrlController extends CommonController {
 	public void onDeleteAll() throws SearchLibException, InterruptedException {
 		synchronized (this) {
 			TaskUrlManagerAction taskUrlManagerAction = new TaskUrlManagerAction();
-			taskUrlManagerAction.setManual(null,
-					TaskUrlManagerAction.CommandDeleteAll, getBufferSize());
+			taskUrlManagerAction.setManual(null, TaskUrlManagerAction.CommandDeleteAll, getBufferSize());
 			onTask(taskUrlManagerAction);
 		}
 	}
@@ -628,8 +604,7 @@ public class UrlController extends CommonController {
 	}
 
 	@Command
-	public void onGo() throws SearchLibException, IOException,
-			TransformerConfigurationException, SAXException,
+	public void onGo() throws SearchLibException, IOException, TransformerConfigurationException, SAXException,
 			InterruptedException {
 		synchronized (this) {
 			Client client = getClient();

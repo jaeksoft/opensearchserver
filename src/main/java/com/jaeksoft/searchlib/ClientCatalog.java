@@ -124,8 +124,8 @@ public class ClientCatalog {
 			Client client = CLIENTS.get(indexDirectory);
 			if (client != null)
 				return client;
-			client = ClientFactory.INSTANCE
-					.newClient(indexDirectory, true, false, ClientFactory.INSTANCE.properties.getSilentBackupUrl());
+			client = ClientFactory.INSTANCE.newClient(indexDirectory, true, false,
+					ClientFactory.INSTANCE.properties.getSilentBackupUrl());
 			CLIENTS.put(indexDirectory, client);
 			return client;
 		} finally {
@@ -546,8 +546,8 @@ public class ClientCatalog {
 					if (!pathToMoveFile.delete())
 						throw new IOException("Unable to delete the file: " + pathToMoveFile.getAbsolutePath());
 				}
-				newClient = ClientFactory.INSTANCE
-						.newClient(clientDir, true, true, ClientFactory.INSTANCE.properties.getSilentBackupUrl());
+				newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true,
+						ClientFactory.INSTANCE.properties.getSilentBackupUrl());
 				newClient.writeReplCheck();
 			} finally {
 				unlockClients(clientDepends);
@@ -567,8 +567,8 @@ public class ClientCatalog {
 		try {
 			client.close();
 			new ReplicationMerge(tempDir, clientDir);
-			newClient = ClientFactory.INSTANCE
-					.newClient(clientDir, true, true, ClientFactory.INSTANCE.properties.getSilentBackupUrl());
+			newClient = ClientFactory.INSTANCE.newClient(clientDir, true, true,
+					ClientFactory.INSTANCE.properties.getSilentBackupUrl());
 			newClient.writeReplCheck();
 		} finally {
 			unlockClientDir(clientDir, newClient);

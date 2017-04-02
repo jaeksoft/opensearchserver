@@ -669,4 +669,25 @@ public class IndexSingle extends IndexAbstract {
 		}
 	}
 
+	@Override
+	public void mergeData(WriterInterface source) throws SearchLibException {
+		if (!(source instanceof IndexSingle))
+			throw new SearchLibException("Unsupported operation");
+		if (writer == null)
+			return;
+		final IndexSingle sourceIndex = (IndexSingle) source;
+		ReaderLocal reader = sourceIndex.acquire();
+		try {
+			writer.mergeData(sourceIndex.writer);
+			reloadNoLock();
+		} finally {
+			release(reader);
+		}
+	}
+
+	@Override
+	public boolean isMerging() {
+		return writer != null && writer.isMerging();
+	}
+
 }

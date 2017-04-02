@@ -1,10 +1,10 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ *
  * http://www.open-search-server.com
- * 
+ *
  * This file is part of OpenSearchServer.
  *
  * OpenSearchServer is free software: you can redistribute it and/or
@@ -18,33 +18,21 @@
  * GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
+ *  along with OpenSearchServer.
  *  If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.browser;
 
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
+import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
+import com.jaeksoft.searchlib.util.IOUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
@@ -64,15 +52,25 @@ import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
 import org.xml.sax.SAXException;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
-import com.jaeksoft.searchlib.crawler.web.spider.HtmlArchiver;
-import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
-import com.jaeksoft.searchlib.script.commands.Selectors.Selector;
-import com.jaeksoft.searchlib.util.IOUtils;
+import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
@@ -296,7 +294,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	/**
 	 * Click on the given WebElement using Actions
-	 * 
+	 *
 	 * @param element
 	 * @return
 	 */

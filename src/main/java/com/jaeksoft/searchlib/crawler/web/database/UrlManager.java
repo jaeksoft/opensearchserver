@@ -37,6 +37,7 @@ import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapCache;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
 import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapUrl;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
@@ -75,7 +76,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class UrlManager extends AbstractManager {
 
@@ -217,9 +225,8 @@ public class UrlManager extends AbstractManager {
 		searchRequest.setDefaultOperator("OR");
 		searchRequest.setRows(0);
 		if (maxDepth != null)
-			UrlItemFieldEnum.INSTANCE.depth
-					.addFilterRange(searchRequest, UrlItem.longFormat.zero, UrlItem.longFormat.format(maxDepth), false,
-							false);
+			UrlItemFieldEnum.INSTANCE.depth.addFilterRange(searchRequest, UrlItem.longFormat.zero,
+					UrlItem.longFormat.format(maxDepth), false, false);
 		searchRequest.getFacetFieldList().put(new FacetField("host", 1, false, false, null, null, null));
 		return searchRequest;
 	}
@@ -285,9 +292,8 @@ public class UrlManager extends AbstractManager {
 		try {
 			searchRequest.addFilter("host:\"" + QueryUtils.escapeQuery(host.getName()) + "\"", false);
 			if (maxDepth != null)
-				UrlItemFieldEnum.INSTANCE.depth
-						.addFilterRange(searchRequest, UrlItem.longFormat.zero, UrlItem.longFormat.format(maxDepth),
-								false, false);
+				UrlItemFieldEnum.INSTANCE.depth.addFilterRange(searchRequest, UrlItem.longFormat.zero,
+						UrlItem.longFormat.format(maxDepth), false, false);
 			searchRequest.setEmptyReturnsAll(true);
 			filterQueryToFetch(searchRequest, host.selection);
 		} catch (ParseException e) {
@@ -315,8 +321,8 @@ public class UrlManager extends AbstractManager {
 			UrlItemFieldEnum.INSTANCE.inlink.addQuery(sb, url, true);
 			sb.append(" OR");
 			UrlItemFieldEnum.INSTANCE.outlink.addQuery(sb, url, true);
-			UrlItemFieldEnum.INSTANCE.parserStatus
-					.addFilterQuery(searchRequest, ParserStatus.PARSED.value, false, false);
+			UrlItemFieldEnum.INSTANCE.parserStatus.addFilterQuery(searchRequest, ParserStatus.PARSED.value, false,
+					false);
 			searchRequest.setQueryString(sb.toString());
 			searchRequest.setRows(0);
 			AbstractResultSearch<?> result = (AbstractResultSearch<?>) dbClient.request(searchRequest);
@@ -349,46 +355,46 @@ public class UrlManager extends AbstractManager {
 				host = host.trim();
 				if (host.length() > 0)
 					if (includingSubDomain)
-						UrlItemFieldEnum.INSTANCE.subhost
-								.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host), false, false);
+						UrlItemFieldEnum.INSTANCE.subhost.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host),
+								false, false);
 					else
-						UrlItemFieldEnum.INSTANCE.host
-								.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host), false, false);
+						UrlItemFieldEnum.INSTANCE.host.addFilterQuery(searchRequest, QueryUtils.escapeQuery(host),
+								false, false);
 			}
 			if (lang != null) {
 				lang = lang.trim();
 				if (lang.length() > 0)
-					UrlItemFieldEnum.INSTANCE.lang
-							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(lang), false, false);
+					UrlItemFieldEnum.INSTANCE.lang.addFilterQuery(searchRequest, QueryUtils.escapeQuery(lang), false,
+							false);
 			}
 			if (langMethod != null) {
 				langMethod = langMethod.trim();
 				if (langMethod.length() > 0)
-					UrlItemFieldEnum.INSTANCE.langMethod
-							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(langMethod), true, false);
+					UrlItemFieldEnum.INSTANCE.langMethod.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(langMethod), true, false);
 			}
 			if (contentBaseType != null) {
 				contentBaseType = contentBaseType.trim();
 				if (contentBaseType.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentBaseType
-							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(contentBaseType), true, false);
+					UrlItemFieldEnum.INSTANCE.contentBaseType.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(contentBaseType), true, false);
 			}
 			if (contentTypeCharset != null) {
 				contentTypeCharset = contentTypeCharset.trim();
 				if (contentTypeCharset.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentTypeCharset
-							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(contentTypeCharset), false, false);
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(contentTypeCharset), false, false);
 			}
 			if (contentEncoding != null) {
 				contentEncoding = contentEncoding.trim();
 				if (contentEncoding.length() > 0)
-					UrlItemFieldEnum.INSTANCE.contentEncoding
-							.addFilterQuery(searchRequest, QueryUtils.escapeQuery(contentEncoding), true, false);
+					UrlItemFieldEnum.INSTANCE.contentEncoding.addFilterQuery(searchRequest,
+							QueryUtils.escapeQuery(contentEncoding), true, false);
 			}
 
 			if (robotsTxtStatus != null && robotsTxtStatus != RobotsTxtStatus.ALL)
-				UrlItemFieldEnum.INSTANCE.robotsTxtStatus
-						.addFilterQuery(searchRequest, robotsTxtStatus.value, false, false);
+				UrlItemFieldEnum.INSTANCE.robotsTxtStatus.addFilterQuery(searchRequest, robotsTxtStatus.value, false,
+						false);
 			if (responseCode != null)
 				UrlItemFieldEnum.INSTANCE.responseCode.addFilterQuery(searchRequest, responseCode, false, false);
 			if (fetchStatus != null && fetchStatus != FetchStatus.ALL)
@@ -791,16 +797,15 @@ public class UrlManager extends AbstractManager {
 			long existing = 0;
 			long setToFetchFirst = 0;
 			int everyTen = 0;
-			targetClient.getSiteMapList();
 			httpDownloader = targetClient.getWebCrawlMaster().getNewHttpDownloader(true);
-			Set<SiteMapUrl> siteMapUrlSet = new HashSet<SiteMapUrl>(0);
-			List<UrlItem> urlItemList = new ArrayList<UrlItem>(0);
+			final LinkedHashSet<SiteMapUrl> siteMapUrlSet = new LinkedHashSet<>(0);
+			final List<UrlItem> urlItemList = new ArrayList<>(0);
 			long now = System.currentTimeMillis();
 			for (SiteMapItem siteMapItem : targetClient.getSiteMapList().getArray()) {
 				taskLog.setInfo("Loading " + siteMapItem.getUri());
 				siteMapUrlSet.clear();
 				urlItemList.clear();
-				siteMapItem.load(httpDownloader, siteMapUrlSet);
+				siteMapItem.fill(SiteMapCache.getInstance(), httpDownloader, false, siteMapUrlSet);
 				for (SiteMapUrl siteMapUrl : siteMapUrlSet) {
 					UrlItem urlItem = getUrl(request, siteMapUrl.getLoc().toString());
 					if (urlItem == null) {
@@ -810,8 +815,8 @@ public class UrlManager extends AbstractManager {
 						existing++;
 						long timeDistanceMs = now - urlItem.getWhen().getTime();
 						FetchStatus fetchStatus = urlItem.getFetchStatus();
-						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED && siteMapUrl
-								.getChangeFreq().needUpdate(timeDistanceMs))) {
+						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED
+								&& siteMapUrl.getChangeFreq().needUpdate(timeDistanceMs))) {
 							if (fetchStatus != FetchStatus.FETCH_FIRST) {
 								urlItem.setFetchStatus(FetchStatus.FETCH_FIRST);
 								urlItemList.add(urlItem);

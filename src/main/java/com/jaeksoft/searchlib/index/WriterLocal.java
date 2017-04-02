@@ -1,46 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.index;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.SerialMergeScheduler;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Similarity;
-import org.apache.lucene.store.LockObtainFailedException;
-import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -60,6 +42,23 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.SerialMergeScheduler;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Similarity;
+import org.apache.lucene.store.LockObtainFailedException;
+import org.apache.lucene.util.Version;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
+import java.util.List;
 
 public class WriterLocal extends WriterAbstract {
 
@@ -224,8 +223,8 @@ public class WriterLocal extends WriterAbstract {
 			if (field == null)
 				continue;
 			Analyzer analyzer = schema.getAnalyzer(field, lang);
-			@SuppressWarnings("resource")
-			CompiledAnalyzer compiledAnalyzer = (analyzer == null) ? null : analyzer.getIndexAnalyzer();
+			@SuppressWarnings("resource") CompiledAnalyzer compiledAnalyzer =
+					(analyzer == null) ? null : analyzer.getIndexAnalyzer();
 			List<FieldValueItem> valueItems = fieldContent.getValues();
 			if (valueItems == null)
 				continue;
@@ -309,4 +308,35 @@ public class WriterLocal extends WriterAbstract {
 		throw new SearchLibException("WriterLocal.deleteDocument(request) is not implemented");
 	}
 
+	private void mergeNoLock(IndexDirectory directory) throws SearchLibException {
+		IndexWriter indexWriter = null;
+		try {
+			indexWriter = open();
+			indexWriter.addIndexes(directory.getDirectory());
+			close(indexWriter);
+			indexWriter = null;
+		} catch (IOException e) {
+			throw new SearchLibException(e);
+		} finally {
+			close(indexWriter);
+		}
+
+	}
+
+	@Override
+	public void mergeData(WriterInterface source) throws SearchLibException {
+		WriterLocal sourceWriter;
+		if (!(source instanceof WriterLocal))
+			throw new SearchLibException("Unsupported operation");
+		sourceWriter = (WriterLocal) source;
+		try {
+			sourceWriter.setMergingSource(true);
+			setMergingTarget(true);
+			mergeNoLock(sourceWriter.indexDirectory);
+		} finally {
+			if (sourceWriter != null)
+				sourceWriter.setMergingSource(false);
+			setMergingTarget(false);
+		}
+	}
 }
