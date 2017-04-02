@@ -26,7 +26,7 @@ Check whether your Java version is 6 or newer:
 
 ### Downloading OSS
 
-We recommend that you always get the latest version of OSS on [SourceForge](http://www.open-search-server.com/download/ "Download").
+We recommend that you always get the latest version of OSS on [SourceForge](https://cloud.opensearchserver.com/opensearchserver#download "Download").
 
 Please download the **tar.gz** or **zip** package, then deflate it as in the example below:
 
