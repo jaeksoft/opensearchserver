@@ -19,7 +19,6 @@ public class SchedulerDefinition {
 	private Config config;
 	private List<TaskItem> tasksList = new ArrayList<>();
 
-
 	SchedulerDefinition() {
 	}
 
@@ -30,18 +29,22 @@ public class SchedulerDefinition {
 		for (Map.Entry<String, Map<String, String>> item : tasks.entrySet()) {
 			taskAbstract = config.getJobTaskEnum().findClass(item.getKey());
 			taskItem = new TaskItem(this.config, taskAbstract);
-			for (Map.Entry<String, String> prop : item.getValue().entrySet()) {
-				taskItem.getProperties().setValue(taskAbstract.findPropertyByConfigName(prop.getKey()),
-						prop.getValue());
-			}
-			if (taskItem != null)
-				this.tasksList.add(new TaskItem(taskItem));
+			for (Map.Entry<String, String> prop : item.getValue().entrySet())
+				taskItem.getProperties()
+						.setValue(taskAbstract.findPropertyByConfigName(prop.getKey()), prop.getValue());
+			this.tasksList.add(new TaskItem(taskItem));
 		}
 	}
 
-	public void setConfig(Config conf) { this.config = conf; }
+	public void setConfig(Config conf) {
+		this.config = conf;
+	}
 
-	public Config getConfig() { return this.config; }
+	public Config getConfig() {
+		return this.config;
+	}
 
-	public List<TaskItem> getTasksList() { return this.tasksList; }
+	public List<TaskItem> getTasksList() {
+		return this.tasksList;
+	}
 }

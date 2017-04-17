@@ -33,9 +33,9 @@ All the information for the Scheduler creation in Json.
         "dayOfWeek": "*",
         "year": "2016"
       },
-      "active": "true",
+      "active": true,
       "mailRecipients": "git gud",
-      "emailNotification": "true",
+      "emailNotification": true,
       "tasks": {
         "TaskBuildAutocompletion": {
           "Buffer size": "1000",

@@ -23,9 +23,6 @@
  **/
 package com.jaeksoft.searchlib.webservice.scheduler;
 
-import java.io.IOException;
-import java.util.Map;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -36,6 +33,8 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
+import java.io.IOException;
+import java.util.Map;
 
 public class SchedulerImpl extends CommonServices implements RestScheduler, SoapScheduler {
 
@@ -52,11 +51,7 @@ public class SchedulerImpl extends CommonServices implements RestScheduler, Soap
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_SCHEDULER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return new SchedulerResult(getJobItem(client, name));
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -69,11 +64,7 @@ public class SchedulerImpl extends CommonServices implements RestScheduler, Soap
 			JobItem jobItem = getJobItem(client, name);
 			TaskManager.getInstance().executeJob(client, jobItem, variables == null ? null : new Variables(variables));
 			return new SchedulerResult(jobItem);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -88,19 +79,13 @@ public class SchedulerImpl extends CommonServices implements RestScheduler, Soap
 			JobItem item = createJobItem(client, parameters);
 			client.getJobList().add(item);
 			return new SchedulerResult(item);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (NullPointerException e) {
+		} catch (SearchLibException | InterruptedException | NullPointerException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
 
 	private JobItem createJobItem(Client client, SchedulerDefinition parameters) {
-			JobItem item = new JobItem(client, parameters);
-			return item;
+		JobItem item = new JobItem(client, parameters);
+		return item;
 	}
 }

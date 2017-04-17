@@ -1,41 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.scheduler;
-
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import com.jaeksoft.searchlib.webservice.scheduler.SchedulerDefinition;
-import org.apache.commons.mail.EmailException;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -47,6 +34,17 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.webservice.scheduler.SchedulerDefinition;
+import org.apache.commons.mail.EmailException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JobItem extends ExecutionAbstract {
 
@@ -75,7 +73,7 @@ public class JobItem extends ExecutionAbstract {
 	public JobItem(Config config, String name) {
 		this.config = config;
 		this.name = name;
-		tasks = new ArrayList<TaskItem>();
+		tasks = new ArrayList<>();
 		cron = new TaskCronExpression();
 		jobLog = new JobLog(200);
 		setLastError(null);
@@ -88,6 +86,7 @@ public class JobItem extends ExecutionAbstract {
 		this.cron = schedulerDef.cron;
 		jobLog = new JobLog(200);
 		setLastError(null);
+		setActive(schedulerDef.active);
 	}
 
 	public JobItem(JobItem src) {
@@ -130,7 +129,6 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * 
 	 * @return the task list
 	 */
 	public List<TaskItem> getTasks() {
@@ -144,7 +142,7 @@ public class JobItem extends ExecutionAbstract {
 
 	/**
 	 * Add a task to the list
-	 * 
+	 *
 	 * @param task
 	 */
 	public void taskAdd(TaskItem task) {
@@ -171,7 +169,7 @@ public class JobItem extends ExecutionAbstract {
 
 	/**
 	 * Move a task down
-	 * 
+	 *
 	 * @param task
 	 */
 	public void taskDown(TaskItem task) {
@@ -190,7 +188,7 @@ public class JobItem extends ExecutionAbstract {
 
 	/**
 	 * Remove the filter
-	 * 
+	 *
 	 * @param task
 	 */
 	public void taskRemove(TaskItem task) {
@@ -230,8 +228,7 @@ public class JobItem extends ExecutionAbstract {
 
 	public void run(Client client, Variables variables) {
 		if (!runningRequest()) {
-			Logging.warn("The job " + name + " is already running ("
-					+ client.getIndexName() + ")");
+			Logging.warn("The job " + name + " is already running (" + client.getIndexName() + ")");
 			return;
 		}
 		currentTaskLog = null;
@@ -257,8 +254,8 @@ public class JobItem extends ExecutionAbstract {
 						indexHasChanged = true;
 			}
 		} catch (Exception e) {
-			SearchLibException se = e instanceof SearchLibException ? (SearchLibException) e
-					: new SearchLibException(e);
+			SearchLibException se =
+					e instanceof SearchLibException ? (SearchLibException) e : new SearchLibException(e);
 			if (currentTaskLog != null)
 				currentTaskLog.setError(se);
 			setLastError(se);
@@ -283,8 +280,7 @@ public class JobItem extends ExecutionAbstract {
 			return;
 		Mailer email = null;
 		try {
-			email = new Mailer(false, getEmailRecipients(),
-					"OpenSearchServer Scheduler Error: " + getName());
+			email = new Mailer(false, getEmailRecipients(), "OpenSearchServer Scheduler Error: " + getName());
 			PrintWriter pw = email.getTextPrintWriter();
 			pw.println("The scheduler job has failed.");
 			pw.print("Index: ");
@@ -305,14 +301,12 @@ public class JobItem extends ExecutionAbstract {
 		}
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement("job", "name", name, "active",
-					isActive() ? "yes" : "no", "emailNotificationOnFailure",
-					emailNotificationOnFailure ? "yes" : "no",
-					"emailRecipients", emailRecipients);
+			xmlWriter.startElement("job", "name", name, "active", isActive() ? "yes" : "no",
+					"emailNotificationOnFailure", emailNotificationOnFailure ? "yes" : "no", "emailRecipients",
+					emailRecipients);
 			cron.writeXml(xmlWriter);
 			for (TaskItem task : tasks)
 				task.writeXml(xmlWriter);
@@ -322,17 +316,14 @@ public class JobItem extends ExecutionAbstract {
 		}
 	}
 
-	public static JobItem fromXml(Config config, XPathParser xpp, Node node)
-			throws XPathExpressionException {
+	public static JobItem fromXml(Config config, XPathParser xpp, Node node) throws XPathExpressionException {
 		String name = XPathParser.getAttributeString(node, "name");
-		boolean active = "yes".equalsIgnoreCase(XPathParser.getAttributeString(
-				node, "active"));
+		boolean active = "yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "active"));
 		if (name == null)
 			return null;
-		boolean emailNotificationOnFailure = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(node, "emailNotificationOnFailure"));
-		String emailRecipients = XPathParser.getAttributeString(node,
-				"emailRecipients");
+		boolean emailNotificationOnFailure =
+				"yes".equalsIgnoreCase(XPathParser.getAttributeString(node, "emailNotificationOnFailure"));
+		String emailRecipients = XPathParser.getAttributeString(node, "emailRecipients");
 		JobItem jobItem = new JobItem(config, name);
 		jobItem.setEmailNotificationOnFailure(emailNotificationOnFailure);
 		jobItem.setEmailRecipients(emailRecipients);
@@ -366,8 +357,7 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * @param lastError
-	 *            the lastError to set
+	 * @param lastError the lastError to set
 	 */
 	public void setLastError(SearchLibException lastError) {
 		rwl.w.lock();
@@ -391,7 +381,6 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * 
 	 * @return the job log
 	 */
 	public JobLog getJobLog() {
@@ -425,8 +414,7 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param name the name to set
 	 */
 	public void setName(String name) {
 		rwl.w.lock();
@@ -450,8 +438,7 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * @param emailNotificationOnFailure
-	 *            the emailNotificationOnFailure to set
+	 * @param emailNotificationOnFailure the emailNotificationOnFailure to set
 	 */
 	public void setEmailNotificationOnFailure(boolean emailNotificationOnFailure) {
 		rwl.w.lock();
@@ -475,8 +462,7 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * @param emailRecipients
-	 *            the emailRecipients to set
+	 * @param emailRecipients the emailRecipients to set
 	 */
 	public void setEmailRecipients(String emailRecipients) {
 		rwl.w.lock();
@@ -500,8 +486,7 @@ public class JobItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * @param currentTaskLog
-	 *            the currentTaskLog to set
+	 * @param currentTaskLog the currentTaskLog to set
 	 */
 	public void setCurrentTaskLog(TaskLog currentTaskLog) {
 		rwl.w.lock();
