@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.web.sitemap;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.GenericCache;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
@@ -105,6 +106,8 @@ public class SiteMapCache extends GenericCache<URI, SiteMapCache.Item> {
 					for (Node node : nodes)
 						siteMapUrlSet.add(new SiteMapUrl(node));
 			}
+		} catch (SearchLibException.WrongStatusCodeException e) {
+			Logging.warn("Error while loading the sitemap: " + uri, e);
 		} catch (IllegalStateException | IOException | ParserConfigurationException | URISyntaxException | CompressorException | SAXException e) {
 			throw new SearchLibException(e);
 		} finally {

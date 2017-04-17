@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.webservice.command;
 
@@ -57,6 +57,18 @@ public class CommandImpl extends CommonServices implements SoapCommand, RestComm
 			Client client = getClient(use, login, key);
 			client.deleteAll();
 			return new CommonResult(true, "truncate");
+		} catch (SearchLibException e) {
+			throw new WebServiceException(e);
+		}
+	}
+
+	@Override
+	public CommonResult merge(String use, String login, String key, String index) {
+		try {
+			Client client = getClient(use, login, key);
+			Client sourceClient = getLoggedClientAnyRole(index, login, key, Role.GROUP_INDEX);
+			client.mergeData(sourceClient);
+			return new CommonResult(true, "merge");
 		} catch (SearchLibException e) {
 			throw new WebServiceException(e);
 		}
@@ -167,4 +179,21 @@ public class CommandImpl extends CommonServices implements SoapCommand, RestComm
 		return RestApplication.getRestURL("/command/truncate/{index}/json", user, client);
 	}
 
+	@Override
+	public CommonResult mergeJSON(String use, String login, String key, String index) {
+		return merge(use, login, key, index);
+	}
+
+	@Override
+	public CommonResult mergeXML(String use, String login, String key, String index) {
+		return merge(use, login, key, index);
+	}
+
+	public static String getMergeXML(User user, Client client, String index) throws UnsupportedEncodingException {
+		return RestApplication.getRestURL("/command/merge/{index}/xml", user, client, "index", index);
+	}
+
+	public static String getMergeJSON(User user, Client client, String index) throws UnsupportedEncodingException {
+		return RestApplication.getRestURL("/command/merge/{index}/json", user, client, "index", index);
+	}
 }
