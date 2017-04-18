@@ -2,7 +2,7 @@
 <!--   
 	License Agreement for OpenSearchServer
 	
-	Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+	Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
 	
 	http://www.open-search-server.com
 	
@@ -111,10 +111,6 @@
             <fileset file="target/${productsrc}.war"/>
         </copy>
 
-        <copy tofile="${dist}/${productdest}.deb">
-            <fileset file="target/${productsrc}.deb"/>
-        </copy>
-
         <copy tofile="${dist}/${productdest}.war">
             <fileset file="target/${productsrc}.war"/>
         </copy>
@@ -170,6 +166,13 @@
         <!-- Clean the temporary product directory -->
         <delete dir="${dist}/${product}"/>
 
+    </target>
+
+    <!-- The Debian package -->
+    <target name="dist-deb">
+        <copy tofile="${dist}/${productdest}.deb">
+            <fileset file="target/${productsrc}.deb"/>
+        </copy>
     </target>
 
     <!-- The RPM -->

@@ -23,7 +23,7 @@ eval java $JAVA_OPTS -jar opensearchserver.jar \
         -extractDirectory server \
         -httpPort ${SERVER_PORT} \
         -uriEncoding UTF-8 \
-        >> "logs/oss.log" 2>&1 "&"
+        >> "logs/oss.log" 2>&1 &
 
 # Writing the PID
 echo $! > "logs/oss.pid"
