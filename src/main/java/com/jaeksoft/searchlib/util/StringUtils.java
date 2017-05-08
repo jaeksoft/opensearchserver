@@ -367,7 +367,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
 	public static void main(String args[]) throws IOException {
 		if (args != null && args.length == 2) {
-			List<String> lines = FileUtils.readLines(new File(args[0]));
+			List<String> lines = FileUtils.readLines(new File(args[0]), "UTF-8");
 			FileWriter fw = new FileWriter(new File(args[1]));
 			PrintWriter pw = new PrintWriter(fw);
 			for (String line : lines)

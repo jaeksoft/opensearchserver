@@ -23,20 +23,18 @@
  **/
 package com.jaeksoft.searchlib.test.legacy;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AutocompletionTest extends TestCase {
 	private CommonTestCase commomTestCase = null;
@@ -80,7 +78,7 @@ public class AutocompletionTest extends TestCase {
 		HttpPost httpPost = commomTestCase.queryInstance(namedValuePairs,
 				CommonTestCase.AUTOCOMPLETE_API, true);
 		InputStream response = commomTestCase.getResponse(httpPost);
-		String suggestions = IOUtils.toString(response);
+		String suggestions = IOUtils.toString(response, "UTF-8");
 		String suggests[] = suggestions.split("\n");
 		assertEquals(10, suggests.length);
 	}

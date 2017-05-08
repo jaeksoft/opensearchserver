@@ -27,20 +27,6 @@ package com.jaeksoft.searchlib.render;
  * @author naveen
  * 
  */
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.xml.sax.SAXException;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetCounter;
@@ -55,6 +41,18 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.snippet.SnippetField;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RenderOpenSearch implements Render {
 
@@ -76,7 +74,7 @@ public class RenderOpenSearch implements Render {
 
 	private String xmlTextRender(String text) {
 		controlMatcher.reset(text);
-		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
+		return StringEscapeUtils.escapeXml11(controlMatcher.replaceAll(""));
 	}
 
 	private void renderPrefix() throws ParseException, SyntaxError, SearchLibException, IOException {
@@ -93,16 +91,16 @@ public class RenderOpenSearch implements Render {
 		writer.println("<channel>");
 		writer.println("\t<title>");
 		writer.print("OpenSearchServer: ");
-		writer.print(StringEscapeUtils.escapeXml(searchRequest.getQueryString()));
+		writer.print(StringEscapeUtils.escapeXml11(searchRequest.getQueryString()));
 		writer.print("\t</title>");
 		writer.println("\t<description>");
 		writer.print("Search results for ");
 		writer.print("\"");
-		writer.print(StringEscapeUtils.escapeXml(searchRequest.getQueryString()));
+		writer.print(StringEscapeUtils.escapeXml11(searchRequest.getQueryString()));
 		writer.print("\"");
 		writer.print("\t</description>");
 		writer.println("\t<link>");
-		writer.print(StringEscapeUtils.escapeXml(serverURL));
+		writer.print(StringEscapeUtils.escapeXml11(serverURL));
 		writer.print("\t</link>");
 
 	}
@@ -169,16 +167,16 @@ public class RenderOpenSearch implements Render {
 
 				if (openSearchtitleField != null && openSearchtitleField.equalsIgnoreCase(fieldName)) {
 					writer.print("\t<title>");
-					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
+					writer.print(StringEscapeUtils.escapeXml11(v.getValue()));
 					writer.println("</title>");
 				} else if (openSearchDescriptionField != null
 						&& openSearchDescriptionField.equalsIgnoreCase(fieldName)) {
 					writer.print("\t<description>");
-					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
+					writer.print(StringEscapeUtils.escapeXml11(v.getValue()));
 					writer.println("</description>");
 				} else if (openSearchUrlField != null && openSearchUrlField.equalsIgnoreCase(fieldName)) {
 					writer.print("\t<link>");
-					writer.print(StringEscapeUtils.escapeXml(v.getValue()));
+					writer.print(StringEscapeUtils.escapeXml11(v.getValue()));
 					writer.println("</link>");
 				} else {
 					writer.print("\t\t<OpenSearchServer:");
@@ -214,15 +212,15 @@ public class RenderOpenSearch implements Render {
 
 			if (openSearchtitleField != null && openSearchtitleField.equalsIgnoreCase(fieldName)) {
 				writer.print("\t<title>");
-				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
+				writer.print(StringEscapeUtils.escapeXml11(snippet.getValue()));
 				writer.println("</title>");
 			} else if (openSearchDescriptionField != null && openSearchDescriptionField.equalsIgnoreCase(fieldName)) {
 				writer.print("\t<description>");
-				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
+				writer.print(StringEscapeUtils.escapeXml11(snippet.getValue()));
 				writer.println("</description>");
 			} else if (openSearchUrlField != null && openSearchUrlField.equalsIgnoreCase(fieldName)) {
 				writer.print("\t<link>");
-				writer.print(StringEscapeUtils.escapeXml(snippet.getValue()));
+				writer.print(StringEscapeUtils.escapeXml11(snippet.getValue()));
 				writer.println("</link>");
 			} else {
 				writer.print("\t\t<OpenSearchServer:");
@@ -244,11 +242,11 @@ public class RenderOpenSearch implements Render {
 		writer.println(">");
 		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			writer.print("\t\t<OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
+			writer.print(StringEscapeUtils.escapeXml11(facetItem.getKey()));
 			writer.print(">");
 			writer.print(facetItem.getValue().count);
 			writer.print("</OpenSearchServer:");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
+			writer.print(StringEscapeUtils.escapeXml11(facetItem.getKey()));
 			writer.print(">");
 		}
 		writer.print("</OpenSearchServer:");

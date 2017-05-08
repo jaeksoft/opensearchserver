@@ -23,10 +23,10 @@
 
 package com.jaeksoft.searchlib.util;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 
 public class Sequence {
 
@@ -44,7 +44,7 @@ public class Sequence {
 		this.file = file;
 		if (file.exists())
 			if (file.length() > 0)
-				counter = Long.parseLong(FileUtils.readFileToString(file),
+				counter = Long.parseLong(FileUtils.readFileToString(file, "UTF-8"),
 						radix);
 	}
 
@@ -53,7 +53,7 @@ public class Sequence {
 		try {
 			long next = counter + 1;
 			String txt = Long.toString(next, radix);
-			FileUtils.write(file, txt);
+			FileUtils.write(file, txt, "UTF-8");
 			counter = next;
 			return txt;
 		} finally {

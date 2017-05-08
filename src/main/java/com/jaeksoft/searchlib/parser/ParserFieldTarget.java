@@ -72,7 +72,7 @@ public class ParserFieldTarget extends TargetField {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		if (captureRegexp != null) {
 			xmlWriter.startElement("captureRegexp");
-			xmlWriter.textNode(StringEscapeUtils.escapeXml(captureRegexp));
+			xmlWriter.textNode(StringEscapeUtils.escapeXml11(captureRegexp));
 			xmlWriter.endElement();
 		}
 		if (removeTag) {

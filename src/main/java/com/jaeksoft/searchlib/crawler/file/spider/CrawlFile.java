@@ -1,33 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.file.spider;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -48,6 +43,11 @@ import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+
 public class CrawlFile {
 
 	private final FileInstanceAbstract fileInstance;
@@ -57,8 +57,7 @@ public class CrawlFile {
 	private final FieldMap fileFieldMap;
 	private final Config config;
 
-	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem,
-			Config config, CrawlStatistics currentStats)
+	public CrawlFile(FileInstanceAbstract fileInstance, FileItem fileItem, Config config, CrawlStatistics currentStats)
 			throws SearchLibException {
 		this.fileFieldMap = config.getFileCrawlerFieldMap();
 		this.fileInstance = fileInstance;
@@ -71,8 +70,7 @@ public class CrawlFile {
 
 	/**
 	 * Télécharge le fichier et extrait les informations
-	 * 
-	 * @param userAgent
+	 *
 	 */
 	public void download() {
 		synchronized (this) {
@@ -85,11 +83,10 @@ public class CrawlFile {
 
 				IndexDocument sourceDocument = fileItem.getIndexDocument();
 
-				parser = config.getParserSelector().parseFileInstance(
-						sourceDocument, fileItem.getFileName(), null, null,
-						fileInstance, null,
-						parserSelector.getFileCrawlerDefaultParser(),
-						parserSelector.getFileCrawlerFailOverParser());
+				parser = config.getParserSelector()
+						.parseFileInstance(sourceDocument, fileItem.getFileName(), null, null, fileInstance, null,
+								parserSelector.getFileCrawlerDefaultParser(),
+								parserSelector.getFileCrawlerFailOverParser());
 
 				if (parser == null)
 					fileItem.setParserStatus(ParserStatus.NOPARSER);
@@ -141,22 +138,18 @@ public class CrawlFile {
 		}
 
 		@Override
-		protected IndexDocument getCrawlItemIndexDocument()
-				throws UnsupportedEncodingException {
+		protected IndexDocument getCrawlItemIndexDocument() throws UnsupportedEncodingException {
 			return fileItem.getIndexDocument();
 		}
 
 		@Override
-		protected boolean checkPlugins(IndexDocument crawlItemIndexDocument,
-				IndexDocument targetIndexDocument) throws SearchLibException,
-				IOException {
-			IndexPluginList indexPluginList = config.getFileCrawlMaster()
-					.getIndexPluginList();
+		protected boolean checkPlugins(IndexDocument crawlItemIndexDocument, IndexDocument targetIndexDocument)
+				throws SearchLibException, IOException {
+			IndexPluginList indexPluginList = config.getFileCrawlMaster().getIndexPluginList();
 			if (indexPluginList == null)
 				return true;
 			StreamLimiter streamLimiter = parser.getStreamLimiter();
-			if (indexPluginList.run((Client) config, "octet/stream",
-					streamLimiter, targetIndexDocument))
+			if (indexPluginList.run((Client) config, "octet/stream", streamLimiter, targetIndexDocument))
 				return true;
 			fileItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
 			fileItem.populate(targetIndexDocument);
@@ -164,8 +157,7 @@ public class CrawlFile {
 		}
 	}
 
-	public FileIndexDocumentIterator getTargetIndexDocumentIterator()
-			throws SearchLibException, IOException {
+	public FileIndexDocumentIterator getTargetIndexDocumentIterator() throws SearchLibException, IOException {
 		synchronized (this) {
 			return new FileIndexDocumentIterator();
 		}

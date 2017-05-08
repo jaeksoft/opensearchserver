@@ -1,25 +1,25 @@
 /**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- *
+ * <p>
  * http://www.open-search-server.com
- *
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer.
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.browser;
@@ -240,9 +240,9 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	final public HtmlArchiver saveArchive(HttpDownloader httpDownloader, File parentDirectory,
 			Collection<Selector> selectors)
-					throws ClientProtocolException, IllegalStateException, IOException, SearchLibException,
-					URISyntaxException, SAXException, ParserConfigurationException, ClassCastException,
-					ClassNotFoundException, InstantiationException, IllegalAccessException, XPatherException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException,
+			SAXException, ParserConfigurationException, ClassCastException, ClassNotFoundException,
+			InstantiationException, IllegalAccessException, XPatherException {
 
 		URL currentURL = new URL(driver.getCurrentUrl());
 		StringReader reader = null;
@@ -288,7 +288,7 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 			captureDirectory.mkdir();
 		File sourceFile = new File(captureDirectory, "source.html");
 		switchToFrame(frameWebelement);
-		FileUtils.write(sourceFile, getSourceCode());
+		FileUtils.write(sourceFile, getSourceCode(), "UTF-8");
 		switchToMain();
 	}
 

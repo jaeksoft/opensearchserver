@@ -538,7 +538,7 @@ public class ClientCatalog {
 				getTempReceiveDir(client).renameTo(clientDir);
 				File pathToMoveFile = new File(clientDir, PATH_TO_MOVE);
 				if (pathToMoveFile.exists()) {
-					for (String pathToMove : FileUtils.readLines(pathToMoveFile)) {
+					for (String pathToMove : FileUtils.readLines(pathToMoveFile, "UTF-8")) {
 						File from = new File(trashDir, pathToMove);
 						File to = new File(clientDir, pathToMove);
 						FileUtils.moveFile(from, to);

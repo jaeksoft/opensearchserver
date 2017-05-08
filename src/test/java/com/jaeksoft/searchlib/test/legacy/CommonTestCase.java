@@ -1,54 +1,52 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.test.legacy;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
+import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.XPathParser;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.FileEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author Ayyathurai N Naveen
- * 
  */
 public class CommonTestCase {
 	public static String INDEX_NAME = "oss";
@@ -67,9 +65,8 @@ public class CommonTestCase {
 	public static String AUTOCOMPLETE_API = "autocompletion";
 	public static String FILE_CRAWLER_API = "filecrawler";
 
-	public HttpPost queryInstance(List<NameValuePair> namedValuePairs,
-			String apiPath, boolean use) throws IllegalStateException,
-			IOException {
+	public HttpPost queryInstance(List<NameValuePair> namedValuePairs, String apiPath, boolean use)
+			throws IllegalStateException, IOException {
 		HttpPost httpPost = null;
 		httpPost = new HttpPost(SERVER_URL + "/" + apiPath);
 		if (use)
@@ -81,34 +78,33 @@ public class CommonTestCase {
 	}
 
 	@SuppressWarnings("deprecation")
-	public int postFile(File file, String contentType, String api)
-			throws IllegalStateException, IOException {
-		String url = SERVER_URL + "/" + api + "?use=" + INDEX_NAME + "&login="
-				+ USER_NAME + "&key=" + API_KEY;
+	public int postFile(File file, String contentType, String api) throws IllegalStateException, IOException {
+		String url = SERVER_URL + "/" + api + "?use=" + INDEX_NAME + "&login=" + USER_NAME + "&key=" + API_KEY;
 		HttpPut put = new HttpPut(url);
 		put.setEntity(new FileEntity(file, contentType));
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		return httpClient.execute(put).getStatusLine().getStatusCode();
+		try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+			return httpClient.execute(put).getStatusLine().getStatusCode();
+		}
 	}
 
 	public String getHttpResponse(HttpPost httpPost, String xpath)
-			throws IllegalStateException, SAXException, IOException,
-			ParserConfigurationException, XPathExpressionException {
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpResponse httpResponse = httpClient.execute(httpPost);
-		XPathParser parser = new XPathParser(new InputSource(httpResponse
-				.getEntity().getContent()));
-		return parser.getNodeString(xpath);
+			throws IllegalStateException, SAXException, IOException, ParserConfigurationException,
+			XPathExpressionException {
+		try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+			HttpResponse httpResponse = httpClient.execute(httpPost);
+			XPathParser parser = new XPathParser(new InputSource(httpResponse.getEntity().getContent()));
+			return parser.getNodeString(xpath);
+		}
 
 	}
 
 	public InputStream getResponse(HttpPost httpPost)
-			throws IllegalStateException, SAXException, IOException,
-			ParserConfigurationException, XPathExpressionException {
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpResponse httpResponse = httpClient.execute(httpPost);
-		return httpResponse.getEntity().getContent();
-
+			throws IllegalStateException, SAXException, IOException, ParserConfigurationException,
+			XPathExpressionException {
+		try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
+			HttpResponse httpResponse = httpClient.execute(httpPost);
+			return httpResponse.getEntity().getContent();
+		}
 	}
 
 	protected BasicNameValuePair getNameValuePair(String key, String value) {

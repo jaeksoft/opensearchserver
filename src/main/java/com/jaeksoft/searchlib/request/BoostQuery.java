@@ -24,10 +24,10 @@
 
 package com.jaeksoft.searchlib.request;
 
-import java.util.List;
-
-import javax.xml.xpath.XPathExpressionException;
-
+import com.jaeksoft.searchlib.query.ParseException;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BoostingQuery;
@@ -36,10 +36,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.XPathParser;
-import com.jaeksoft.searchlib.util.XmlWriter;
+import javax.xml.xpath.XPathExpressionException;
+import java.util.List;
 
 public class BoostQuery {
 
@@ -83,7 +81,7 @@ public class BoostQuery {
 		writer.startElement(BOOSTQUERY_NODE, BOOSTQUERY_ATTR_BOOST,
 				Float.toString(boost));
 		if (query != null)
-			writer.textNode(StringEscapeUtils.escapeXml(query));
+			writer.textNode(StringEscapeUtils.escapeXml11(query));
 		writer.endElement();
 	}
 

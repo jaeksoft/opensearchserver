@@ -24,13 +24,12 @@
 
 package com.jaeksoft.searchlib.util;
 
+import org.apache.commons.net.util.SubnetUtils;
+import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-
-
-import org.apache.commons.net.util.SubnetUtils;
-import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 
 public class NetworksUtils {
 
@@ -63,7 +62,7 @@ public class NetworksUtils {
 
 	public static void main(String[] args) throws IOException {
 		for (SubnetInfo subnetInfo : getSubnetArray("78.235.189.98/32")) {
-			System.out.println(subnetInfo.getAddressCount());
+			System.out.println(subnetInfo.getAddressCountLong());
 			System.out.println(subnetInfo.isInRange("78.235.189.98"));
 		}
 	}

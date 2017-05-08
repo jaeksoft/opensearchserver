@@ -24,15 +24,14 @@
 
 package com.jaeksoft.searchlib.render;
 
-import java.util.List;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import com.jaeksoft.searchlib.request.SpellCheckRequest;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
 import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import java.util.List;
 
 public class RenderSpellCheckXml extends
 		AbstractRenderXml<SpellCheckRequest, ResultSpellCheck> {
@@ -48,14 +47,14 @@ public class RenderSpellCheckXml extends
 		writer.println("\">");
 		for (SpellCheckItem spellCheckItem : spellCheck) {
 			writer.print("\t\t\t<word name=\"");
-			writer.print(StringEscapeUtils.escapeXml(spellCheckItem.getWord()));
+			writer.print(StringEscapeUtils.escapeXml11(spellCheckItem.getWord()));
 			writer.println("\">");
 			for (SuggestionItem suggestionItem : spellCheckItem
 					.getSuggestions()) {
 				writer.print("\t\t\t\t<suggest freq=\"");
 				writer.print(suggestionItem.getFreq());
 				writer.print("\">");
-				writer.print(StringEscapeUtils.escapeXml(suggestionItem
+				writer.print(StringEscapeUtils.escapeXml11(suggestionItem
 						.getTerm()));
 				writer.println("</suggest>");
 			}

@@ -24,13 +24,13 @@
 
 package com.jaeksoft.searchlib.util;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class Debug {
 
@@ -87,7 +87,7 @@ public class Debug {
 		writer.print(elapsedTime);
 		writer.print("\" info=\"");
 		writer.print(StringEscapeUtils.escapeJava(StringEscapeUtils
-				.escapeXml(info)));
+				.escapeXml11(info)));
 		writer.print("\" hashCode=\"");
 		writer.print(hc);
 		writer.print("\" class=\"");

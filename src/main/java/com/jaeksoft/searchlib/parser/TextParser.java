@@ -24,9 +24,6 @@
 
 package com.jaeksoft.searchlib.parser;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -34,6 +31,9 @@ import com.jaeksoft.searchlib.analysis.ClassPropertyEnum;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.IOUtils;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
 
 public class TextParser extends Parser {
 
@@ -63,11 +63,11 @@ public class TextParser extends Parser {
 			bis = new BufferedInputStream(streamLimiter.getNewInputStream());
 			detector.setText(bis);
 			CharsetMatch match = detector.detect();
-			String content = null;
+			String content;
 			if (match != null)
 				content = match.getString();
 			else
-				content = IOUtils.toString(streamLimiter.getNewInputStream());
+				content = IOUtils.toString(streamLimiter.getNewInputStream(), "UTF-8");
 			ParserResultItem result = getNewParserResultItem();
 			result.addField(ParserFieldEnum.content, content);
 			result.langDetection(10000, ParserFieldEnum.content);

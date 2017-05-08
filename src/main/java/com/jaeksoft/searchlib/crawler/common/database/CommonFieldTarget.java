@@ -24,18 +24,17 @@
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommonFieldTarget extends TargetField {
 
@@ -122,12 +121,12 @@ public class CommonFieldTarget extends TargetField {
 				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no", "crawlUrl", crawlUrl ? "yes" : "no");
 		if (findRegexpTag != null) {
 			xmlWriter.startElement("findRegexpTag");
-			xmlWriter.textNode(StringEscapeUtils.escapeXml(findRegexpTag));
+			xmlWriter.textNode(StringEscapeUtils.escapeXml11(findRegexpTag));
 			xmlWriter.endElement();
 		}
 		if (replaceRegexpTag != null && replaceRegexpTag.length() > 0) {
 			xmlWriter.startElement("replaceRegexpTag");
-			xmlWriter.textNode(StringEscapeUtils.escapeXml(replaceRegexpTag));
+			xmlWriter.textNode(StringEscapeUtils.escapeXml11(replaceRegexpTag));
 			xmlWriter.endElement();
 		}
 		xmlWriter.endElement();

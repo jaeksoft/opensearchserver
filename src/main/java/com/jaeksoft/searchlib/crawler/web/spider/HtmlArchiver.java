@@ -1,29 +1,56 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
+import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSImportRule;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSProperty;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSRule;
+import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
+import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
+import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.conn.HttpHostConnectException;
+import org.htmlcleaner.ContentNode;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.XPatherException;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -40,35 +67,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.conn.HttpHostConnectException;
-import org.htmlcleaner.ContentNode;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPatherException;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
-import com.jaeksoft.searchlib.crawler.web.browser.BrowserDriver;
-import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSImportRule;
-import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSProperty;
-import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSRule;
-import com.jaeksoft.searchlib.crawler.web.spider.NaiveCSSParser.CSSStyleRule;
-import com.jaeksoft.searchlib.parser.htmlParser.HtmlCleanerParser;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
-import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker;
-import com.jaeksoft.searchlib.util.ThreadUtils.RecursiveTracker.RecursiveEntry;
-
 public class HtmlArchiver {
 
 	private final BrowserDriver<?> browserDriver;
@@ -82,8 +80,7 @@ public class HtmlArchiver {
 	private final RecursiveTracker recursiveSecurity;
 	private URL baseUrl;
 
-	public HtmlArchiver(BrowserDriver<?> browserDriver, File parentDir,
-			HttpDownloader httpDownloader, URL url) {
+	public HtmlArchiver(BrowserDriver<?> browserDriver, File parentDir, HttpDownloader httpDownloader, URL url) {
 		this.browserDriver = browserDriver;
 		filesDir = new File(parentDir, "files");
 		indexFile = new File(parentDir, "index.html");
@@ -97,8 +94,7 @@ public class HtmlArchiver {
 		recursiveSecurity = new RecursiveTracker(20);
 	}
 
-	final private static String buildFileName(String baseName,
-			String extension, Integer fileCount) {
+	final private static String buildFileName(String baseName, String extension, Integer fileCount) {
 		if (baseName.length() > 160)
 			baseName = baseName.substring(0, 160);
 		if (extension.length() > 32)
@@ -116,8 +112,7 @@ public class HtmlArchiver {
 	}
 
 	final private String getLocalPath(URL parentUrl, String fileName) {
-		if (parentUrl == null
-				|| urlFileMap.get(parentUrl.toExternalForm()) != null)
+		if (parentUrl == null || urlFileMap.get(parentUrl.toExternalForm()) != null)
 			return fileName;
 		StringBuilder sb = new StringBuilder("./");
 		sb.append(filesDir.getName());
@@ -138,8 +133,7 @@ public class HtmlArchiver {
 		return urlFileMap.get(url);
 	}
 
-	final public File getAndRegisterDestFile(String urlString, String baseName,
-			String extension) {
+	final public File getAndRegisterDestFile(String urlString, String baseName, String extension) {
 		String fileName = buildFileName(baseName, extension, null);
 		Integer fileCount = fileCountMap.get(fileName);
 		fileCount = fileCount == null ? new Integer(0) : fileCount + 1;
@@ -150,14 +144,11 @@ public class HtmlArchiver {
 		return new File(filesDir, fileName);
 	}
 
-	final private String downloadObject(URL parentUrl, String src,
-			String contentType) throws ClientProtocolException,
-			IllegalStateException, IOException, SearchLibException,
-			URISyntaxException {
+	final private String downloadObject(URL parentUrl, String src, String contentType)
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		RecursiveEntry recursiveEntry = recursiveSecurity.enter();
 		if (recursiveEntry == null) {
-			Logging.warn("Max recursion reached - " + recursiveSecurity
-					+ " src: " + src + " url: " + parentUrl);
+			Logging.warn("Max recursion reached - " + recursiveSecurity + " src: " + src + " url: " + parentUrl);
 			return src;
 		}
 		try {
@@ -193,8 +184,7 @@ public class HtmlArchiver {
 				extension = "js";
 			else if ("text/css".equalsIgnoreCase(contentType))
 				extension = "css";
-			else if ("application/x-shockwave-flash"
-					.equalsIgnoreCase(contentType))
+			else if ("application/x-shockwave-flash".equalsIgnoreCase(contentType))
 				extension = "swf";
 			else if ("image/png".equalsIgnoreCase(contentType))
 				extension = "png";
@@ -204,14 +194,13 @@ public class HtmlArchiver {
 				extension = "jpg";
 			else if ("image/jpg".equalsIgnoreCase(contentType))
 				extension = "jpg";
-			File destFile = getAndRegisterDestFile(urlString, baseName,
-					extension);
+			File destFile = getAndRegisterDestFile(urlString, baseName, extension);
 			if ("css".equals(extension)) {
 				String cssContent = downloadItem.getContentAsString();
 				StringBuffer sb = checkCSSContent(objectURL, cssContent);
 				if (sb != null && sb.length() > 0)
 					cssContent = sb.toString();
-				FileUtils.write(destFile, cssContent);
+				FileUtils.write(destFile, cssContent, "UTF-8");
 			} else
 				downloadItem.writeToFile(destFile);
 
@@ -231,8 +220,7 @@ public class HtmlArchiver {
 	}
 
 	final private boolean handleCssProperty(URL objectUrl, CSSProperty property)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		if (property == null)
 			return false;
 		String oldValue = property.getValue();
@@ -252,8 +240,7 @@ public class HtmlArchiver {
 	}
 
 	final private boolean handleCssStyle(URL objectUrl, CSSStyleRule rule)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		boolean change = false;
 		for (CSSProperty property : rule.getProperties()) {
 			if (handleCssProperty(objectUrl, property))
@@ -263,8 +250,7 @@ public class HtmlArchiver {
 	}
 
 	final private StringBuffer checkCSSContent(URL objectUrl, String css)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		StringWriter sw = null;
 		PrintWriter pw = null;
 
@@ -282,8 +268,7 @@ public class HtmlArchiver {
 					handleCssStyle(objectUrl, (CSSStyleRule) rule);
 				} else if (rule instanceof CSSImportRule) {
 					CSSImportRule importRule = (CSSImportRule) rule;
-					String newSrc = downloadObject(objectUrl,
-							importRule.getHref(), "text/css");
+					String newSrc = downloadObject(objectUrl, importRule.getHref(), "text/css");
 					importRule.setHref(newSrc);
 				}
 			}
@@ -298,16 +283,14 @@ public class HtmlArchiver {
 	}
 
 	final private void checkStyleCSS(TagNode node)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		if (!("style".equalsIgnoreCase(node.getName())))
 			return;
 		String attr = node.getAttributeByName("type");
 		if (!StringUtils.isEmpty(attr) && !"text/css".equalsIgnoreCase(attr))
 			return;
 		attr = node.getAttributeByName("media");
-		if (!StringUtils.isEmpty(attr) && !"screen".equalsIgnoreCase(attr)
-				&& !"all".equalsIgnoreCase(attr))
+		if (!StringUtils.isEmpty(attr) && !"screen".equalsIgnoreCase(attr) && !"all".equalsIgnoreCase(attr))
 			return;
 		StringBuilder builder = (StringBuilder) node.getText();
 		if (builder == null)
@@ -324,8 +307,7 @@ public class HtmlArchiver {
 	}
 
 	final private void checkStyleAttribute(TagNode node)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		String style = node.getAttributeByName("style");
 		if (style == null)
 			return;
@@ -358,12 +340,10 @@ public class HtmlArchiver {
 		return hasAncestorXPath(xpathSelectorSet, node.getParent());
 	}
 
-	final private void checkScriptContent(TagNode node,
-			Set<TagNode> disableScriptNodeSet) {
+	final private void checkScriptContent(TagNode node, Set<TagNode> disableScriptNodeSet) {
 		if (!("script".equalsIgnoreCase(node.getName())))
 			return;
-		if (disableScriptNodeSet != null
-				&& hasAncestorXPath(disableScriptNodeSet, node)) {
+		if (disableScriptNodeSet != null && hasAncestorXPath(disableScriptNodeSet, node)) {
 			node.removeFromTree();
 			return;
 		}
@@ -380,10 +360,9 @@ public class HtmlArchiver {
 		node.addChild(new ContentNode(newContent));
 	}
 
-	final private String downloadIframe(URL parentUrl, TagNode node,
-			Map<TagNode, WebElement> iframeNodeMap) throws IOException,
-			ParserConfigurationException, SAXException, IllegalStateException,
-			SearchLibException, URISyntaxException {
+	final private String downloadIframe(URL parentUrl, TagNode node, Map<TagNode, WebElement> iframeNodeMap)
+			throws IOException, ParserConfigurationException, SAXException, IllegalStateException, SearchLibException,
+			URISyntaxException {
 		if (iframeNodeMap == null) {
 			Logging.warn("Unable to download IFRAME (no iframeNodeNap) " + node);
 			return null;
@@ -397,8 +376,7 @@ public class HtmlArchiver {
 		String src = node.getAttributeByName("src");
 		baseUrl = LinkUtils.getLink(parentUrl, src, null, false);
 		String urlFileMapKey = null;
-		if (baseUrl != null
-				&& !urlFileMap.containsKey(baseUrl.toExternalForm()))
+		if (baseUrl != null && !urlFileMap.containsKey(baseUrl.toExternalForm()))
 			urlFileMapKey = baseUrl.toExternalForm();
 		else
 			urlFileMapKey = Integer.toString(node.hashCode());
@@ -414,10 +392,8 @@ public class HtmlArchiver {
 		return getLocalPath(parentUrl, destFile.getName());
 	}
 
-	final private boolean downloadObjectIframe(TagNode node,
-			Map<TagNode, WebElement> iframeNodeMap)
-			throws IllegalStateException, IOException,
-			ParserConfigurationException, SAXException, SearchLibException,
+	final private boolean downloadObjectIframe(TagNode node, Map<TagNode, WebElement> iframeNodeMap)
+			throws IllegalStateException, IOException, ParserConfigurationException, SAXException, SearchLibException,
 			URISyntaxException {
 		if (!"iframe".equalsIgnoreCase(node.getName()))
 			return false;
@@ -428,8 +404,7 @@ public class HtmlArchiver {
 	}
 
 	final private boolean downloadObjectSrc(TagNode node)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException {
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException {
 		String src = node.getAttributeByName("src");
 		if (src == null)
 			return false;
@@ -440,8 +415,7 @@ public class HtmlArchiver {
 	}
 
 	final private boolean downloadObjectLink(TagNode node)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException,
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException,
 			ParserConfigurationException, SAXException {
 		String src = node.getAttributeByName("href");
 		if (src == null)
@@ -449,10 +423,8 @@ public class HtmlArchiver {
 		String type = node.getAttributeByName("type");
 		if (type == null && node.getName().equalsIgnoreCase("script"))
 			type = "text/javascript";
-		if (type == null
-				&& node.getName().equalsIgnoreCase("link")
-				&& "stylesheet"
-						.equalsIgnoreCase(node.getAttributeByName("rel")))
+		if (type == null && node.getName().equalsIgnoreCase("link") &&
+				"stylesheet".equalsIgnoreCase(node.getAttributeByName("rel")))
 			type = "text/css";
 		if (type == null)
 			return false;
@@ -479,11 +451,9 @@ public class HtmlArchiver {
 		node.removeFromTree();
 	}
 
-	final private void recursiveArchive(TagNode node,
-			Set<TagNode> disableScriptNodeSet,
+	final private void recursiveArchive(TagNode node, Set<TagNode> disableScriptNodeSet,
 			Map<TagNode, WebElement> iframeNodeMap)
-			throws ClientProtocolException, IllegalStateException, IOException,
-			SearchLibException, URISyntaxException,
+			throws ClientProtocolException, IllegalStateException, IOException, SearchLibException, URISyntaxException,
 			ParserConfigurationException, SAXException {
 		if (node == null)
 			return;
@@ -501,10 +471,9 @@ public class HtmlArchiver {
 			recursiveArchive(n, disableScriptNodeSet, iframeNodeMap);
 	}
 
-	final public void archive(BrowserDriver<?> browserDriver,
-			Set<String> xPathDisableScriptSet) throws IOException,
-			ParserConfigurationException, SAXException, IllegalStateException,
-			SearchLibException, URISyntaxException, XPatherException {
+	final public void archive(BrowserDriver<?> browserDriver, Set<String> xPathDisableScriptSet)
+			throws IOException, ParserConfigurationException, SAXException, IllegalStateException, SearchLibException,
+			URISyntaxException, XPatherException {
 		String pageSource = browserDriver.getSourceCode();
 		HtmlCleanerParser htmlCleanerParser = new HtmlCleanerParser();
 		htmlCleanerParser.init(pageSource);
@@ -520,8 +489,7 @@ public class HtmlArchiver {
 				if (xPath == null)
 					continue;
 				if (htmlCleanerParser.xpath(xPath, tagNodeSet) == 0) {
-					Logging.warn("DisableScript not found using XPath: "
-							+ xPath);
+					Logging.warn("DisableScript not found using XPath: " + xPath);
 					continue;
 				}
 				for (TagNode tagNode : tagNodeSet)
@@ -535,15 +503,13 @@ public class HtmlArchiver {
 			disableScriptNodeSet = new HashSet<TagNode>();
 			for (String xPath : xPathDisableScriptSet)
 				if (htmlCleanerParser.xpath(xPath, disableScriptNodeSet) == 0)
-					Logging.warn("DisableScript not found using XPath: "
-							+ xPath);
+					Logging.warn("DisableScript not found using XPath: " + xPath);
 		}
-		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet,
-				iframeNodeMap);
+		recursiveArchive(htmlCleanerParser.getTagNode(), disableScriptNodeSet, iframeNodeMap);
 		htmlCleanerParser.writeHtmlToFile(indexFile);
 		String charset = htmlCleanerParser.findCharset();
 		if (charset == null)
-			FileUtils.write(sourceFile, pageSource);
+			FileUtils.write(sourceFile, pageSource, "UTF-8");
 		else
 			FileUtils.write(sourceFile, pageSource, charset);
 

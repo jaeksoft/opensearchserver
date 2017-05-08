@@ -24,19 +24,18 @@
 
 package com.jaeksoft.searchlib.render;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.web.ServletTransaction;
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends AbstractResult<T1>>
 		extends AbstractRender<T1, T2> {
@@ -65,7 +64,7 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 			spaceMatcher.reset(text);
 			text = spaceMatcher.replaceAll(" ");
 		}
-		return StringEscapeUtils.escapeXml(text);
+		return StringEscapeUtils.escapeXml11(text);
 	}
 
 	protected void renderPrefix(int status, String queryString)
@@ -78,7 +77,7 @@ public abstract class AbstractRenderXml<T1 extends AbstractRequest, T2 extends A
 		writer.print("</status>");
 		if (queryString != null) {
 			writer.print("<query>");
-			writer.print(StringEscapeUtils.escapeXml(queryString));
+			writer.print(StringEscapeUtils.escapeXml11(queryString));
 			writer.println("</query>");
 		}
 		writer.println("</header>");

@@ -24,12 +24,6 @@
 
 package com.jaeksoft.searchlib.render;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.facet.FacetCounter;
@@ -41,6 +35,11 @@ import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.ResultDocument;
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class RenderSearchXml<T extends AbstractSearchRequest> extends
 		AbstractRenderDocumentsXml<T, AbstractResultSearch<T>> {
@@ -89,7 +88,7 @@ public class RenderSearchXml<T extends AbstractSearchRequest> extends
 		writer.println("\">");
 		for (Map.Entry<String, FacetCounter> facetItem : facet) {
 			writer.print("\t\t\t<facet name=\"");
-			writer.print(StringEscapeUtils.escapeXml(facetItem.getKey()));
+			writer.print(StringEscapeUtils.escapeXml11(facetItem.getKey()));
 			writer.print("\">");
 			writer.print(facetItem.getValue().count);
 			writer.print("</facet>");

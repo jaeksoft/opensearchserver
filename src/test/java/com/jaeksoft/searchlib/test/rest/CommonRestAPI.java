@@ -84,7 +84,7 @@ public abstract class CommonRestAPI {
 	public String getResource(String name) throws IOException {
 		InputStream is = getClass().getResourceAsStream(name);
 		assertNotNull("Resource not found: " + name, is);
-		String res = IOUtils.toString(is);
+		String res = IOUtils.toString(is, "UTF-8");
 		assertFalse("Resource is empty: " + name, StringUtils.isEmpty(res));
 		return res;
 	}

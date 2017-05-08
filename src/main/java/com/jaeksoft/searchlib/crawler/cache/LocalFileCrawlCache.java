@@ -24,6 +24,14 @@
 
 package com.jaeksoft.searchlib.crawler.cache;
 
+import com.jaeksoft.searchlib.ClientFactory;
+import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.util.ReadWriteLock;
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.util.IOUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,15 +39,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.poi.util.IOUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.jaeksoft.searchlib.ClientFactory;
-import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
-import com.jaeksoft.searchlib.util.ReadWriteLock;
 
 public class LocalFileCrawlCache extends CrawlCacheProvider {
 
@@ -122,7 +121,7 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 		try {
 			URI uri = downloadItem.getUri();
 			File file = checkPath(uriToFile(uri, META_EXTENSION));
-			FileUtils.writeStringToFile(file, downloadItem.getMetaAsJson());
+			FileUtils.writeStringToFile(file, downloadItem.getMetaAsJson(), "UTF-8");
 			file = checkPath(uriToFile(uri, CONTENT_EXTENSION));
 			InputStream is = downloadItem.getContentInputStream();
 			FileUtils.copyInputStreamToFile(is, file);
@@ -144,7 +143,7 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 			if (expirationTime != 0)
 				if (file.lastModified() < expirationTime)
 					return null;
-			String content = FileUtils.readFileToString(file);
+			String content = FileUtils.readFileToString(file, "UTF-8");
 			JSONObject json = new JSONObject(content);
 			DownloadItem downloadItem = new DownloadItem(uri);
 			downloadItem.loadMetaFromJson(json);

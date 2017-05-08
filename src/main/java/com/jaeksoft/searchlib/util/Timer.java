@@ -24,15 +24,14 @@
 
 package com.jaeksoft.searchlib.util;
 
+import com.jaeksoft.searchlib.Logging;
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-
-import com.jaeksoft.searchlib.Logging;
 
 public class Timer {
 
@@ -131,7 +130,7 @@ public class Timer {
 		if (d < minTime)
 			return;
 		writer.print("<timer info=\"");
-		writer.print(StringEscapeUtils.escapeXml(info));
+		writer.print(StringEscapeUtils.escapeXml11(info));
 		writer.print("\" duration=\"");
 		writer.print(d);
 		writer.println("\">");

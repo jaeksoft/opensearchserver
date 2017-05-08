@@ -1,39 +1,38 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.analysis.stopwords;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.StringUtils;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 
 public abstract class AbstractDirectoryManager<T> {
 
@@ -66,8 +65,7 @@ public abstract class AbstractDirectoryManager<T> {
 			File[] files = directory.listFiles(new FileOnly());
 			if (files == null)
 				return null;
-			String[] list = addEmptyOne ? new String[files.length + 1]
-					: new String[files.length];
+			String[] list = addEmptyOne ? new String[files.length + 1] : new String[files.length];
 			int i = 0;
 			if (addEmptyOne)
 				list[i++] = StringUtils.EMPTY;
@@ -121,23 +119,21 @@ public abstract class AbstractDirectoryManager<T> {
 		}
 	}
 
-	protected abstract void saveContent(File file, T content)
-			throws IOException;
+	protected abstract void saveContent(File file, T content) throws IOException;
 
-	public final void saveContent(String name, T content) throws IOException,
-			SearchLibException {
+	public final void saveContent(String name, T content) throws IOException, SearchLibException {
 		rwl.w.lock();
 		try {
 			if (!directory.exists())
-				directory.mkdir();
+				if (!directory.mkdir())
+					throw new IOException("Cannot create directory " + directory);
 			saveContent(getFile(name), content);
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	public static class DirectoryTextContentManager extends
-			AbstractDirectoryManager<String> {
+	public static class DirectoryTextContentManager extends AbstractDirectoryManager<String> {
 
 		public DirectoryTextContentManager(Config config, File directory) {
 			super(config, directory);
@@ -145,13 +141,12 @@ public abstract class AbstractDirectoryManager<T> {
 
 		@Override
 		protected String getContent(File file) throws IOException {
-			return FileUtils.readFileToString(file);
+			return FileUtils.readFileToString(file, "UTF-8");
 		}
 
 		@Override
-		protected void saveContent(File file, String content)
-				throws IOException {
-			FileUtils.writeStringToFile(file, content);
+		protected void saveContent(File file, String content) throws IOException {
+			FileUtils.writeStringToFile(file, content, "UTF-8");
 		}
 
 	}

@@ -24,22 +24,6 @@
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances.swift;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
 import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
@@ -50,6 +34,21 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.RegExpUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.array.BytesOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 
 public class SwiftProtocol {
 
@@ -159,7 +158,7 @@ public class SwiftProtocol {
 		try {
 			inputStream = downloadItem.getContentInputStream();
 			if (inputStream != null)
-				return IOUtils.readLines(inputStream);
+				return IOUtils.readLines(inputStream, "UTF-8");
 			return null;
 		} finally {
 			IOUtils.closeQuietly(inputStream);

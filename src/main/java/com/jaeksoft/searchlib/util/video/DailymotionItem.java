@@ -23,14 +23,13 @@
  **/
 package com.jaeksoft.searchlib.util.video;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
+import com.jaeksoft.searchlib.util.IOUtils;
 import org.json.JSONException;
 import org.json.simple.JSONObject;
 
-import com.jaeksoft.searchlib.util.IOUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class DailymotionItem {
 
@@ -40,7 +39,7 @@ public class DailymotionItem {
 
 	public DailymotionItem(InputStream dailymotionResponse, String videoId,
 			String thumbnail) throws JSONException, IOException {
-		String jsonText = IOUtils.toString(dailymotionResponse);
+		String jsonText = IOUtils.toString(dailymotionResponse, "UTF-8");
 		org.json.JSONObject jsonObject = new org.json.JSONObject(jsonText);
 		title = jsonObject.getString("title");
 		this.videoId = videoId;

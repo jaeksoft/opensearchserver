@@ -85,7 +85,7 @@ public class XmlWriter {
 		if (text == null)
 			return null;
 		controlMatcher.reset(text);
-		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
+		return StringEscapeUtils.escapeXml11(controlMatcher.replaceAll(""));
 	}
 
 	public void startElement(String name, String... attributes) throws SAXException {

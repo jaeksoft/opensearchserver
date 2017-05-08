@@ -305,7 +305,7 @@ public class InstanceProperties {
 	private final void loadRequestPerMonth() throws IOException {
 		if (!requestperMonthFile.exists())
 			return;
-		String s = FileUtils.readFileToString(requestperMonthFile);
+		String s = FileUtils.readFileToString(requestperMonthFile, "UTF-8");
 		if (s == null)
 			return;
 		try {
@@ -319,7 +319,7 @@ public class InstanceProperties {
 		synchronized (requestperMonthFile) {
 			if (!requestperMonthFile.exists())
 				resetRequestPerMonthCount();
-			FileUtils.write(requestperMonthFile, Integer.toString(getRequestPerMonthCount()));
+			FileUtils.write(requestperMonthFile, Integer.toString(getRequestPerMonthCount()), "UTF-8");
 			lastTimeRequestPerMonthStore = t + 10000;
 		}
 	}
