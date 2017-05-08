@@ -8,6 +8,13 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
+OpenSearchServer 1.5.15
+
+Bug fixes:
+- GH-1857: Update htmlunit
+- GH-1843: sitemap.xml fetch frequency
+- GH-1840: Merging index in Scheduler not exist anymore
+
 OpenSearchServer 1.5.14
 
 New features:
