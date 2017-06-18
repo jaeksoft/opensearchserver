@@ -8,7 +8,7 @@ https://github.com/jaeksoft/opensearchserver/issues (GH)
 http://sourceforge.net/p/opensearchserve/feature-request/ (SF)
 http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
-OpenSearchServer 1.5.15
+OpenSearchServer 2.0
 
 Bug fixes:
 - GH-1857: Update htmlunit

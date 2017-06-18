@@ -1,4 +1,4 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
  * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
@@ -20,8 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
 import com.jaeksoft.searchlib.crawler.web.GenericCache;
@@ -29,26 +28,28 @@ import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.qwazr.crawler.web.robotstxt.RobotsTxtClauseSet;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Map;
 
-public class RobotsTxt implements GenericCache.Expirable {
+public class RobotsTxtItem implements GenericCache.Expirable {
 
 	private final long crawlTime;
 
 	private final long expirationTime;
 
-	private final DisallowList disallowList;
+	private final RobotsTxtCache.RobotsTxtParser robotsTxtParser;
 
 	private final Crawl crawl;
 
-	protected RobotsTxt(Crawl crawl) {
+	protected RobotsTxtItem(Crawl crawl) {
 		this.crawlTime = System.currentTimeMillis();
 		this.expirationTime = this.crawlTime + 1000 * 60 * 60 * 24;
-		this.disallowList = (DisallowList) crawl.getParser();
+		this.robotsTxtParser = (RobotsTxtCache.RobotsTxtParser) crawl.getParser();
 		this.crawl = crawl;
 	}
 
@@ -84,10 +85,10 @@ public class RobotsTxt implements GenericCache.Expirable {
 	 */
 	public RobotsTxtStatus getStatus(String userAgent, UrlItem urlItem)
 			throws MalformedURLException, URISyntaxException {
-		Integer code = crawl.getUrlItem().getResponseCode();
+		final Integer code = crawl.getUrlItem().getResponseCode();
 		if (code == null)
 			return RobotsTxtStatus.ERROR;
-		URL url = urlItem.getURL();
+		final URL url = urlItem.getURL();
 		if (url == null)
 			throw new MalformedURLException("Malformed URL: " + urlItem.getUrl());
 		switch (code) {
@@ -99,15 +100,18 @@ public class RobotsTxt implements GenericCache.Expirable {
 		default:
 			return RobotsTxtStatus.ERROR;
 		}
-		if (disallowList == null)
+		if (robotsTxtParser == null || robotsTxtParser.robotsTxt == null)
 			return RobotsTxtStatus.ALLOW;
-		DisallowSet disallowSet = disallowList.get(userAgent.toLowerCase());
-		if (disallowSet == null)
-			disallowSet = disallowList.get("*");
-		if (disallowSet == null)
+		switch (robotsTxtParser.robotsTxt.getStatus(url.toURI(), userAgent)) {
+		case ERROR:
+			return RobotsTxtStatus.ERROR;
+		case NO_ROBOTSTXT:
+			return RobotsTxtStatus.NO_ROBOTSTXT;
+		case ALLOW:
 			return RobotsTxtStatus.ALLOW;
-		if (disallowSet.isAllowed(url.getFile()))
-			return RobotsTxtStatus.ALLOW;
+		case DISALLOW:
+			return RobotsTxtStatus.DISALLOW;
+		}
 		return RobotsTxtStatus.DISALLOW;
 	}
 
@@ -133,10 +137,6 @@ public class RobotsTxt implements GenericCache.Expirable {
 		return crawl;
 	}
 
-	public DisallowList getDisallowList() {
-		return disallowList;
-	}
-
 	public String getHostname() {
 		if (crawl == null)
 			return null;
@@ -144,6 +144,10 @@ public class RobotsTxt implements GenericCache.Expirable {
 		if (urlItem == null)
 			return null;
 		return urlItem.getHost();
+	}
+
+	public Map<String, RobotsTxtClauseSet> getClauses() {
+		return robotsTxtParser == null ? null : robotsTxtParser.robotsTxt.getClausesMap();
 	}
 
 	@Override
@@ -166,4 +170,5 @@ public class RobotsTxt implements GenericCache.Expirable {
 			return false;
 		}
 	}
+
 }

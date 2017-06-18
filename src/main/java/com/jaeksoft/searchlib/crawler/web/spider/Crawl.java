@@ -1,4 +1,4 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
  * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
@@ -20,8 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler.web.spider;
 
 import com.jaeksoft.searchlib.Client;
@@ -34,14 +33,30 @@ import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
-import com.jaeksoft.searchlib.crawler.web.database.*;
+import com.jaeksoft.searchlib.crawler.web.database.CookieItem;
+import com.jaeksoft.searchlib.crawler.web.database.CookieManager;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
+import com.jaeksoft.searchlib.crawler.web.database.HeaderItem;
+import com.jaeksoft.searchlib.crawler.web.database.HeaderManager;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
+import com.jaeksoft.searchlib.crawler.web.database.LinkItem;
 import com.jaeksoft.searchlib.crawler.web.database.LinkItem.Origin;
+import com.jaeksoft.searchlib.crawler.web.database.RobotsTxtStatus;
+import com.jaeksoft.searchlib.crawler.web.database.UrlFilterItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternListMatcher;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
-import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
+import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtItem;
 import com.jaeksoft.searchlib.index.FieldContent;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.parser.*;
+import com.jaeksoft.searchlib.parser.HtmlParser;
+import com.jaeksoft.searchlib.parser.Parser;
+import com.jaeksoft.searchlib.parser.ParserFieldEnum;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
+import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.plugin.IndexPluginList;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.streamlimiter.LimitException;
@@ -142,10 +157,9 @@ public class Crawl {
 		urlItem.populate(sourceDocument);
 		Date parserStartDate = new Date();
 		// TODO Which language for OCR ?
-		parser = parserSelector
-				.parseStream(sourceDocument, fileName, urlItem.getContentBaseType(), urlItem.getUrl(), inputStream,
-						null, parserSelector.getWebCrawlerDefaultParser(),
-						parserSelector.getFileCrawlerDefaultParser());
+		parser = parserSelector.parseStream(sourceDocument, fileName, urlItem.getContentBaseType(), urlItem.getUrl(),
+				inputStream, null, parserSelector.getWebCrawlerDefaultParser(),
+				parserSelector.getFileCrawlerDefaultParser());
 		if (parser == null) {
 			urlItem.setParserStatus(ParserStatus.NOPARSER);
 			return;
@@ -206,8 +220,8 @@ public class Crawl {
 			throws SearchLibException, URISyntaxException, ClassNotFoundException, IOException {
 		RobotsTxtStatus robotsTxtStatus;
 		if (robotsTxtEnabled) {
-			RobotsTxt robotsTxt =
-					config.getRobotsTxtCache().getRobotsTxt(httpDownloader, config, urlItem.getURL(), false);
+			RobotsTxtItem robotsTxt = config.getRobotsTxtCache().getRobotsTxt(httpDownloader, config, urlItem.getURL(),
+					false);
 			robotsTxtStatus = robotsTxt.getStatus(userAgent, urlItem);
 		} else
 			robotsTxtStatus = RobotsTxtStatus.DISABLED;
@@ -419,8 +433,8 @@ public class Crawl {
 				IndexPluginList indexPluginList = config.getWebCrawlMaster().getIndexPluginList();
 
 				if (indexPluginList != null) {
-					if (!indexPluginList
-							.run((Client) config, getContentType(), getStreamLimiter(), targetIndexDocument)) {
+					if (!indexPluginList.run((Client) config, getContentType(), getStreamLimiter(),
+							targetIndexDocument)) {
 						urlItem.setIndexStatus(IndexStatus.PLUGIN_REJECTED);
 						urlItem.populate(urlIndexDocument);
 						continue;

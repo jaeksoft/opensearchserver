@@ -25,27 +25,37 @@
 package com.jaeksoft.searchlib.crawler.web.robotstxt;
 
 import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.GenericCache;
 import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
+import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.parser.ParserFactory;
 import com.jaeksoft.searchlib.parser.ParserSelector;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.LinkUtils;
+import com.qwazr.crawler.web.robotstxt.RobotsTxt;
+import com.qwazr.utils.CharsetUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public class RobotsTxtCache extends GenericCache<String, RobotsTxt> {
+public class RobotsTxtCache extends GenericCache<String, RobotsTxtItem> {
 
 	private ParserSelector parserSelector;
 
 	public RobotsTxtCache() throws SearchLibException, ClassNotFoundException {
 		parserSelector = new ParserSelector(null,
-				ParserFactory.create(null, "RobotsTxt parser", DisallowList.class.getCanonicalName()));
+				ParserFactory.create(null, "RobotsTxt parser", RobotsTxtParser.class.getName()));
+	}
+
+	@Override
+	protected RobotsTxtItem[] newArray(int size) {
+		return new RobotsTxtItem[size];
 	}
 
 	/**
@@ -60,22 +70,22 @@ public class RobotsTxtCache extends GenericCache<String, RobotsTxt> {
 	 * @throws URISyntaxException
 	 * @throws IOException
 	 */
-	public RobotsTxt getRobotsTxt(final HttpDownloader httpDownloader, final Config config, URL url,
+	public RobotsTxtItem getRobotsTxt(final HttpDownloader httpDownloader, final Config config, URL url,
 			boolean reloadRobotsTxt) throws SearchLibException, URISyntaxException, IOException {
-		final UrlItem urlItem = config.getUrlManager().getNewUrlItem(RobotsTxt.getRobotsUrl(url).toExternalForm());
+		final UrlItem urlItem = config.getUrlManager().getNewUrlItem(RobotsTxtItem.getRobotsUrl(url).toExternalForm());
 		final String robotsKey = urlItem.getUrl();
 
-		return getOrCreate(robotsKey, reloadRobotsTxt, new ItemSupplier<RobotsTxt>() {
+		return getOrCreate(robotsKey, reloadRobotsTxt, new ItemSupplier<RobotsTxtItem>() {
 			@Override
-			public RobotsTxt get() throws IOException, SearchLibException {
+			public RobotsTxtItem get() throws IOException, SearchLibException {
 				Crawl crawl = new Crawl(null, urlItem, config, parserSelector);
 				crawl.download(httpDownloader);
-				return new RobotsTxt(crawl);
+				return new RobotsTxtItem(crawl);
 			}
 		});
 	}
 
-	public RobotsTxt[] getRobotsTxtList() {
+	public RobotsTxtItem[] getRobotsTxtList() {
 		return getList();
 	}
 
@@ -85,10 +95,25 @@ public class RobotsTxtCache extends GenericCache<String, RobotsTxt> {
 			return null;
 		if (pattern.indexOf(':') == -1)
 			pattern = "http://" + pattern;
-		return RobotsTxt.getRobotsUrl(LinkUtils.newEncodedURL(pattern)).toExternalForm();
+		return RobotsTxtItem.getRobotsUrl(LinkUtils.newEncodedURL(pattern)).toExternalForm();
 	}
 
-	public RobotsTxt findRobotsTxt(String pattern) throws MalformedURLException, URISyntaxException {
+	public RobotsTxtItem findRobotsTxt(String pattern) throws MalformedURLException, URISyntaxException {
 		return get(getRobotsUrlKey(pattern));
+	}
+
+	public static class RobotsTxtParser extends Parser {
+
+		volatile RobotsTxt robotsTxt;
+
+		public RobotsTxtParser() {
+			super(null, true);
+		}
+
+		@Override
+		protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
+				throws IOException, SearchLibException {
+			robotsTxt = new RobotsTxt(streamLimiter.getNewInputStream(), CharsetUtils.CharsetUTF8);
+		}
 	}
 }

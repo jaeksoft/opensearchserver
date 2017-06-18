@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class GenericCache<K, V extends GenericCache.Expirable> {
+public abstract class GenericCache<K, V extends GenericCache.Expirable> {
 
 	public interface Expirable {
 
@@ -130,9 +130,11 @@ public class GenericCache<K, V extends GenericCache.Expirable> {
 		}
 	}
 
+	protected abstract V[] newArray(int size);
+
 	final public V[] getList() {
 		synchronized (map) {
-			return (V[]) map.values().toArray();
+			return map.values().toArray(newArray(map.size()));
 		}
 	}
 

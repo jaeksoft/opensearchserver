@@ -31,7 +31,7 @@
         </developer>
     </developers>
 
-    <version>1.5.15-SNAPSHOT</version>
+    <version>2.0-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:git@github.com:jaeksoft/opensearchserver.git</connection>
@@ -248,6 +248,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>com.qwazr</groupId>
+            <artifactId>qwazr-crawlers</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-logging-log4j</artifactId>
@@ -824,8 +829,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>

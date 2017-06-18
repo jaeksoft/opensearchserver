@@ -1,41 +1,39 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.web.controller.crawler.web;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxtItem;
+import com.jaeksoft.searchlib.util.properties.PropertyItem;
+import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 import org.apache.http.HttpException;
 import org.zkoss.bind.annotation.AfterCompose;
 import org.zkoss.bind.annotation.Command;
 
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.crawler.web.robotstxt.RobotsTxt;
-import com.jaeksoft.searchlib.util.properties.PropertyItem;
-import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 @AfterCompose(superclass = true)
 public class RobotsTxtController extends CrawlerController {
@@ -44,9 +42,9 @@ public class RobotsTxtController extends CrawlerController {
 
 	private transient String searchString;
 
-	private transient RobotsTxt[] robotsTxtList;
+	private transient RobotsTxtItem[] robotsTxtList;
 
-	private transient RobotsTxt selectedRobotsTxt;
+	private transient RobotsTxtItem selectedRobotsTxt;
 
 	public RobotsTxtController() throws SearchLibException {
 		super();
@@ -64,7 +62,7 @@ public class RobotsTxtController extends CrawlerController {
 		return pageSize;
 	}
 
-	public RobotsTxt[] getRobotsTxtList()
+	public RobotsTxtItem[] getRobotsTxtList()
 			throws SearchLibException, MalformedURLException, URISyntaxException, ClassNotFoundException {
 		Client client = getClient();
 		if (client == null)
@@ -75,11 +73,11 @@ public class RobotsTxtController extends CrawlerController {
 			robotsTxtList = client.getRobotsTxtCache().getRobotsTxtList();
 			return robotsTxtList;
 		}
-		RobotsTxt robotsTxt = client.getRobotsTxtCache().findRobotsTxt(searchString);
+		RobotsTxtItem robotsTxt = client.getRobotsTxtCache().findRobotsTxt(searchString);
 		if (robotsTxt == null)
 			return null;
 		selectedRobotsTxt = robotsTxt;
-		robotsTxtList = new RobotsTxt[1];
+		robotsTxtList = new RobotsTxtItem[1];
 		robotsTxtList[0] = robotsTxt;
 		return robotsTxtList;
 	}
@@ -92,16 +90,18 @@ public class RobotsTxtController extends CrawlerController {
 	}
 
 	@Command
-	public void onSearch() throws IOException, URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+	public void onSearch()
+			throws IOException, URISyntaxException, SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
 		selectedRobotsTxt = null;
 		robotsTxtList = null;
 		reload();
 	}
 
 	@Command
-	public void onReset() throws IOException, URISyntaxException, SearchLibException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, HttpException {
+	public void onReset()
+			throws IOException, URISyntaxException, SearchLibException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, HttpException {
 		searchString = null;
 		onSearch();
 	}
@@ -114,11 +114,11 @@ public class RobotsTxtController extends CrawlerController {
 		return searchString;
 	}
 
-	public void setSelectedItem(RobotsTxt robotsTxt) {
+	public void setSelectedItem(RobotsTxtItem robotsTxt) {
 		selectedRobotsTxt = robotsTxt;
 	}
 
-	public RobotsTxt getSelectedItem() {
+	public RobotsTxtItem getSelectedItem() {
 		return selectedRobotsTxt;
 	}
 

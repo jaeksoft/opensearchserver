@@ -115,6 +115,11 @@ public class SiteMapCache extends GenericCache<URI, SiteMapCache.Item> {
 		}
 	}
 
+	@Override
+	protected Item[] newArray(int size) {
+		return new Item[size];
+	}
+
 	final class Item implements GenericCache.Expirable {
 
 		private final Date crawlDate;

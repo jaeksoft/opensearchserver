@@ -13,3 +13,5 @@
 .idea
 opensearchserver.iml
 dependency-reduced-pom.xml
+/server
+phantomjsdriver.log
