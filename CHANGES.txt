@@ -1,4 +1,5 @@
-release date=12:00 04.04.2016,version=1.5.15,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+release date=12:00 05.07.2017,version=2.0.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
  * GH-1857: Update htmlunit
  * GH-1843: sitemap.xml fetch frequency
  * GH-1840: Merging index in Scheduler not exist anymore
+ * GH-1641: Faceted fields returned in different orders

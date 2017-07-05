@@ -14,6 +14,7 @@ Bug fixes:
 - GH-1857: Update htmlunit
 - GH-1843: sitemap.xml fetch frequency
 - GH-1840: Merging index in Scheduler not exist anymore
+- GH-1641: Faceted fields returned in different orders
 
 OpenSearchServer 1.5.14
 
