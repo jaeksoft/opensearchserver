@@ -1,42 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.facet;
-
-import it.unimi.dsi.fastutil.Arrays;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.TermFreqVector;
-import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.FacetCounter.FacetSorter;
@@ -46,6 +32,18 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
+import it.unimi.dsi.fastutil.Arrays;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermFreqVector;
+import org.roaringbitmap.RoaringBitmap;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
@@ -55,7 +53,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
 	public Facet() {
 		list = null;
-		facetMap = new HashMap<String, FacetCounter>();
+		facetMap = new LinkedHashMap<>();
 	}
 
 	public Facet(FacetField facetField) {
@@ -110,8 +108,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		synchronized (this) {
 			if (list != null)
 				return list;
-			list = new ArrayList<Map.Entry<String, FacetCounter>>(
-					facetMap.entrySet());
+			list = new ArrayList<>(facetMap.entrySet());
 			list = limitOrderBy(facetField, list);
 			return list;
 		}
@@ -138,43 +135,36 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		return get(i).getValue().count;
 	}
 
-	final static protected Facet facetMultivalued(ReaderAbstract reader,
-			SchemaField schemaField, DocIdInterface docIdInterface,
-			FacetField facetField, Timer timer) throws IOException,
-			SearchLibException {
+	final static protected Facet facetMultivalued(ReaderAbstract reader, SchemaField schemaField,
+			DocIdInterface docIdInterface, FacetField facetField, Timer timer) throws IOException, SearchLibException {
 		String fieldName = facetField.getName();
 		if (schemaField.getTermVector() == TermVector.NO) {
 			FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
-			int[] countIndex = computeMultivaluedTD(reader, fieldName,
-					stringIndex, docIdInterface);
+			int[] countIndex = computeMultivaluedTD(reader, fieldName, stringIndex, docIdInterface);
 			return new Facet(facetField, stringIndex.lookup, countIndex);
 		} else {
-			Map<String, FacetCounter> facetMap = computeMultivaluedTFV(reader,
-					fieldName, docIdInterface);
+			Map<String, FacetCounter> facetMap = computeMultivaluedTFV(reader, fieldName, docIdInterface);
 			return new Facet(facetField, facetMap);
 		}
 	}
 
-	final static protected Facet facetSingleValue(ReaderAbstract reader,
-			DocIdInterface collector, FacetField facetField, Timer timer)
-			throws IOException {
+	final static protected Facet facetSingleValue(ReaderAbstract reader, DocIdInterface collector,
+			FacetField facetField, Timer timer) throws IOException {
 		String fieldName = facetField.getName();
 		FieldCacheIndex stringIndex = reader.getStringIndex(fieldName);
 		int[] countIndex = computeSinglevalued(stringIndex, collector);
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final private static int[] computeMultivaluedTD(ReaderAbstract reader,
-			String fieldName, FieldCacheIndex stringIndex,
-			DocIdInterface docIdInterface) throws IOException,
-			SearchLibException {
-		int[] countIndex = new int[stringIndex.lookup.length];
+	final private static int[] computeMultivaluedTD(ReaderAbstract reader, String fieldName,
+			FieldCacheIndex stringIndex, DocIdInterface docIdInterface) throws IOException, SearchLibException {
+		final int[] countIndex = new int[stringIndex.lookup.length];
 		int indexPos = 0;
 		if (docIdInterface.getSize() == 0)
 			return countIndex;
-		int[] docs = new int[100];
-		int[] freqs = new int[100];
-		RoaringBitmap bitset = docIdInterface.getBitSet();
+		final int[] docs = new int[100];
+		final int[] freqs = new int[100];
+		final RoaringBitmap bitset = docIdInterface.getBitSet();
 		Term oTerm = new Term(fieldName);
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
@@ -193,25 +183,23 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		return countIndex;
 	}
 
-	final private static Map<String, FacetCounter> computeMultivaluedTFV(
-			ReaderAbstract reader, String fieldName,
-			DocIdInterface docIdInterface) throws IOException,
-			SearchLibException {
-		Map<String, FacetCounter> termMap = new HashMap<String, FacetCounter>();
+	private static Map<String, FacetCounter> computeMultivaluedTFV(ReaderAbstract reader, String fieldName,
+			DocIdInterface docIdInterface) throws IOException, SearchLibException {
+		final Map<String, FacetCounter> termMap = new LinkedHashMap<>();
 		if (docIdInterface.getSize() == 0)
 			return termMap;
 		for (int docId : docIdInterface.getIds()) {
-			TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
+			final TermFreqVector tfv = reader.getTermFreqVector(docId, fieldName);
 			if (tfv == null)
 				continue;
-			String[] terms = tfv.getTerms();
-			int[] freqs = tfv.getTermFrequencies();
+			final String[] terms = tfv.getTerms();
+			final int[] freqs = tfv.getTermFrequencies();
 			if (terms == null || freqs == null)
 				continue;
 			int i = 0;
 			for (String term : terms) {
 				if (freqs[i++] > 0) {
-					FacetCounter facetItem = termMap.get(term);
+					final FacetCounter facetItem = termMap.get(term);
 					if (facetItem == null)
 						termMap.put(term, new FacetCounter(1));
 					else
@@ -222,10 +210,9 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		return termMap;
 	}
 
-	final private static int[] computeSinglevalued(FieldCacheIndex stringIndex,
-			DocIdInterface collector) throws IOException {
-		int[] countArray = new int[stringIndex.lookup.length];
-		int[] order = stringIndex.order;
+	private static int[] computeSinglevalued(FieldCacheIndex stringIndex, DocIdInterface collector) throws IOException {
+		final int[] countArray = new int[stringIndex.lookup.length];
+		final int[] order = stringIndex.order;
 		int i = collector.getSize();
 		for (int id : collector.getIds()) {
 			if (i == 0)
@@ -236,14 +223,13 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		return countArray;
 	}
 
-	final private static List<Map.Entry<String, FacetCounter>> limitOrderBy(
-			FacetField facetField, List<Map.Entry<String, FacetCounter>> list) {
-		FacetSorter facetSorter = FacetSorter.getSorter(list,
-				facetField.getOrderBy());
+	private static List<Map.Entry<String, FacetCounter>> limitOrderBy(FacetField facetField,
+			List<Map.Entry<String, FacetCounter>> list) {
+		final FacetSorter facetSorter = FacetSorter.getSorter(list, facetField.getOrderBy());
 		if (facetSorter == null)
 			return list;
 		Arrays.quickSort(0, list.size(), facetSorter, facetSorter);
-		Integer limit = facetField.getLimit();
+		final Integer limit = facetField.getLimit();
 		if (limit == null)
 			return list;
 		if (list.size() <= limit)
