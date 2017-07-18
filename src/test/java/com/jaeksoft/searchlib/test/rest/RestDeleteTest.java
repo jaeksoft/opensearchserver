@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.test.rest;
 
 import com.jaeksoft.searchlib.test.IntegrationTest;
@@ -55,9 +55,8 @@ public class RestDeleteTest extends CommonRestAPI {
 
 	@Test
 	public void testB_RestAPIDeleteByField() throws IOException, InterruptedException, ExecutionException {
-		Response response =
-				client().path("/services/rest/index/{index_name}/document/id/1/2", IntegrationTest.INDEX_NAME)
-						.accept(MediaType.APPLICATION_JSON).delete();
+		Response response = client().path("/services/rest/index/{index_name}/document/id/1/2").matrixParam("index_name",
+				IntegrationTest.INDEX_NAME).request(MediaType.APPLICATION_JSON).delete();
 		CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 		assertTrue("Wrong info: " + result.info, result.info.startsWith("2 document"));
 		checkCommonResultDetail(result, "deletedCount", 2);
@@ -85,9 +84,8 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testC_RestAPIDeleteByJson() throws IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response =
-					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document/id",
-							"[\"2\",\"3\"]");
+			CloseableHttpResponse response = doDeleteJson(hc,
+					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document/id", "[\"2\",\"3\"]");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("1 document"));
 			checkCommonResultDetail(result, "deletedCount", 1);
@@ -100,9 +98,8 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testD_RestAPIDeleteByJsonQueryUnique() throws ClientProtocolException, IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response =
-					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
-							"{ \"values\": [4, 5] }");
+			CloseableHttpResponse response = doDeleteJson(hc,
+					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents", "{ \"values\": [4, 5] }");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("2 document"));
 			checkCommonResultDetail(result, "deletedCount", 2);
@@ -115,9 +112,9 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testE_RestAPIDeleteByJsonQueryField() throws ClientProtocolException, IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response =
-					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
-							"{ \"field\": \"content\", \"values\": [\"hallo\"] }");
+			CloseableHttpResponse response = doDeleteJson(hc,
+					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
+					"{ \"field\": \"content\", \"values\": [\"hallo\"] }");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("1 document"));
 			checkCommonResultDetail(result, "deletedCount", 1);
@@ -130,9 +127,9 @@ public class RestDeleteTest extends CommonRestAPI {
 	public void testF_RestAPIDeleteByJsonUniqueReverse() throws ClientProtocolException, IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
-			CloseableHttpResponse response =
-					doDeleteJson(hc, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
-							"{ \"reverse\": true, \"values\": [10] }");
+			CloseableHttpResponse response = doDeleteJson(hc,
+					"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/documents",
+					"{ \"reverse\": true, \"values\": [10] }");
 			CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 			assertTrue("Wrong info: " + result.info, result.info.startsWith("3 document"));
 			checkCommonResultDetail(result, "deletedCount", 3);

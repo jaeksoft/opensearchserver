@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2015-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.util;
 
 import java.io.PrintWriter;
@@ -28,7 +28,7 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 
 public class ExceptionUtils extends
-		org.apache.commons.lang.exception.ExceptionUtils {
+		org.apache.commons.lang3.exception.ExceptionUtils {
 
 	public final static String getLocation(StackTraceElement[] stackTrace) {
 		for (StackTraceElement element : stackTrace)

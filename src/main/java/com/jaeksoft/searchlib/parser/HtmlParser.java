@@ -1,54 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.parser;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.WhitespaceAnalyzer;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.memory.MemoryIndex;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.similar.MoreLikeThis;
-import org.apache.lucene.util.Version;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -67,6 +41,30 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Lang;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.WhitespaceAnalyzer;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.memory.MemoryIndex;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.similar.MoreLikeThis;
+import org.apache.lucene.util.Version;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class HtmlParser extends Parser {
 
@@ -76,11 +74,19 @@ public class HtmlParser extends Parser {
 
 	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
 
-	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name, ParserFieldEnum.title,
-			ParserFieldEnum.generated_title, ParserFieldEnum.body, ParserFieldEnum.meta_keywords,
-			ParserFieldEnum.meta_description, ParserFieldEnum.meta_robots, ParserFieldEnum.internal_link,
-			ParserFieldEnum.internal_link_nofollow, ParserFieldEnum.external_link,
-			ParserFieldEnum.external_link_nofollow, ParserFieldEnum.lang, ParserFieldEnum.htmlProvider,
+	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
+			ParserFieldEnum.title,
+			ParserFieldEnum.generated_title,
+			ParserFieldEnum.body,
+			ParserFieldEnum.meta_keywords,
+			ParserFieldEnum.meta_description,
+			ParserFieldEnum.meta_robots,
+			ParserFieldEnum.internal_link,
+			ParserFieldEnum.internal_link_nofollow,
+			ParserFieldEnum.external_link,
+			ParserFieldEnum.external_link_nofollow,
+			ParserFieldEnum.lang,
+			ParserFieldEnum.htmlProvider,
 			ParserFieldEnum.htmlSource };
 
 	private class BoostTag {
@@ -198,7 +204,7 @@ public class HtmlParser extends Parser {
 		boolean bEnterDirectField = false;
 		String classNameAttribute = node.getAttribute("class");
 		if (classNameAttribute != null) {
-			String[] classNames = org.apache.commons.lang.StringUtils.split(classNameAttribute);
+			String[] classNames = org.apache.commons.lang3.StringUtils.split(classNameAttribute);
 			if (classNames != null) {
 				for (String className : classNames) {
 					if (OPENSEARCHSERVER_IGNORE.equalsIgnoreCase(className))
@@ -287,7 +293,7 @@ public class HtmlParser extends Parser {
 
 	private final HtmlDocumentProvider getHtmlDocumentProvider(HtmlParserEnum htmlParserEnum, String charset,
 			StreamLimiter streamLimiter, String xPathExclusions, Set<Object> xPathExclusionSet)
-					throws LimitException, IOException, SearchLibException {
+			throws LimitException, IOException, SearchLibException {
 
 		HtmlDocumentProvider htmlProvider;
 		try {
@@ -341,8 +347,8 @@ public class HtmlParser extends Parser {
 		IndexDocument sourceDocument = getSourceDocument();
 
 		if (sourceDocument != null) {
-			FieldValueItem fieldValueItem = sourceDocument
-					.getFieldValue(UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
+			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
+					UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
 				headerCharset = fieldValueItem.getValue();
 			if (headerCharset == null) {
@@ -487,8 +493,8 @@ public class HtmlParser extends Parser {
 
 		UrlFilterItem[] urlFilterList = getUrlFilterList();
 
-		boolean removeFragment = ClassPropertyEnum.KEEP_REMOVE_LIST[1]
-				.equalsIgnoreCase(getProperty(ClassPropertyEnum.URL_FRAGMENT).getValue());
+		boolean removeFragment = ClassPropertyEnum.KEEP_REMOVE_LIST[1].equalsIgnoreCase(
+				getProperty(ClassPropertyEnum.URL_FRAGMENT).getValue());
 
 		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame", "img");
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {

@@ -76,8 +76,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	private final static Pattern removeTagPattern = Pattern.compile("<[^>]*>");
-	private final static Pattern removeBrPattern1 =
-			Pattern.compile("\\.\\p{Space}+<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeBrPattern1 = Pattern.compile("\\.\\p{Space}+<br\\p{Space}*/?>",
+			Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeEndTagBlockPattern1 = Pattern.compile(
 			"\\.\\p{Space}+</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
 			Pattern.CASE_INSENSITIVE);
@@ -85,8 +85,8 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			"</(p|td|div|h1|h2|h3|h4|h5|h6|hr|li|option|pre|select|table|tbody|td|textarea|tfoot|thead|th|title|tr|ul)>",
 			Pattern.CASE_INSENSITIVE);
 	private final static Pattern removeBrPattern2 = Pattern.compile("<br\\p{Space}*/?>", Pattern.CASE_INSENSITIVE);
-	private final static Pattern removeScriptObjectStylePattern =
-			Pattern.compile("<(script|object|style)[^>]*>[^<]*</(script|object|style)>", Pattern.CASE_INSENSITIVE);
+	private final static Pattern removeScriptObjectStylePattern = Pattern.compile(
+			"<(script|object|style)[^>]*>[^<]*</(script|object|style)>", Pattern.CASE_INSENSITIVE);
 
 	public static final String replaceConsecutiveSpaces(String source, String replace) {
 		if (isEmpty(source))
@@ -227,11 +227,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	}
 
 	public final static String leftPad(int value, int size) {
-		return org.apache.commons.lang.StringUtils.leftPad(Integer.toString(value), size, '0');
+		return org.apache.commons.lang3.StringUtils.leftPad(Integer.toString(value), size, '0');
 	}
 
 	public final static String leftPad(long value, int size) {
-		return org.apache.commons.lang.StringUtils.leftPad(Long.toString(value), size, '0');
+		return org.apache.commons.lang3.StringUtils.leftPad(Long.toString(value), size, '0');
 	}
 
 	public final static String charsetDetector(InputStream inputStream) throws IOException {

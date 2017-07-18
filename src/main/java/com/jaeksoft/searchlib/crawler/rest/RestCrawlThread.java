@@ -1,46 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.rest;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.helpers.FileUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.utils.URIBuilder;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -58,6 +40,23 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.tools.ant.util.FileUtils;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RestCrawlThread extends CrawlThreadAbstract<RestCrawlThread, RestCrawlMaster> {
 
@@ -100,8 +99,9 @@ public class RestCrawlThread extends CrawlThreadAbstract<RestCrawlThread, RestCr
 		pendingIndexDocumentCount = new AtomicLong();
 		updatedIndexDocumentCount = new AtomicLong();
 		fieldMapContext = new FieldMapContext(client, restCrawlItem.getLang());
-		this.idsCallback = infoCallback != null && infoCallback instanceof CommonListResult<
-				?> ? ((CommonListResult<String>) infoCallback).items : null;
+		this.idsCallback = infoCallback != null && infoCallback instanceof CommonListResult<?> ?
+				((CommonListResult<String>) infoCallback).items :
+				null;
 	}
 
 	public String getCountInfo() {

@@ -27,32 +27,30 @@ package com.jaeksoft.searchlib.test.rest;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public abstract class CommonRestAPI {
 
-	public WebClient client() {
-		WebClient webClient = WebClient
-				.create(IntegrationTest.SERVER_URL, Collections.singletonList(new JacksonJsonProvider()));
-		// WebClient.getConfig(webClient).getRequestContext().put("use.async.http.conduit",
-		// Boolean.TRUE);
-		return webClient;
+	public WebTarget client() {
+		return ClientBuilder.newClient().target(IntegrationTest.SERVER_URL);
 	}
 
 	public <T extends CommonResult> T checkCommonResult(Response response, Class<T> commonResultClass, int httpCode) {
@@ -90,8 +88,9 @@ public abstract class CommonRestAPI {
 	}
 
 	private SearchResult search(String json, String path) throws ClientProtocolException, IOException {
-		Response response = client().path(path, IntegrationTest.INDEX_NAME).accept(MediaType.APPLICATION_JSON)
-				.type(MediaType.APPLICATION_JSON).post(json);
+		Response response = client().path(path + "/" + IntegrationTest.INDEX_NAME)
+				.request(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(json, MediaType.APPLICATION_JSON));
 		return checkCommonResult(response, SearchResult.class, 200);
 	}
 
@@ -104,14 +103,17 @@ public abstract class CommonRestAPI {
 	}
 
 	public void updateDocuments(String json) throws ClientProtocolException, IOException {
-		Response response = client().path("/services/rest/index/{index_name}/document", IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON).put(json);
+		Response response = client().path("/services/rest/index/{index_name}/document/" + IntegrationTest.INDEX_NAME)
+				.request(MediaType.APPLICATION_JSON)
+				.put(Entity.entity(json, MediaType.APPLICATION_JSON));
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	public void deleteAll() throws ClientProtocolException, IOException {
-		Response response = client().path("/services/rest/index/{index_name}/document/", IntegrationTest.INDEX_NAME)
-				.accept(MediaType.APPLICATION_JSON).query("query", "*:*").delete();
+		Response response = client().path("/services/rest/index/{index_name}/document/" + IntegrationTest.INDEX_NAME)
+				.queryParam("query", "*:*")
+				.request(MediaType.APPLICATION_JSON)
+				.delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 

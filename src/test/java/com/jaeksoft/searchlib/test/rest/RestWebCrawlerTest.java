@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.test.rest;
 
@@ -49,8 +49,8 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 	@Test
 	public void testA_AddSiteMap() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path(path, IntegrationTest.INDEX_NAME).query("site_map_url", siteMapUrl)
-				.accept(MediaType.APPLICATION_JSON).put(null);
+		Response response = client().path(path).matrixParam("index_name", IntegrationTest.INDEX_NAME).queryParam(
+				"site_map_url", siteMapUrl).request(MediaType.APPLICATION_JSON).put(null);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
@@ -58,7 +58,8 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 	public void testB_testGetSiteMap()
 			throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path(path, IntegrationTest.INDEX_NAME).accept(MediaType.APPLICATION_JSON).get();
+		Response response = client().path(path).matrixParam("index_name", IntegrationTest.INDEX_NAME).request(
+				MediaType.APPLICATION_JSON).get();
 		CommonListResult<String> cmd = checkCommonResult(response, CommonListResult.class, 200);
 		assertNotNull(cmd.items.toArray());
 		assertEquals(cmd.items.toArray()[0], siteMapUrl);
@@ -67,8 +68,8 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 	@Test
 	public void testC_DeleteSiteMap() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path(path, IntegrationTest.INDEX_NAME).query("site_map_url", siteMapUrl)
-				.accept(MediaType.APPLICATION_JSON).delete();
+		Response response = client().path(path).matrixParam("index_name", IntegrationTest.INDEX_NAME).queryParam(
+				"site_map_url", siteMapUrl).request(MediaType.APPLICATION_JSON).delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
@@ -76,15 +77,16 @@ public class RestWebCrawlerTest extends CommonRestAPI {
 	public void testD_DeleteNoneSiteMap()
 			throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path(path, IntegrationTest.INDEX_NAME).query("site_map_url", siteMapUrl)
-				.accept(MediaType.APPLICATION_JSON).delete();
+		Response response = client().path(path).matrixParam("index_name", IntegrationTest.INDEX_NAME).queryParam(
+				"site_map_url", siteMapUrl).request(MediaType.APPLICATION_JSON).delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
 	public void testE_GetSiteMap() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path(path, IntegrationTest.INDEX_NAME).accept(MediaType.APPLICATION_JSON).get();
+		Response response = client().path(path).matrixParam("index_name", IntegrationTest.INDEX_NAME).request(
+				MediaType.APPLICATION_JSON).get();
 		checkCommonResult(response, CommonListResult.class, 200);
 	}
 }
