@@ -6,7 +6,7 @@
 [![Join the chat at https://gitter.im/jaeksoft/opensearchserver](https://badges.gitter.im/jaeksoft/opensearchserver.svg)](https://gitter.im/jaeksoft/opensearchserver)
 
 
-Copyright Emmanuel Keller / Jaeksoft (2008-2016)
+Copyright Emmanuel Keller / Jaeksoft (2008-2017)
 This software is licensed under the GPL v3.
 
 OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Linux/Unix/BSD/Windows.

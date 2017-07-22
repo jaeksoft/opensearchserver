@@ -1,5 +1,5 @@
 OpenSearchServer
-Copyright 2008-2016 Emmanuel Keller / Jaeksoft
+Copyright 2008-2017 Emmanuel Keller / Jaeksoft
 http://www.open-search-server.com
 
 OpenSearchServer is free software: you can redistribute it and/or
@@ -19,50 +19,48 @@ If not, see <http://www.gnu.org/licenses/>.
 ----------------------------------------
  
 This project includes:
-  abego TreeLayout Core under BSD 3-Clause "New" or "Revised" License (BSD-3-Clause)
-  ant-launcher under Apache License, Version 2.0
+  Android SDK's dx Tool under Apache 2.0
+  Animal Sniffer Annotations under MIT license
   ANTLR 4 Runtime under The BSD License
-  ANTLR 4 Runtime Annotations under The BSD License
-  Apache Avro under The Apache Software License, Version 2.0
+  aopalliance version 1.0 repackaged as a module under CDDL + GPLv2 with classpath exception
+  Apache Ant Core under The Apache Software License, Version 2.0
+  Apache Ant Launcher under The Apache Software License, Version 2.0
+  Apache Commons BeanUtils under Apache License, Version 2.0
   Apache Commons Codec under Apache License, Version 2.0
-  Apache Commons Compress under The Apache Software License, Version 2.0
-  Apache Commons Email under The Apache Software License, Version 2.0
-  Apache Commons Lang under The Apache Software License, Version 2.0
+  Apache Commons Collections under Apache License, Version 2.0
+  Apache Commons Compress under Apache License, Version 2.0
+  Apache Commons Email under Apache License, Version 2.0
+  Apache Commons Exec under Apache License, Version 2.0
+  Apache Commons FileUpload under Apache License, Version 2.0
+  Apache Commons IO under Apache License, Version 2.0
+  Apache Commons Lang under Apache License, Version 2.0
+  Apache Commons Logging under The Apache Software License, Version 2.0
+  Apache Commons Net under Apache License, Version 2.0
   Apache Commons Pool under The Apache Software License, Version 2.0
-  Apache CXF API under The Apache Software License, Version 2.0
-  Apache CXF JAX-RS Extensions: Providers under The Apache Software License, Version 2.0
-  Apache CXF Runtime Core under The Apache Software License, Version 2.0
-  Apache CXF Runtime HTTP Async Transport under The Apache Software License, Version 2.0
-  Apache CXF Runtime HTTP Transport under The Apache Software License, Version 2.0
-  Apache CXF Runtime JAX-RS Frontend under The Apache Software License, Version 2.0
-  Apache CXF Runtime JAX-WS Frontend under The Apache Software License, Version 2.0
-  Apache CXF Runtime JAXB DataBinding under The Apache Software License, Version 2.0
-  Apache CXF Runtime Simple Frontend under The Apache Software License, Version 2.0
-  Apache CXF Runtime SOAP Binding under The Apache Software License, Version 2.0
-  Apache CXF Runtime WS Addressing under The Apache Software License, Version 2.0
-  Apache CXF Runtime WS Policy under The Apache Software License, Version 2.0
-  Apache CXF Runtime XML Binding under The Apache Software License, Version 2.0
-  Apache Directory API ASN.1 API under The Apache Software License, Version 2.0
-  Apache Directory LDAP API Utilities under The Apache Software License, Version 2.0
-  Apache FontBox under The Apache Software License, Version 2.0
-  Apache Hadoop Annotations under The Apache Software License, Version 2.0
-  Apache Hadoop Auth under The Apache Software License, Version 2.0
-  Apache Hadoop Client under The Apache Software License, Version 2.0
-  Apache Hadoop Common under The Apache Software License, Version 2.0
-  Apache Hadoop HDFS under The Apache Software License, Version 2.0
+  Apache Commons Validator under Apache License, Version 2.0
+  Apache Derby Database Engine and Embedded JDBC Driver under Apache 2
+  Apache FontBox under Apache License, Version 2.0
+  Apache Groovy under The Apache Software License, Version 2.0
+  Apache HttpAsyncClient under Apache License, Version 2.0
   Apache HttpClient under Apache License, Version 2.0
+  Apache HttpClient Fluent API under Apache License, Version 2.0
   Apache HttpClient Mime under Apache License, Version 2.0
   Apache HttpCore under Apache License, Version 2.0
-  Apache JAMES Mime4j (Core) under The Apache Software License, Version 2.0
-  Apache JempBox under The Apache Software License, Version 2.0
+  Apache HttpCore NIO under Apache License, Version 2.0
+  Apache James :: Mime4j :: Core under Apache License, Version 2.0
+  Apache JempBox under Apache License, Version 2.0
+  Apache Jena - Core under The Apache Software License, Version 2.0
+  Apache Jena - IRI under The Apache Software License, Version 2.0
   Apache Log4j under The Apache Software License, Version 2.0
-  Apache Neethi under The Apache Software License, Version 2.0
-  Apache PDFBox under The Apache Software License, Version 2.0
-  Apache PDFBox for Ant under The Apache Software License, Version 2.0
+  Apache Log4j 1.x Compatibility API under Apache License, Version 2.0
+  Apache Log4j API under Apache License, Version 2.0
+  Apache Log4j Core under Apache License, Version 2.0
+  Apache Log4j SLF4J Binding under Apache License, Version 2.0
+  Apache PDFBox under Apache License, Version 2.0
+  Apache PDFBox for Ant under Apache License, Version 2.0
   Apache POI under The Apache Software License, Version 2.0
   Apache Sanselan under The Apache Software License, Version 2.0
-  ApacheDS I18n under The Apache Software License, Version 2.0
-  ApacheDS Protocol Kerberos Codec under The Apache Software License, Version 2.0
+  args4j under MIT License
   ASM Core under BSD
   ASM helper Minidev under The Apache Software License, Version 2.0
   Batik AWT Utilities under Apache License, Version 2.0
@@ -74,152 +72,184 @@ This project includes:
   Batik SVG DOM under Apache License, Version 2.0
   Batik Utilities under Apache License, Version 2.0
   Batik XML under Apache License, Version 2.0
+  Bean Validation API under The Apache Software License, Version 2.0
   BeanShell under GNU LESSER GENERAL PUBLIC LICENSE
   Bouncy Castle CMS and S/MIME API under Bouncy Castle Licence
   Bouncy Castle Provider under Bouncy Castle Licence
+  BridJ (NativeLibs4Java C/C++ Interop Layer) under New BSD License (GPL-compatible)
   c3p0:JDBC DataSources/Resource Pools under GNU LESSER GENERAL PUBLIC LICENSE
-  cglib under Apache License, Version 2.0
-  Commons BeanUtils Core under The Apache Software License, Version 2.0
-  Commons CLI under The Apache Software License, Version 2.0
-  Commons Collections under The Apache Software License, Version 2.0
-  Commons Configuration under The Apache Software License, Version 2.0
-  Commons Exec under The Apache Software License, Version 2.0
-  Commons FileUpload under The Apache Software License, Version 2.0
-  Commons IO under The Apache Software License, Version 2.0
-  Commons Lang under The Apache Software License, Version 2.0
-  Commons Logging under The Apache Software License, Version 2.0
-  Commons Math under The Apache Software License, Version 2.0
-  Commons Net under The Apache Software License, Version 2.0
-  commons-beanutils under Apache License, Version 2.0
-  CSS Parser under GNU Lesser General Public License
-  Data Mapper for Jackson under The Apache Software License, Version 2.0
-  Digester under The Apache Software License, Version 2.0
+  cglib-nodep under ASF 2.0
+  com.jaeksoft:jcifs-krb5-jdk7 under GNU Lesser General Public License, version 2.1
+  com.sun.media:jai-codec under Sun Microsystems, Inc. Binary Code License Agreement
+  com.sun:tools under COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
+  commandline under The Apache Software License, Version 2.0
+  Common Annotations 1.2 API under CDDL or GPLv2 with exceptions
+  Commons Digester under The Apache Software License, Version 2.0
+  Concurrent-Trees under The Apache Software License, Version 2.0
+  ConcurrentLinkedHashMap under The Apache Software License, Version 2.0
+  curvesapi under BSD License
   Dropbox Core API SDK under MIT
+  Eclipse ECJ under Eclipse Public License v1.0
+  error-prone annotations under Apache 2.0
+  Externalizor under Apache License, Version 2.0
   fastutil under Apache License, Version 2.0
   FindBugs-jsr305 under The Apache Software License, Version 2.0
-  Fluent API for Apache HttpClient under Apache License, Version 2.0
   google-api-data-youtube-v2 under The Apache Software License, Version 2.0
-  Groovy under The Apache Software License, Version 2.0
-  Gson under The Apache Software License, Version 2.0
+  Gson under Apache 2.0
   Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
-  hadoop-mapreduce-client-app under The Apache Software License, Version 2.0
-  hadoop-mapreduce-client-common under The Apache Software License, Version 2.0
-  hadoop-mapreduce-client-core under The Apache Software License, Version 2.0
-  hadoop-mapreduce-client-jobclient under The Apache Software License, Version 2.0
-  hadoop-mapreduce-client-shuffle under The Apache Software License, Version 2.0
-  hadoop-yarn-api under The Apache Software License, Version 2.0
-  hadoop-yarn-client under The Apache Software License, Version 2.0
-  hadoop-yarn-common under The Apache Software License, Version 2.0
-  hadoop-yarn-server-common under The Apache Software License, Version 2.0
   Hamcrest Core under New BSD License
+  HK2 API module under CDDL + GPLv2 with classpath exception
+  HK2 Implementation Utilities under CDDL + GPLv2 with classpath exception
   HtmlCleaner under BSD License
   HtmlUnit under Apache License, Version 2.0
-  HtmlUnit Core JS under Mozilla Public License version 2.0
-  HttpAsyncClient under Apache License
-  HttpClient under Apache License
-  HttpCore NIO under Apache License
-  hunspell-dren under https://github.com/dren-dk/HunspellJNA
-  icepdf-core under Apache License, Version 2.0
-  icepdf-viewer under Apache License, Version 2.0
-  ICU4J under ICU License
+  htmlunit-driver under The Apache Software License, Version 2.0
+  HunspellBridJ under Mozilla Public License 1.1 or GNU General Public License v2.0 or later or GNU Lesser General Public License v2.1 or later
+  HyperSQL Database under HSQLDB License, a BSD open source license
+  ICEpdf Core under Apache License, Version 2.0
+  ICU4J under Unicode/ICU License
+  iijdbc under The GNU General Public License, Version 2.0
   imgscalr - A Java Image Scaling Library under ASF 2.0
-  Jackson under The Apache Software License, Version 2.0
+  J2ObjC Annotations under The Apache Software License, Version 2.0
+  Jackson dataformat: CBOR under The Apache Software License, Version 2.0
+  Jackson module: JAXB-annotations under The Apache Software License, Version 2.0
   Jackson-annotations under The Apache Software License, Version 2.0
   Jackson-core under The Apache Software License, Version 2.0
   jackson-databind under The Apache Software License, Version 2.0
   Jackson-dataformat-XML under The Apache Software License, Version 2.0
+  Jackson-dataformat-YAML under The Apache Software License, Version 2.0
   Jackson-JAXRS-base under The Apache Software License, Version 2.0
+  Jackson-JAXRS-CBOR under The Apache Software License, Version 2.0
   Jackson-JAXRS-JSON under The Apache Software License, Version 2.0
   Jackson-JAXRS-XML under The Apache Software License, Version 2.0
-  Jackson-module-JAXB-annotations under The Apache Software License, Version 2.0
+  Jackson-JAXRS-YAML under The Apache Software License, Version 2.0
   jakarta-regexp under Apache License, Version 2.0
   jaudiotagger under LGPL
   Java Architecture for XML Binding under CDDL 1.1 or GPL2 w/ CPE
-  Java Native Access under LGPL, version 2.1
-  Java Native Access Platform under LGPL, version 2.1
+  Java Native Access under LGPL, version 2.1 or ASL, version 2
+  Java Native Access Platform under LGPL, version 2.1 or ASL, version 2
+  Java Servlet 3.1 API under Common Development and Distribution License or GNU General Public License, Version 2 with the Classpath Exception
+  Java Servlet API under CDDL + GPLv2 with classpath exception
+  Java UUID Generator under The Apache Software License, Version 2.0
+  java-rdfa under BSD
   JavaBeans(TM) Activation Framework under COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
-  JavaMail API (compat) under CDDL or GPLv2+CE
+  JavaMail API under CDDL/GPLv2+CE
+  JavaServer Pages(TM) API under CDDL + GPLv2 with classpath exception
+  Javassist under MPL 1.1 or LGPL 2.1 or Apache License 2.0
+  javax.annotation API under CDDL + GPLv2 with classpath exception
+  javax.inject:1 as OSGi bundle under CDDL + GPLv2 with classpath exception
+  javax.media:jai-core under JDL (Java Distribution License)
   javax.ws.rs-api under CDDL 1.1 or GPL2 w/ CPE
-  JAX-RS provider for JSON content type under The Apache Software License, Version 2.0 or GNU Lesser General Public License (LGPL), Version 2.1
-  JAXB Reference Implementation under CDDL 1.1 or GPL2 w/ CPE
-  jCIFS under GNU Lesser General Public License, version 2.1
+  JBoss Logging 3 under Apache License, version 2.0
+  JCL 1.2 implemented over SLF4J under MIT License
   JDOM under Apache style license
   Jedis under MIT
-  jersey-client under CDDL 1.1 or GPL2 w/ CPE
-  jersey-core under CDDL 1.1 or GPL2 w/ CPE
-  Jetty :: Http Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
+  jersey-container-servlet under CDDL+GPL License
+  jersey-container-servlet-core under CDDL+GPL License
+  jersey-core-client under CDDL+GPL License
+  jersey-core-common under CDDL+GPL License
+  jersey-core-server under CDDL+GPL License
+  jersey-ext-entity-filtering under CDDL+GPL License
+  jersey-media-jaxb under CDDL+GPL License
+  jersey-media-json-jackson under CDDL+GPL License
+  jersey-repackaged-guava under CDDL+GPL License
   Jetty :: IO Utility under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
   Jetty :: Utilities under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
-  Jetty :: Websocket under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
-  Jetty Utilities under Apache Software License - Version 2.0 or Eclipse Public License - Version 1.0
+  jMimeMagic under Apache License, Version 2.0
   JSON in Java under The JSON License
   Json Path under The Apache Software License, Version 2.0
   JSON Small and Fast Parser under The Apache Software License, Version 2.0
   JSON.simple under The Apache Software License, Version 2.0
   jsonic under The Apache Software License, Version 2.0
-  jsoup under The MIT License
-  JUnit under Common Public License Version 1.0
+  jsoup Java HTML Parser under The MIT License
+  jTDS under LGPL
+  JUL to SLF4J bridge under MIT License
+  JUnit under Eclipse Public License 1.0
   language-detection-lib under Apache 2
   leveldbjni-all under The BSD 3-Clause License
+  lmdbjni under The Apache Software License, Version 2.0
+  lmdbjni-linux64 under The Apache Software License, Version 2.0
+  lmdbjni-osx64 under The Apache Software License, Version 2.0
+  lmdbjni-win64 under The Apache Software License, Version 2.0
   Lucene Common Analyzers under Apache 2
   Lucene Core under Apache 2
   Lucene Memory under Apache 2
   Lucene Queries under Apache 2
   Lucene Spellchecker under Apache 2
   Lucene Stempel Analyzer under Apache 2
+  MongoDB Java Driver under The Apache Software License, Version 2.0
+  MySQL Connector/J under The GNU General Public License, Version 2
   Neko HTML under The Apache Software License, Version 2.0
   ODF Custom Javadoc Taglets under Apache 2
   ODFDOM under Apache 2
   opencsv under Apache 2
   OpenSearchServer under General Public License, Version 3.0
-  org.apache.tools.ant under Apache License, Version 2.0
-  ParaNamer Core under BSD
+  OSGi LogService implemented over SLF4J under MIT License
+  OSGi resource locator bundle - used by various API providers that rely on META-INF/services mechanism to locate providers. under CDDL + GPLv2 with classpath exception
   PhantomJSDriver under The BSD 2-Clause License
-  pojodbc under Apache License, Version 2.0
-  Protocol Buffer Java API under New BSD license
+  PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
   Quartz Enterprise Job Scheduler under Apache 2.0
   quartz-commonj under Apache 2.0
+  QWAZR Cluster under Apache License, Version 2.0
+  QWAZR Crawlers under Apache License, Version 2.0
+  QWAZR Database under Apache License, Version 2.0
+  QWAZR Library under Apache License, Version 2.0
+  QWAZR Scripts under Apache License, Version 2.0
+  QWAZR Server under Apache License, Version 2.0
+  QWAZR Utils under Apache License, Version 2.0
+  RoaringBitmap under Apache 2
   ROME, RSS and atOM utilitiEs for Java under Apache 2
   selenium-api under The Apache Software License, Version 2.0
   selenium-chrome-driver under The Apache Software License, Version 2.0
+  selenium-edge-driver under The Apache Software License, Version 2.0
   selenium-firefox-driver under The Apache Software License, Version 2.0
-  selenium-htmlunit-driver under The Apache Software License, Version 2.0
   selenium-ie-driver under The Apache Software License, Version 2.0
   selenium-java under The Apache Software License, Version 2.0
+  selenium-opera-driver under The Apache Software License, Version 2.0
   selenium-remote-driver under The Apache Software License, Version 2.0
   selenium-safari-driver under The Apache Software License, Version 2.0
   selenium-support under The Apache Software License, Version 2.0
+  ServiceLocator Default Implementation under CDDL + GPLv2 with classpath exception
   servlet-api under Commons Development and Distribution License, Version 1.0
   Simple API for CSS under The W3C Software License
   Simple Java API for ODF (Simple ODF) under The Apache Software License, Version 2.0
   SLF4J API Module under MIT License
   SLF4J LOG4J-12 Binding under MIT License
-  Snappy for Java under The Apache Software License, Version 2.0
+  SnakeYAML under Apache License, Version 2.0
+  snappy-java under The Apache Software License, Version 2.0
+  SQLite JDBC under The Apache Software License, Version 2.0
   StAX API under The Apache Software License, Version 2.0
   Stax2 API under The BSD License
   Streaming API for XML under Sun Binary Code License
   TagSoup under Apache License 2.0
-  The Netty Project under Apache License, Version 2.0
   The ZK EL Library under Apache License, Version 2.0
   The ZKoss Common Library under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
   The ZKoss Web Library under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
-  webbit under BSD License
-  Woodstox under The Apache Software License, Version 2.0
-  WSDL4J under CPL
+  tomcat-annotations-api under Apache License, Version 2.0
+  tomcat-api under Apache License, Version 2.0
+  tomcat-catalina under Apache License, Version 2.0
+  tomcat-embed-core under Apache License, Version 2.0
+  tomcat-embed-el under Apache License, Version 2.0
+  tomcat-embed-jasper under Apache License, Version 2.0
+  tomcat-embed-logging-log4j under Apache License, Version 2.0
+  tomcat-embed-websocket under Apache License, Version 2.0
+  tomcat-juli under Apache License, Version 2.0
+  tomcat-servlet-api under Apache License, Version 2.0 and
+        Common Development And Distribution License (CDDL) Version 1.0
+  tomcat-util under Apache License, Version 2.0
+  Undertow Core under Apache License Version 2.0
+  Undertow Servlet under Apache License Version 2.0
+  Woodstox under The Apache License, Version 2.0
   Xalan Java under The Apache Software License, Version 2.0
   Xalan Java Serializer under The Apache Software License, Version 2.0
   Xerces2-j under The Apache Software License, Version 2.0
   XML Commons External Components XML APIs under The Apache Software License, Version 2.0 or The SAX License or The W3C License
-  XML Commons Resolver Component under The Apache Software License, Version 2.0
-  Xml Compatibility extensions for Jackson under The Apache Software License, Version 2.0 or GNU Lesser General Public License (LGPL), Version 2.1
   XmlBeans under The Apache Software License, Version 2.0
-  xmlenc Library under The BSD License
   xmlParserAPIs under Apache License, Version 2.0
-  XmlSchema Core under The Apache Software License, Version 2.0
+  XNIO API under Public Domain
+  XNIO NIO Implementation under Public Domain
   ZK Bind under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
   ZK Kernel under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
   ZK Plus Utilities under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
   ZK XHTML Components under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
   ZK XUL Components under GNU LESSER GENERAL PUBLIC LICENSE, Version 3
-  zookeeper under Apache License, Version 2.0
 
