@@ -44,10 +44,10 @@ public class RestSchedulerTest extends CommonRestAPI {
 	@Test
 	public void test1_addTaskItem() throws IOException {
 		String json = getResource("Scheduler_test.json");
-		Response response = client().path("/services/rest/index/{index_name}/scheduler/create").resolveTemplate(
-				"index_name", IntegrationTest.INDEX_NAME).queryParam("login", "Tetraa", "key",
-				"85dd8ea46c51d14370352c37dda79e4a").request(MediaType.APPLICATION_JSON).put(
-				Entity.entity(json, MediaType.APPLICATION_JSON));
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/scheduler/create")
+				.queryParam("login", "Tetraa", "key", "85dd8ea46c51d14370352c37dda79e4a")
+				.request(MediaType.APPLICATION_JSON)
+				.put(Entity.entity(json, MediaType.APPLICATION_JSON));
 		checkCommonResult(response, SchedulerResult.class, 200);
 	}
 }

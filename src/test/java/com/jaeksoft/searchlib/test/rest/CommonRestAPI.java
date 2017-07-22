@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.test.rest;
 
@@ -30,6 +30,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaeksoft.searchlib.test.IntegrationTest;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
+import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract;
+import com.jaeksoft.searchlib.webservice.query.search.SearchPatternQuery;
+import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ClientProtocolException;
@@ -56,6 +59,7 @@ public abstract class CommonRestAPI {
 	public <T extends CommonResult> T checkCommonResult(Response response, Class<T> commonResultClass, int httpCode) {
 		assertNotNull(response);
 		assertEquals((int) httpCode, response.getStatus());
+		String json = response.getEntity().toString();
 		T commonResult = response.readEntity(commonResultClass);
 		assertNotNull(commonResult.successful);
 		assertEquals(true, commonResult.successful);
@@ -87,30 +91,31 @@ public abstract class CommonRestAPI {
 		return res;
 	}
 
-	private SearchResult search(String json, String path) throws ClientProtocolException, IOException {
-		Response response = client().path(path + "/" + IntegrationTest.INDEX_NAME)
-				.request(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(json, MediaType.APPLICATION_JSON));
+	public <T> T getResource(String name, Class<? extends T> objectClass) throws IOException {
+		return objectMapper.readValue(getResource(name), objectClass);
+	}
+
+	private SearchResult search(SearchQueryAbstract query, String path) throws ClientProtocolException, IOException {
+		Response response = client().path(path).request(MediaType.APPLICATION_JSON).post(Entity.json(query));
 		return checkCommonResult(response, SearchResult.class, 200);
 	}
 
-	public SearchResult searchPattern(String json) throws ClientProtocolException, IOException {
-		return search(json, "/services/rest/index/{index_name}/search/pattern");
+	public SearchResult searchPattern(SearchPatternQuery query) throws ClientProtocolException, IOException {
+		return search(query, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/search/pattern");
 	}
 
-	public SearchResult searchField(String json) throws ClientProtocolException, IOException {
-		return search(json, "/services/rest/index/{index_name}/search/field");
+	public SearchResult searchField(SearchFieldQuery query) throws ClientProtocolException, IOException {
+		return search(query, "/services/rest/index/" + IntegrationTest.INDEX_NAME + "/search/field");
 	}
 
 	public void updateDocuments(String json) throws ClientProtocolException, IOException {
-		Response response = client().path("/services/rest/index/{index_name}/document/" + IntegrationTest.INDEX_NAME)
-				.request(MediaType.APPLICATION_JSON)
-				.put(Entity.entity(json, MediaType.APPLICATION_JSON));
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document").request(
+				MediaType.APPLICATION_JSON).put(Entity.entity(json, MediaType.APPLICATION_JSON));
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	public void deleteAll() throws ClientProtocolException, IOException {
-		Response response = client().path("/services/rest/index/{index_name}/document/" + IntegrationTest.INDEX_NAME)
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document")
 				.queryParam("query", "*:*")
 				.request(MediaType.APPLICATION_JSON)
 				.delete();

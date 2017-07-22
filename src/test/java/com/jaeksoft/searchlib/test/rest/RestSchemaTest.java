@@ -45,42 +45,40 @@ public class RestSchemaTest extends CommonRestAPI {
 	@Test
 	public void testA_addFields() throws IOException {
 		String json = getResource("schema_fields.json");
-		Response response = client().path("/services/rest/index/{index_name}/field/").resolveTemplate("index_name",
-				IntegrationTest.INDEX_NAME).request(MediaType.APPLICATION_JSON).put(
-				Entity.entity(json, MediaType.APPLICATION_JSON));
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field/").request(
+				MediaType.APPLICATION_JSON).put(Entity.entity(json, MediaType.APPLICATION_JSON));
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
 	public void testB_addField() throws IOException {
 		String json = getResource("schema_field.json");
-		Response response = client().path("/services/rest/index/{index_name}/autocomplete").resolveTemplate(
-				"index_name", IntegrationTest.INDEX_NAME).request(MediaType.APPLICATION_JSON).put(
-				Entity.entity(json, MediaType.APPLICATION_JSON));
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field/autocomplete")
+				.request(MediaType.APPLICATION_JSON)
+				.put(Entity.entity(json, MediaType.APPLICATION_JSON));
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
 	public void testC_addField() throws IOException {
 		String json = getResource("schema_field_noname.json");
-		Response response = client().path("/services/rest/index/{index_name}/field/{field_name}").resolveTemplate(
-				"index_name", IntegrationTest.INDEX_NAME).resolveTemplate("field_name", "autocomplete2").request(
-				MediaType.APPLICATION_JSON).put(Entity.entity(json, MediaType.APPLICATION_JSON));
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field/autocomplete2")
+				.request(MediaType.APPLICATION_JSON)
+				.put(Entity.entity(json, MediaType.APPLICATION_JSON));
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
 	public void testD_setDefaulUniqueField() {
-		Response response = client().path("/services/rest/index/{index_name}/field").resolveTemplate("index_name)",
-				IntegrationTest.INDEX_NAME).queryParam("default", "content").queryParam("unique", "id").request(
-				MediaType.APPLICATION_JSON).post(null);
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field").queryParam(
+				"default", "content").queryParam("unique", "id").request(MediaType.APPLICATION_JSON).post(null);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
 	public void testE_listFields() {
-		Response response = client().path("/services/rest/index/{index_name}/field").resolveTemplate("index_name",
-				IntegrationTest.INDEX_NAME).request(MediaType.APPLICATION_JSON).get();
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field").request(
+				MediaType.APPLICATION_JSON).get();
 		ResultFieldList resultFieldList = checkCommonResult(response, ResultFieldList.class, 200);
 		assertEquals("id", resultFieldList.uniqueField);
 		assertEquals("content", resultFieldList.defaultField);
@@ -89,18 +87,18 @@ public class RestSchemaTest extends CommonRestAPI {
 
 	@Test
 	public void testF_getField() {
-		Response response = client().path("/services/rest/index/{index_name}/field/{field_name}").resolveTemplate(
-				"index_name", IntegrationTest.INDEX_NAME).resolveTemplate("field_name", "autocomplete2").request(
-				MediaType.APPLICATION_JSON).get();
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field/autocomplete2")
+				.request(MediaType.APPLICATION_JSON)
+				.get();
 		ResultField resultField = checkCommonResult(response, ResultField.class, 200);
 		assertEquals("autocomplete2", resultField.field.name);
 	}
 
 	@Test
 	public void testG_deleteField() {
-		Response response = client().path("/services/rest/index/{index_name}/field/{field_name}").resolveTemplate(
-				"index_name", IntegrationTest.INDEX_NAME).resolveTemplate("field_name", "autocomplete2").request(
-				MediaType.APPLICATION_JSON).delete();
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/field/autocomplete2")
+				.request(MediaType.APPLICATION_JSON)
+				.delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 }

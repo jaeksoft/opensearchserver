@@ -47,8 +47,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 
 	@Test
 	public void testAdeleteRemainingIndex() {
-		client().path("/services/rest/index/{index_name}")
-				.matrixParam("index_name", IntegrationTest.INDEX_NAME)
+		client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME)
 				.request(MediaType.APPLICATION_JSON)
 				.delete();
 	}
@@ -56,17 +55,18 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 	@Test
 	public void testBCreateIndex() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path("/services/rest/index/{index_name}/template/{template_name}").resolveTemplate(
-				"index_name", IntegrationTest.INDEX_NAME).resolveTemplate("template_name",
-				TemplateList.EMPTY_INDEX.name()).request(MediaType.APPLICATION_JSON).post(null);
+		Response response = client().path(
+				"/services/rest/index/" + IntegrationTest.INDEX_NAME + "/template/" + TemplateList.EMPTY_INDEX.name())
+				.request(MediaType.APPLICATION_JSON)
+				.post(null);
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 
 	@Test
 	public void testCExistsIndex() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path("/services/rest/index/{index_name}").resolveTemplate("index_name",
-				IntegrationTest.INDEX_NAME).request(MediaType.APPLICATION_JSON).get();
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME).request(
+				MediaType.APPLICATION_JSON).get();
 		checkCommonResult(response, ResultIndex.class, 200);
 	}
 
@@ -75,7 +75,7 @@ public class RestIndexCreateExistsListTest extends CommonRestAPI {
 			ParserConfigurationException {
 		Response response = client().path("/services/rest/index").request(MediaType.APPLICATION_JSON).get();
 		ResultIndexList resultIndexList = checkCommonResult(response, ResultIndexList.class, 200);
-		assertTrue(resultIndexList.indexList.contains(IntegrationTest.INDEX_NAME));
+		assertTrue(resultIndexList.index.contains(IntegrationTest.INDEX_NAME));
 	}
 
 }

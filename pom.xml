@@ -801,12 +801,17 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-jaxb</artifactId>
-            <version>2.25.1</version>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>2.25.1</version>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -826,6 +831,7 @@
         <jackson.version>2.8.9</jackson.version>
         <tomcat.version>7.0.79</tomcat.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <jersey.version>2.25.1</jersey.version>
     </properties>
 
     <build>

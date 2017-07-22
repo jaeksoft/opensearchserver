@@ -1,32 +1,32 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.webservice.monitor;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jaeksoft.searchlib.Monitor;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,10 +34,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
-
-import com.jaeksoft.searchlib.Monitor;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.webservice.CommonResult;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
@@ -47,6 +47,7 @@ public class MonitorResult extends CommonResult {
 	final public MonitorBasic basic;
 
 	@XmlElement(name = "property")
+	@JsonProperty("properties")
 	final public List<MonitorProperties> properties;
 
 	public MonitorResult() {
@@ -54,16 +55,15 @@ public class MonitorResult extends CommonResult {
 		properties = null;
 	}
 
-	public MonitorResult(boolean full) throws SearchLibException,
-			SecurityException, IOException {
+	public MonitorResult(boolean full) throws SearchLibException, SecurityException, IOException {
 		super(true, null);
 		Monitor monitor = new Monitor();
 		basic = new MonitorBasic(monitor);
 		if (full) {
 			properties = new ArrayList<MonitorProperties>();
 			for (Entry<Object, Object> prop : monitor.getProperties()) {
-				MonitorProperties monitorProperties = new MonitorProperties(
-						prop.getKey().toString(), prop.getValue().toString());
+				MonitorProperties monitorProperties = new MonitorProperties(prop.getKey().toString(),
+						prop.getValue().toString());
 				properties.add(monitorProperties);
 			}
 		} else
@@ -107,8 +107,7 @@ public class MonitorResult extends CommonResult {
 			freeDiskRate = null;
 		}
 
-		public MonitorBasic(Monitor monitor) throws SearchLibException,
-				SecurityException, IOException {
+		public MonitorBasic(Monitor monitor) throws SearchLibException, SecurityException, IOException {
 			availableProcessors = monitor.getAvailableProcessors();
 			freeMemory = monitor.getFreeMemory();
 			memoryRate = monitor.getMemoryRate();

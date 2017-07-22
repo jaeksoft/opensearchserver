@@ -55,8 +55,8 @@ public class RestDeleteTest extends CommonRestAPI {
 
 	@Test
 	public void testB_RestAPIDeleteByField() throws IOException, InterruptedException, ExecutionException {
-		Response response = client().path("/services/rest/index/{index_name}/document/id/1/2").matrixParam("index_name",
-				IntegrationTest.INDEX_NAME).request(MediaType.APPLICATION_JSON).delete();
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document/id/1/2")
+				.request(MediaType.APPLICATION_JSON).delete();
 		CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 		assertTrue("Wrong info: " + result.info, result.info.startsWith("2 document"));
 		checkCommonResultDetail(result, "deletedCount", 2);

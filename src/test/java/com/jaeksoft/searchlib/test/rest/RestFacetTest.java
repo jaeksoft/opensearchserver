@@ -1,7 +1,7 @@
 /**   
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -38,6 +38,7 @@ import org.junit.runners.MethodSorters;
 import com.jaeksoft.searchlib.webservice.query.search.FacetFieldItem;
 import com.jaeksoft.searchlib.webservice.query.search.FacetResult;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
+import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestFacetTest extends CommonRestAPI {
@@ -55,7 +56,7 @@ public class RestFacetTest extends CommonRestAPI {
 
 	final static String[] CATEGORIES = { "blue", "green", "red", "yellow" };
 
-	private void facetTest(String searchJson, long[] expectedCounts)
+	private void facetTest(SearchFieldQuery query, long[] expectedCounts)
 			throws ClientProtocolException, IOException {
 
 		// Build expected structure
@@ -63,7 +64,7 @@ public class RestFacetTest extends CommonRestAPI {
 		for (int i = 0; i < expectedCounts.length; i++)
 			facetValues.put(CATEGORIES[i], expectedCounts[i]);
 
-		SearchResult searchResult = searchField(searchJson);
+		SearchResult searchResult = searchField(query);
 		assertNotNull(searchResult.facets);
 		FacetResult facetCategory = null;
 		for (FacetResult facet : searchResult.facets) {
@@ -86,24 +87,24 @@ public class RestFacetTest extends CommonRestAPI {
 	@Test
 	public void testC_FacetSinglePreCollapse() throws ClientProtocolException,
 			IOException {
-		String json = getResource("facet_single_pre_collapse.json");
+		SearchFieldQuery query = getResource("facet_single_pre_collapse.json", SearchFieldQuery.class);
 		final long[] results = { 2, 3, 4, 5 };
-		facetTest(json, results);
+		facetTest(query, results);
 	}
 
 	@Test
 	public void testC_FacetSinglePostCollapseCluster()
 			throws ClientProtocolException, IOException {
-		String json = getResource("facet_single_post_collapse_cluster.json");
+		SearchFieldQuery query = getResource("facet_single_post_collapse_cluster.json", SearchFieldQuery.class);
 		final long[] results = { 1, 1, 1, 1 };
-		facetTest(json, results);
+		facetTest(query, results);
 	}
 
 	@Test
 	public void testC_FacetSinglePostCollapseAdjacent()
 			throws ClientProtocolException, IOException {
-		String json = getResource("facet_single_post_collapse_adjacent.json");
+		SearchFieldQuery query = getResource("facet_single_post_collapse_adjacent.json", SearchFieldQuery.class);
 		final long[] results = { 1, 1, 1, 1 };
-		facetTest(json, results);
+		facetTest(query, results);
 	}
 }

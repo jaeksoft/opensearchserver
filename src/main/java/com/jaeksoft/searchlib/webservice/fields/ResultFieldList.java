@@ -23,16 +23,15 @@
  **/
 package com.jaeksoft.searchlib.webservice.fields;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.webservice.CommonResult;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jaeksoft.searchlib.schema.SchemaField;
-import com.jaeksoft.searchlib.webservice.CommonResult;
+import java.util.List;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")

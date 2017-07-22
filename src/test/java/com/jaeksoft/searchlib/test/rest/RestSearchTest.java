@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,29 +20,28 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.test.rest;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
+import com.jaeksoft.searchlib.webservice.query.search.SearchPatternQuery;
+import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RestSearchTest extends CommonRestAPI {
 
 	@Test
-	public void testA_WildcardSearchPattern() throws ClientProtocolException,
-			IOException {
-		String json = getResource("wildcard_search_pattern.json");
-		SearchResult searchResult = searchPattern(json);
+	public void testA_WildcardSearchPattern() throws ClientProtocolException, IOException {
+		SearchPatternQuery query = getResource("wildcard_search_pattern.json", SearchPatternQuery.class);
+		SearchResult searchResult = searchPattern(query);
 		assertEquals(10, searchResult.numFound);
 	}
 }

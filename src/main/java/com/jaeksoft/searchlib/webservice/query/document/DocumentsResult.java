@@ -23,19 +23,19 @@
  **/
 package com.jaeksoft.searchlib.webservice.query.document;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
@@ -43,12 +43,15 @@ import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 public class DocumentsResult {
 
 	@XmlElement(name = "document")
+	@JsonProperty("documents")
 	final public List<DocumentResult> documents;
 
 	@XmlElement(name = "indexDocument")
+	@JsonProperty("indexDocuments")
 	final public List<IndexDocumentResult> indexDocuments;
 
 	@XmlElement(name = "k")
+	@JsonProperty("uniqueKeys")
 	final public String[] uniqueKeys;
 
 	public DocumentsResult() {

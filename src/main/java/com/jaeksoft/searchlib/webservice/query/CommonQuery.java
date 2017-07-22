@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,17 +20,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.webservice.query;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -59,30 +51,33 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
 
 public class CommonQuery extends CommonServices {
 
 	@SuppressWarnings("unchecked")
-	protected <T extends AbstractRequest> T getRequest(Client client,
-			String template, Class<T> requestClass) throws SearchLibException {
+	protected <T extends AbstractRequest> T getRequest(Client client, String template, Class<T> requestClass)
+			throws SearchLibException {
 		if (template == null || template.length() == 0)
 			return null;
 		AbstractRequest request = client.getNewRequest(template);
 		if (!requestClass.isInstance(request))
-			throw new CommonServiceException("The template " + template
-					+ " don't have the expected type: "
-					+ request.getType().getLabel());
+			throw new CommonServiceException(
+					"The template " + template + " don't have the expected type: " + request.getType().getLabel());
 		return (T) request;
 	}
 
-	protected QueryTemplateResultList queryTemplateList(String index,
-			String login, String key, RequestTypeEnum... types) {
+	protected QueryTemplateResultList queryTemplateList(String index, String login, String key,
+			RequestTypeEnum... types) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_INDEX);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
-			return new QueryTemplateResultList(client.getRequestMap()
-					.getRequests(), types);
+			return new QueryTemplateResultList(client.getRequestMap().getRequests(), types);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
 		} catch (IOException e) {
@@ -92,14 +87,12 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	protected CommonResult queryTemplateSet(Client client, String index,
-			String login, String key, String template, QueryAbstract query,
-			AbstractRequest request) {
+	protected CommonResult queryTemplateSet(Client client, String index, String login, String key, String template,
+			QueryAbstract query, AbstractRequest request) {
 		try {
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (query == null)
-				throw new CommonServiceException(Status.BAD_REQUEST,
-						"The query is missing");
+				throw new CommonServiceException(Status.BAD_REQUEST, "The query is missing");
 			request.setRequestName(template);
 			query.apply(request);
 			client.getRequestMap().put(request);
@@ -114,20 +107,17 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	protected CommonResult queryTemplateDelete(String index, String login,
-			String key, String template, RequestTypeEnum... types) {
+	protected CommonResult queryTemplateDelete(String index, String login, String key, String template,
+			RequestTypeEnum... types) {
 		try {
-			Client client = getLoggedClient(index, login, key,
-					Role.INDEX_UPDATE);
+			Client client = getLoggedClient(index, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (template == null)
-				throw new CommonServiceException(Status.BAD_REQUEST,
-						"Not template given");
+				throw new CommonServiceException(Status.BAD_REQUEST, "Not template given");
 			RequestMap requestMap = client.getRequestMap();
 			AbstractRequest request = requestMap.get(template);
 			if (request == null)
-				throw new CommonServiceException(Status.NOT_FOUND,
-						"Template not found: " + template);
+				throw new CommonServiceException(Status.NOT_FOUND, "Template not found: " + template);
 
 			RequestTypeEnum typeFound = null;
 			for (RequestTypeEnum type : types)
@@ -135,8 +125,7 @@ public class CommonQuery extends CommonServices {
 					typeFound = type;
 			if (typeFound == null)
 				throw new CommonServiceException(Status.NOT_FOUND,
-						"Wrong deletion API for this type: "
-								+ request.getType());
+						"Wrong deletion API for this type: " + request.getType());
 			requestMap.remove(template);
 			client.saveRequests();
 			return new CommonResult(true, "Template deleted: " + template);
@@ -149,33 +138,27 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	public static final AbstractRequest getNewRequest(Client client,
-			String template, RequestTypeEnum... types)
+	public static final AbstractRequest getNewRequest(Client client, String template, RequestTypeEnum... types)
 			throws SearchLibException {
 		if (StringUtils.isEmpty(template))
-			throw new CommonServiceException(Status.BAD_REQUEST,
-					"Template property is empty");
+			throw new CommonServiceException(Status.BAD_REQUEST, "Template property is empty");
 		AbstractRequest request = client.getNewRequest(template);
 		if (request == null)
-			throw new CommonServiceException(Status.NOT_FOUND,
-					"Template not found: " + template);
+			throw new CommonServiceException(Status.NOT_FOUND, "Template not found: " + template);
 		for (RequestTypeEnum type : types)
 			if (type == request.requestType)
 				return request;
 		throw new CommonServiceException(Status.BAD_REQUEST,
-				"Wrong request type: " + request.requestType.getLabel()
-						+ " template:" + template);
+				"Wrong request type: " + request.requestType.getLabel() + " template:" + template);
 	}
 
-	protected AbstractRequest queryTemplateGet(String index, String login,
-			String key, String template, RequestTypeEnum... types) {
+	protected AbstractRequest queryTemplateGet(String index, String login, String key, String template,
+			RequestTypeEnum... types) {
 		try {
-			Client client = getLoggedClientAnyRole(index, login, key,
-					Role.GROUP_INDEX);
+			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_INDEX);
 			ClientFactory.INSTANCE.properties.checkApi();
 			if (template == null)
-				throw new CommonServiceException(Status.BAD_REQUEST,
-						"Not template found");
+				throw new CommonServiceException(Status.BAD_REQUEST, "Not template found");
 			return getNewRequest(client, template, types);
 		} catch (InterruptedException e) {
 			throw new CommonServiceException(e);
@@ -186,24 +169,16 @@ public class CommonQuery extends CommonServices {
 		}
 	}
 
-	protected AbstractSearchRequest getSearchRequest(Client client,
-			String template, String query, Integer start, Integer rows,
-			LanguageEnum lang, OperatorEnum operator, String collapseField,
-			Integer collapseMax, CollapseParameters.Mode collapseMode,
-			CollapseParameters.Type collapseType, List<String> filter,
-			List<String> negativeFilter, List<String> sort,
-			List<String> returnedField, List<String> snippetField,
-			List<String> facet, List<String> facetCollapse,
-			List<String> facetMulti, List<String> facetMultiCollapse,
-			List<String> filterParams, List<String> joinParams,
-			Boolean enableLog, List<String> customLog)
-			throws SearchLibException, SyntaxError, IOException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, ParseException, URISyntaxException,
-			InterruptedException {
+	protected AbstractSearchRequest getSearchRequest(Client client, String template, String query, Integer start,
+			Integer rows, LanguageEnum lang, OperatorEnum operator, String collapseField, Integer collapseMax,
+			CollapseParameters.Mode collapseMode, CollapseParameters.Type collapseType, List<String> filter,
+			List<String> negativeFilter, List<String> sort, List<String> returnedField, List<String> snippetField,
+			List<String> facet, List<String> facetCollapse, List<String> facetMulti, List<String> facetMultiCollapse,
+			List<String> filterParams, List<String> joinParams, Boolean enableLog, List<String> customLog)
+			throws SearchLibException, SyntaxError, IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, ParseException, URISyntaxException, InterruptedException {
 
-		AbstractSearchRequest searchRequest = getRequest(client, template,
-				AbstractSearchRequest.class);
+		AbstractSearchRequest searchRequest = getRequest(client, template, AbstractSearchRequest.class);
 		if (searchRequest == null)
 			searchRequest = new SearchPatternRequest(client);
 		searchRequest.setQueryString(query);
@@ -228,8 +203,7 @@ public class CommonQuery extends CommonServices {
 			for (String value : filter)
 				if (value != null && !value.equals(""))
 					if (value.trim().length() > 0)
-						fl.add(new QueryFilter(value, false,
-								FilterAbstract.Source.REQUEST, null));
+						fl.add(new QueryFilter(value, false, FilterAbstract.Source.REQUEST, null));
 		}
 
 		if (negativeFilter != null && negativeFilter.size() > 0) {
@@ -237,8 +211,7 @@ public class CommonQuery extends CommonServices {
 			for (String value : negativeFilter)
 				if (value != null)
 					if (value.trim().length() > 0)
-						fl.add(new QueryFilter(value, true,
-								FilterAbstract.Source.REQUEST, null));
+						fl.add(new QueryFilter(value, true, FilterAbstract.Source.REQUEST, null));
 		}
 		if (sort != null && sort.size() > 0) {
 			SortFieldList sortFieldList = searchRequest.getSortFieldList();
@@ -251,44 +224,37 @@ public class CommonQuery extends CommonServices {
 			for (String value : returnedField)
 				if (value != null)
 					if (value.trim().length() > 0)
-						rf.put(new ReturnField(client.getSchema()
-								.getFieldList().get(value).getName()));
+						rf.put(new ReturnField(client.getSchema().getFieldList().get(value).getName()));
 		}
 		if (snippetField != null && snippetField.size() > 0) {
-			SnippetFieldList snippetFields = searchRequest
-					.getSnippetFieldList();
+			SnippetFieldList snippetFields = searchRequest.getSnippetFieldList();
 			for (String value : snippetField)
 				if (value != null && !value.equals(""))
-					snippetFields.put(new SnippetField(client.getSchema()
-							.getFieldList().get(value).getName()));
+					snippetFields.put(new SnippetField(client.getSchema().getFieldList().get(value).getName()));
 		}
 		if (facet != null && facet.size() > 0) {
 			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facet)
 				if (value != null && !value.equals(""))
-					facetList.put(FacetField.buildFacetField(value, false,
-							false));
+					facetList.put(FacetField.buildFacetField(value, false, false));
 		}
 		if (facetCollapse != null && facetCollapse.size() > 0) {
 			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facetCollapse)
 				if (value != null && !value.equals(""))
-					facetList.put(FacetField
-							.buildFacetField(value, false, true));
+					facetList.put(FacetField.buildFacetField(value, false, true));
 		}
 		if (facetMulti != null && facetMulti.size() > 0) {
 			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facetMulti)
 				if (value != null && !value.equals(""))
-					facetList.put(FacetField
-							.buildFacetField(value, true, false));
+					facetList.put(FacetField.buildFacetField(value, true, false));
 		}
 		if (facetMultiCollapse != null && facetMultiCollapse.size() > 0) {
 			FacetFieldList facetList = searchRequest.getFacetFieldList();
 			for (String value : facetMultiCollapse)
 				if (value != null && !value.equals(""))
-					facetList
-							.put(FacetField.buildFacetField(value, true, true));
+					facetList.put(FacetField.buildFacetField(value, true, true));
 		}
 		if (filterParams != null && filterParams.size() > 0) {
 			int i = 0;

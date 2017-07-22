@@ -1,49 +1,50 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.webservice.query.spellcheck;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jaeksoft.searchlib.result.ResultSpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheck;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckItem;
 import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
+
 @XmlRootElement(name = "result")
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 public class SpellcheckResult extends CommonResult {
 
 	@XmlElement(name = "field")
+	@JsonProperty("fields")
 	public List<Field> fields;
 
 	public SpellcheckResult() {
@@ -64,9 +65,11 @@ public class SpellcheckResult extends CommonResult {
 	public static class Field {
 
 		@XmlElement(name = "fieldName")
+		@JsonProperty("fieldName")
 		public String fieldName;
 
 		@XmlElement(name = "word")
+		@JsonProperty("words")
 		public List<Word> words;
 
 		public String suggestion;
@@ -92,9 +95,11 @@ public class SpellcheckResult extends CommonResult {
 	public static class Word {
 
 		@XmlElement(name = "word")
+		@JsonProperty("word")
 		public String word;
 
 		@XmlElement(name = "suggest")
+		@JsonProperty("suggest")
 		public List<Suggestion> suggest;
 
 		public Word() {
