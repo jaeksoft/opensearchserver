@@ -4,7 +4,7 @@ OpenSearchServer est un logiciel de moteur de recherche qui se déploie sur un s
 
 Il dispose d'une **interface utilisateur** accessible avec un **navigateur Internet** supportant AJAX (Internet Explorer, Firefox, Safari, Chrome). Cette interface permet de piloter l'intégralité des fonctionnalités décrites ci-après.
 
-Il dispose également d'un jeu **d'API** de type **REST** et **SOAP** permettant l'intégration aisée dans toute application.
+Il dispose également d'un jeu **d'API** de type **REST** permettant l'intégration aisée dans toute application.
 
 Des librairies clientes en PHP, en PERL et en ASP.NET facilitent l'intégration dans les environnements PHP et Microsoft.
 

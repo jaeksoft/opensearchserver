@@ -1,35 +1,27 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.webservice.fields;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -39,8 +31,14 @@ import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
+import org.apache.commons.lang3.StringUtils;
 
-public class FieldImpl extends CommonServices implements SoapField, RestField {
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class FieldImpl extends CommonServices implements RestField {
 
 	@Override
 	public CommonResult setField(String use, String login, String key, String field_name,
@@ -62,11 +60,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			client.getSchema().getFieldList().put(schemaField);
 			client.saveConfig();
 			return new CommonResult(true, "Field added: " + field_name);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -87,11 +81,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 				count++;
 			}
 			return new CommonResult(true, "Added Fields " + count);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -103,11 +93,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			ClientFactory.INSTANCE.properties.checkApi();
 			String message = delete(client, use, deleteField);
 			return new CommonResult(true, message);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -153,11 +139,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			}
 			client.saveConfig();
 			return new CommonResult(true, msg.toString().trim());
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -174,9 +156,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 				fieldList.add(new SchemaFieldRecord(schemaField));
 			return new ResultFieldList(true, fieldList, schemaFieldList.getUniqueField(),
 					schemaFieldList.getDefaultField());
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -191,9 +171,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			if (schemaField == null)
 				throw new CommonServiceException(Status.NOT_FOUND, "Field not found: " + field);
 			return new ResultField(true, schemaField);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -205,11 +183,7 @@ public class FieldImpl extends CommonServices implements SoapField, RestField {
 			Client client = getLoggedClient(index, login, key, Role.INDEX_SCHEMA);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return new ResultTermList(client, field, prefix, start, rows);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
+		} catch (InterruptedException | IOException | SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}

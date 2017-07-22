@@ -1,34 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.webservice.autocompletion;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-
-import javax.ws.rs.core.Response.Status;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -40,7 +34,12 @@ import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 
-public class AutoCompletionImpl extends CommonServices implements SoapAutoCompletion, RestAutoCompletion {
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+
+public class AutoCompletionImpl extends CommonServices implements RestAutoCompletion {
 
 	private AutoCompletionItem getAutoCompItem(AutoCompletionManager manager, String name)
 			throws SearchLibException, IOException {
@@ -59,8 +58,9 @@ public class AutoCompletionImpl extends CommonServices implements SoapAutoComple
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionManager manager = client.getAutoCompletionManager();
 			AutoCompletionItem updateCompItem = manager.getItem(name);
-			AutoCompletionItem autoCompItem = updateCompItem == null ? new AutoCompletionItem(client, name)
-					: updateCompItem;
+			AutoCompletionItem autoCompItem = updateCompItem == null ?
+					new AutoCompletionItem(client, name) :
+					updateCompItem;
 			if (fields != null)
 				autoCompItem.setFields(fields);
 			if (rows != null)
@@ -73,11 +73,7 @@ public class AutoCompletionImpl extends CommonServices implements SoapAutoComple
 			sb.append(name);
 			sb.append(updateCompItem != null ? " updated." : " inserted");
 			return new CommonResult(true, sb.toString());
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -91,11 +87,7 @@ public class AutoCompletionImpl extends CommonServices implements SoapAutoComple
 			CommonResult result = new CommonResult(true, null);
 			autoCompItem.build(86400, 1000, result);
 			return result;
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
+		} catch (InterruptedException | IOException | SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -108,11 +100,7 @@ public class AutoCompletionImpl extends CommonServices implements SoapAutoComple
 			ClientFactory.INSTANCE.properties.checkApi();
 			AutoCompletionItem autoCompItem = getAutoCompItem(client.getAutoCompletionManager(), name);
 			return new AutoCompletionResult(autoCompItem.search(prefix, rows));
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -132,11 +120,7 @@ public class AutoCompletionImpl extends CommonServices implements SoapAutoComple
 			AutoCompletionItem autoCompItem = getAutoCompItem(manager, name);
 			manager.delete(autoCompItem);
 			return new CommonResult(true, "Autocompletion item " + name + " deleted");
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -153,11 +137,7 @@ public class AutoCompletionImpl extends CommonServices implements SoapAutoComple
 				result.items.add(item.getName());
 			result.computeInfos();
 			return result;
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (IOException | SearchLibException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}

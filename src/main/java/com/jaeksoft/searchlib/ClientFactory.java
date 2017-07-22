@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib;
 
@@ -48,8 +48,6 @@ public class ClientFactory implements PropertyItemListener {
 	private PropertyItem<Integer> booleanQueryMaxClauseCount;
 
 	private PropertyItem<String> defaultWebBrowserDriver;
-
-	private PropertyItem<Boolean> soapActive;
 
 	private PropertyItem<Boolean> externalParser;
 
@@ -79,19 +77,17 @@ public class ClientFactory implements PropertyItemListener {
 
 	public ClientFactory() throws SearchLibException {
 		try {
-			properties =
-					new InstanceProperties(new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "properties.xml"));
+			properties = new InstanceProperties(
+					new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "properties.xml"));
 			File advPropFile = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "advanced.xml");
 			advancedProperties = new PropertyManager(advPropFile);
-			booleanQueryMaxClauseCount =
-					advancedProperties.newIntegerProperty("booleanQueryMaxClauseCount", 1024, null, null);
+			booleanQueryMaxClauseCount = advancedProperties.newIntegerProperty("booleanQueryMaxClauseCount", 1024, null,
+					null);
 			hasBeenSet(booleanQueryMaxClauseCount);
 			booleanQueryMaxClauseCount.addListener(this);
-			defaultWebBrowserDriver = advancedProperties
-					.newStringProperty("defaultWebBrowserDriver", BrowserDriverEnum.FIREFOX.getName());
+			defaultWebBrowserDriver = advancedProperties.newStringProperty("defaultWebBrowserDriver",
+					BrowserDriverEnum.FIREFOX.getName());
 			defaultWebBrowserDriver.addListener(this);
-			soapActive = advancedProperties.newBooleanProperty("soapActive", false);
-			soapActive.addListener(this);
 			externalParser = advancedProperties.newBooleanProperty("externalParser", false);
 			externalParser.addListener(this);
 			logFullTrace = advancedProperties.newBooleanProperty("logFullTrace", false);
@@ -105,8 +101,8 @@ public class ClientFactory implements PropertyItemListener {
 			smtpUseSsl.addListener(this);
 			smtpUseTls = advancedProperties.newBooleanProperty("smtpUseTls", false);
 			smtpUseTls.addListener(this);
-			smtpSenderEmail =
-					advancedProperties.newStringProperty("smtpSenderEmail", "no-reply@open-search-server.com");
+			smtpSenderEmail = advancedProperties.newStringProperty("smtpSenderEmail",
+					"no-reply@open-search-server.com");
 			smtpSenderEmail.addListener(this);
 			smtpSenderName = advancedProperties.newStringProperty("smtpSenderName", "");
 			smtpSenderName.addListener(this);
@@ -142,8 +138,9 @@ public class ClientFactory implements PropertyItemListener {
 			throws SearchLibException {
 		try {
 			if (!FileUtils.isSubDirectory(StartStopListener.OPENSEARCHSERVER_DATA_FILE, initFileOrDir))
-				throw new SearchLibException("Security alert: " + initFileOrDir + " is outside OPENSEARCHSERVER_DATA ("
-						+ StartStopListener.OPENSEARCHSERVER_DATA_FILE + ")");
+				throw new SearchLibException(
+						"Security alert: " + initFileOrDir + " is outside OPENSEARCHSERVER_DATA (" +
+								StartStopListener.OPENSEARCHSERVER_DATA_FILE + ")");
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		}
@@ -160,10 +157,6 @@ public class ClientFactory implements PropertyItemListener {
 
 	public PropertyItem<String> getDefaultWebBrowserDriver() {
 		return defaultWebBrowserDriver;
-	}
-
-	public PropertyItem<Boolean> getSoapActive() {
-		return soapActive;
 	}
 
 	public PropertyItem<Boolean> getExternalParser() {

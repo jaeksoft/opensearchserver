@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,13 +20,8 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.webservice.command;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -37,21 +32,22 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.RestApplication;
 
-public class CommandImpl extends CommonServices implements SoapCommand, RestCommand {
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+public class CommandImpl extends CommonServices implements RestCommand {
 
 	private Client getClient(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.INDEX_UPDATE);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return client;
-		} catch (IOException e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}
 
-	@Override
 	public CommonResult truncate(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);
@@ -62,7 +58,6 @@ public class CommandImpl extends CommonServices implements SoapCommand, RestComm
 		}
 	}
 
-	@Override
 	public CommonResult merge(String use, String login, String key, String index) {
 		try {
 			Client client = getClient(use, login, key);
@@ -74,7 +69,6 @@ public class CommandImpl extends CommonServices implements SoapCommand, RestComm
 		}
 	}
 
-	@Override
 	public CommonResult online(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);
@@ -85,7 +79,6 @@ public class CommandImpl extends CommonServices implements SoapCommand, RestComm
 		}
 	}
 
-	@Override
 	public CommonResult offline(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);
@@ -96,7 +89,6 @@ public class CommandImpl extends CommonServices implements SoapCommand, RestComm
 		}
 	}
 
-	@Override
 	public CommonResult reload(String use, String login, String key) {
 		try {
 			Client client = getClient(use, login, key);

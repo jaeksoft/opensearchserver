@@ -1,34 +1,27 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.webservice.crawler.filecrawler;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jws.WebParam;
-import javax.xml.ws.WebServiceException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientFactory;
@@ -43,9 +36,14 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
 import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 
-public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, RestFileCrawler {
+import javax.jws.WebParam;
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-	@Override
+public class FileCrawlerImpl extends CommonServices implements RestFileCrawler {
+
 	public CommonResult runOnce(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_START_STOP);
@@ -58,7 +56,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 		}
 	}
 
-	@Override
 	public CommonResult runForever(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_START_STOP);
@@ -74,7 +71,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 		}
 	}
 
-	@Override
 	public CommonResult stop(String use, String login, String key) {
 		try {
 			Client client = getLoggedClient(use, login, key, Role.FILE_CRAWLER_START_STOP);
@@ -90,7 +86,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 		}
 	}
 
-	@Override
 	public CommonResult status(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.FILE_CRAWLER_EDIT_PARAMETERS);
@@ -139,16 +134,11 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 				filePathManager.remove(checkFilePathItem);
 			filePathManager.add(filePathItem);
 			return new CommonResult(true, checkFilePathItem == null ? "Inserted" : "Updated");
-		} catch (SearchLibException e) {
-			throw new WebServiceException(e);
-		} catch (InterruptedException e) {
-			throw new WebServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new WebServiceException(e);
 		}
 	}
 
-	@Override
 	public CommonResult injectLocalFileRepository(String use, String login, String key, String path,
 			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay) {
 		return injectRepository(use, login, key, FileInstanceType.Local, path, ignoreHiddenFile, withSubDirectory,
@@ -186,12 +176,10 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 		}
 	}
 
-	@Override
 	public CommonResult removeLocalFileRepository(String use, String login, String key, String path) {
 		return removeFileRepository(use, login, key, FileInstanceType.Local, path, null, null, null, null);
 	}
 
-	@Override
 	public CommonResult injectSmbRepository(@WebParam(name = "use") String use, String login, String key, String path,
 			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
 			String password, String domain, String host) {
@@ -199,13 +187,11 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 				enabled, delay, username, password, domain, host, null, null, null, null);
 	}
 
-	@Override
 	public CommonResult removeSmbRepository(@WebParam(name = "use") String use, String login, String key, String path,
 			String username, String domain, String host) {
 		return removeFileRepository(use, login, key, FileInstanceType.Smb, path, username, domain, host, null);
 	}
 
-	@Override
 	public CommonResult injectFtpRepository(String use, String login, String key, String path, Boolean ignoreHiddenFile,
 			Boolean withSubDirectory, Boolean enabled, int delay, String username, String password, String host,
 			boolean ssl) {
@@ -214,7 +200,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 				null);
 	}
 
-	@Override
 	public CommonResult removeFtpRepository(@WebParam(name = "use") String use, String login, String key, String path,
 			String username, String host, boolean ssl) {
 		return removeFileRepository(use, login, key, ssl ? FileInstanceType.Ftps : FileInstanceType.Ftp, path, username,
@@ -339,7 +324,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 		return removeFtpRepository(use, login, key, path, username, host, ssl);
 	}
 
-	@Override
 	public CommonResult injectSwiftRepository(String use, String login, String key, String path,
 			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
 			String password, String tenant, String container, String authURL, AuthType authType) {
@@ -347,7 +331,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 				enabled, delay, username, password, null, null, container, tenant, authURL, authType);
 	}
 
-	@Override
 	public CommonResult injectSwiftRepositoryXML(String use, String login, String key, String path,
 			Boolean ignoreHiddenFile, Boolean withSubDirectory, Boolean enabled, int delay, String username,
 			String password, String tenant, String container, String authURL, AuthType authType) {
@@ -363,7 +346,6 @@ public class FileCrawlerImpl extends CommonServices implements SoapFileCrawler, 
 				username, password, tenant, container, authURL, authType);
 	}
 
-	@Override
 	public CommonResult removeSwiftRepository(String use, String login, String key, String path, String username,
 			String container) {
 		return removeFileRepository(use, login, key, FileInstanceType.Swift, path, username, null, null, container);

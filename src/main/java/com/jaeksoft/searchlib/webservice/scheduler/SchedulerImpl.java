@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.webservice.scheduler;
 
 import com.jaeksoft.searchlib.Client;
@@ -36,7 +36,7 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 import java.io.IOException;
 import java.util.Map;
 
-public class SchedulerImpl extends CommonServices implements RestScheduler, SoapScheduler {
+public class SchedulerImpl extends CommonServices implements RestScheduler {
 
 	private JobItem getJobItem(Client client, String name) throws SearchLibException {
 		JobItem jobItem = client.getJobList().get(name);

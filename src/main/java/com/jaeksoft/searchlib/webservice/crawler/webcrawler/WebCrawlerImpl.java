@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p/>
- * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
  * <p/>
  * http://www.open-search-server.com
  * <p/>
@@ -20,33 +20,36 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.webservice.crawler.webcrawler;
 
-import com.jaeksoft.searchlib.*;
-import com.jaeksoft.searchlib.crawler.web.database.*;
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.ClientCatalogItem;
+import com.jaeksoft.searchlib.ClientFactory;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.crawler.web.database.CredentialManager;
+import com.jaeksoft.searchlib.crawler.web.database.HostUrlList;
+import com.jaeksoft.searchlib.crawler.web.database.UrlItem;
+import com.jaeksoft.searchlib.crawler.web.database.UrlManager;
 import com.jaeksoft.searchlib.crawler.web.database.UrlManager.SearchTemplate;
+import com.jaeksoft.searchlib.crawler.web.database.WebPropertyManager;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternItem;
 import com.jaeksoft.searchlib.crawler.web.database.pattern.PatternManager;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.screenshot.ScreenshotManager;
-import com.jaeksoft.searchlib.crawler.web.sitemap.*;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapItem;
+import com.jaeksoft.searchlib.crawler.web.sitemap.SiteMapList;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.index.ReaderInterface;
 import com.jaeksoft.searchlib.query.ParseException;
-import com.jaeksoft.searchlib.request.AbstractLocalSearchRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
-import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ScreenshotServlet;
-import com.jaeksoft.searchlib.web.WebCrawlerServlet;
-import com.jaeksoft.searchlib.web.controller.crawler.CrawlerController;
 import com.jaeksoft.searchlib.webservice.CommonListResult;
 import com.jaeksoft.searchlib.webservice.CommonResult;
 import com.jaeksoft.searchlib.webservice.CommonServices;
@@ -55,17 +58,20 @@ import com.jaeksoft.searchlib.webservice.crawler.CrawlerUtils;
 import com.jaeksoft.searchlib.webservice.query.document.FieldValueList;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import com.jaeksoft.searchlib.config.Config;
-import org.apache.lucene.search.Query;
-import org.xml.sax.SAXException;
 
 import javax.xml.ws.WebServiceException;
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, RestWebCrawler {
+public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 
 	@Override
 	public CommonResult run(String use, String login, String key, Boolean once) {
@@ -78,11 +84,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				client.getWebPropertyManager().getCrawlEnabled().setValue(true);
 				return CrawlerUtils.runForever(client.getWebCrawlMaster());
 			}
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (IOException | SearchLibException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -94,11 +96,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getWebPropertyManager().getCrawlEnabled().setValue(false);
 			return CrawlerUtils.stop(client.getWebCrawlMaster());
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (IOException | SearchLibException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -111,11 +109,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return CrawlerUtils.status(client.getWebCrawlMaster());
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -136,11 +130,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			} else
 				status = new CommonResult(false, "Don't have any index");
 			return status;
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -154,59 +144,36 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		return searchRequest;
 	}
 
-	@Override
 	public byte[] exportURLs(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			File file = client.getUrlManager().exportURLs(getRequest(client.getUrlManager(), null));
 			return IOUtils.toByteArray(new FileInputStream(file));
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (FileNotFoundException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (ParseException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (SearchLibException | IOException | ParseException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
 
 	@Override
-	public CommonResult truncateUrls(String use, String login, String key)
-	{
+	public CommonResult truncateUrls(String use, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
 			client.getUrlManager().deleteAll(null);
 			return new CommonResult(true, "delete all");
-		} catch (InterruptedException e) {
-		throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
+		} catch (InterruptedException | IOException | SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}
 
-	@Override
 	public byte[] exportSiteMap(String use, String host, String login, String key) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			File file = client.getUrlManager().exportSiteMap(getRequest(client.getUrlManager(), host));
 			return IOUtils.toByteArray(new FileInputStream(file));
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (FileNotFoundException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (ParseException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (SearchLibException | IOException | ParseException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -220,13 +187,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				client.getSiteMapList().add(new SiteMapItem(SiteMapUrl));
 			}
 			return new CommonResult(true, (client.getSiteMapList().getSize() - count) + " SiteMap injected");
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (URISyntaxException e) {
+		} catch (SearchLibException | InterruptedException | IOException | URISyntaxException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -242,15 +203,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				client.getSiteMapList().remove(item);
 			}
 			return new CommonResult(true, (count - client.getSiteMapList().getSize()) + " SiteMap deleted");
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (FileNotFoundException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (URISyntaxException e) {
+		} catch (SearchLibException | URISyntaxException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -265,11 +218,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				SiteMapStr.add(item.getUri());
 			}
 			return new CommonListResult<String>(SiteMapStr);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
+		} catch (SearchLibException | IOException | InterruptedException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -284,19 +233,14 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
 			List<PatternItem> patternList = PatternManager.getPatternList(patterns);
-			PatternManager patternManager = inclusion ?
-					client.getInclusionPatternManager() :
-					client.getExclusionPatternManager();
+			PatternManager patternManager =
+					inclusion ? client.getInclusionPatternManager() : client.getExclusionPatternManager();
 			patternManager.addList(patternList, replaceAll);
 			int count = PatternManager.countStatus(patternList, PatternItem.Status.INJECTED);
 			if (injectUrls && inclusion)
 				client.getUrlManager().injectPrefix(patternList);
 			return new CommonResult(true, count + " patterns injected");
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -327,9 +271,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			ClientFactory.INSTANCE.properties.checkApi();
 			WebPropertyManager webPropertyManager = client.getWebPropertyManager();
 			return getPatternStatusResult(webPropertyManager);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -345,11 +287,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			if (exclusion != null)
 				webPropertyManager.getExclusionEnabled().setValue(exclusion);
 			return getPatternStatusResult(webPropertyManager);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 
@@ -360,16 +298,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key, Role.WEB_CRAWLER_EDIT_PATTERN_LIST);
 			ClientFactory.INSTANCE.properties.checkApi();
-			PatternManager patternManager = inclusion ?
-					client.getInclusionPatternManager() :
-					client.getExclusionPatternManager();
+			PatternManager patternManager =
+					inclusion ? client.getInclusionPatternManager() : client.getExclusionPatternManager();
 			int count = patternManager.delPattern(patterns);
 			return new CommonResult(true, count + " patterns deleted");
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -389,17 +322,12 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		try {
 			Client client = getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
-			PatternManager patternManager = inclusion ?
-					client.getInclusionPatternManager() :
-					client.getExclusionPatternManager();
+			PatternManager patternManager =
+					inclusion ? client.getInclusionPatternManager() : client.getExclusionPatternManager();
 			List<String> patterns = new ArrayList<String>();
 			patternManager.getPatterns(startsWith, patterns);
 			return new CommonListResult<String>(patterns);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -421,8 +349,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		try {
 			Client client = getLoggedClient(use, login, key, Role.WEB_CRAWLER_START_STOP);
 			ClientFactory.INSTANCE.properties.checkApi();
-			WebCrawlThread webCrawlThread = client.getWebCrawlMaster()
-					.manualCrawl(LinkUtils.newEncodedURL(url), HostUrlList.ListType.MANUAL);
+			WebCrawlThread webCrawlThread = client.getWebCrawlMaster().manualCrawl(LinkUtils.newEncodedURL(url),
+					HostUrlList.ListType.MANUAL);
 			if (!webCrawlThread.waitForStart(120))
 				throw new WebServiceException("Time out reached (120 seconds)");
 			if (!webCrawlThread.waitForEnd(3600))
@@ -434,8 +362,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				if (crawl != null) {
 					List<IndexDocument> indexDocuments = crawl.getTargetIndexDocuments();
 					if (CollectionUtils.isNotEmpty(indexDocuments)) {
-						CommonListResult<ArrayList<FieldValueList>> clr = new CommonListResult<ArrayList<FieldValueList>>(
-								indexDocuments.size());
+						CommonListResult<ArrayList<FieldValueList>> clr =
+								new CommonListResult<ArrayList<FieldValueList>>(indexDocuments.size());
 						for (IndexDocument indexDocument : indexDocuments) {
 							ArrayList<FieldValueList> list = FieldValueList.getNewList(indexDocument);
 							if (list != null)
@@ -447,8 +375,8 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			}
 
 			String message = urlItem != null ?
-					"Result: " + urlItem.getFetchStatus() + " - " + urlItem.getParserStatus() + " - " + urlItem
-							.getIndexStatus() :
+					"Result: " + urlItem.getFetchStatus() + " - " + urlItem.getParserStatus() + " - " +
+							urlItem.getIndexStatus() :
 					null;
 			if (cr == null)
 				cr = new CommonResult(true, message);
@@ -465,25 +393,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				cr.addDetail("ContentLength", urlItem.getContentLength());
 			}
 			return cr;
-		} catch (MalformedURLException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (ParseException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SyntaxError e) {
-			throw new CommonServiceException(e);
-		} catch (URISyntaxException e) {
-			throw new CommonServiceException(e);
-		} catch (ClassNotFoundException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (InstantiationException e) {
-			throw new CommonServiceException(e);
-		} catch (IllegalAccessException e) {
+		} catch (SearchLibException | ParseException | IOException | SyntaxError | URISyntaxException | ClassNotFoundException | InterruptedException | InstantiationException | IllegalAccessException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -493,7 +403,6 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 		return crawl(use, login, key, url, returnData);
 	}
 
-	@Override
 	public CommonResult captureScreenshot(String use, String login, String key, String url) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
@@ -503,20 +412,11 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			ScreenshotServlet.doCapture(null, screenshotManager, credentialManager, LinkUtils.newEncodedURL(url));
 			String message = "Captured URL " + url;
 			return new CommonResult(true, message);
-		} catch (MalformedURLException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (URISyntaxException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | URISyntaxException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
 
-	@Override
 	public CommonResult checkScreenshot(String use, String login, String key, String url) {
 		try {
 			Client client = getLoggedClientAnyRole(use, login, key, Role.GROUP_WEB_CRAWLER);
@@ -524,15 +424,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			ScreenshotManager screenshotManager = client.getScreenshotManager();
 			String message = ScreenshotServlet.doCheck(screenshotManager, LinkUtils.newEncodedURL(url));
 			return new CommonResult(true, message);
-		} catch (MalformedURLException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (URISyntaxException e) {
+		} catch (SearchLibException | InterruptedException | IOException | URISyntaxException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -556,11 +448,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 				urlManager.deleteAll(null);
 			urlManager.inject(urls, result);
 			return result;
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -571,9 +459,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			getLoggedClientAnyRole(index, login, key, Role.GROUP_WEB_CRAWLER);
 			ClientFactory.INSTANCE.properties.checkApi();
 			return null;
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -588,11 +474,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			else
 				client.getWebPropertyManager().getRobotsTxtEnabled().setValue(enabled);
 			return new CommonResult(true, "Robots.txt status: " + enabled);
-		} catch (SearchLibException e) {
-			throw new CommonServiceException(e);
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (SearchLibException | InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -605,11 +487,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			if (minCount == null)
 				minCount = 0;
 			return new HostnamesResult(client.getUrlManager().getHostFacetList(minCount));
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
+		} catch (InterruptedException | IOException | SearchLibException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -626,9 +504,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			for (Map.Entry<String, Comparable> entry : props.entrySet())
 				result.addDetail(entry.getKey(), entry.getValue());
 			return result;
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
+		} catch (InterruptedException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}
@@ -641,11 +517,7 @@ public class WebCrawlerImpl extends CommonServices implements SoapWebCrawler, Re
 			WebPropertyManager webProperties = client.getWebPropertyManager();
 			webProperties.setProperty(property, value);
 			return new CommonResult(true, "setProperty");
-		} catch (InterruptedException e) {
-			throw new CommonServiceException(e);
-		} catch (IOException e) {
-			throw new CommonServiceException(e);
-		} catch (SearchLibException e) {
+		} catch (InterruptedException | SearchLibException | IOException e) {
 			throw new CommonServiceException(e);
 		}
 	}

@@ -10,6 +10,9 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
 OpenSearchServer 2.0
 
+New Features:
+- GH-1869: Replace CXF by Jersey
+
 Bug fixes:
 - GH-1857: Update htmlunit
 - GH-1843: sitemap.xml fetch frequency

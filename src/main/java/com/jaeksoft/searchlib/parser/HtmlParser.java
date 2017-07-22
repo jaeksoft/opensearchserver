@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.parser;
 
@@ -400,7 +400,9 @@ public class HtmlParser extends Parser {
 			String canUrl = canonicalURL.toExternalForm();
 			addDetectedLink(canUrl);
 			if (ignoreNonCanonical) {
-				String curUrl = currentURL.toExternalForm();
+				final String curUrl = StringUtils.isEmpty(streamOriginalUrl) ?
+						currentURL.toExternalForm() :
+						streamOriginalUrl;
 				if (!canUrl.equals(curUrl)) {
 					isCanonical = false;
 					return;

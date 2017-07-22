@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.webservice.query.QueryTemplateResultList;
 import java.io.IOException;
 import java.util.List;
 
-public class SearchImpl extends CommonQuery implements RestSearch, SoapSearch {
+public class SearchImpl extends CommonQuery implements RestSearch {
 
 	@Override
 	public QueryTemplateResultList searchTemplateList(String index, String login, String key) {

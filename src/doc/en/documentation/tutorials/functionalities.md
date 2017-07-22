@@ -4,7 +4,7 @@ OpenSearchServer (OSS) is a search engine running on a Windows, Linux or Solaris
 
 Its **GUI** can be used via any **web browser** supporting Ajax (Internet Explorer, Firefox, Safari, Chrome). Said interface gives access to all of OSS' functions.
 
-OSS also offers a full set of **REST** and **SOAP** APIs, facilitating integration with other applications.
+OSS also offers a full set of **REST** APIs, facilitating integration with other applications.
 
 Client libraries in PHP, PERL and ASP.NET allow for easy integration with PHP-based and Microsoft-based environments.
 
