@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,9 +20,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.util;
 
+import com.jaeksoft.searchlib.Logging;
+
+import javax.imageio.stream.ImageInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,10 +35,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
-
-import javax.imageio.stream.ImageInputStream;
-
-import com.jaeksoft.searchlib.Logging;
 
 public class IOUtils extends org.apache.commons.io.IOUtils {
 
@@ -73,16 +72,14 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 		}
 	}
 
-	public static final void close(
-			final Collection<? extends Closeable> closeables) {
+	public static final void close(final Collection<? extends Closeable> closeables) {
 		if (closeables == null)
 			return;
 		for (Closeable closeable : closeables)
 			closeQuietly(closeable);
 	}
 
-	public static final int copy(InputStream inputStream, File tempFile,
-			boolean bCloseInputStream) throws IOException {
+	public static final int copy(InputStream inputStream, File tempFile, boolean bCloseInputStream) throws IOException {
 		FileOutputStream fos = new FileOutputStream(tempFile);
 		try {
 			return copy(inputStream, fos);
@@ -93,9 +90,8 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 		}
 	}
 
-	public static final StringBuilder copy(InputStream inputStream,
-			StringBuilder sb, String charsetName, boolean bCloseInputStream)
-			throws IOException {
+	public static final StringBuilder copy(InputStream inputStream, StringBuilder sb, String charsetName,
+			boolean bCloseInputStream) throws IOException {
 		if (inputStream == null)
 			return sb;
 		if (sb == null)
@@ -110,8 +106,7 @@ public class IOUtils extends org.apache.commons.io.IOUtils {
 		return sb;
 	}
 
-	public static final void appendLines(File file, String... lines)
-			throws IOException {
+	public static final void appendLines(File file, String... lines) throws IOException {
 		FileWriter fw = null;
 		PrintWriter pw = null;
 		try {

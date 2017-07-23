@@ -1,39 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.crawler.cache;
-
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.InvalidPropertiesFormatException;
-import java.util.Properties;
-
-import org.json.JSONException;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -42,6 +31,15 @@ import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
+import org.json.JSONException;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
 
 public class CrawlCacheManager implements Closeable {
 
@@ -106,13 +104,7 @@ public class CrawlCacheManager implements Closeable {
 			if (INSTANCE != null)
 				return INSTANCE;
 			return INSTANCE = new CrawlCacheManager(StartStopListener.OPENSEARCHSERVER_DATA_FILE);
-		} catch (InvalidPropertiesFormatException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException | IOException | IllegalAccessException e) {
 			throw new SearchLibException(e);
 		} finally {
 			rwlInstance.w.unlock();
@@ -243,10 +235,8 @@ public class CrawlCacheManager implements Closeable {
 	}
 
 	/**
-	 * @param enabled
-	 *            the enabled to set
-	 * @throws IOException
-	 *             inherited error
+	 * @param enabled the enabled to set
+	 * @throws IOException inherited error
 	 */
 	public void setEnabled(boolean enabled) throws IOException {
 		rwl.w.lock();
@@ -284,10 +274,8 @@ public class CrawlCacheManager implements Closeable {
 	}
 
 	/**
-	 * @param expirationValue
-	 *            the expirationValue to set
-	 * @throws IOException
-	 *             inherited error
+	 * @param expirationValue the expirationValue to set
+	 * @throws IOException inherited error
 	 */
 	public void setExpirationValue(long expirationValue) throws IOException {
 		rwl.w.lock();
@@ -318,10 +306,8 @@ public class CrawlCacheManager implements Closeable {
 	}
 
 	/**
-	 * @param expirationUnit
-	 *            the expirationUnit to set
-	 * @throws IOException
-	 *             inherited error
+	 * @param expirationUnit the expirationUnit to set
+	 * @throws IOException inherited error
 	 */
 	public void setExpirationUnit(String expirationUnit) throws IOException {
 		rwl.w.lock();
@@ -341,16 +327,11 @@ public class CrawlCacheManager implements Closeable {
 	}
 
 	/**
-	 * @param crawlCacheProvider
-	 *            the crawlCacheProvider to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IllegalAccessException
-	 *             inherited error
-	 * @throws InstantiationException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param crawlCacheProvider the crawlCacheProvider to set
+	 * @throws SearchLibException     inherited error
+	 * @throws IllegalAccessException inherited error
+	 * @throws InstantiationException inherited error
+	 * @throws IOException            inherited error
 	 */
 	public void setCrawlCacheProvider(CrawlCacheProviderEnum crawlCacheProvider)
 			throws SearchLibException, InstantiationException, IllegalAccessException, IOException {
@@ -381,12 +362,9 @@ public class CrawlCacheManager implements Closeable {
 	}
 
 	/**
-	 * @param configuration
-	 *            the configuration to set
-	 * @throws SearchLibException
-	 *             inherited error
-	 * @throws IOException
-	 *             inherited error
+	 * @param configuration the configuration to set
+	 * @throws SearchLibException inherited error
+	 * @throws IOException        inherited error
 	 */
 	public void setConfiguration(String configuration) throws SearchLibException, IOException {
 		rwl.w.lock();

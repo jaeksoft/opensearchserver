@@ -1,4 +1,6 @@
-release date=12:00 05.07.2017,version=2.0.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+release date=12:00 23.07.2017,version=2.0.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1870: Crawl cache should use compression
+ * GH-1869: Replace CXF by Jersey
  * GH-1857: Update htmlunit
  * GH-1843: sitemap.xml fetch frequency
  * GH-1840: Merging index in Scheduler not exist anymore

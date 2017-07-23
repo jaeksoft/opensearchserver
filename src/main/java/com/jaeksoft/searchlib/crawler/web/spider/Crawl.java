@@ -140,7 +140,7 @@ public class Crawl {
 				crawlThread.getConfig().getParserSelector());
 	}
 
-	protected void parseContent(InputStream inputStream)
+	protected void parseContent(final InputStream inputStream)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, IOException,
 			SearchLibException, NoSuchAlgorithmException, URISyntaxException {
 		if (parserSelector == null) {
@@ -153,7 +153,7 @@ public class Crawl {
 			if (url != null)
 				fileName = FilenameUtils.getName(url.getFile());
 		}
-		IndexDocument sourceDocument = new IndexDocument();
+		final IndexDocument sourceDocument = new IndexDocument();
 		urlItem.populate(sourceDocument);
 		Date parserStartDate = new Date();
 		// TODO Which language for OCR ?
@@ -411,7 +411,7 @@ public class Crawl {
 			if (targetIndexDocuments != null)
 				return targetIndexDocuments;
 
-			targetIndexDocuments = new ArrayList<IndexDocument>(0);
+			targetIndexDocuments = new ArrayList<>(0);
 
 			if (parser == null)
 				return targetIndexDocuments;

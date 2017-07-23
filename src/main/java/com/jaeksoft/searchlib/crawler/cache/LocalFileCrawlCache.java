@@ -1,44 +1,43 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.crawler.cache;
 
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import org.apache.commons.io.FileUtils;
-import org.apache.poi.util.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 public class LocalFileCrawlCache extends CrawlCacheProvider {
 
@@ -80,32 +79,34 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 				f.mkdirs();
 			}
 			if (!f.exists())
-				throw new IOException("The folder " + f.getAbsolutePath()
-						+ " does not exists");
+				throw new IOException("The folder " + f.getAbsolutePath() + " does not exists");
 			if (!f.isDirectory())
-				throw new IOException("The folder " + f.getAbsolutePath()
-						+ " does not exists");
+				throw new IOException("The folder " + f.getAbsolutePath() + " does not exists");
 			rootPath = f.getAbsolutePath();
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	private final static String PATH_HTTP_DOWNLOAD_CACHE = File.separator
-			+ "http-download-cache";
+	private final static String PATH_HTTP_DOWNLOAD_CACHE = File.separator + "http-download-cache";
 
-	private final static String META_EXTENSION = "meta";
+	private final static String META_EXTENSION = ".meta";
 
-	private final static String CONTENT_EXTENSION = "content";
+	private final static String META_EXTENSION_COMPRESSED = ".meta.gz";
 
-	private File uriToFile(URI uri, String extension)
-			throws UnsupportedEncodingException {
-		String path = super.uriToPath(uri, rootPath + File.separator
-				+ PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator, extension, 32);
-		return new File(path);
+	private final static String CONTENT_EXTENSION = ".content";
+
+	private final static String CONTENT_EXTENSION_COMPRESSED = ".content.gz";
+
+	private final static String[] EXTENSIONS =
+			new String[] { META_EXTENSION, META_EXTENSION_COMPRESSED, CONTENT_EXTENSION, CONTENT_EXTENSION_COMPRESSED };
+
+	private String uriToFilePrefix(URI uri) throws UnsupportedEncodingException {
+		return uriToPath(uri, rootPath + File.separator + PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator, 32);
 	}
 
-	private File checkPath(File file) throws IOException {
+	private File checkPath(String filePrefix, String fileExtension) throws IOException {
+		final File file = new File(filePrefix + fileExtension);
 		if (!file.exists()) {
 			File parent = file.getParentFile();
 			if (!parent.exists())
@@ -115,40 +116,40 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 	}
 
 	@Override
-	public InputStream store(DownloadItem downloadItem) throws IOException,
-			JSONException {
+	public InputStream store(DownloadItem downloadItem) throws IOException, JSONException {
 		rwl.r.lock();
 		try {
-			URI uri = downloadItem.getUri();
-			File file = checkPath(uriToFile(uri, META_EXTENSION));
-			FileUtils.writeStringToFile(file, downloadItem.getMetaAsJson(), "UTF-8");
-			file = checkPath(uriToFile(uri, CONTENT_EXTENSION));
-			InputStream is = downloadItem.getContentInputStream();
-			FileUtils.copyInputStreamToFile(is, file);
-			IOUtils.closeQuietly(is);
-			return new FileInputStream(file);
+			final URI uri = downloadItem.getUri();
+			final String filePrefix = uriToFilePrefix(uri);
+			final File metaFile = checkPath(filePrefix, META_EXTENSION_COMPRESSED);
+			FileUtils.writeStringToGzipFile(downloadItem.getMetaAsJson(), StandardCharsets.UTF_8, metaFile);
+			final File contentFile = checkPath(filePrefix, CONTENT_EXTENSION_COMPRESSED);
+			try (final InputStream is = downloadItem.getContentInputStream()) {
+				FileUtils.writeToGzipFile(is, contentFile);
+			}
+			return FileUtils.readFromGzipFile(contentFile);
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
 	@Override
-	public DownloadItem load(URI uri, long expirationTime) throws IOException,
-			JSONException, URISyntaxException {
+	public DownloadItem load(URI uri, long expirationTime) throws IOException, JSONException, URISyntaxException {
 		rwl.r.lock();
 		try {
-			File file = uriToFile(uri, META_EXTENSION);
-			if (!file.exists())
+			final String filePrefix = uriToFilePrefix(uri);
+			final File metaFile = checkPath(filePrefix, META_EXTENSION_COMPRESSED);
+			if (!metaFile.exists())
 				return null;
 			if (expirationTime != 0)
-				if (file.lastModified() < expirationTime)
+				if (metaFile.lastModified() < expirationTime)
 					return null;
-			String content = FileUtils.readFileToString(file, "UTF-8");
-			JSONObject json = new JSONObject(content);
-			DownloadItem downloadItem = new DownloadItem(uri);
+			final String content = FileUtils.readStringFromGzipFile(StandardCharsets.UTF_8, metaFile);
+			final JSONObject json = new JSONObject(content);
+			final DownloadItem downloadItem = new DownloadItem(uri);
 			downloadItem.loadMetaFromJson(json);
-			file = uriToFile(uri, CONTENT_EXTENSION);
-			downloadItem.setContentInputStream(new FileInputStream(file));
+			final File contentFile = checkPath(filePrefix, CONTENT_EXTENSION_COMPRESSED);
+			downloadItem.setContentInputStream(FileUtils.readFromGzipFile(contentFile));
 			return downloadItem;
 		} finally {
 			rwl.r.unlock();
@@ -159,20 +160,20 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 	public boolean flush(URI uri) throws IOException {
 		rwl.r.lock();
 		try {
-			File file = uriToFile(uri, META_EXTENSION);
 			boolean deleted = false;
-			if (file.exists())
-				deleted = file.delete() || deleted;
-			file = uriToFile(uri, CONTENT_EXTENSION);
-			if (file.exists())
-				deleted = file.delete() || deleted;
+			final String filePrefix = uriToFilePrefix(uri);
+			for (String fileExtension : EXTENSIONS) {
+				final File file = checkPath(filePrefix, fileExtension);
+				if (file.exists())
+					deleted = file.delete() || deleted;
+			}
 			return deleted;
 		} finally {
 			rwl.r.unlock();
 		}
 	}
 
-	private final long purge(File[] files, long expiration) throws IOException {
+	private long purge(File[] files, long expiration) throws IOException {
 		if (files == null)
 			return 0;
 		long count = 0;
@@ -198,8 +199,7 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 	public long flush(long expiration) throws IOException {
 		rwl.r.lock();
 		try {
-			File file = new File(rootPath + File.separator
-					+ PATH_HTTP_DOWNLOAD_CACHE);
+			File file = new File(rootPath + File.separator + PATH_HTTP_DOWNLOAD_CACHE);
 			return purge(file.listFiles(), expiration);
 		} finally {
 			rwl.r.unlock();
