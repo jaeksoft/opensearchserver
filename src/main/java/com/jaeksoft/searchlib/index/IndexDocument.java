@@ -57,7 +57,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 	private LanguageEnum lang;
 
 	public IndexDocument() {
-		fields = new TreeMap<String, FieldContent>();
+		fields = new TreeMap<>();
 		this.lang = null;
 	}
 
@@ -124,8 +124,8 @@ public class IndexDocument implements Iterable<FieldContent> {
 			List<Node> valueNodes = DomUtils.getNodes(fieldNode, "value");
 			for (Node valueNode : valueNodes) {
 				boolean removeTag = "yes".equalsIgnoreCase(XPathParser.getAttributeString(valueNode, "removeTag"));
-				boolean convertHtmlEntities =
-						"yes".equalsIgnoreCase(XPathParser.getAttributeString(valueNode, "convertHtmlEntities"));
+				boolean convertHtmlEntities = "yes".equalsIgnoreCase(
+						XPathParser.getAttributeString(valueNode, "convertHtmlEntities"));
 
 				String textContent = valueNode.getTextContent();
 				if (convertHtmlEntities)
@@ -174,22 +174,10 @@ public class IndexDocument implements Iterable<FieldContent> {
 			else if (filePath != null && filePath.length() > 0)
 				parser = binaryFromFile(parserSelector, filename, contentType, filePath);
 			return parser;
-		} catch (SearchLibException e) {
+		} catch (SearchLibException | NullPointerException | IllegalArgumentException e) {
 			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
 				throw e;
-		} catch (NullPointerException e) {
-			ErrorParserLogger.log(url, filename, filePath, e);
-			if (!bFaultTolerant)
-				throw e;
-		} catch (IllegalArgumentException e) {
-			ErrorParserLogger.log(url, filename, filePath, e);
-			if (!bFaultTolerant)
-				throw e;
-		} catch (RuntimeException e) {
-			ErrorParserLogger.log(url, filename, filePath, e);
-			if (!bFaultTolerant)
-				throw new SearchLibException(e);
 		} catch (Exception e) {
 			ErrorParserLogger.log(url, filename, filePath, e);
 			if (!bFaultTolerant)
@@ -216,8 +204,6 @@ public class IndexDocument implements Iterable<FieldContent> {
 			throws SearchLibException {
 		try {
 			return parserSelector.parseBase64(null, filename, contentType, null, content, lang);
-		} catch (RuntimeException e) {
-			throw new SearchLibException("Parser error while getting binary : " + filename + " /" + contentType, e);
 		} catch (Exception e) {
 			throw new SearchLibException("Parser error while getting binary : " + filename + " /" + contentType, e);
 		}
@@ -230,9 +216,6 @@ public class IndexDocument implements Iterable<FieldContent> {
 			if (f.isDirectory())
 				f = new File(f, filename);
 			return parserSelector.parseFile(null, filename, contentType, null, f, lang);
-		} catch (RuntimeException e) {
-			throw new SearchLibException("Parser error while getting binary from file : " + filePath + " /" + filename,
-					e);
 		} catch (Exception e) {
 			throw new SearchLibException("Parser error while getting binary from file : " + filePath + " /" + filename,
 					e);
@@ -420,7 +403,7 @@ public class IndexDocument implements Iterable<FieldContent> {
 		StringBuilder result = new StringBuilder();
 		if (fields != null) {
 			for (String key : fields.keySet()) {
-				FieldContent value = (FieldContent) fields.get(key);
+				FieldContent value = fields.get(key);
 				result.append(value.toString()).append("\n");
 			}
 		}

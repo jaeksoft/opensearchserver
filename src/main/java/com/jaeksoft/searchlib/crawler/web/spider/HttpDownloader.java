@@ -79,7 +79,7 @@ public class HttpDownloader extends HttpAbstract {
 	}
 
 	private final DownloadItem getDownloadItem(final URI uri) throws IllegalStateException, IOException {
-		DownloadItem downloadItem = new DownloadItem(uri);
+		final DownloadItem downloadItem = new DownloadItem(uri, System.currentTimeMillis(), false);
 		downloadItem.setRedirectLocation(getRedirectLocation());
 		downloadItem.setContentLength(getContentLength());
 		downloadItem.setLastModified(getLastModified());
@@ -189,7 +189,8 @@ public class HttpDownloader extends HttpAbstract {
 		return request(uri, Method.PUT, credentialItem, headers, cookies, entity);
 	}
 
-	public static final String UA_CHROME = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
+	public static final String UA_CHROME =
+			"Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36";
 
 	public static final void main(String[] args) throws IOException {
 		try {

@@ -1,42 +1,27 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.web.controller.crawler.web;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-
-import org.json.JSONException;
-import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.ContextParam;
-import org.zkoss.bind.annotation.ContextType;
-import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zk.ui.event.InputEvent;
-import org.zkoss.zul.Filedownload;
-import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
@@ -48,6 +33,20 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 import com.jaeksoft.searchlib.webservice.crawler.webcrawler.WebCrawlerImpl;
+import org.json.JSONException;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zk.ui.event.InputEvent;
+import org.zkoss.zul.Filedownload;
+import org.zkoss.zul.Messagebox;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 @AfterCompose(superclass = true)
 public class ManualWebCrawlController extends CommonController {
@@ -67,8 +66,7 @@ public class ManualWebCrawlController extends CommonController {
 	}
 
 	/**
-	 * @param url
-	 *            the url to set
+	 * @param url the url to set
 	 */
 	@NotifyChange("*")
 	public void setUrl(String url) {
@@ -77,9 +75,7 @@ public class ManualWebCrawlController extends CommonController {
 
 	@Command
 	@NotifyChange({ "crawlJsonApi", "crawlXmlApi" })
-	public void onChanging(
-			@ContextParam(ContextType.TRIGGER_EVENT) InputEvent event)
-			throws SearchLibException {
+	public void onChanging(@ContextParam(ContextType.TRIGGER_EVENT) InputEvent event) throws SearchLibException {
 		setUrl(event.getValue());
 	}
 
@@ -103,8 +99,7 @@ public class ManualWebCrawlController extends CommonController {
 		return false;
 	}
 
-	private boolean checkCrawlCacheEnabled() throws InterruptedException,
-			SearchLibException {
+	private boolean checkCrawlCacheEnabled() throws InterruptedException, SearchLibException {
 		if (isCrawlCache())
 			return true;
 		new AlertController("The crawl cache is disabled", Messagebox.ERROR);
@@ -112,52 +107,45 @@ public class ManualWebCrawlController extends CommonController {
 	}
 
 	@Command
-	public void onCrawl() throws SearchLibException, ParseException,
-			IOException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	public void onCrawl() throws SearchLibException, ParseException, IOException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		synchronized (this) {
 			if (!checkNotRunning())
 				return;
-			currentCrawlThread = getClient().getWebCrawlMaster().manualCrawl(
-					LinkUtils.newEncodedURL(url), ListType.MANUAL);
+			currentCrawlThread = getClient().getWebCrawlMaster().manualCrawl(LinkUtils.newEncodedURL(url),
+					ListType.MANUAL);
 			currentCrawlThread.waitForStart(60);
 			reload();
 		}
 	}
 
 	@Command
-	public void onFlushCache() throws SearchLibException,
-			MalformedURLException, IOException, URISyntaxException,
-			InterruptedException {
+	public void onFlushCache()
+			throws SearchLibException, MalformedURLException, IOException, URISyntaxException, InterruptedException {
 		synchronized (this) {
 			if (!checkNotRunning())
 				return;
 			if (!checkCrawlCacheEnabled())
 				return;
-			boolean deleted = getClient().getCrawlCacheManager().flushCache(
-					LinkUtils.newEncodedURI(url));
-			new AlertController(deleted ? "Content deleted"
-					: "Nothing to delete", Messagebox.INFORMATION);
+			boolean deleted = getClient().getCrawlCacheManager().getItem(LinkUtils.newEncodedURI(url)).flush();
+			new AlertController(deleted ? "Content deleted" : "Nothing to delete", Messagebox.INFORMATION);
 		}
 	}
 
 	@Command
-	public void onDownload() throws IOException, InterruptedException,
-			SearchLibException, URISyntaxException, JSONException {
+	public void onDownload()
+			throws IOException, InterruptedException, SearchLibException, URISyntaxException, JSONException {
 		synchronized (this) {
 			if (!checkNotRunning())
 				return;
 			if (!checkCrawlCacheEnabled())
 				return;
-			DownloadItem downloadItem = getClient().getCrawlCacheManager()
-					.loadCache(LinkUtils.newEncodedURI(url));
+			DownloadItem downloadItem = getClient().getCrawlCacheManager().getItem(LinkUtils.newEncodedURI(url)).load();
 			if (downloadItem == null) {
 				new AlertController("No content", Messagebox.EXCLAMATION);
 				return;
 			}
-			Filedownload.save(downloadItem.getContentInputStream(),
-					downloadItem.getContentBaseType(), "crawl.cache");
+			Filedownload.save(downloadItem.getContentInputStream(), downloadItem.getContentBaseType(), "crawl.cache");
 		}
 	}
 
@@ -195,15 +183,11 @@ public class ManualWebCrawlController extends CommonController {
 		return isCrawlRunning();
 	}
 
-	public String getCrawlXmlApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return WebCrawlerImpl.getCrawlXML(getLoggedUser(), getClient(),
-				getUrl());
+	public String getCrawlXmlApi() throws UnsupportedEncodingException, SearchLibException {
+		return WebCrawlerImpl.getCrawlXML(getLoggedUser(), getClient(), getUrl());
 	}
 
-	public String getCrawlJsonApi() throws UnsupportedEncodingException,
-			SearchLibException {
-		return WebCrawlerImpl.getCrawlJSON(getLoggedUser(), getClient(),
-				getUrl());
+	public String getCrawlJsonApi() throws UnsupportedEncodingException, SearchLibException {
+		return WebCrawlerImpl.getCrawlJSON(getLoggedUser(), getClient(), getUrl());
 	}
 }

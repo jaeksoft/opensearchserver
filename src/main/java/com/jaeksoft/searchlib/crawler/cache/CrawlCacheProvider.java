@@ -25,6 +25,7 @@
 package com.jaeksoft.searchlib.crawler.cache;
 
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.util.StringUtils;
 import org.json.JSONException;
 
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 public abstract class CrawlCacheProvider {
 
@@ -54,16 +56,11 @@ public abstract class CrawlCacheProvider {
 
 	public abstract String getConfigurationInformation();
 
-	public abstract InputStream store(DownloadItem downloadItem) throws IOException, JSONException;
-
-	public abstract DownloadItem load(URI uri, long expirationTime)
-			throws IOException, JSONException, URISyntaxException;
+	public abstract Item getItem(URI uri, long expirationTime) throws UnsupportedEncodingException;
 
 	public abstract long flush(long expirationTime) throws IOException;
 
-	public abstract boolean flush(URI uri) throws IOException;
-
-	final protected String uriToPath(URI uri, String rootPath, int hashDepth, String separatorChar, int splitSize)
+	final String uriToPath(URI uri, String rootPath, int hashDepth, String separatorChar, int splitSize)
 			throws UnsupportedEncodingException {
 		final String key = StringUtils.base64encode(uri.toASCIIString());
 		final StringBuilder sb = new StringBuilder(rootPath);
@@ -86,5 +83,16 @@ public abstract class CrawlCacheProvider {
 			i += splitSize;
 		}
 		return sb.toString();
+	}
+
+	public abstract static class Item {
+
+		public abstract InputStream store(DownloadItem downloadItem) throws IOException, JSONException;
+
+		public abstract DownloadItem load() throws IOException, JSONException, URISyntaxException;
+
+		public abstract boolean flush() throws IOException;
+
+		public abstract void store(List<ParserResultItem> parserResults) throws IOException;
 	}
 }

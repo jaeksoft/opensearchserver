@@ -26,8 +26,11 @@ package com.jaeksoft.searchlib.crawler.cache;
 
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
+import com.qwazr.utils.json.JsonMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +41,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LocalFileCrawlCache extends CrawlCacheProvider {
 
@@ -98,12 +103,10 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 
 	private final static String CONTENT_EXTENSION_COMPRESSED = ".content.gz";
 
+	private final static String INDEXED_EXTENSION_COMPRESSED = ".indexed.gz";
+
 	private final static String[] EXTENSIONS =
 			new String[] { META_EXTENSION, META_EXTENSION_COMPRESSED, CONTENT_EXTENSION, CONTENT_EXTENSION_COMPRESSED };
-
-	private String uriToFilePrefix(URI uri) throws UnsupportedEncodingException {
-		return uriToPath(uri, rootPath + File.separator + PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator, 32);
-	}
 
 	private File checkPath(String filePrefix, String fileExtension) throws IOException {
 		final File file = new File(filePrefix + fileExtension);
@@ -113,64 +116,6 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 				parent.mkdirs();
 		}
 		return file;
-	}
-
-	@Override
-	public InputStream store(DownloadItem downloadItem) throws IOException, JSONException {
-		rwl.r.lock();
-		try {
-			final URI uri = downloadItem.getUri();
-			final String filePrefix = uriToFilePrefix(uri);
-			final File metaFile = checkPath(filePrefix, META_EXTENSION_COMPRESSED);
-			FileUtils.writeStringToGzipFile(downloadItem.getMetaAsJson(), StandardCharsets.UTF_8, metaFile);
-			final File contentFile = checkPath(filePrefix, CONTENT_EXTENSION_COMPRESSED);
-			try (final InputStream is = downloadItem.getContentInputStream()) {
-				FileUtils.writeToGzipFile(is, contentFile);
-			}
-			return FileUtils.readFromGzipFile(contentFile);
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public DownloadItem load(URI uri, long expirationTime) throws IOException, JSONException, URISyntaxException {
-		rwl.r.lock();
-		try {
-			final String filePrefix = uriToFilePrefix(uri);
-			final File metaFile = checkPath(filePrefix, META_EXTENSION_COMPRESSED);
-			if (!metaFile.exists())
-				return null;
-			if (expirationTime != 0)
-				if (metaFile.lastModified() < expirationTime)
-					return null;
-			final String content = FileUtils.readStringFromGzipFile(StandardCharsets.UTF_8, metaFile);
-			final JSONObject json = new JSONObject(content);
-			final DownloadItem downloadItem = new DownloadItem(uri);
-			downloadItem.loadMetaFromJson(json);
-			final File contentFile = checkPath(filePrefix, CONTENT_EXTENSION_COMPRESSED);
-			downloadItem.setContentInputStream(FileUtils.readFromGzipFile(contentFile));
-			return downloadItem;
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	@Override
-	public boolean flush(URI uri) throws IOException {
-		rwl.r.lock();
-		try {
-			boolean deleted = false;
-			final String filePrefix = uriToFilePrefix(uri);
-			for (String fileExtension : EXTENSIONS) {
-				final File file = checkPath(filePrefix, fileExtension);
-				if (file.exists())
-					deleted = file.delete() || deleted;
-			}
-			return deleted;
-		} finally {
-			rwl.r.unlock();
-		}
 	}
 
 	private long purge(File[] files, long expiration) throws IOException {
@@ -209,5 +154,96 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 	@Override
 	public String getConfigurationInformation() {
 		return "Please provide the path of the cache directory (Eg.: /var/local/oss_crawl_cache)";
+	}
+
+	@Override
+	public Item getItem(URI uri, long expirationTime) throws UnsupportedEncodingException {
+		return new LocalFileItem(uri, expirationTime);
+	}
+
+	public class LocalFileItem extends Item {
+
+		private final URI uri;
+		private final String filePrefix;
+		private final long expirationTime;
+
+		private LocalFileItem(final URI uri, long expirationTime) throws UnsupportedEncodingException {
+			this.uri = uri;
+			this.filePrefix = uriToPath(uri, rootPath + File.separator + PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator,
+					32);
+			this.expirationTime = expirationTime;
+		}
+
+		@Override
+		public InputStream store(DownloadItem downloadItem) throws IOException, JSONException {
+			rwl.r.lock();
+			try {
+				final URI uri = downloadItem.getUri();
+				if (!uri.equals(this.uri))
+					throw new IOException("The URI does not match: " + uri + " / " + this.uri);
+				final File metaFile = checkPath(filePrefix, META_EXTENSION_COMPRESSED);
+				FileUtils.writeStringToGzipFile(downloadItem.getMetaAsJson(), StandardCharsets.UTF_8, metaFile);
+				final File contentFile = checkPath(filePrefix, CONTENT_EXTENSION_COMPRESSED);
+				try (final InputStream is = downloadItem.getContentInputStream()) {
+					FileUtils.writeToGzipFile(is, contentFile);
+				}
+				return FileUtils.readFromGzipFile(contentFile);
+			} finally {
+				rwl.r.unlock();
+			}
+		}
+
+		@Override
+		public DownloadItem load() throws IOException, JSONException, URISyntaxException {
+			rwl.r.lock();
+			try {
+				final File metaFile = checkPath(filePrefix, META_EXTENSION_COMPRESSED);
+				if (!metaFile.exists())
+					return null;
+				if (expirationTime != 0)
+					if (metaFile.lastModified() < expirationTime)
+						return null;
+				final String content = FileUtils.readStringFromGzipFile(StandardCharsets.UTF_8, metaFile);
+				final JSONObject json = new JSONObject(content);
+				final DownloadItem downloadItem = new DownloadItem(uri, json);
+				final File contentFile = checkPath(filePrefix, CONTENT_EXTENSION_COMPRESSED);
+				downloadItem.setContentInputStream(FileUtils.readFromGzipFile(contentFile));
+				return downloadItem;
+			} finally {
+				rwl.r.unlock();
+			}
+		}
+
+		@Override
+		public boolean flush() throws IOException {
+			rwl.r.lock();
+			try {
+				boolean deleted = false;
+				for (String fileExtension : EXTENSIONS) {
+					final File file = checkPath(filePrefix, fileExtension);
+					if (file.exists())
+						deleted = file.delete() || deleted;
+				}
+				return deleted;
+			} finally {
+				rwl.r.unlock();
+			}
+		}
+
+		@Override
+		public void store(List<ParserResultItem> parserResults) throws IOException {
+			rwl.r.lock();
+			try {
+				if (parserResults == null || parserResults.isEmpty())
+					return;
+				final List<DocumentUpdate> documentUpdates = new ArrayList<>();
+				parserResults.forEach(parserResultItem -> documentUpdates.add(
+						new DocumentUpdate(parserResultItem.getParserDocument())));
+				final File file = checkPath(filePrefix, INDEXED_EXTENSION_COMPRESSED);
+				JsonMapper.MAPPER.writeValue(FileUtils.writeToGzipFile(file), documentUpdates);
+			} finally {
+				rwl.r.unlock();
+			}
+		}
 	}
 }

@@ -28,6 +28,7 @@ import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.util.PropertiesUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Properties;
 
 public class CrawlCacheManager implements Closeable {
@@ -70,6 +72,8 @@ public class CrawlCacheManager implements Closeable {
 	private String configuration;
 
 	private File propFile;
+
+	private final DisabledItem disabledItem = new DisabledItem();
 
 	public CrawlCacheManager(File confDir) throws InstantiationException, IllegalAccessException, IOException {
 		crawlCache = null;
@@ -158,13 +162,13 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
-	public InputStream storeCache(DownloadItem downloadItem) throws IOException, JSONException {
+	public CrawlCacheProvider.Item getItem(final URI uri) throws IOException, JSONException {
 		rwl.r.lock();
 		try {
 			if (!enabled)
-				return downloadItem.getContentInputStream();
+				return disabledItem;
 			else
-				return crawlCache.store(downloadItem);
+				return crawlCache.getItem(uri, getExpirationDate());
 		} finally {
 			rwl.r.unlock();
 		}
@@ -184,28 +188,6 @@ public class CrawlCacheManager implements Closeable {
 		if (Logging.isDebug)
 			Logging.debug("ExpirationDate l = " + l);
 		return System.currentTimeMillis() - l;
-	}
-
-	public DownloadItem loadCache(URI uri) throws IOException, JSONException, URISyntaxException {
-		rwl.r.lock();
-		try {
-			if (!enabled)
-				return null;
-			return crawlCache.load(uri, getExpirationDate());
-		} finally {
-			rwl.r.unlock();
-		}
-	}
-
-	public boolean flushCache(URI uri) throws IOException {
-		rwl.r.lock();
-		try {
-			if (!enabled)
-				return false;
-			return crawlCache.flush(uri);
-		} finally {
-			rwl.r.unlock();
-		}
 	}
 
 	public long flushCache(boolean expiration) throws IOException {
@@ -378,4 +360,25 @@ public class CrawlCacheManager implements Closeable {
 		}
 	}
 
+	public class DisabledItem extends CrawlCacheProvider.Item {
+
+		@Override
+		public InputStream store(final DownloadItem downloadItem) throws IOException, JSONException {
+			return downloadItem.getContentInputStream();
+		}
+
+		@Override
+		public DownloadItem load() throws IOException, JSONException, URISyntaxException {
+			return null;
+		}
+
+		@Override
+		public boolean flush() throws IOException {
+			return false;
+		}
+
+		@Override
+		public void store(List<ParserResultItem> parserResults) throws IOException {
+		}
+	}
 }

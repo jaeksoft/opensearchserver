@@ -30,6 +30,7 @@ import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.crawler.FieldMap;
 import com.jaeksoft.searchlib.crawler.cache.CrawlCacheManager;
+import com.jaeksoft.searchlib.crawler.cache.CrawlCacheProvider;
 import com.jaeksoft.searchlib.crawler.common.database.FetchStatus;
 import com.jaeksoft.searchlib.crawler.common.database.IndexStatus;
 import com.jaeksoft.searchlib.crawler.common.database.ParserStatus;
@@ -254,8 +255,8 @@ public class Crawl {
 				credentialItem = credentialManager == null ? null : credentialManager.matchCredential(url);
 
 				String externalFormUrl = url.toExternalForm();
-				downloadItem = crawlCacheManager.loadCache(uri);
-
+				final CrawlCacheProvider.Item crawlCacheItem = crawlCacheManager.getItem(uri);
+				downloadItem = crawlCacheItem.load();
 				boolean fromCache = (downloadItem != null);
 
 				if (!fromCache) {
@@ -295,10 +296,12 @@ public class Crawl {
 
 				if (code >= 200 && code < 300) {
 					if (!fromCache)
-						is = crawlCacheManager.storeCache(downloadItem);
+						is = crawlCacheItem.store(downloadItem);
 					else
 						is = downloadItem.getContentInputStream();
 					parseContent(is);
+					if (parser != null)
+						crawlCacheItem.store(parser.getParserResults());
 				} else if (code == 301) {
 					urlItem.setFetchStatus(FetchStatus.REDIR_PERM);
 				} else if (code > 301 && code < 400) {
@@ -316,32 +319,16 @@ public class Crawl {
 				Logging.warn(e.toString() + " (" + urlItem.getUrl() + ")");
 				urlItem.setFetchStatus(FetchStatus.SIZE_EXCEED);
 				setError(e.getMessage());
-			} catch (InstantiationException e) {
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 				Logging.error(e.getMessage(), e);
 				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
 				setError(e.getMessage());
-			} catch (IllegalAccessException e) {
-				Logging.error(e.getMessage(), e);
-				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
-				setError(e.getMessage());
-			} catch (ClassNotFoundException e) {
-				Logging.error(e.getMessage(), e);
-				urlItem.setParserStatus(ParserStatus.PARSER_ERROR);
-				setError(e.getMessage());
-			} catch (URISyntaxException e) {
-				Logging.warn(e.getMessage(), e);
-				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
-				setError(e.getMessage());
-			} catch (MalformedURLException e) {
+			} catch (URISyntaxException | MalformedURLException e) {
 				Logging.warn(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.URL_ERROR);
 				setError(e.getMessage());
 			} catch (IOException e) {
 				Logging.warn(e.getMessage(), e);
-				urlItem.setFetchStatus(FetchStatus.ERROR);
-				setError(e.getMessage());
-			} catch (IllegalArgumentException e) {
-				Logging.error(e.getMessage(), e);
 				urlItem.setFetchStatus(FetchStatus.ERROR);
 				setError(e.getMessage());
 			} catch (Exception e) {

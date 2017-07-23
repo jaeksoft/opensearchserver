@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -128,11 +129,13 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		}
 	}
 
+	public static OutputStream writeToGzipFile(final File file) throws IOException {
+		return new GZIPOutputStream(new FileOutputStream(file), 65536);
+	}
+
 	public static int writeToGzipFile(final InputStream input, final File file) throws IOException {
-		try (final FileOutputStream output = new FileOutputStream(file)) {
-			try (final GZIPOutputStream compressedOuput = new GZIPOutputStream(output, 65536)) {
-				return IOUtils.copy(input, compressedOuput);
-			}
+		try (final OutputStream output = writeToGzipFile(file)) {
+			return IOUtils.copy(input, output);
 		}
 	}
 

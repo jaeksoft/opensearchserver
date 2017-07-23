@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
@@ -252,8 +252,8 @@ public class UrlManager extends AbstractManager {
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(field + "Facet");
 		searchRequest.setQueryString(queryString);
-		searchRequest.getFilterList()
-				.add(new QueryFilter(field + ":" + start + "*", false, FilterAbstract.Source.REQUEST, null));
+		searchRequest.getFilterList().add(
+				new QueryFilter(field + ":" + start + "*", false, FilterAbstract.Source.REQUEST, null));
 		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, null, list, null);
 	}
 
@@ -339,8 +339,8 @@ public class UrlManager extends AbstractManager {
 			IndexStatus indexStatus, Date startDate, Date endDate, Date startModifiedDate, Date endModifiedDate)
 			throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest =
-					(AbstractSearchRequest) dbClient.getNewRequest(urlSearchTemplate.name());
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(
+					urlSearchTemplate.name());
 			StringBuilder query = new StringBuilder();
 			if (like != null) {
 				like = like.trim();
@@ -487,8 +487,8 @@ public class UrlManager extends AbstractManager {
 
 	public Facet getHostFacetList(int minCount) throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest =
-					(AbstractSearchRequest) dbClient.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
+			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(
+					UrlManager.SearchTemplate.hostFacet.name());
 			searchRequest.setEmptyReturnsAll(true);
 			FacetField facetField = searchRequest.getFacetFieldList().get(UrlItemFieldEnum.INSTANCE.host.getName());
 			if (minCount < 0)
@@ -644,7 +644,7 @@ public class UrlManager extends AbstractManager {
 					URL url = u.getURL();
 					if (url == null)
 						continue;
-					DownloadItem downloadItem = crawlCacheManager.loadCache(url.toURI());
+					final DownloadItem downloadItem = crawlCacheManager.getItem(url.toURI()).load();
 					if (downloadItem == null)
 						continue;
 					downloadItem.writeToZip(zipOutput);
@@ -791,8 +791,8 @@ public class UrlManager extends AbstractManager {
 		setCurrentTaskLog(taskLog);
 		HttpDownloader httpDownloader = null;
 		try {
-			AbstractSearchRequest request =
-					(AbstractSearchRequest) dbClient.getNewRequest(SearchTemplate.urlSearch.name());
+			AbstractSearchRequest request = (AbstractSearchRequest) dbClient.getNewRequest(
+					SearchTemplate.urlSearch.name());
 			long inserted = 0;
 			long existing = 0;
 			long setToFetchFirst = 0;
@@ -815,8 +815,9 @@ public class UrlManager extends AbstractManager {
 						existing++;
 						long timeDistanceMs = now - urlItem.getWhen().getTime();
 						FetchStatus fetchStatus = urlItem.getFetchStatus();
-						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED
-								&& siteMapUrl.getChangeFreq().needUpdate(timeDistanceMs))) {
+						if (fetchStatus == FetchStatus.UN_FETCHED ||
+								(fetchStatus == FetchStatus.FETCHED && siteMapUrl.getChangeFreq().needUpdate(
+										timeDistanceMs))) {
 							if (fetchStatus != FetchStatus.FETCH_FIRST) {
 								urlItem.setFetchStatus(FetchStatus.FETCH_FIRST);
 								urlItemList.add(urlItem);

@@ -1,28 +1,39 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.crawler.web.spider;
+
+import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -33,25 +44,17 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.http.Header;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.jaeksoft.searchlib.SearchLibException.WrongStatusCodeException;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
-
 public class DownloadItem {
 
-	private URI uri;
+	private final URI uri;
+	private final long crawlTime;
+	private final boolean fromCache;
+
 	private URI redirectLocation = null;
 	private Long contentLength = null;
 	private String contentDispositionFilename = null;
@@ -63,14 +66,16 @@ public class DownloadItem {
 	private Integer statusCode = null;
 	private String reasonPhrase = null;
 	private InputStream contentInputStream = null;
-	private boolean fromCache = false;
 	private List<String> headers = null;
 	private Header[] httpHeaders = null;
 
-	public DownloadItem(URI uri) {
+	public DownloadItem(URI uri, long crawlTime, boolean fromCache) {
 		this.uri = uri;
+		this.crawlTime = crawlTime;
+		this.fromCache = fromCache;
 	}
 
+	protected final static String KEY_CRAWL_TIME = "KEY_CRAWL_TIME";
 	protected final static String KEY_REDIRECT_LOCATION = "KEY_REDIRECT_LOCATION";
 	protected final static String KEY_CONTENT_DISPOSITION_FILENAME = "KEY_CONTENT_DISPOSITION_FILENAME";
 	protected final static String KEY_CONTENT_LENGTH = "KEY_CONTENT_LENGTH";
@@ -86,6 +91,8 @@ public class DownloadItem {
 	public String getMetaAsJson() throws JSONException {
 		JSONObject json = new JSONObject();
 
+		json.put(KEY_CRAWL_TIME, crawlTime);
+
 		if (redirectLocation != null)
 			json.put(KEY_REDIRECT_LOCATION, redirectLocation.toASCIIString());
 
@@ -96,8 +103,7 @@ public class DownloadItem {
 			json.put(KEY_LAST_MODIFIED, lastModified);
 
 		if (contentDispositionFilename != null)
-			json.put(KEY_CONTENT_DISPOSITION_FILENAME,
-					contentDispositionFilename);
+			json.put(KEY_CONTENT_DISPOSITION_FILENAME, contentDispositionFilename);
 
 		if (contentBaseType != null)
 			json.put(KEY_CONTENT_BASE_TYPE, contentBaseType);
@@ -123,10 +129,8 @@ public class DownloadItem {
 		return json.toString();
 	}
 
-	public void loadMetaFromJson(org.json.JSONObject json)
-			throws URISyntaxException, JSONException {
-
-		fromCache = true;
+	public DownloadItem(URI uri, org.json.JSONObject json) throws URISyntaxException, JSONException {
+		this(uri, json.has(KEY_CRAWL_TIME) ? json.getLong(KEY_CRAWL_TIME) : System.currentTimeMillis(), true);
 
 		if (json.has(KEY_REDIRECT_LOCATION)) {
 			String s = json.getString(KEY_REDIRECT_LOCATION);
@@ -140,8 +144,7 @@ public class DownloadItem {
 			lastModified = json.getLong(KEY_LAST_MODIFIED);
 
 		if (json.has(KEY_CONTENT_DISPOSITION_FILENAME))
-			contentDispositionFilename = json
-					.getString(KEY_CONTENT_DISPOSITION_FILENAME);
+			contentDispositionFilename = json.getString(KEY_CONTENT_DISPOSITION_FILENAME);
 
 		if (json.has(KEY_CONTENT_BASE_TYPE))
 			contentBaseType = json.getString(KEY_CONTENT_BASE_TYPE);
@@ -162,7 +165,7 @@ public class DownloadItem {
 			reasonPhrase = json.getString(KEY_REASON_PHRASE);
 
 		if (json.has(KEY_HEADERS)) {
-			headers = new ArrayList<String>();
+			headers = new ArrayList<>();
 			JSONArray headerJsonArray = json.getJSONArray(KEY_HEADERS);
 			if (headerJsonArray != null)
 				for (int i = 0; i < headerJsonArray.length(); i++)
@@ -178,8 +181,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param redirectLocation
-	 *            the redirectLocation to set
+	 * @param redirectLocation the redirectLocation to set
 	 */
 	public void setRedirectLocation(URI redirectLocation) {
 		this.redirectLocation = redirectLocation;
@@ -200,16 +202,14 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param lastModified
-	 *            the lastModified to set
+	 * @param lastModified the lastModified to set
 	 */
 	public void setLastModified(Long lastModified) {
 		this.lastModified = lastModified;
 	}
 
 	/**
-	 * @param contentLength
-	 *            the contentLength to set
+	 * @param contentLength the contentLength to set
 	 */
 	public void setContentLength(Long contentLength) {
 		this.contentLength = contentLength;
@@ -223,8 +223,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param contentDispositionFilename
-	 *            the contentDispositionFilename to set
+	 * @param contentDispositionFilename the contentDispositionFilename to set
 	 */
 	public void setContentDispositionFilename(String contentDispositionFilename) {
 		this.contentDispositionFilename = contentDispositionFilename;
@@ -249,8 +248,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param contentBaseType
-	 *            the contentBaseType to set
+	 * @param contentBaseType the contentBaseType to set
 	 */
 	public void setContentBaseType(String contentBaseType) {
 		this.contentBaseType = contentBaseType;
@@ -264,8 +262,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param contentTypeCharset
-	 *            the contentTypeCharset to set
+	 * @param contentTypeCharset the contentTypeCharset to set
 	 */
 	public void setContentTypeCharset(String contentTypeCharset) {
 		this.contentTypeCharset = contentTypeCharset;
@@ -279,8 +276,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param contentEncoding
-	 *            the contentEncoding to set
+	 * @param contentEncoding the contentEncoding to set
 	 */
 	public void setContentEncoding(String contentEncoding) {
 		this.contentEncoding = contentEncoding;
@@ -293,30 +289,24 @@ public class DownloadItem {
 		return statusCode;
 	}
 
-	public void checkNoErrorRange(int fromInclusive, int toExclusive)
-			throws WrongStatusCodeException {
+	public void checkNoErrorRange(int fromInclusive, int toExclusive) throws WrongStatusCodeException {
 		if (statusCode == null)
 			throw new WrongStatusCodeException("No status code - ", uri);
 		if (statusCode < fromInclusive || statusCode >= toExclusive)
-			throw new WrongStatusCodeException("Wrong status code: ",
-					statusCode, ' ', reasonPhrase, " - ", uri);
+			throw new WrongStatusCodeException("Wrong status code: ", statusCode, ' ', reasonPhrase, " - ", uri);
 	}
 
-	public void checkNoErrorList(int... validCodes)
-			throws WrongStatusCodeException {
+	public void checkNoErrorList(int... validCodes) throws WrongStatusCodeException {
 		if (statusCode == null)
-			throw new WrongStatusCodeException("Wrong status code: ",
-					statusCode, ' ', reasonPhrase, " - ", uri);
+			throw new WrongStatusCodeException("Wrong status code: ", statusCode, ' ', reasonPhrase, " - ", uri);
 		for (int validCode : validCodes)
 			if (statusCode == validCode)
 				return;
-		throw new WrongStatusCodeException("Wrong status code: ", statusCode,
-				' ', reasonPhrase, " - ", uri);
+		throw new WrongStatusCodeException("Wrong status code: ", statusCode, ' ', reasonPhrase, " - ", uri);
 	}
 
 	/**
-	 * @param statusCode
-	 *            the statusCode to set
+	 * @param statusCode the statusCode to set
 	 */
 	public void setStatusCode(Integer statusCode) {
 		this.statusCode = statusCode;
@@ -330,8 +320,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param reasonPhrase
-	 *            the reasonPhrase to set
+	 * @param reasonPhrase the reasonPhrase to set
 	 */
 	public void setReasonPhrase(String reasonPhrase) {
 		this.reasonPhrase = reasonPhrase;
@@ -345,8 +334,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param contentInputStream
-	 *            the inputStream to set
+	 * @param contentInputStream the inputStream to set
 	 */
 	public void setContentInputStream(InputStream contentInputStream) {
 		this.contentInputStream = contentInputStream;
@@ -366,6 +354,13 @@ public class DownloadItem {
 		return fromCache;
 	}
 
+	/**
+	 * @return the time when the content has been crawled
+	 */
+	public long getCrawlTime() {
+		return crawlTime;
+	}
+
 	public List<String> getHeaders() {
 		return headers;
 	}
@@ -374,7 +369,7 @@ public class DownloadItem {
 		httpHeaders = headers;
 		if (headers == null)
 			return;
-		this.headers = new ArrayList<String>(headers.length);
+		this.headers = new ArrayList<>(headers.length);
 		for (Header header : headers) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(header.getName());
@@ -396,7 +391,7 @@ public class DownloadItem {
 	public String getContentAsString() throws IOException {
 		if (contentInputStream == null)
 			return null;
-		return IOUtils.toString(contentInputStream);
+		return IOUtils.toString(contentInputStream, Charset.defaultCharset());
 	}
 
 	/**
@@ -407,8 +402,7 @@ public class DownloadItem {
 	}
 
 	/**
-	 * @param contentLocation
-	 *            the contentLocation to set
+	 * @param contentLocation the contentLocation to set
 	 */
 	public void setContentLocation(String contentLocation) {
 		this.contentLocation = contentLocation;
@@ -447,8 +441,7 @@ public class DownloadItem {
 		if (contentDispositionFilename != null)
 			path.append(contentDispositionFilename);
 		else {
-			String lastPart = pathParts == null || pathParts.length == 0 ? null
-					: pathParts[pathParts.length - 1];
+			String lastPart = pathParts == null || pathParts.length == 0 ? null : pathParts[pathParts.length - 1];
 			if (StringUtils.isEmpty(lastPart))
 				path.append("index");
 			else
