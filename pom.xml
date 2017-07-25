@@ -756,7 +756,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.2</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jmimemagic</groupId>
@@ -775,7 +775,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.41</version>
+            <version>5.1.43</version>
         </dependency>
         <dependency>
             <groupId>com.jaeksoft</groupId>
@@ -785,7 +785,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.4.1209.jre7</version>
+            <version>9.4.1212.jre7</version>
         </dependency>
         <dependency>
             <groupId>org.hsqldb</groupId>
@@ -838,6 +838,7 @@
             <version>2.0.1</version>
         </dependency>
     </dependencies>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

@@ -31,6 +31,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.http.Header;
+import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +47,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.zip.CRC32;
 
@@ -170,6 +172,45 @@ public class DownloadItem {
 			if (headerJsonArray != null)
 				for (int i = 0; i < headerJsonArray.length(); i++)
 					headers.add(headerJsonArray.get(i).toString());
+		}
+	}
+
+	public DownloadItem(URI uri, Document doc) throws URISyntaxException, JSONException {
+		this(uri, ((Number) doc.getOrDefault(KEY_CRAWL_TIME, System.currentTimeMillis())).longValue(), true);
+
+		if (doc.containsKey(KEY_REDIRECT_LOCATION))
+			redirectLocation = new URI(doc.get(KEY_REDIRECT_LOCATION).toString());
+
+		if (doc.containsKey(KEY_CONTENT_LENGTH))
+			contentLength = ((Number) doc.get(KEY_CONTENT_LENGTH)).longValue();
+
+		if (doc.containsKey(KEY_LAST_MODIFIED))
+			lastModified = ((Number) doc.get(KEY_LAST_MODIFIED)).longValue();
+
+		if (doc.containsKey(KEY_CONTENT_DISPOSITION_FILENAME))
+			contentDispositionFilename = doc.getString(KEY_CONTENT_DISPOSITION_FILENAME);
+
+		if (doc.containsKey(KEY_CONTENT_BASE_TYPE))
+			contentBaseType = doc.getString(KEY_CONTENT_BASE_TYPE);
+
+		if (doc.containsKey(KEY_CONTENT_TYPE_CHARSET))
+			contentTypeCharset = doc.getString(KEY_CONTENT_TYPE_CHARSET);
+
+		if (doc.containsKey(KEY_CONTENT_ENCODING))
+			contentEncoding = doc.getString(KEY_CONTENT_ENCODING);
+
+		if (doc.containsKey(KEY_CONTENT_LOCATION))
+			contentLocation = doc.getString(KEY_CONTENT_LOCATION);
+
+		if (doc.containsKey(KEY_STATUS_CODE))
+			statusCode = ((Number) doc.get(KEY_STATUS_CODE)).intValue();
+
+		if (doc.containsKey(KEY_REASON_PHRASE))
+			reasonPhrase = doc.getString(KEY_REASON_PHRASE);
+
+		if (doc.containsKey(KEY_HEADERS)) {
+			headers = new ArrayList<>();
+			((Collection<Object>) doc.get(KEY_HEADERS)).forEach(value -> headers.add(value.toString()));
 		}
 	}
 

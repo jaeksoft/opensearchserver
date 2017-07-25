@@ -26,7 +26,7 @@ package com.jaeksoft.searchlib.crawler.cache;
 
 public enum CrawlCacheProviderEnum {
 
-	LOCAL_FILE("Local file system", LocalFileCrawlCache.class);
+	LOCAL_FILE("Local file system", LocalFileCrawlCache.class), MONGODB("MongoDB", MongoDbCrawlCache.class);
 
 	private Class<? extends CrawlCacheProvider> providerClass;
 
