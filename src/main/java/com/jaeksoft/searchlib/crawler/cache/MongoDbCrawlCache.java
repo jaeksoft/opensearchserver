@@ -141,7 +141,7 @@ public class MongoDbCrawlCache extends CrawlCacheProvider {
 
 	@Override
 	public String getConfigurationInformation() {
-		return "Please provide the connection URL to the MongoDB instance (Eg.: /mongodb://localhost:27017/oss_crawl_cache)";
+		return "Please provide the connection URL to the MongoDB instance (Eg.: mongodb://localhost:27017/oss_crawl_cache)";
 	}
 
 	@Override
