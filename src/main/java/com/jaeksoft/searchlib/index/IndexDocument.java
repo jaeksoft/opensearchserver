@@ -49,7 +49,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 public class IndexDocument implements Iterable<FieldContent> {
 
@@ -220,6 +226,13 @@ public class IndexDocument implements Iterable<FieldContent> {
 			throw new SearchLibException("Parser error while getting binary from file : " + filePath + " /" + filename,
 					e);
 		}
+	}
+
+	public void forEachFieldValueItem(final BiConsumer<String, List<FieldValueItem>> consumer) {
+		fields.forEach((fieldName, fieldContent) -> {
+			if (fieldContent.hasContent())
+				consumer.accept(fieldName, fieldContent.getValues());
+		});
 	}
 
 	public FieldContent getFieldContent(String field) {

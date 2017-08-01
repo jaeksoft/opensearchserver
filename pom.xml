@@ -296,6 +296,10 @@
                     <artifactId>javax.ws.rs-api</artifactId>
                     <groupId>javax.ws.rs</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.servlet</groupId>
+                    <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -598,12 +602,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-asl</artifactId>
             <version>4.4.1</version>
@@ -688,6 +686,10 @@
                 <exclusion>
                     <artifactId>websocket-api</artifactId>
                     <groupId>org.eclipse.jetty.websocket</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -838,7 +840,7 @@
             <version>2.0.1</version>
         </dependency>
     </dependencies>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

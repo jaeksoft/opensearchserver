@@ -25,9 +25,9 @@
 package com.jaeksoft.searchlib.crawler.cache;
 
 import com.jaeksoft.searchlib.crawler.web.spider.DownloadItem;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
-import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
@@ -38,8 +38,9 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import com.qwazr.utils.json.JsonMapper;
 import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -51,8 +52,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -232,11 +233,34 @@ public class MongoDbCrawlCache extends CrawlCacheProvider {
 			try {
 				if (parserResults == null || parserResults.isEmpty())
 					return;
-				final List<DocumentUpdate> documentUpdates = new ArrayList<>();
-				parserResults.forEach(parserResultItem -> documentUpdates.add(
-						new DocumentUpdate(parserResultItem.getParserDocument())));
-				indexedCollection.replaceOne(eq("uri", uriString), new Document("uri", uriString).append("documents",
-						BsonArray.parse(JsonMapper.MAPPER.writeValueAsString(documentUpdates))), UPSERT);
+				final BsonArray documents = new BsonArray();
+				parserResults.forEach(parserResultItem -> {
+					final BsonDocument document = new BsonDocument();
+					final IndexDocument indexDocument = parserResultItem.getParserDocument();
+					indexDocument.forEachFieldValueItem((fieldName, fieldValueItems) -> {
+						final LinkedHashSet<String> fieldValues = new LinkedHashSet<>();
+						fieldValueItems.forEach(fvi -> fieldValues.add(fvi.value));
+						final BsonValue values;
+						switch (fieldValues.size()) {
+						case 0:
+							values = null;
+							break;
+						case 1:
+							values = new BsonString(fieldValues.iterator().next());
+							break;
+						default:
+							final BsonArray array = new BsonArray();
+							fieldValues.forEach(value -> array.add(new BsonString(value)));
+							values = array;
+							break;
+						}
+						if (values != null)
+							document.append(fieldName, values);
+					});
+					documents.add(document);
+				});
+				indexedCollection.replaceOne(eq("uri", uriString),
+						new Document("uri", uriString).append("documents", documents), UPSERT);
 			} finally {
 				rwl.r.unlock();
 			}
