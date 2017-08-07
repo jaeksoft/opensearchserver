@@ -1,6 +1,6 @@
 <div class="osscmnrdr oss-facet">
 <#assign filterQueries =  session.getAttribute("filterQueries")/>
-<#if filterQueries?has_content>
+<#if filterQueries?has_content && filterQueries.termsFilterSet?has_content>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">${renderer.filtersTitleText!'Filters'}</h3>
