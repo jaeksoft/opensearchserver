@@ -1,4 +1,4 @@
-<#assign value = rendererWidget.getValue(rendererValue)/>
+<#assign value = rendererWidget.getValue(rendererValue)!/>
 <#assign url = rendererField.getUrlField(resultDocument)!/>
 <#if value?has_content>
     <#if url?has_content>
