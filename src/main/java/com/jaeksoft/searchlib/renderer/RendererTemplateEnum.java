@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2014-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.renderer;
@@ -27,28 +27,35 @@ package com.jaeksoft.searchlib.renderer;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum RendererJspEnum {
+public enum RendererTemplateEnum {
 
-	SimpleHtml("renderer.jsp"), Bootstrap("renderer5.jsp");
+	SimpleHtml("xhtml"), Bootstrap("bootstrap");
 
-	public final String jsp;
+	public final String directory;
 
-	private RendererJspEnum(String jsp) {
-		this.jsp = jsp;
+	RendererTemplateEnum(String directory) {
+		this.directory = directory;
 	}
 
-	final public static RendererJspEnum find(String name) {
-		for (RendererJspEnum e : values())
+	final public static RendererTemplateEnum find(String name) {
+		for (RendererTemplateEnum e : values())
 			if (e.name().equalsIgnoreCase(name))
 				return e;
 		return SimpleHtml;
 	}
 
+	public static List<String> nameList;
+
+	static {
+		nameList = new ArrayList<>(values().length);
+		for (RendererTemplateEnum e : values())
+			nameList.add(e.name());
+	}
+
 	public static List<String> toNameList(List<String> list) {
 		if (list == null)
-			list = new ArrayList<String>(values().length);
-		for (RendererJspEnum e : values())
-			list.add(e.name());
+			return nameList;
+		list.addAll(nameList);
 		return list;
 	}
 }

@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,25 +20,25 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.renderer;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.io.FilenameUtils;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.config.Config;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
+import com.qwazr.library.freemarker.FreeMarkerTool;
+import org.apache.commons.io.FilenameUtils;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public class RendererManager {
 
@@ -48,11 +48,13 @@ public class RendererManager {
 
 	private final TreeMap<String, Renderer> map;
 
+	private final Map<RendererTemplateEnum, FreeMarkerTool> freeMarkerTools;
+
 	public RendererManager(Config config, File directory)
-			throws SearchLibException, XPathExpressionException,
-			ParserConfigurationException, SAXException, IOException {
+			throws SearchLibException, XPathExpressionException, ParserConfigurationException, SAXException,
+			IOException {
 		array = null;
-		map = new TreeMap<String, Renderer>();
+		map = new TreeMap<>();
 		for (File f : directory.listFiles()) {
 			if (f.isFile()) {
 				String fname = f.getName();
@@ -68,6 +70,30 @@ public class RendererManager {
 					add(new Renderer());
 			}
 		}
+
+		final File templatesDirectory = new File(directory, "templates");
+		if (!templatesDirectory.exists())
+			templatesDirectory.mkdir();
+		freeMarkerTools = new HashMap<>();
+		for (RendererTemplateEnum rendererTemplate : RendererTemplateEnum.values()) {
+			FreeMarkerTool freeMarkerTool = FreeMarkerTool.of()
+					.defaultContentType("text/html")
+					.defaultEncoding("UTF-8")
+					.outputEncoding("UTF-8")
+					.localizedLookup(false)
+					.templateLoader(FreeMarkerTool.Loader.Type.file,
+							templatesDirectory.getAbsolutePath() + '/' + rendererTemplate.directory + '/')
+					.templateLoader(FreeMarkerTool.Loader.Type.resource,
+							"com/jaeksoft/searchlib/renderer/" + rendererTemplate.directory + '/')
+					.templateLoader(FreeMarkerTool.Loader.Type.resource, "com/jaeksoft/searchlib/renderer/common/")
+					.build();
+			freeMarkerTool.load();
+			freeMarkerTools.put(rendererTemplate, freeMarkerTool);
+		}
+	}
+
+	public FreeMarkerTool getFreeMarkerTool(RendererTemplateEnum template) {
+		return freeMarkerTools.get(template);
 	}
 
 	private void buildArray() {

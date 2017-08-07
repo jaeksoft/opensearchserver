@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,43 +20,38 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-
-import org.apache.http.client.ClientProtocolException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.renderer.Renderer;
+import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.Viewer;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.controller.CommonController;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+
 public class ViewerServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3091105613577638419L;
 
 	private String getContentType(Client client, String uri)
-			throws SearchLibException, ClientProtocolException,
-			MalformedURLException, IOException, URISyntaxException {
-		HttpDownloader httpDownloader = client.getWebCrawlMaster()
-				.getNewHttpDownloader(false);
+			throws SearchLibException, IOException, URISyntaxException {
+		HttpDownloader httpDownloader = client.getWebCrawlMaster().getNewHttpDownloader(false);
 		try {
-			httpDownloader.head(new URI(uri), client.getWebCredentialManager()
-					.getCredential(uri));
+			httpDownloader.head(new URI(uri), client.getWebCredentialManager().getCredential(uri));
 			return httpDownloader.getContentBaseType();
 		} finally {
 			if (httpDownloader != null)
@@ -65,37 +60,31 @@ public class ViewerServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
-			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.INDEX_QUERY))
+			final User user = transaction.getLoggedUser();
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 				throw new SearchLibException("Not permitted");
 
-			Client client = transaction.getClient();
-
-			Renderer renderer = client.getRendererManager().get(
-					transaction.getParameterString("renderer"));
+			final Client client = transaction.getClient();
+			final RendererManager rendererManager = client.getRendererManager();
+			final Renderer renderer = rendererManager.get(transaction.getParameterString("renderer"));
 			if (renderer == null)
 				throw new SearchLibException("The renderer has not been found");
-			String sUri = transaction.getParameterString("uri");
+			final String sUri = transaction.getParameterString("uri");
 			String contentType = transaction.getParameterString("contentType");
 			if (contentType == null)
 				contentType = getContentType(client, sUri);
 			transaction.setRequestAttribute("uri", sUri);
-			transaction.setRequestAttribute("viewer",
-					Viewer.getInstance(contentType));
+			transaction.setRequestAttribute("viewer", Viewer.getInstance(contentType));
 			transaction.setRequestAttribute("renderer", renderer);
-			transaction.forward("/WEB-INF/jsp/viewer.jsp");
+			transaction.template(rendererManager.getFreeMarkerTool(renderer.getTemplateName()), "viewer.jsp");
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
-	public static String doViewer(String renderer, String uri, String url)
-			throws UnsupportedEncodingException {
+	public static String doViewer(String renderer, String uri, String url) throws UnsupportedEncodingException {
 		StringBuilder sb = CommonController.getApiUrl("/renderer");
 		if (renderer != null) {
 			sb.append("&renderer=");

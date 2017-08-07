@@ -1,36 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.renderer.field;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
@@ -39,6 +31,12 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.util.List;
 
 public class RendererField {
 
@@ -108,30 +106,18 @@ public class RendererField {
 		replacement = null;
 	}
 
-	public RendererField(XPathParser xpp, Node node)
-			throws XPathExpressionException {
-		fieldName = XPathParser.getAttributeString(node,
-				RENDERER_FIELD_ATTR_FIELDNAME);
-		replacePrevious = DomUtils.getAttributeBoolean(node,
-				RENDERER_FIELD_ATTR_REPLACEPREVIOUS, false);
-		fieldSource = DomUtils.getAttributeInteger(node,
-				RENDERER_FIELD_ATTR_FIELD_SOURCE, null);
-		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(
-				node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
-		oldStyle = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE,
-				true);
-		cssClass = XPathParser.getAttributeString(node,
-				RENDERER_FIELD_ATTR_CSS_CLASS);
-		urlFieldName = XPathParser.getAttributeString(node,
-				RENDERER_FIELD_ATTR_URL_FIELDNAME);
-		urlDecode = DomUtils.getAttributeBoolean(node,
-				RENDERER_FIELD_ATTR_URL_DECODE, false);
-		setWidgetName(RendererWidgetType.find(XPathParser.getAttributeString(
-				node, RENDERER_FIELD_ATTR_WIDGETNAME)));
-		setPattern(DomUtils.getAttributeText(node,
-				RENDERER_FIELD_ATTR_REGEXP_PATTERN));
-		setReplacement(DomUtils.getAttributeText(node,
-				RENDERER_FIELD_ATTR_REGEXP_REPLACE));
+	public RendererField(XPathParser xpp, Node node) throws XPathExpressionException {
+		fieldName = XPathParser.getAttributeString(node, RENDERER_FIELD_ATTR_FIELDNAME);
+		replacePrevious = DomUtils.getAttributeBoolean(node, RENDERER_FIELD_ATTR_REPLACEPREVIOUS, false);
+		fieldSource = DomUtils.getAttributeInteger(node, RENDERER_FIELD_ATTR_FIELD_SOURCE, null);
+		setFieldType(RendererFieldType.find(XPathParser.getAttributeString(node, RENDERER_FIELD_ATTR_FIELD_TYPE)));
+		oldStyle = xpp.getSubNodeTextIfAny(node, RENDERER_FIELD_NODE_CSS_STYLE, true);
+		cssClass = XPathParser.getAttributeString(node, RENDERER_FIELD_ATTR_CSS_CLASS);
+		urlFieldName = XPathParser.getAttributeString(node, RENDERER_FIELD_ATTR_URL_FIELDNAME);
+		urlDecode = DomUtils.getAttributeBoolean(node, RENDERER_FIELD_ATTR_URL_DECODE, false);
+		setWidgetName(RendererWidgetType.find(XPathParser.getAttributeString(node, RENDERER_FIELD_ATTR_WIDGETNAME)));
+		setPattern(DomUtils.getAttributeText(node, RENDERER_FIELD_ATTR_REGEXP_PATTERN));
+		setReplacement(DomUtils.getAttributeText(node, RENDERER_FIELD_ATTR_REGEXP_REPLACE));
 		setWidgetProperties(node.getTextContent());
 	}
 
@@ -163,16 +149,14 @@ public class RendererField {
 	}
 
 	/**
-	 * @param fieldName
-	 *            the fieldName to set
+	 * @param fieldName the fieldName to set
 	 */
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
 	}
 
 	/**
-	 * @param replacePrevious
-	 *            the replacePrevious to set
+	 * @param replacePrevious the replacePrevious to set
 	 */
 	public void setReplacePrevious(boolean replacePrevious) {
 		this.replacePrevious = replacePrevious;
@@ -202,10 +186,10 @@ public class RendererField {
 	/**
 	 * If the css class is empty, it returns an empty string. If there is
 	 * classes, returns a space char followed by the css classes
-	 * 
+	 *
 	 * @return
 	 */
-	public String renderCssClass() {
+	public String getRenderCssClass() {
 		if (StringUtils.isEmpty(cssClass))
 			return StringUtils.EMPTY;
 		return StringUtils.fastConcat(' ', cssClass);
@@ -219,8 +203,7 @@ public class RendererField {
 	}
 
 	/**
-	 * @param urlFieldName
-	 *            the urlFieldName to set
+	 * @param urlFieldName the urlFieldName to set
 	 */
 	public void setUrlFieldName(String urlFieldName) {
 		this.urlFieldName = urlFieldName;
@@ -234,16 +217,14 @@ public class RendererField {
 	}
 
 	/**
-	 * @param urlDecode
-	 *            the urlDecode to set
+	 * @param urlDecode the urlDecode to set
 	 */
 	public void setUrlDecode(boolean urlDecode) {
 		this.urlDecode = urlDecode;
 	}
 
 	/**
-	 * @param fieldType
-	 *            the fieldType to set
+	 * @param fieldType the fieldType to set
 	 */
 	public void setFieldType(RendererFieldType fieldType) {
 		this.fieldType = fieldType;
@@ -256,8 +237,7 @@ public class RendererField {
 		return fieldType;
 	}
 
-	private String[] getValues(List<FieldValueItem> fieldValueItems,
-			boolean replace, boolean urlDecode) {
+	private String[] getValues(List<FieldValueItem> fieldValueItems, boolean replace, boolean urlDecode) {
 		if (fieldValueItems == null)
 			return null;
 		replace = replace && !StringUtils.isEmpty(pattern);
@@ -276,13 +256,11 @@ public class RendererField {
 		return fields;
 	}
 
-	final public ResultDocument getResultDocument(
-			ResultDocument resultDocument,
+	final public ResultDocument getResultDocument(ResultDocument resultDocument,
 			List<ResultDocument> joinResultDocuments) {
 		if (fieldSource == null || fieldSource == 0)
 			return resultDocument;
-		if (joinResultDocuments != null
-				&& fieldSource <= joinResultDocuments.size())
+		if (joinResultDocuments != null && fieldSource <= joinResultDocuments.size())
 			return joinResultDocuments.get(fieldSource - 1);
 		return null;
 	}
@@ -291,14 +269,12 @@ public class RendererField {
 		if (resultDocument == null)
 			return null;
 		if (fieldType == RendererFieldType.FIELD) {
-			boolean isUrl = urlFieldName != null
-					&& urlFieldName.equals(fieldName);
+			boolean isUrl = urlFieldName != null && urlFieldName.equals(fieldName);
 			boolean replace = StringUtils.isEmpty(urlFieldName) || isUrl;
 			return getValues(resultDocument.getValues(fieldName), replace,
 					(isUrl || StringUtils.isEmpty(urlFieldName)) && urlDecode);
 		} else if (fieldType == RendererFieldType.SNIPPET)
-			return getValues(resultDocument.getSnippetValues(fieldName), false,
-					false);
+			return getValues(resultDocument.getSnippetValues(fieldName), false, false);
 		return null;
 	}
 
@@ -319,8 +295,7 @@ public class RendererField {
 			return null;
 		if (urlDecode)
 			url = LinkUtils.UTF8_URL_QuietDecode(url);
-		if (!(StringUtils.isEmpty(pattern))
-				&& !(StringUtils.isEmpty(replacement)))
+		if (!(StringUtils.isEmpty(pattern)) && !(StringUtils.isEmpty(replacement)))
 			url = url.replaceAll(pattern, replacement);
 		return url;
 	}
@@ -338,42 +313,33 @@ public class RendererField {
 		return widgetProperties;
 	}
 
-	public RendererWidget getWidget() throws InstantiationException,
-			IllegalAccessException, IOException {
+	public RendererWidget getWidget() throws InstantiationException, IllegalAccessException, IOException {
 		if (widget == null)
 			widget = widgetName.newInstance(widgetProperties);
 		return widget;
 	}
 
 	public void setWidgetProperties(String widgetProperties) {
-		this.widgetProperties = widgetProperties == null ? StringUtils.EMPTY
-				: widgetProperties;
+		this.widgetProperties = widgetProperties == null ? StringUtils.EMPTY : widgetProperties;
 		widget = null;
 	}
 
 	public void setDefaultWidgetProperties() {
-		setWidgetProperties(widgetName == null ? null : widgetName
-				.getDefaultProperties());
+		setWidgetProperties(widgetName == null ? null : widgetName.getDefaultProperties());
 	}
 
 	public void setCssClass(String cssClass) {
 		this.cssClass = cssClass;
 	}
 
-	public void writeXml(XmlWriter xmlWriter, String nodeName)
-			throws SAXException {
-		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME,
-				fieldName, RENDERER_FIELD_ATTR_REPLACEPREVIOUS, Boolean
-						.toString(replacePrevious),
-				RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
-				RENDERER_FIELD_ATTR_FIELD_SOURCE, fieldSource == null ? null
-						: fieldSource.toString(),
-				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName,
-				RENDERER_FIELD_ATTR_URL_DECODE, Boolean.toString(urlDecode),
-				RENDERER_FIELD_ATTR_CSS_CLASS, cssClass,
-				RENDERER_FIELD_ATTR_WIDGETNAME, widgetName.name(),
-				RENDERER_FIELD_ATTR_REGEXP_PATTERN, pattern,
-				RENDERER_FIELD_ATTR_REGEXP_REPLACE, replacement);
+	public void writeXml(XmlWriter xmlWriter, String nodeName) throws SAXException {
+		xmlWriter.startElement(nodeName, RENDERER_FIELD_ATTR_FIELDNAME, fieldName, RENDERER_FIELD_ATTR_REPLACEPREVIOUS,
+				Boolean.toString(replacePrevious), RENDERER_FIELD_ATTR_FIELD_TYPE, fieldType.name(),
+				RENDERER_FIELD_ATTR_FIELD_SOURCE, fieldSource == null ? null : fieldSource.toString(),
+				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName, RENDERER_FIELD_ATTR_URL_DECODE,
+				Boolean.toString(urlDecode), RENDERER_FIELD_ATTR_CSS_CLASS, cssClass, RENDERER_FIELD_ATTR_WIDGETNAME,
+				widgetName.name(), RENDERER_FIELD_ATTR_REGEXP_PATTERN, pattern, RENDERER_FIELD_ATTR_REGEXP_REPLACE,
+				replacement);
 		xmlWriter.textNode(widgetProperties);
 		xmlWriter.endElement();
 	}
@@ -386,8 +352,7 @@ public class RendererField {
 	}
 
 	/**
-	 * @param pattern
-	 *            the pattern to set
+	 * @param pattern the pattern to set
 	 */
 	public void setPattern(String pattern) {
 		this.pattern = pattern;
@@ -401,8 +366,7 @@ public class RendererField {
 	}
 
 	/**
-	 * @param replacement
-	 *            the replacement to set
+	 * @param replacement the replacement to set
 	 */
 	public void setReplacement(String replacement) {
 		this.replacement = replacement;
@@ -416,8 +380,7 @@ public class RendererField {
 	}
 
 	/**
-	 * @param fieldSource
-	 *            the fieldSource to set
+	 * @param fieldSource the fieldSource to set
 	 */
 	public void setFieldSource(Integer fieldSource) {
 		this.fieldSource = fieldSource;

@@ -24,23 +24,6 @@
 
 package com.jaeksoft.searchlib.renderer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.facet.Facet;
 import com.jaeksoft.searchlib.query.ParseException;
@@ -58,6 +41,21 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.RendererServlet;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 
@@ -160,7 +158,7 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 
 	private String authGroupDenyField;
 
-	private RendererJspEnum defaultJsp;
+	private RendererTemplateEnum templateName;
 
 	private final AuthRendererTokens tokens;
 
@@ -198,7 +196,7 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 		authGroupAllowField = "groupAllow";
 		authUserDenyField = "userDeny";
 		authGroupDenyField = "groupDeny";
-		defaultJsp = RendererJspEnum.SimpleHtml;
+		templateName = RendererTemplateEnum.SimpleHtml;
 	}
 
 	public Renderer(XPathParser xpp)
@@ -220,8 +218,8 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 		setFilenameField(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME));
 		setHocrField(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR));
 		setAutocompletionName(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME));
-		setDefaultJsp(
-				RendererJspEnum.find(XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP)));
+		setTemplateName(RendererTemplateEnum.find(
+				XPathParser.getAttributeString(rootNode, RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP)));
 
 		Node authNode = xpp.getNode(rootNode, RENDERER_ITEM_AUTH_NODE);
 		if (authNode != null) {
@@ -330,14 +328,14 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 
 		String autocompleteStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETE_STYLE, true);
 
-		String autocompleteListStyle =
-				xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE, true);
+		String autocompleteListStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELIST_STYLE,
+				true);
 
-		String autocompleteLinkStyle =
-				xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE, true);
+		String autocompleteLinkStyle = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELINK_STYLE,
+				true);
 
-		String autocompleteLinkHoverStyle =
-				xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE, true);
+		String autocompleteLinkHoverStyle = xpp.getSubNodeTextIfAny(rootNode,
+				RENDERER_ITEM_NODE_AUTOCOMPLETELINKHOVER_STYLE, true);
 
 		String aactive = xpp.getSubNodeTextIfAny(rootNode, RENDERER_ITEM_NODE_AACTIVE, true);
 
@@ -414,7 +412,7 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 				target.logFields.clear();
 				target.header = header;
 				target.footer = footer;
-				target.defaultJsp = defaultJsp;
+				target.templateName = templateName;
 				target.css = css;
 				target.logEnabled = logEnabled;
 				target.contentTypeField = contentTypeField;
@@ -687,7 +685,7 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 	}
 
 	/**
-	 * @param name the requestName to set
+	 * @param requestName the requestName to set
 	 */
 	public void setRequestName(String requestName) {
 		rwl.w.lock();
@@ -759,7 +757,7 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 					RENDERER_ITEM_ROOT_ATTR_FIELD_CONTENTTYPE, contentTypeField, RENDERER_ITEM_ROOT_ATTR_FIELD_FILENAME,
 					filenameField, RENDERER_ITEM_ROOT_ATTR_FIELD_HOCR, hocrField,
 					RENDERER_ITEM_ROOT_ATTR_AUTOCOMPLETION_NAME, autocompletionName,
-					RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP, defaultJsp == null ? null : defaultJsp.name());
+					RENDERER_ITEM_ROOT_ATTR_DEFAULT_JSP, templateName == null ? null : templateName.name());
 
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_HEADER, header);
 			xmlWriter.writeSubTextNodeIfAny(RENDERER_ITEM_NODE_FOOTER, footer);
@@ -1330,17 +1328,17 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 	}
 
 	/**
-	 * @return the defaultJsp
+	 * @return the templateName
 	 */
-	public RendererJspEnum getDefaultJsp() {
-		return defaultJsp;
+	public RendererTemplateEnum getTemplateName() {
+		return templateName;
 	}
 
 	/**
-	 * @param defaultJsp the defaultJsp to set
+	 * @param templateName the Template to set
 	 */
-	public void setDefaultJsp(RendererJspEnum defaultJsp) {
-		this.defaultJsp = defaultJsp == null ? RendererJspEnum.SimpleHtml : defaultJsp;
+	public void setTemplateName(RendererTemplateEnum templateName) {
+		this.templateName = templateName == null ? RendererTemplateEnum.SimpleHtml : templateName;
 	}
 
 	/**
@@ -1370,4 +1368,5 @@ public class Renderer implements Comparable<Renderer>, XmlWriter.Interface {
 	public void setFiltersTitleText(String filtersTitleText) {
 		this.filtersTitleText = filtersTitleText;
 	}
+
 }

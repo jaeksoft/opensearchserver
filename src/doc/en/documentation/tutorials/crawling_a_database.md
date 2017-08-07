@@ -191,7 +191,7 @@ Use the query template (request) (which we named `search` in this example), and 
 To enhance the display and rename facets, we'll be using some JavaScript. Specifically we'll use `jQuery` as dynamically loaded from the Google CDN. The full code is:
 
 ```javascript
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" ></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" ></script>
 <script type="text/javascript">
 
 jQuery(function($) {

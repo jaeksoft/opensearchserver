@@ -51,7 +51,7 @@ public class SelectServlet extends AbstractServlet {
 							Role.INDEX_QUERY))
 				throw new SearchLibException("Not permitted");
 
-			Client client = transaction.getClient();
+			final Client client = transaction.getClient();
 			String r = transaction.getParameterString("render");
 			if (r == null || r.length() == 0)
 				r = transaction.getParameterString("format");

@@ -1,29 +1,49 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.web;
 
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.ClientCatalog;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.user.User;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
+import com.qwazr.library.freemarker.FreeMarkerTool;
+import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
+import org.xml.sax.SAXException;
+import org.zkoss.zk.ui.WebApp;
+import org.zkoss.zk.ui.http.WebManager;
+
+import javax.naming.NamingException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,27 +54,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.naming.NamingException;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.TransformerConfigurationException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.xml.sax.SAXException;
-import org.zkoss.zk.ui.WebApp;
-import org.zkoss.zk.ui.http.WebManager;
-
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.ClientCatalog;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.user.User;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.XmlWriter;
-import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 
 public class ServletTransaction {
 
@@ -88,8 +87,7 @@ public class ServletTransaction {
 
 	private Map<String, String> xmlResponse;
 
-	public ServletTransaction(AbstractServlet servlet,
-			HttpServletRequest request, Method method,
+	public ServletTransaction(AbstractServlet servlet, HttpServletRequest request, Method method,
 			HttpServletResponse response) {
 		this.method = method;
 		this.servlet = servlet;
@@ -120,8 +118,7 @@ public class ServletTransaction {
 			if (loggedUser != null)
 				return loggedUser;
 		}
-		loggedUser = (User) request.getSession().getAttribute(
-				ScopeAttribute.LOGGED_USER.name());
+		loggedUser = (User) request.getSession().getAttribute(ScopeAttribute.LOGGED_USER.name());
 		if (loggedUser != null)
 			return loggedUser;
 		Thread.sleep(500);
@@ -144,8 +141,7 @@ public class ServletTransaction {
 		return client;
 	}
 
-	public Client getClientApi(String use) throws SearchLibException,
-			NamingException {
+	public Client getClientApi(String use) throws SearchLibException, NamingException {
 		if (client != null)
 			return client;
 		client = ClientCatalog.getClient(use);
@@ -210,13 +206,9 @@ public class ServletTransaction {
 		return out;
 	}
 
-	public void forward(String path) throws ServletException {
-		RequestDispatcher dispatcher = servlet.getServletContext()
-				.getRequestDispatcher(path);
+	public void template(FreeMarkerTool freemarker, String templatePath) throws ServletException, TemplateException {
 		try {
-			dispatcher.forward(request, response);
-		} catch (javax.servlet.ServletException e) {
-			throw new ServletException(e);
+			freemarker.template(templatePath, request, response);
 		} catch (IOException e) {
 			throw new ServletException(e);
 		}
@@ -263,12 +255,10 @@ public class ServletTransaction {
 		return WebManager.getWebApp(servlet.getServletContext());
 	}
 
-	public void sendFile(File file, String filename, String contentType,
-			boolean attach) throws SearchLibException {
+	public void sendFile(File file, String filename, String contentType, boolean attach) throws SearchLibException {
 		response.setContentType(contentType);
 		if (attach)
-			response.addHeader("Content-Disposition", "attachment; filename="
-					+ filename);
+			response.addHeader("Content-Disposition", "attachment; filename=" + filename);
 		FileInputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(file);
@@ -326,8 +316,7 @@ public class ServletTransaction {
 		return b;
 	}
 
-	public final boolean getParameterBoolean(String name, String valueExpected,
-			boolean defaultValue) {
+	public final boolean getParameterBoolean(String name, String valueExpected, boolean defaultValue) {
 		Boolean b = getParameterBoolean(name, valueExpected);
 		if (b == null)
 			return defaultValue;
@@ -355,8 +344,7 @@ public class ServletTransaction {
 		request.setAttribute(name, value);
 	}
 
-	public void setRequestEncoding(String encoding)
-			throws UnsupportedEncodingException {
+	public void setRequestEncoding(String encoding) throws UnsupportedEncodingException {
 		request.setCharacterEncoding(encoding);
 	}
 

@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2009 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,14 +20,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
 
 public class ServletException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2340702838065290696L;
 
@@ -35,8 +35,8 @@ public class ServletException extends Exception {
 		super(msg);
 	}
 
-	public ServletException(Exception e) {
-		super(e);
+	public ServletException(Throwable e) {
+		super(e.getMessage(), e);
 	}
 
 }

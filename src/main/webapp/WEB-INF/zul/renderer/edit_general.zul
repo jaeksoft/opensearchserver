@@ -75,7 +75,7 @@
 					<label value="HTML template: " />
 					<listbox model="@load(renderer.templateList)"
 						mold="select" width="200px"
-						selectedItem="@bind(renderer.currentRenderer.defaultJsp)">
+						selectedItem="@bind(renderer.currentRenderer.templateName)">
 						<template name="model">
 							<listitem label="@load(each)" />
 						</template>

@@ -23,18 +23,6 @@
  **/
 package com.jaeksoft.searchlib.web;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.xml.sax.SAXException;
-
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -47,6 +35,16 @@ import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import org.apache.commons.lang3.StringUtils;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 public class SearchServlet extends AbstractServlet {
 	/**
@@ -68,7 +66,7 @@ public class SearchServlet extends AbstractServlet {
 			Client client = transaction.getClientApi(getIndexName());
 			AbstractSearchRequest searchRequest = buildOpenSearchRequest(
 					client, transaction);
-			Render render = null;
+			final Render render;
 			if (transaction.getParameterString("oe") != null)
 				render = doQueryRequest(client, searchRequest,
 						transaction.getParameterString("oe"));

@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,21 +20,9 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web.controller;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.BindingParam;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -42,9 +30,9 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.join.JoinItem;
 import com.jaeksoft.searchlib.join.JoinList;
 import com.jaeksoft.searchlib.renderer.Renderer;
-import com.jaeksoft.searchlib.renderer.RendererJspEnum;
 import com.jaeksoft.searchlib.renderer.RendererManager;
 import com.jaeksoft.searchlib.renderer.RendererSort;
+import com.jaeksoft.searchlib.renderer.RendererTemplateEnum;
 import com.jaeksoft.searchlib.renderer.field.RendererField;
 import com.jaeksoft.searchlib.renderer.field.RendererFieldType;
 import com.jaeksoft.searchlib.renderer.field.RendererWidgetType;
@@ -57,6 +45,17 @@ import com.jaeksoft.searchlib.renderer.plugin.AuthPluginInterface;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.request.RequestTypeEnum;
 import com.jaeksoft.searchlib.util.IOUtils;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.zul.Messagebox;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 @AfterCompose(superclass = true)
 public class RendererController extends CommonController {
@@ -123,8 +122,8 @@ public class RendererController extends CommonController {
 		if (client == null)
 			return null;
 		List<String> requestList = new ArrayList<String>(0);
-		client.getRequestMap()
-				.getNameList(requestList, RequestTypeEnum.SearchRequest, RequestTypeEnum.SearchFieldRequest);
+		client.getRequestMap().getNameList(requestList, RequestTypeEnum.SearchRequest,
+				RequestTypeEnum.SearchFieldRequest);
 		return requestList;
 	}
 
@@ -226,9 +225,8 @@ public class RendererController extends CommonController {
 
 	@Command
 	public void onLogFieldAdd() throws SearchLibException, InterruptedException {
-		if (currentRendererLogField.getLogParameterEnum() == null || currentRendererLogField.getCustomlogItem()
-				.equals("")
-				|| RendererLogParameterEnum.find(currentRendererLogField.getLogParameterEnum().name()) == null)
+		if (currentRendererLogField.getLogParameterEnum() == null || currentRendererLogField.getCustomlogItem().equals(
+				"") || RendererLogParameterEnum.find(currentRendererLogField.getLogParameterEnum().name()) == null)
 			new AlertController("FieldName / Parameter cannot be null");
 		else {
 			if (currentRendererLogField != null)
@@ -547,8 +545,8 @@ public class RendererController extends CommonController {
 		return nameList;
 	}
 
-	public RendererJspEnum[] getTemplateList() {
-		return RendererJspEnum.values();
+	public RendererTemplateEnum[] getTemplateList() {
+		return RendererTemplateEnum.values();
 	}
 
 	public RendererLogParameterEnum[] getLogParameterList() {
@@ -571,8 +569,7 @@ public class RendererController extends CommonController {
 	}
 
 	/**
-	 * @param testLogin
-	 *            the testLogin to set
+	 * @param testLogin the testLogin to set
 	 */
 	public void setTestLogin(String testLogin) {
 		this.testLogin = testLogin;
@@ -586,8 +583,7 @@ public class RendererController extends CommonController {
 	}
 
 	/**
-	 * @param testPassword
-	 *            the testPassword to set
+	 * @param testPassword the testPassword to set
 	 */
 	public void setTestPassword(String testPassword) {
 		this.testPassword = testPassword;

@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,14 +20,32 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
+package com.jaeksoft.searchlib.renderer.field;
 
-package com.jaeksoft.searchlib.render;
+import com.jaeksoft.searchlib.util.StringUtils;
 
-import com.jaeksoft.searchlib.web.ServletTransaction;
+import java.io.IOException;
 
-public interface Render {
+public class RendererWidgetUrlWrap extends RendererWidget {
 
-	void render(ServletTransaction servletTransaction) throws Exception;
+	private int size;
 
+	@Override
+	void init(String properties) throws IOException {
+		super.init(properties);
+		String p = this.properties != null ? this.properties.getProperty("size", "80") : "80";
+		try {
+			size = Integer.parseInt(p);
+		} catch (NumberFormatException e) {
+			size = 80;
+		}
+	}
+
+	@Override
+	public String getValue(String value) {
+		if (value == null)
+			return null;
+		return StringUtils.urlHostPathWrapReduce(value, size);
+	}
 }
