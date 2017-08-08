@@ -1,4 +1,4 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
@@ -20,21 +20,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -42,17 +30,26 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.DomUtils;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 
 public class IndexServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3855116559376800406L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		HttpDownloader httpDownloader = null;
 		try {
 
@@ -67,20 +64,15 @@ public class IndexServlet extends AbstractServlet {
 			int bufferSize = transaction.getParameterInteger("bufferSize", 50);
 			int updatedCount = 0;
 			int deletedCount = 0;
-			httpDownloader = client.getWebCrawlMaster().getNewHttpDownloader(
-					true);
+			httpDownloader = client.getWebCrawlMaster().getNewHttpDownloader(true);
 			if (ct != null && ct.toLowerCase().contains("xml")) {
-				Node xmlDoc = DomUtils.readXml(
-						new StreamSource(transaction.getInputStream()), false);
-				updatedCount = client.updateXmlDocuments(xmlDoc, bufferSize,
-						null, httpDownloader, null);
-				deletedCount = client.deleteXmlDocuments(xmlDoc, bufferSize,
-						null);
+				Node xmlDoc = DomUtils.readXml(new StreamSource(transaction.getInputStream()), false);
+				updatedCount = client.updateXmlDocuments(xmlDoc, bufferSize, null, httpDownloader, null);
+				deletedCount = client.deleteXmlDocuments(xmlDoc, bufferSize, null);
 			}
 			transaction.addXmlResponse("Status", "OK");
 			transaction.addXmlResponse("Count", Integer.toString(updatedCount));
-			transaction.addXmlResponse("Deleted",
-					Integer.toString(deletedCount));
+			transaction.addXmlResponse("Deleted", Integer.toString(deletedCount));
 		} catch (IOException e) {
 			throw new ServletException(e);
 		} catch (XPathExpressionException e) {

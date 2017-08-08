@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
 
@@ -35,54 +35,45 @@ import com.jaeksoft.searchlib.user.User;
 public class FileCrawlerServlet extends WebCrawlerServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 3367169960498597933L;
 
-	private void doCreateLocation(Client client, ServletTransaction transaction)
-			throws SearchLibException {
+	private void doCreateLocation(Client client, ServletTransaction transaction) throws SearchLibException {
 		String fileType = transaction.getParameterString("type");
 		if (fileType != null) {
 			FilePathManager filePathManager = client.getFilePathManager();
 			FilePathItem filePathItem = new FilePathItem(client);
 			Boolean setDefault = setDefaultValues(transaction, filePathItem);
 			if (setDefault) {
-				Boolean isValidTypeInstance = getFileCrawlInstance(client,
-						filePathItem, transaction, fileType);
+				Boolean isValidTypeInstance = getFileCrawlInstance(client, filePathItem, transaction, fileType);
 				FilePathItem checkFilePath = filePathManager.get(filePathItem);
 				if (isValidTypeInstance && checkFilePath == null) {
 					filePathManager.add(filePathItem);
 				} else {
-					transaction
-							.addXmlResponse("Info",
-									"The location already exists or it is not a valied instance type");
+					transaction.addXmlResponse("Info",
+							"The location already exists or it is not a valied instance type");
 				}
 			} else {
 				transaction.addXmlResponse("Info", "Missing default values.");
 			}
 		} else
-			transaction.addXmlResponse("Info",
-					"FileCrawler type is needed to create an instance.");
+			transaction.addXmlResponse("Info", "FileCrawler type is needed to create an instance.");
 	}
 
-	private Boolean getFileCrawlInstance(Client client,
-			FilePathItem filePathItem, ServletTransaction transaction,
+	private Boolean getFileCrawlInstance(Client client, FilePathItem filePathItem, ServletTransaction transaction,
 			String scheme) throws SearchLibException {
-		FileInstanceType fileInstanceType = FileInstanceType
-				.findByScheme(scheme);
+		FileInstanceType fileInstanceType = FileInstanceType.findByScheme(scheme);
 		if (fileInstanceType != null) {
 			filePathItem.setType(fileInstanceType);
-			createFileCrawlInstance(fileInstanceType, client, filePathItem,
-					transaction);
-			transaction.addXmlResponse("Info",
-					"A new file crawler instance is created.");
+			createFileCrawlInstance(fileInstanceType, client, filePathItem, transaction);
+			transaction.addXmlResponse("Info", "A new file crawler instance is created.");
 			return true;
 		} else
 			return false;
 	}
 
-	private void createFileCrawlInstance(FileInstanceType fileInstanceType,
-			Client client, FilePathItem filePathItem,
+	private void createFileCrawlInstance(FileInstanceType fileInstanceType, Client client, FilePathItem filePathItem,
 			ServletTransaction transaction) {
 		if (fileInstanceType.getScheme().equalsIgnoreCase("smb")) {
 			String domain = transaction.getParameterString("domain");
@@ -96,16 +87,14 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 		filePathItem.setUsername(username);
 	}
 
-	private Boolean setDefaultValues(ServletTransaction transaction,
-			FilePathItem filePathItem) {
+	private Boolean setDefaultValues(ServletTransaction transaction, FilePathItem filePathItem) {
 		Boolean enabled = transaction.getParameterBoolean("enabled", false);
 		Boolean ignoreHidden = transaction.getParameterBoolean("ignorehidden");
-		Boolean withSubDirectory = transaction
-				.getParameterBoolean("withsubdirectory");
+		Boolean withSubDirectory = transaction.getParameterBoolean("withsubdirectory");
 		String path = transaction.getParameterString("path");
 		Integer delayBetweenAccess = transaction.getParameterInteger("delay");
-		if (enabled != null && ignoreHidden != null && withSubDirectory != null
-				&& delayBetweenAccess != null && path != null) {
+		if (enabled != null && ignoreHidden != null && withSubDirectory != null && delayBetweenAccess != null &&
+				path != null) {
 			filePathItem.setWithSubDir(withSubDirectory);
 			filePathItem.setDelay(delayBetweenAccess);
 			filePathItem.setEnabled(enabled);
@@ -117,13 +106,10 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.FILE_CRAWLER_START_STOP))
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.FILE_CRAWLER_START_STOP))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
@@ -133,6 +119,7 @@ public class FileCrawlerServlet extends WebCrawlerServlet {
 			} else {
 				doCrawlMaster(client.getFileCrawlMaster(), transaction);
 			}
+			transaction.writeXmlResponse();
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

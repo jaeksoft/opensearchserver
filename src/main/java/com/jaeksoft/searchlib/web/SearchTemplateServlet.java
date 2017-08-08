@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
 
@@ -70,30 +70,8 @@ public class SearchTemplateServlet extends AbstractServlet {
 			}
 			if (!done)
 				transaction.addXmlResponse("Info", "Nothing to do");
-
-		} catch (SearchLibException e) {
-			throw new ServletException(e);
-		} catch (InterruptedException e) {
-			throw new ServletException(e);
-		} catch (NamingException e) {
-			throw new ServletException(e);
-		} catch (XPathExpressionException e) {
-			throw new ServletException(e);
-		} catch (DOMException e) {
-			throw new ServletException(e);
-		} catch (ParserConfigurationException e) {
-			throw new ServletException(e);
-		} catch (SAXException e) {
-			throw new ServletException(e);
-		} catch (IOException e) {
-			throw new ServletException(e);
-		} catch (ParseException e) {
-			throw new ServletException(e);
-		} catch (InstantiationException e) {
-			throw new ServletException(e);
-		} catch (IllegalAccessException e) {
-			throw new ServletException(e);
-		} catch (ClassNotFoundException e) {
+			transaction.writeXmlResponse();
+		} catch (SearchLibException | InterruptedException | IllegalAccessException | NamingException | DOMException | XPathExpressionException | SAXException | ParserConfigurationException | IOException | InstantiationException | ParseException | ClassNotFoundException e) {
 			throw new ServletException(e);
 		}
 

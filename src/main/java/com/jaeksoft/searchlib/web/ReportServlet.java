@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,11 +20,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.PrintWriter;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -35,32 +33,31 @@ import com.jaeksoft.searchlib.statistics.StatisticPeriodEnum;
 import com.jaeksoft.searchlib.statistics.StatisticTypeEnum;
 import com.jaeksoft.searchlib.statistics.StatisticsAbstract;
 
+import java.io.PrintWriter;
+
 public class ReportServlet extends AbstractServlet {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7243867246220284137L;
 
 	/**
-	 * 
+	 *
 	 */
 
-	private void doStatistics(Client client, String stat, String period,
-			PrintWriter pw) throws SearchLibException {
+	private void doStatistics(Client client, String stat, String period, PrintWriter pw) throws SearchLibException {
 		if (stat == null || period == null)
 			return;
-		StatisticTypeEnum statType = StatisticTypeEnum.valueOf(stat
-				.toUpperCase());
-		StatisticPeriodEnum statPeriod = StatisticPeriodEnum.valueOf(period
-				.toUpperCase());
-		StatisticsAbstract statistics = client.getStatisticsList().getStat(
-				statType, statPeriod);
+		StatisticTypeEnum statType = StatisticTypeEnum.valueOf(stat.toUpperCase());
+		StatisticPeriodEnum statPeriod = StatisticPeriodEnum.valueOf(period.toUpperCase());
+		StatisticsAbstract statistics = client.getStatisticsList().getStat(statType, statPeriod);
 		if (statistics == null)
 			return;
 		pw.println("<html>");
 		pw.println("<p>" + statType + " - " + statPeriod.getName() + "</p>");
 		pw.println("<table cellpadding=\"1\" cellspacing=\"0\" border=\"1\">");
-		pw.println("<tr><th>Period start time</th><th>Count</th><th>Average</th><th>Min</th><th>Max</th><th>Error</th></tr>");
+		pw.println(
+				"<tr><th>Period start time</th><th>Count</th><th>Average</th><th>Min</th><th>Max</th><th>Error</th></tr>");
 		for (Aggregate aggr : statistics.getArray()) {
 			pw.println("<tr>");
 			pw.println("<td>" + aggr.getStartTime() + "</td>");
@@ -76,21 +73,18 @@ public class ReportServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		Mailer email = null;
 		try {
-			Client client = ClientCatalog.getClient(transaction
-					.getParameterString("use"));
+			Client client = ClientCatalog.getClient(transaction.getParameterString("use"));
 			String report = transaction.getParameterString("report");
 			String emails = transaction.getParameterString("emails");
 			if (emails == null)
 				return;
 			email = new Mailer(true, emails, null);
-			if ("statistics".equals(report)) {
+			if ("statistics" .equals(report)) {
 				email.setSubject("OpenSearchServer statistics report");
-				doStatistics(client, transaction.getParameterString("stat"),
-						transaction.getParameterString("period"),
+				doStatistics(client, transaction.getParameterString("stat"), transaction.getParameterString("period"),
 						email.getHtmlPrintWriter());
 			}
 			if (email.isEmpty()) {
@@ -99,6 +93,7 @@ public class ReportServlet extends AbstractServlet {
 				email.send();
 				transaction.addXmlResponse("MailSent", emails);
 			}
+			transaction.writeXmlResponse();
 		} catch (Exception e) {
 			throw new ServletException(e);
 		} finally {

@@ -86,6 +86,7 @@ public abstract class AbstractServlet extends HttpServlet {
 			ClientFactory.INSTANCE.properties.checkApi();
 			buildUrls(request);
 			doRequest(transaction);
+			transaction.writeXmlResponse();
 		} catch (TemplateException templateException) {
 			try {
 				transaction.getWriter("UTF-8").println(

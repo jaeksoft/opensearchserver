@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C)2011-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C)2011-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.web;
 
 import com.jaeksoft.searchlib.Client;
@@ -48,59 +48,48 @@ import java.net.URLEncoder;
 
 public class SearchServlet extends AbstractServlet {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 4440539263609727717L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.INDEX_QUERY))
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_QUERY))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClientApi(getIndexName());
-			AbstractSearchRequest searchRequest = buildOpenSearchRequest(
-					client, transaction);
+			AbstractSearchRequest searchRequest = buildOpenSearchRequest(client, transaction);
 			final Render render;
 			if (transaction.getParameterString("oe") != null)
-				render = doQueryRequest(client, searchRequest,
-						transaction.getParameterString("oe"));
+				render = doQueryRequest(client, searchRequest, transaction.getParameterString("oe"));
 			else
 				render = doQueryRequest(client, searchRequest, null);
 			render.render(transaction);
-
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 
 	}
 
-	protected Render doQueryRequest(Client client,
-			AbstractSearchRequest searchRequest, String outputEncoding)
-			throws IOException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			SearchLibException, InstantiationException, IllegalAccessException {
+	protected Render doQueryRequest(Client client, AbstractSearchRequest searchRequest, String outputEncoding)
+			throws IOException, ParseException, SyntaxError, URISyntaxException, ClassNotFoundException,
+			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 
-		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
-				.request(searchRequest);
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client.request(searchRequest);
 		return new RenderOpenSearch(result, serverURL, outputEncoding);
 
 	}
 
-	private AbstractSearchRequest buildOpenSearchRequest(Client client,
-			ServletTransaction transaction)
-			throws TransformerConfigurationException, SearchLibException,
-			XPathExpressionException, ParserConfigurationException,
-			SAXException, IOException {
+	private AbstractSearchRequest buildOpenSearchRequest(Client client, ServletTransaction transaction)
+			throws TransformerConfigurationException, SearchLibException, XPathExpressionException,
+			ParserConfigurationException, SAXException, IOException {
 		ApiManager apiManager = client.getApiManager();
 
-		AbstractSearchRequest searchRequest = (AbstractSearchRequest) client
-				.getNewRequest(apiManager.getFieldValue("opensearch").trim());
+		AbstractSearchRequest searchRequest = (AbstractSearchRequest) client.getNewRequest(
+				apiManager.getFieldValue("opensearch").trim());
 		searchRequest.setQueryString(transaction.getParameterString("q"));
 		if (transaction.getParameterInteger("start") != null)
 			searchRequest.setStart(transaction.getParameterInteger("start"));
@@ -109,8 +98,7 @@ public class SearchServlet extends AbstractServlet {
 			searchRequest.setRows(transaction.getParameterInteger("num"));
 
 		if (transaction.getParameterString("hl") != null)
-			searchRequest.setLang(LanguageEnum.findByCode(transaction
-					.getParameterString("hl")));
+			searchRequest.setLang(LanguageEnum.findByCode(transaction.getParameterString("hl")));
 
 		return searchRequest;
 	}
@@ -124,8 +112,7 @@ public class SearchServlet extends AbstractServlet {
 		return use;
 	}
 
-	public static StringBuilder getOpenSearchApiUrl(StringBuilder sb,
-			String servletPathName, Client client, User user)
+	public static StringBuilder getOpenSearchApiUrl(StringBuilder sb, String servletPathName, Client client, User user)
 			throws UnsupportedEncodingException {
 		String q = null;
 		sb.append(servletPathName);

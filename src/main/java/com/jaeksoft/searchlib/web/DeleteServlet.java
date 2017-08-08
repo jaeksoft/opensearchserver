@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,18 +20,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.http.HttpException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,11 +35,18 @@ import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XPathParser;
+import org.apache.http.HttpException;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 
 public class DeleteServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2663934578246659291L;
 
@@ -100,7 +98,7 @@ public class DeleteServlet extends AbstractServlet {
 		try {
 			XPathParser xpp = call(secTimeOut,
 					buildUri(uri, "/delete", indexName, login, apikey, "uniq=" + uniqueField));
-			return "OK".equals(xpp.getNodeString("/response/entry[@key='Status'"));
+			return "OK" .equals(xpp.getNodeString("/response/entry[@key='Status'"));
 		} catch (IllegalStateException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {
@@ -114,7 +112,7 @@ public class DeleteServlet extends AbstractServlet {
 			int secTimeOut) throws SearchLibException {
 		try {
 			XPathParser xpp = call(secTimeOut, buildUri(uri, "/delete", indexName, login, apikey, "id=" + docId));
-			return "OK".equals(xpp.getNodeString("/response/entry[@key='Status'"));
+			return "OK" .equals(xpp.getNodeString("/response/entry[@key='Status'"));
 		} catch (SearchLibException e) {
 			throw new SearchLibException(e);
 		} catch (URISyntaxException e) {

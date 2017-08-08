@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,32 +20,29 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.xml.transform.TransformerConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Monitor;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.xml.sax.SAXException;
+
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class MonitorServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 6835267443840241748L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 
 		try {
 
@@ -56,15 +53,14 @@ public class MonitorServlet extends AbstractServlet {
 			transaction.setResponseContentType("text/xml");
 			PrintWriter pw = transaction.getWriter("UTF-8");
 			writeXmlMonitor(pw);
-
+			transaction.writeXmlResponse();
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
 	}
 
 	public void writeXmlMonitor(PrintWriter pw)
-			throws TransformerConfigurationException, SAXException,
-			SecurityException, SearchLibException, IOException {
+			throws TransformerConfigurationException, SAXException, SecurityException, SearchLibException, IOException {
 		XmlWriter xmlWriter = new XmlWriter(pw, "UTF-8");
 		xmlWriter.startElement("response");
 		new Monitor().writeXmlConfig(xmlWriter);

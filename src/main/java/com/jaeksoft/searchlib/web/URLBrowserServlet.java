@@ -1,31 +1,27 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 package com.jaeksoft.searchlib.web;
-
-import java.io.File;
-
-import javax.naming.NamingException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -35,21 +31,23 @@ import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
+import org.xml.sax.SAXException;
+
+import javax.naming.NamingException;
+import java.io.File;
 
 /**
  * @author Naveen
- * 
  */
 public class URLBrowserServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -318303190794379678L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 			String indexName = transaction.getIndexName();
 			User user = transaction.getLoggedUser();
@@ -59,19 +57,14 @@ public class URLBrowserServlet extends AbstractServlet {
 			UrlManager urlManager = client.getUrlManager();
 			String cmd = transaction.getParameterString("cmd");
 			String host = transaction.getParameterString("host");
-			if ("urls".equalsIgnoreCase(cmd))
+			if ("urls" .equalsIgnoreCase(cmd))
 				exportURLs(urlManager, transaction, host);
-			else if ("sitemap".equalsIgnoreCase(cmd))
+			else if ("sitemap" .equalsIgnoreCase(cmd))
 				exportSiteMap(urlManager, transaction, host);
-			else if ("deleteall".equalsIgnoreCase(cmd))
+			else if ("deleteall" .equalsIgnoreCase(cmd))
 				deleteAll(urlManager, transaction);
-		} catch (SearchLibException e) {
-			throw new ServletException(e);
-		} catch (InterruptedException e) {
-			throw new ServletException(e);
-		} catch (NamingException e) {
-			throw new ServletException(e);
-		} catch (ParseException e) {
+			transaction.writeXmlResponse();
+		} catch (SearchLibException | ParseException | NamingException | InterruptedException | SAXException e) {
 			throw new ServletException(e);
 		}
 
@@ -79,34 +72,28 @@ public class URLBrowserServlet extends AbstractServlet {
 
 	private AbstractSearchRequest getRequest(UrlManager urlManager, String host)
 			throws SearchLibException, ParseException {
-		AbstractSearchRequest searchRequest = urlManager
-				.getSearchRequest(SearchTemplate.urlExport);
+		AbstractSearchRequest searchRequest = urlManager.getSearchRequest(SearchTemplate.urlExport);
 		searchRequest.setQueryString("*:*");
 		if (host != null && host.length() > 0)
 			searchRequest.addFilter("host:\"" + host + '"', false);
 		return searchRequest;
 	}
 
-	private void exportSiteMap(UrlManager urlManager,
-			ServletTransaction transaction, String host)
+	private void exportSiteMap(UrlManager urlManager, ServletTransaction transaction, String host)
 			throws SearchLibException, ParseException {
 		AbstractSearchRequest searchRequest = getRequest(urlManager, host);
 		File file = urlManager.exportSiteMap(searchRequest);
-		transaction.sendFile(file, "OSS_SiteMap.xml",
-				"text/xml; charset-UTF-8", true);
+		transaction.sendFile(file, "OSS_SiteMap.xml", "text/xml; charset-UTF-8", true);
 	}
 
-	private void exportURLs(UrlManager urlManager,
-			ServletTransaction transaction, String host)
+	private void exportURLs(UrlManager urlManager, ServletTransaction transaction, String host)
 			throws SearchLibException, ParseException {
 		AbstractSearchRequest searchRequest = getRequest(urlManager, host);
 		File file = urlManager.exportURLs(searchRequest);
-		transaction.sendFile(file, "OSS_URL_Export.txt",
-				"text/plain; charset-UTF-8", true);
+		transaction.sendFile(file, "OSS_URL_Export.txt", "text/plain; charset-UTF-8", true);
 	}
 
-	private void deleteAll(UrlManager urlManager, ServletTransaction transaction)
-			throws SearchLibException {
+	private void deleteAll(UrlManager urlManager, ServletTransaction transaction) throws SearchLibException {
 		urlManager.deleteAll(null);
 		transaction.addXmlResponse("Status", "OK");
 		transaction.addXmlResponse("Info", "URL database truncated");

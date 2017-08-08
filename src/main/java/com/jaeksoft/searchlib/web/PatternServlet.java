@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.jaeksoft.com
  * 
@@ -20,17 +20,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.List;
-
-import javax.servlet.ServletInputStream;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -41,32 +33,35 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.web.ServletTransaction.Method;
 
+import javax.servlet.ServletInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
+
 public class PatternServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 5971245254548915864L;
 
-	private List<PatternItem> inject(PatternManager patternManager,
-			String patternTextList, boolean bDeleteAll)
+	private List<PatternItem> inject(PatternManager patternManager, String patternTextList, boolean bDeleteAll)
 			throws SearchLibException, IOException {
-		List<PatternItem> patternList = PatternManager
-				.getPatternList(patternTextList);
+		List<PatternItem> patternList = PatternManager.getPatternList(patternTextList);
 		patternManager.addList(patternList, bDeleteAll);
 		return patternList;
 	}
 
-	private List<PatternItem> inject(PatternManager patternManager,
-			ServletInputStream in, PrintWriter writer, boolean bDeleteAll)
-			throws IOException, SearchLibException {
+	private List<PatternItem> inject(PatternManager patternManager, ServletInputStream in, PrintWriter writer,
+			boolean bDeleteAll) throws IOException, SearchLibException {
 		InputStreamReader isr = null;
 		BufferedReader reader = null;
 		try {
 			isr = new InputStreamReader(in);
 			reader = new BufferedReader(isr);
-			List<PatternItem> patternList = PatternManager
-					.getPatternList(reader);
+			List<PatternItem> patternList = PatternManager.getPatternList(reader);
 			patternManager.addList(patternList, bDeleteAll);
 			return patternList;
 		} catch (IOException e) {
@@ -81,9 +76,8 @@ public class PatternServlet extends AbstractServlet {
 		}
 	}
 
-	private void doPatternList(List<PatternItem> patternList,
-			UrlManager urlManager, PrintWriter writer, boolean bExclusion)
-			throws SearchLibException {
+	private void doPatternList(List<PatternItem> patternList, UrlManager urlManager, PrintWriter writer,
+			boolean bExclusion) throws SearchLibException {
 		if (patternList == null)
 			return;
 		for (PatternItem item : patternList) {
@@ -97,43 +91,32 @@ public class PatternServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 
 		try {
 
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.WEB_CRAWLER_EDIT_PATTERN_LIST))
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.WEB_CRAWLER_EDIT_PATTERN_LIST))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
 
-			boolean bDeleteAll = transaction.getParameterBoolean("deleteAll",
-					"yes", false);
-			boolean bExclusion = transaction.getParameterBoolean("type",
-					"exclusion", false);
+			boolean bDeleteAll = transaction.getParameterBoolean("deleteAll", "yes", false);
+			boolean bExclusion = transaction.getParameterBoolean("type", "exclusion", false);
 
-			PatternManager patternManager = bExclusion ? client
-					.getExclusionPatternManager() : client
-					.getInclusionPatternManager();
+			PatternManager patternManager =
+					bExclusion ? client.getExclusionPatternManager() : client.getInclusionPatternManager();
 			UrlManager urlManager = client.getUrlManager();
 
 			PrintWriter writer = transaction.getWriter("utf-8");
 			String contentType = transaction.getResponseContentType();
 			Method method = transaction.getMethod();
 			List<PatternItem> patternList = null;
-			if (contentType != null
-					&& contentType
-							.startsWith("application/x-www-form-urlencoded"))
-				patternList = inject(patternManager,
-						transaction.getParameterString("inject"), bDeleteAll);
-			else if ((method == Method.PUT || method == Method.POST)
-					&& (contentType == null || contentType
-							.startsWith("text/plain")))
-				patternList = inject(patternManager,
-						transaction.getInputStream(), writer, bDeleteAll);
+			if (contentType != null && contentType.startsWith("application/x-www-form-urlencoded"))
+				patternList = inject(patternManager, transaction.getParameterString("inject"), bDeleteAll);
+			else if ((method == Method.PUT || method == Method.POST) && (contentType == null || contentType.startsWith(
+					"text/plain")))
+				patternList = inject(patternManager, transaction.getInputStream(), writer, bDeleteAll);
 			doPatternList(patternList, urlManager, writer, bExclusion);
 		} catch (Exception e) {
 			throw new ServletException(e);

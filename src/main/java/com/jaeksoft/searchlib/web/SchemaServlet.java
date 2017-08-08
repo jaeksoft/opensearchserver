@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,18 +20,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import javax.naming.NamingException;
-import javax.xml.transform.TransformerConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -45,39 +36,41 @@ import com.jaeksoft.searchlib.template.TemplateList;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.xml.sax.SAXException;
+
+import javax.naming.NamingException;
+import javax.xml.transform.TransformerConfigurationException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class SchemaServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2904843916773570688L;
 
 	private boolean getSchema(User user, ServletTransaction transaction)
-			throws TransformerConfigurationException, SAXException,
-			IOException, SearchLibException, NamingException {
+			throws TransformerConfigurationException, SAXException, IOException, SearchLibException, NamingException {
 
-		if (user != null
-				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+		if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
 			throw new SearchLibException("Not permitted");
 
 		Client client = transaction.getClient();
 		Schema schema = client.getSchema();
 
 		transaction.setResponseContentType("text/xml");
-		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
-				"UTF-8");
+		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"), "UTF-8");
 		xmlWriter.startElement("response");
 		schema.writeXmlConfig(xmlWriter);
 		xmlWriter.endElement();
 		return true;
 	}
 
-	private boolean setField(User user, ServletTransaction transaction)
-			throws SearchLibException, NamingException {
+	private boolean setField(User user, ServletTransaction transaction) throws SearchLibException, NamingException {
 
-		if (user != null
-				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+		if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
 			throw new SearchLibException("Not permitted");
 
 		Client client = transaction.getClient();
@@ -85,30 +78,25 @@ public class SchemaServlet extends AbstractServlet {
 		String defaultField = transaction.getParameterString("field.default");
 		String uniqueField = transaction.getParameterString("field.unique");
 		SchemaField schemaField = SchemaField.fromHttpRequest(transaction);
-		transaction.addXmlResponse("Info", "field '" + schemaField.getName()
-				+ "' added/updated");
+		transaction.addXmlResponse("Info", "field '" + schemaField.getName() + "' added/updated");
 		schema.getFieldList().put(schemaField);
 		if (defaultField != null) {
 			if (defaultField.equalsIgnoreCase("yes")) {
-				schema.getFieldList().setDefaultField(
-						transaction.getParameterString("field.name"));
+				schema.getFieldList().setDefaultField(transaction.getParameterString("field.name"));
 			}
 		}
 		if (uniqueField != null) {
 			if (uniqueField.equalsIgnoreCase("yes")) {
-				schema.getFieldList().setUniqueField(
-						transaction.getParameterString("field.name"));
+				schema.getFieldList().setUniqueField(transaction.getParameterString("field.name"));
 			}
 		}
 		client.saveConfig();
 		return true;
 	}
 
-	private boolean deleteField(User user, ServletTransaction transaction)
-			throws SearchLibException, NamingException {
+	private boolean deleteField(User user, ServletTransaction transaction) throws SearchLibException, NamingException {
 
-		if (user != null
-				&& !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
+		if (user != null && !user.hasRole(transaction.getIndexName(), Role.INDEX_SCHEMA))
 			throw new SearchLibException("Not permitted");
 
 		Client client = transaction.getClient();
@@ -127,11 +115,9 @@ public class SchemaServlet extends AbstractServlet {
 	private boolean createIndex(User user, ServletTransaction transaction)
 			throws SearchLibException, IOException, URISyntaxException {
 		String indexName = transaction.getParameterString("index.name");
-		TemplateAbstract template = TemplateList.findTemplate(transaction
-				.getParameterString("index.template"));
+		TemplateAbstract template = TemplateList.findTemplate(transaction.getParameterString("index.template"));
 		String remoteURI = transaction.getParameterString("index.remote_uri");
-		ClientCatalog.createIndex(null, indexName, template,
-				remoteURI == null ? null : new URI(remoteURI));
+		ClientCatalog.createIndex(null, indexName, template, remoteURI == null ? null : new URI(remoteURI));
 		transaction.addXmlResponse("Info", "Index created: " + indexName);
 		return true;
 	}
@@ -139,14 +125,12 @@ public class SchemaServlet extends AbstractServlet {
 	private boolean deleteIndex(User user, ServletTransaction transaction)
 			throws SearchLibException, IOException, NamingException {
 		String indexName = transaction.getParameterString("index.name");
-		String indexDeleteName = transaction
-				.getParameterString("index.delete.name");
+		String indexDeleteName = transaction.getParameterString("index.delete.name");
 		if (indexName == null && indexDeleteName == null)
 			throw new SearchLibException("The index name is required");
 		if (indexName != null && indexDeleteName != null)
 			if (!indexName.equals(indexDeleteName))
-				throw new SearchLibException(
-						"parameters index.name and index.delete.name do not match");
+				throw new SearchLibException("parameters index.name and index.delete.name do not match");
 		if (indexName == null)
 			indexName = indexDeleteName;
 		ClientCatalog.eraseIndex(user, indexName);
@@ -155,14 +139,11 @@ public class SchemaServlet extends AbstractServlet {
 	}
 
 	private boolean indexList(User user, ServletTransaction transaction)
-			throws SearchLibException, TransformerConfigurationException,
-			SAXException, IOException {
+			throws SearchLibException, TransformerConfigurationException, SAXException, IOException {
 		transaction.setResponseContentType("text/xml");
-		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"),
-				"UTF-8");
+		XmlWriter xmlWriter = new XmlWriter(transaction.getWriter("UTF-8"), "UTF-8");
 		xmlWriter.startElement("response");
-		for (ClientCatalogItem catalogItem : ClientCatalog
-				.getClientCatalog(user)) {
+		for (ClientCatalogItem catalogItem : ClientCatalog.getClientCatalog(user)) {
 			xmlWriter.startElement("index", "name", catalogItem.getIndexName());
 			xmlWriter.endElement();
 		}
@@ -171,44 +152,31 @@ public class SchemaServlet extends AbstractServlet {
 	}
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 		try {
 			User user = transaction.getLoggedUser();
 			String cmd = transaction.getParameterString("cmd");
 			boolean done = false;
-			if ("setfield".equalsIgnoreCase(cmd)) {
+			if ("setfield" .equalsIgnoreCase(cmd)) {
 				done = setField(user, transaction);
 				transaction.addXmlResponse("Status", "OK");
-			} else if ("deletefield".equalsIgnoreCase(cmd)) {
+			} else if ("deletefield" .equalsIgnoreCase(cmd)) {
 				done = deleteField(user, transaction);
 				transaction.addXmlResponse("Status", "OK");
-			} else if ("getschema".equalsIgnoreCase(cmd))
+			} else if ("getschema" .equalsIgnoreCase(cmd))
 				done = getSchema(user, transaction);
-			else if ("createindex".equalsIgnoreCase(cmd)) {
+			else if ("createindex" .equalsIgnoreCase(cmd)) {
 				done = createIndex(user, transaction);
 				transaction.addXmlResponse("Status", "OK");
-			} else if ("deleteindex".equalsIgnoreCase(cmd)) {
+			} else if ("deleteindex" .equalsIgnoreCase(cmd)) {
 				done = deleteIndex(user, transaction);
 				transaction.addXmlResponse("Status", "OK");
-			} else if ("indexlist".equalsIgnoreCase(cmd)) {
+			} else if ("indexlist" .equalsIgnoreCase(cmd)) {
 				done = indexList(user, transaction);
 			}
 			if (!done)
 				transaction.addXmlResponse("Info", "Nothing to do");
-		} catch (SearchLibException e) {
-			throw new ServletException(e);
-		} catch (NamingException e) {
-			throw new ServletException(e);
-		} catch (TransformerConfigurationException e) {
-			throw new ServletException(e);
-		} catch (SAXException e) {
-			throw new ServletException(e);
-		} catch (IOException e) {
-			throw new ServletException(e);
-		} catch (InterruptedException e) {
-			throw new ServletException(e);
-		} catch (URISyntaxException e) {
+		} catch (SearchLibException | NamingException | SAXException | TransformerConfigurationException | IOException | URISyntaxException | InterruptedException e) {
 			throw new ServletException(e);
 		}
 	}

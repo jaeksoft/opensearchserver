@@ -1,4 +1,4 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web;
 
@@ -35,42 +35,36 @@ import com.jaeksoft.searchlib.user.User;
 public class DatabaseServlet extends AbstractServlet {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3005370038038136217L;
 
 	@Override
-	protected void doRequest(ServletTransaction transaction)
-			throws ServletException {
+	protected void doRequest(ServletTransaction transaction) throws ServletException {
 
 		try {
 
 			User user = transaction.getLoggedUser();
-			if (user != null
-					&& !user.hasRole(transaction.getIndexName(),
-							Role.DATABASE_CRAWLER_START_STOP))
+			if (user != null && !user.hasRole(transaction.getIndexName(), Role.DATABASE_CRAWLER_START_STOP))
 				throw new SearchLibException("Not permitted");
 
 			Client client = transaction.getClient();
 
 			String name = transaction.getParameterString("name");
-			DatabaseCrawlAbstract databaseCrawl = client.getDatabaseCrawlList()
-					.get(name);
+			DatabaseCrawlAbstract databaseCrawl = client.getDatabaseCrawlList().get(name);
 			if (databaseCrawl == null)
-				throw new SearchLibException("Database crawl name not found ("
-						+ name + ")");
-			DatabaseCrawlThread databaseCrawlThread = client
-					.getDatabaseCrawlMaster().execute(client, databaseCrawl,
-							true, null, null);
+				throw new SearchLibException("Database crawl name not found (" + name + ")");
+			DatabaseCrawlThread databaseCrawlThread = client.getDatabaseCrawlMaster().execute(client, databaseCrawl,
+					true, null, null);
 			if (databaseCrawlThread.getStatus() == CrawlStatus.ERROR)
 				transaction.addXmlResponse("status", "error");
 			else
 				transaction.addXmlResponse("status", "ok");
 
 			transaction.addXmlResponse("info", databaseCrawlThread.getInfo());
-			transaction.addXmlResponse("updated document count", Long
-					.toString(databaseCrawlThread
-							.getUpdatedIndexDocumentCount()));
+			transaction.addXmlResponse("updated document count",
+					Long.toString(databaseCrawlThread.getUpdatedIndexDocumentCount()));
+			transaction.writeXmlResponse();
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}

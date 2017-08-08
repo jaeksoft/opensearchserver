@@ -1,31 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.web;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -33,9 +30,12 @@ import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class ActionServlet extends AbstractServlet {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -369063857059673597L;
 
@@ -47,15 +47,15 @@ public class ActionServlet extends AbstractServlet {
 			User user = transaction.getLoggedUser();
 			if (user != null && !user.hasRole(client.getIndexName(), Role.INDEX_UPDATE))
 				throw new SearchLibException("Not permitted");
-			if ("deleteAll".equalsIgnoreCase(action))
+			if ("deleteAll" .equalsIgnoreCase(action))
 				client.deleteAll();
-			else if ("reload".equalsIgnoreCase(action))
+			else if ("reload" .equalsIgnoreCase(action))
 				client.reload();
-			else if ("close".equalsIgnoreCase(action))
+			else if ("close" .equalsIgnoreCase(action))
 				ClientCatalog.closeIndex(client.getIndexName());
-			else if ("online".equalsIgnoreCase(action))
+			else if ("online" .equalsIgnoreCase(action))
 				client.setOnline(true);
-			else if ("offline".equalsIgnoreCase(action))
+			else if ("offline" .equalsIgnoreCase(action))
 				client.setOnline(false);
 			transaction.addXmlResponse("Status", "OK");
 		} catch (Exception e) {
