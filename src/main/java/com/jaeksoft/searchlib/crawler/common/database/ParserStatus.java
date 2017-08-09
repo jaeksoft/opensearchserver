@@ -26,6 +26,9 @@ package com.jaeksoft.searchlib.crawler.common.database;
 
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType
 public enum ParserStatus {
 
 	NOT_PARSED(0, "Not parsed", TargetStatus.TARGET_DO_NOTHING),

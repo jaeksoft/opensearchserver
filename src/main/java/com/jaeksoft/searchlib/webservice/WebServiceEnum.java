@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,8 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.webservice;
 
 import com.jaeksoft.searchlib.webservice.analyzer.AnalyzerImpl;
@@ -114,8 +113,7 @@ public enum WebServiceEnum {
 		this.defaultPath = defaultPath;
 	}
 
-	final public Object getNewInstance() throws InstantiationException,
-			IllegalAccessException {
+	final public Object getNewInstance() throws InstantiationException, IllegalAccessException {
 		return serviceClass.newInstance();
 	}
 

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2009-2016 Emmanuel Keller / Jaeksoft
+/*
+ * Copyright (C) 2009-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.util;
 
@@ -26,16 +26,15 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDecimalFormat;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -226,33 +225,32 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return o2.hashCode() - o1.hashCode();
 	}
 
-	public final static String leftPad(int value, int size) {
+	public static String leftPad(int value, int size) {
 		return org.apache.commons.lang3.StringUtils.leftPad(Integer.toString(value), size, '0');
 	}
 
-	public final static String leftPad(long value, int size) {
+	public static String leftPad(long value, int size) {
 		return org.apache.commons.lang3.StringUtils.leftPad(Long.toString(value), size, '0');
 	}
 
-	public final static String charsetDetector(InputStream inputStream) throws IOException {
+	public static String detect(CharsetDetector detector) {
+		final CharsetMatch match = detector.detect();
+		return match == null ? null : match.getName();
+	}
+
+	public static String charsetDetector(InputStream inputStream) throws IOException {
 		CharsetDetector detector = new CharsetDetector();
 		detector.setText(inputStream);
-		CharsetMatch match = detector.detect();
-		if (match == null)
-			return null;
-		return match.getName();
+		return detect(detector);
 	}
 
-	public final static String charsetDetector(byte[] bytes) {
+	public static String charsetDetector(byte[] bytes) {
 		CharsetDetector detector = new CharsetDetector();
 		detector.setText(bytes);
-		CharsetMatch match = detector.detect();
-		if (match == null)
-			return null;
-		return match.getName();
+		return detect(detector);
 	}
 
-	public final static String[] toStringArray(Collection<? extends Object> collection, boolean sort) {
+	public static String[] toStringArray(Collection<? extends Object> collection, boolean sort) {
 		if (collection == null)
 			return null;
 		String[] array = new String[collection.size()];
@@ -264,7 +262,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return array;
 	}
 
-	public final static String fastConcat(final CharSequence... charSeqs) {
+	public static String fastConcat(final CharSequence... charSeqs) {
 		if (charSeqs == null)
 			return null;
 		StringBuilder sb = new StringBuilder();
@@ -273,7 +271,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return sb.toString();
 	}
 
-	public final static CharSequence fastConcatCharSequence(final Object... objects) {
+	public static CharSequence fastConcatCharSequence(final Object... objects) {
 		if (objects == null)
 			return null;
 		if (objects.length == 1)
@@ -285,18 +283,18 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return sb;
 	}
 
-	public final static String fastConcat(final Object... objects) {
+	public static String fastConcat(final Object... objects) {
 		CharSequence cs = fastConcatCharSequence(objects);
 		return cs == null ? null : cs.toString();
 	}
 
 	public final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
-	public final static String[] splitLines(String str) {
+	public static String[] splitLines(String str) {
 		return split(str, LINE_SEPARATOR);
 	}
 
-	public final static String htmlWrap(String text, int wrapLength) {
+	public static String htmlWrap(String text, int wrapLength) {
 		if (isEmpty(text))
 			return text;
 		if (text.length() < wrapLength)
@@ -305,7 +303,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return WordUtils.wrap(text, wrapLength, "&shy;", true);
 	}
 
-	public final static String htmlWrapReduce(String text, int wrapLength, int maxSize) {
+	public static String htmlWrapReduce(String text, int wrapLength, int maxSize) {
 		if (isEmpty(text))
 			return text;
 		if (text.length() < maxSize)
@@ -327,22 +325,40 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return sb.toString();
 	}
 
-	public final static String urlHostPathWrapReduce(String url, int maxSize) {
-		URL u;
+	public static String joinWithSeparator(final String separator, final Object... objects) {
+		if (objects == null)
+			throw new IllegalArgumentException("Object varargs must not be null");
+		final StringBuilder result = new StringBuilder();
+		int i = 1;
+		for (Object object : objects) {
+			if (object == null)
+				continue;
+			final String value = object.toString();
+			if (!value.equals(separator))
+				result.append(value);
+			if (!value.endsWith(separator) && i != objects.length)
+				result.append(separator);
+			i++;
+		}
+		return result.toString();
+	}
+
+	public static String urlHostPathWrapReduce(final String url, final int maxSize) {
+		final URL u;
 		try {
 			u = new URL(url);
 		} catch (MalformedURLException e) {
 			return url;
 		}
-		String path = fastConcat(u.getHost(), '/', u.getPath());
-		String[] frags = split(path, '/');
+		final String path = joinWithSeparator("/", u.getHost(), u.getPath());
+		final String[] frags = split(path, '/');
 		if (frags.length < 2)
-			return path;
+			return frags[0];
 		int startPos = 1;
 		int endPos = frags.length - 2;
-		StringBuilder sbStart = new StringBuilder(frags[0]);
-		StringBuilder sbEnd = new StringBuilder(frags[frags.length - 1]);
-		int length = sbStart.length() + sbEnd.length();
+		final StringBuilder sbStart = new StringBuilder(frags[0]);
+		final StringBuilder sbEnd = new StringBuilder(frags[frags.length - 1]);
+		final int length = sbStart.length() + sbEnd.length();
 		for (; ; ) {
 			boolean bHandled = false;
 			if (startPos != -1 && startPos < endPos) {
@@ -362,24 +378,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			if (!bHandled)
 				break;
 		}
-		return fastConcat(sbStart, "/…/", sbEnd);
-	}
-
-	public static void main(String args[]) throws IOException {
-		if (args != null && args.length == 2) {
-			List<String> lines = FileUtils.readLines(new File(args[0]), "UTF-8");
-			FileWriter fw = new FileWriter(new File(args[1]));
-			PrintWriter pw = new PrintWriter(fw);
-			for (String line : lines)
-				pw.println(StringEscapeUtils.unescapeHtml4(line));
-			pw.close();
-			fw.close();
-		}
-		String text = "file://&shy;Users/ekeller/Moteur/infotoday_enterprisesearchsourcebook08/Open_on_Windows.exe";
-		System.out.println(htmlWrap(text, 20));
-		System.out.println(htmlWrapReduce(text, 20, 80));
-		String url = "file://Users/ekeller/Moteur/infotoday_enterprisesearchsourcebook08/Open_on_Windows.exe?test=2";
-		System.out.println(urlHostPathWrapReduce(url, 80));
+		return joinWithSeparator("/", sbStart, "…", sbEnd);
 	}
 
 }

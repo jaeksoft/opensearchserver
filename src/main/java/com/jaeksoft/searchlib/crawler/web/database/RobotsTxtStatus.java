@@ -20,12 +20,15 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.web.database;
 
 import com.jaeksoft.searchlib.crawler.TargetStatus;
 
+import javax.xml.bind.annotation.XmlType;
+
+@XmlType
 public enum RobotsTxtStatus {
 
 	UNKNOWN(0, "Unknown", TargetStatus.TARGET_DO_NOTHING),

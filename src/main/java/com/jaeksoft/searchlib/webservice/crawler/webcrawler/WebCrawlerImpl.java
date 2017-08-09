@@ -374,7 +374,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 				}
 			}
 
-			String message = urlItem != null ?
+			final String message = urlItem != null ?
 					"Result: " + urlItem.getFetchStatus() + " - " + urlItem.getParserStatus() + " - " +
 							urlItem.getIndexStatus() :
 					null;
@@ -430,7 +430,7 @@ public class WebCrawlerImpl extends CommonServices implements RestWebCrawler {
 	}
 
 	public static String getCrawlXML(User user, Client client, String url) throws UnsupportedEncodingException {
-		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl", user, client, "url", url);
+		return RestApplication.getRestURL("/index/{index}/crawler/web/crawl", user, client, "url", url, "_type", "xml");
 	}
 
 	public static String getCrawlJSON(User user, Client client, String url) throws UnsupportedEncodingException {
