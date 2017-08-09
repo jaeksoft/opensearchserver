@@ -182,18 +182,21 @@ public class WriterLocal extends WriterAbstract {
 			final ExecutorService executorService = Executors.newFixedThreadPool(
 					Runtime.getRuntime().availableProcessors() * 2);
 
-			for (IndexDocument document : documents) {
-				executorService.submit(() -> {
-					try {
-						if (updateDocNoLock(uniqueField, iw, schema, document))
-							count.incrementAndGet();
-					} catch (IOException | NoSuchAlgorithmException | SearchLibException e) {
-						exceptionReference.weakCompareAndSet(null, e);
-					}
-				});
-			}
+			try {
+				for (IndexDocument document : documents) {
+					executorService.submit(() -> {
+						try {
+							if (updateDocNoLock(uniqueField, iw, schema, document))
+								count.incrementAndGet();
+						} catch (IOException | NoSuchAlgorithmException | SearchLibException e) {
+							exceptionReference.weakCompareAndSet(null, e);
+						}
+					});
+				}
 
-			executorService.shutdown();
+			} finally {
+				executorService.shutdown();
+			}
 			executorService.awaitTermination(1, TimeUnit.HOURS);
 			if (exceptionReference.get() != null)
 				throw SearchLibException.newInstance(exceptionReference.get());
@@ -221,20 +224,22 @@ public class WriterLocal extends WriterAbstract {
 			final ExecutorService executorService = Executors.newFixedThreadPool(
 					Runtime.getRuntime().availableProcessors() * 2);
 
-			for (IndexDocumentResult document : documents) {
-				executorService.submit(() -> {
-					final Document doc = getLuceneDocument(schema, document);
-					final IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(document);
-					try {
-						updateDocNoLock(uniqueField, iw, analyzer, doc);
-						count.incrementAndGet();
-					} catch (IOException | SearchLibException e) {
-						exceptionReference.weakCompareAndSet(null, e);
-					}
-				});
+			try {
+				for (IndexDocumentResult document : documents) {
+					executorService.submit(() -> {
+						final Document doc = getLuceneDocument(schema, document);
+						final IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(document);
+						try {
+							updateDocNoLock(uniqueField, iw, analyzer, doc);
+							count.incrementAndGet();
+						} catch (IOException | SearchLibException e) {
+							exceptionReference.weakCompareAndSet(null, e);
+						}
+					});
+				}
+			} finally {
+				executorService.shutdown();
 			}
-
-			executorService.shutdown();
 			executorService.awaitTermination(1, TimeUnit.HOURS);
 			if (exceptionReference.get() != null)
 				throw SearchLibException.newInstance(exceptionReference.get());
