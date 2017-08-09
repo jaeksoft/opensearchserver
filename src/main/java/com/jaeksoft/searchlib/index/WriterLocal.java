@@ -1,4 +1,4 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
  * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.index;
 
@@ -52,21 +52,26 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.SerialMergeScheduler;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Similarity;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Version;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WriterLocal extends WriterAbstract {
 
 	private IndexDirectory indexDirectory;
+	private volatile IndexWriter indexWriter;
+	private final ReentrantLock indexWriterLock;
 
 	protected WriterLocal(IndexConfig indexConfig, IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
 		this.indexDirectory = indexDirectory;
+		this.indexWriter = null;
+		indexWriterLock = new ReentrantLock();
 	}
 
 	private void close(IndexWriter indexWriter) {
@@ -77,12 +82,12 @@ public class WriterLocal extends WriterAbstract {
 		} catch (Exception e) {
 			Logging.warn(e);
 		} finally {
+			indexWriterLock.unlock();
 			indexDirectory.unlock();
 		}
 	}
 
-	public final void create()
-			throws CorruptIndexException, LockObtainFailedException, IOException, SearchLibException {
+	public final void create() throws IOException, SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
 			indexWriter = open(true);
@@ -91,8 +96,8 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	private final IndexWriter open(boolean create)
-			throws CorruptIndexException, LockObtainFailedException, IOException, SearchLibException {
+	private IndexWriter open(boolean create) throws IOException, SearchLibException {
+		indexWriterLock.lock();
 		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36, null);
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
@@ -120,7 +125,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	final private boolean updateDocNoLock(SchemaField uniqueField, IndexWriter indexWriter, Schema schema,
+	private boolean updateDocNoLock(SchemaField uniqueField, IndexWriter indexWriter, Schema schema,
 			IndexDocument document) throws IOException, NoSuchAlgorithmException, SearchLibException {
 		if (!acceptDocument(document))
 			return false;
@@ -132,7 +137,7 @@ public class WriterLocal extends WriterAbstract {
 		return true;
 	}
 
-	final private void updateDocNoLock(SchemaField uniqueField, IndexWriter indexWriter, AbstractAnalyzer analyzer,
+	private void updateDocNoLock(SchemaField uniqueField, IndexWriter indexWriter, AbstractAnalyzer analyzer,
 			Document doc) throws UniqueKeyMissing, CorruptIndexException, IOException {
 		if (uniqueField != null) {
 			String uniqueFieldName = uniqueField.getName();
@@ -154,9 +159,7 @@ public class WriterLocal extends WriterAbstract {
 			close(indexWriter);
 			indexWriter = null;
 			return updated;
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (NoSuchAlgorithmException e) {
+		} catch (IOException | NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);
@@ -167,18 +170,21 @@ public class WriterLocal extends WriterAbstract {
 	public int updateDocuments(Schema schema, Collection<IndexDocument> documents) throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int count = 0;
-			indexWriter = open();
-			SchemaField uniqueField = schema.getFieldList().getUniqueField();
-			for (IndexDocument document : documents)
-				if (updateDocNoLock(uniqueField, indexWriter, schema, document))
-					count++;
+			final AtomicInteger count = new AtomicInteger();
+			final IndexWriter iw = indexWriter = open();
+			final SchemaField uniqueField = schema.getFieldList().getUniqueField();
+			documents.parallelStream().forEach(document -> {
+				try {
+					if (updateDocNoLock(uniqueField, iw, schema, document))
+						count.incrementAndGet();
+				} catch (IOException | NoSuchAlgorithmException | SearchLibException e) {
+					throw new SearchLibException.LambdaException(e);
+				}
+			});
 			close(indexWriter);
 			indexWriter = null;
-			return count;
+			return count.get();
 		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (NoSuchAlgorithmException e) {
 			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);
@@ -209,7 +215,7 @@ public class WriterLocal extends WriterAbstract {
 		}
 	}
 
-	final private static Document getLuceneDocument(Schema schema, IndexDocument document)
+	private static Document getLuceneDocument(Schema schema, IndexDocument document)
 			throws IOException, SearchLibException {
 		schema.getIndexPerFieldAnalyzer(document.getLang());
 		Document doc = new Document();
@@ -243,7 +249,7 @@ public class WriterLocal extends WriterAbstract {
 		return doc;
 	}
 
-	final private static Document getLuceneDocument(Schema schema, IndexDocumentResult document) {
+	private static Document getLuceneDocument(Schema schema, IndexDocumentResult document) {
 		if (CollectionUtils.isEmpty(document.fields))
 			return null;
 		SchemaFieldList schemaFieldList = schema.getFieldList();
@@ -292,10 +298,6 @@ public class WriterLocal extends WriterAbstract {
 			indexWriter.deleteAll();
 			close(indexWriter);
 			indexWriter = null;
-		} catch (CorruptIndexException e) {
-			throw new SearchLibException(e);
-		} catch (LockObtainFailedException e) {
-			throw new SearchLibException(e);
 		} catch (IOException e) {
 			throw new SearchLibException(e);
 		} finally {

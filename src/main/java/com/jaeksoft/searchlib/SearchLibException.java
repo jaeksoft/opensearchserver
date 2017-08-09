@@ -1,26 +1,26 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib;
 
@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.util.StringUtils;
 public class SearchLibException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1720638403781547142L;
 
@@ -52,7 +52,7 @@ public class SearchLibException extends Exception {
 
 	public static class AbortException extends SearchLibException {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -1855323556480709778L;
 
@@ -68,7 +68,7 @@ public class SearchLibException extends Exception {
 	public static class UniqueKeyMissing extends SearchLibException {
 
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -8504346848728230027L;
 
@@ -81,13 +81,12 @@ public class SearchLibException extends Exception {
 	public static class XPathNotSupported extends SearchLibException {
 
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -75701917881887018L;
 
 		public XPathNotSupported(HtmlDocumentProvider hdp) {
-			super("This HTML provider (" + hdp.getName()
-					+ ") does not support XPATH request");
+			super("This HTML provider (" + hdp.getName() + ") does not support XPATH request");
 		}
 
 	}
@@ -95,7 +94,7 @@ public class SearchLibException extends Exception {
 	public static class ExternalParserException extends SearchLibException {
 
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 748700519607025552L;
 
@@ -107,7 +106,7 @@ public class SearchLibException extends Exception {
 	public static class WrongStatusCodeException extends SearchLibException {
 
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -8013332809430030261L;
 
@@ -116,4 +115,16 @@ public class SearchLibException extends Exception {
 		}
 	}
 
+	public static class LambdaException extends RuntimeException {
+
+		public final SearchLibException searchLibException;
+
+		public LambdaException(Exception exception) {
+			super(exception);
+			if (exception instanceof SearchLibException)
+				searchLibException = (SearchLibException) exception;
+			else
+				searchLibException = new SearchLibException(exception);
+		}
+	}
 }
