@@ -56,7 +56,8 @@ public class RestDeleteTest extends CommonRestAPI {
 	@Test
 	public void testB_RestAPIDeleteByField() throws IOException, InterruptedException, ExecutionException {
 		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME + "/document/id/1/2")
-				.request(MediaType.APPLICATION_JSON).delete();
+				.request(MediaType.APPLICATION_JSON)
+				.delete();
 		CommonResult result = checkCommonResult(response, CommonResult.class, 200);
 		assertTrue("Wrong info: " + result.info, result.info.startsWith("2 document"));
 		checkCommonResultDetail(result, "deletedCount", 2);
@@ -95,7 +96,7 @@ public class RestDeleteTest extends CommonRestAPI {
 	}
 
 	@Test
-	public void testD_RestAPIDeleteByJsonQueryUnique() throws ClientProtocolException, IOException {
+	public void testD_RestAPIDeleteByJsonQueryUnique() throws IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
 			CloseableHttpResponse response = doDeleteJson(hc,
@@ -109,7 +110,7 @@ public class RestDeleteTest extends CommonRestAPI {
 	}
 
 	@Test
-	public void testE_RestAPIDeleteByJsonQueryField() throws ClientProtocolException, IOException {
+	public void testE_RestAPIDeleteByJsonQueryField() throws IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
 			CloseableHttpResponse response = doDeleteJson(hc,
@@ -124,7 +125,7 @@ public class RestDeleteTest extends CommonRestAPI {
 	}
 
 	@Test
-	public void testF_RestAPIDeleteByJsonUniqueReverse() throws ClientProtocolException, IOException {
+	public void testF_RestAPIDeleteByJsonUniqueReverse() throws IOException {
 		CloseableHttpClient hc = HttpClientBuilder.create().build();
 		try {
 			CloseableHttpResponse response = doDeleteJson(hc,

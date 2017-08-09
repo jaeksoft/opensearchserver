@@ -186,6 +186,8 @@ public class WriterLocal extends WriterAbstract {
 			return count.get();
 		} catch (IOException e) {
 			throw new SearchLibException(e);
+		} catch (SearchLibException.LambdaException e) {
+			throw e.searchLibException;
 		} finally {
 			close(indexWriter);
 		}
