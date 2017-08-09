@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2014-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2014-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,15 +20,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.renderer.field;
+
+import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeDateFormat;
 
 public class RendererWidgetDatetime extends RendererWidget {
 

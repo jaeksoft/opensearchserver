@@ -11,36 +11,36 @@
                 <#assign joinResultDocuments = result.getJoinDocumentList(i)/>
             </#if>
             <#assign fieldPos = 0/>
-            <#assign lastWasReplace = false/>
             <#assign lastFieldValue = []/>
             <#list renderer.fields as rendererField>
+                <#assign displayField = true/>
                 <#if rendererField.replacePrevious>
-                    <#if !lastWasReplace>
-                        <#assign fieldPos = fieldPos - 1/>
-                        <#assign lastWasReplace = true/>
-                    </#if>
                     <#if lastFieldValues?has_content>
-                        <#break/>
+                        <#assign displayField = false/>
+                    <#else>
+                        <#assign fieldPos = fieldPos - 1/>
                     </#if>
                 </#if>
-                <#assign resultDocument = rendererField.getResultDocument(mainResultDocument,joinResultDocuments)/>
-                <#assign fieldPos = fieldPos + 1/>
-                <#assign widgetName = rendererField.widgetName />
-                <#assign rendererWidget = rendererField.widget />
-                <#assign fieldValues = rendererField.getFieldValue(resultDocument)! />
-                <#assign lastFieldValues = fieldValues/>
-                <#if fieldValues?has_content>
-                    <#list fieldValues as  fieldValue>
-                        <#assign rendererValue = fieldValue />
+                <#if displayField>
+                    <#assign resultDocument = rendererField.getResultDocument(mainResultDocument,joinResultDocuments)/>
+                    <#assign fieldPos = fieldPos + 1/>
+                    <#assign widgetName = rendererField.widgetName />
+                    <#assign rendererWidget = rendererField.widget />
+                    <#assign fieldValues = rendererField.getFieldValue(resultDocument)! />
+                    <#assign lastFieldValues = fieldValues/>
+                    <#if fieldValues?has_content>
+                        <#list fieldValues as  fieldValue>
+                            <#assign rendererValue = fieldValue />
+                            <div class="osscmnrdr ossfieldrdr${fieldPos}${rendererField.renderCssClass}">
+                                <#include widgetName.templatePath />
+                            </div>
+                        </#list>
+                    <#else>
+                        <#assign rendererValue = '' />
                         <div class="osscmnrdr ossfieldrdr${fieldPos}${rendererField.renderCssClass}">
                             <#include widgetName.templatePath />
                         </div>
-                    </#list>
-                <#else>
-                    <#assign rendererValue = '' />
-                    <div class="osscmnrdr ossfieldrdr${fieldPos}${rendererField.renderCssClass}">
-                        <#include widgetName.templatePath />
-                    </div>
+                    </#if>
                 </#if>
             </#list>
             <br/>
