@@ -58,7 +58,11 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class WriterLocal extends WriterAbstract {
@@ -173,21 +177,32 @@ public class WriterLocal extends WriterAbstract {
 			final AtomicInteger count = new AtomicInteger();
 			final IndexWriter iw = indexWriter = open();
 			final SchemaField uniqueField = schema.getFieldList().getUniqueField();
-			documents.parallelStream().forEach(document -> {
-				try {
-					if (updateDocNoLock(uniqueField, iw, schema, document))
-						count.incrementAndGet();
-				} catch (IOException | NoSuchAlgorithmException | SearchLibException e) {
-					throw new SearchLibException.LambdaException(e);
-				}
-			});
+
+			final AtomicReference<Exception> exceptionReference = new AtomicReference<>();
+			final ExecutorService executorService = Executors.newFixedThreadPool(
+					Runtime.getRuntime().availableProcessors() * 2);
+
+			for (IndexDocument document : documents) {
+				executorService.submit(() -> {
+					try {
+						if (updateDocNoLock(uniqueField, iw, schema, document))
+							count.incrementAndGet();
+					} catch (IOException | NoSuchAlgorithmException | SearchLibException e) {
+						exceptionReference.weakCompareAndSet(null, e);
+					}
+				});
+			}
+
+			executorService.shutdown();
+			executorService.awaitTermination(1, TimeUnit.HOURS);
+			if (exceptionReference.get() != null)
+				throw SearchLibException.newInstance(exceptionReference.get());
+
 			close(indexWriter);
 			indexWriter = null;
 			return count.get();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			throw new SearchLibException(e);
-		} catch (SearchLibException.LambdaException e) {
-			throw e.searchLibException;
 		} finally {
 			close(indexWriter);
 		}
@@ -198,19 +213,36 @@ public class WriterLocal extends WriterAbstract {
 			throws SearchLibException {
 		IndexWriter indexWriter = null;
 		try {
-			int count = 0;
-			indexWriter = open();
-			SchemaField uniqueField = schema.getFieldList().getUniqueField();
+			final AtomicInteger count = new AtomicInteger();
+			final IndexWriter iw = indexWriter = open();
+			final SchemaField uniqueField = schema.getFieldList().getUniqueField();
+
+			final AtomicReference<Exception> exceptionReference = new AtomicReference<>();
+			final ExecutorService executorService = Executors.newFixedThreadPool(
+					Runtime.getRuntime().availableProcessors() * 2);
+
 			for (IndexDocumentResult document : documents) {
-				Document doc = getLuceneDocument(schema, document);
-				IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(document);
-				updateDocNoLock(uniqueField, indexWriter, analyzer, doc);
-				count++;
+				executorService.submit(() -> {
+					final Document doc = getLuceneDocument(schema, document);
+					final IndexDocumentAnalyzer analyzer = new IndexDocumentAnalyzer(document);
+					try {
+						updateDocNoLock(uniqueField, iw, analyzer, doc);
+						count.incrementAndGet();
+					} catch (IOException | SearchLibException e) {
+						exceptionReference.weakCompareAndSet(null, e);
+					}
+				});
 			}
+
+			executorService.shutdown();
+			executorService.awaitTermination(1, TimeUnit.HOURS);
+			if (exceptionReference.get() != null)
+				throw SearchLibException.newInstance(exceptionReference.get());
+
 			close(indexWriter);
 			indexWriter = null;
-			return count;
-		} catch (IOException e) {
+			return count.get();
+		} catch (IOException | InterruptedException e) {
 			throw new SearchLibException(e);
 		} finally {
 			close(indexWriter);

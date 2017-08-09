@@ -50,6 +50,12 @@ public class SearchLibException extends Exception {
 		super(StringUtils.fastConcat(message));
 	}
 
+	public static SearchLibException newInstance(Exception e) {
+		if (e instanceof SearchLibException)
+			return (SearchLibException) e;
+		return new SearchLibException(e);
+	}
+
 	public static class AbortException extends SearchLibException {
 		/**
 		 *
