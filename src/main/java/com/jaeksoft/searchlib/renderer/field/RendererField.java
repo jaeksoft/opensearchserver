@@ -69,6 +69,8 @@ public class RendererField {
 
 	private String replacement;
 
+	private Integer maxNumber;
+
 	private final static String RENDERER_FIELD_ATTR_FIELDNAME = "fieldName";
 
 	private final static String RENDERER_FIELD_ATTR_REPLACEPREVIOUS = "replacePrevious";
@@ -91,6 +93,8 @@ public class RendererField {
 
 	private final static String RENDERER_FIELD_ATTR_REGEXP_REPLACE = "regexpReplace";
 
+	private final static String RENDERER_FIELD_ATTR_MAX_NUMBER = "maxNumber";
+
 	public RendererField() {
 		fieldName = StringUtils.EMPTY;
 		fieldSource = null;
@@ -104,6 +108,7 @@ public class RendererField {
 		widgetProperties = StringUtils.EMPTY;
 		pattern = null;
 		replacement = null;
+		maxNumber = null;
 	}
 
 	public RendererField(XPathParser xpp, Node node) throws XPathExpressionException {
@@ -119,6 +124,8 @@ public class RendererField {
 		setPattern(DomUtils.getAttributeText(node, RENDERER_FIELD_ATTR_REGEXP_PATTERN));
 		setReplacement(DomUtils.getAttributeText(node, RENDERER_FIELD_ATTR_REGEXP_REPLACE));
 		setWidgetProperties(node.getTextContent());
+		maxNumber = DomUtils.getAttributeInteger(node, RENDERER_FIELD_ATTR_MAX_NUMBER, null);
+
 	}
 
 	public RendererField(RendererField field) {
@@ -139,6 +146,7 @@ public class RendererField {
 		target.widget = widget;
 		target.pattern = pattern;
 		target.replacement = replacement;
+		target.maxNumber = maxNumber;
 	}
 
 	/**
@@ -240,11 +248,11 @@ public class RendererField {
 	private String[] getValues(List<FieldValueItem> fieldValueItems, boolean replace, boolean urlDecode) {
 		if (fieldValueItems == null)
 			return null;
+		final int valueCount = maxNumber == null ? fieldValueItems.size() : Math.min(maxNumber, fieldValueItems.size());
 		replace = replace && !StringUtils.isEmpty(pattern);
-		String[] fields = new String[fieldValueItems.size()];
-		int i = 0;
-		for (FieldValueItem fieldValueItem : fieldValueItems) {
-			String value = fieldValueItem.value;
+		final String[] fields = new String[fieldValueItems.size()];
+		for (int i = 0; i < valueCount; i++) {
+			String value = fieldValueItems.get(i).value;
 			if (value != null) {
 				if (urlDecode)
 					value = LinkUtils.UTF8_URL_QuietDecode(value);
@@ -339,7 +347,7 @@ public class RendererField {
 				RENDERER_FIELD_ATTR_URL_FIELDNAME, urlFieldName, RENDERER_FIELD_ATTR_URL_DECODE,
 				Boolean.toString(urlDecode), RENDERER_FIELD_ATTR_CSS_CLASS, cssClass, RENDERER_FIELD_ATTR_WIDGETNAME,
 				widgetName.name(), RENDERER_FIELD_ATTR_REGEXP_PATTERN, pattern, RENDERER_FIELD_ATTR_REGEXP_REPLACE,
-				replacement);
+				replacement, RENDERER_FIELD_ATTR_MAX_NUMBER, maxNumber == null ? null : maxNumber.toString());
 		xmlWriter.textNode(widgetProperties);
 		xmlWriter.endElement();
 	}
@@ -373,6 +381,13 @@ public class RendererField {
 	}
 
 	/**
+	 * @param fieldSource the fieldSource to set
+	 */
+	public void setFieldSource(Integer fieldSource) {
+		this.fieldSource = fieldSource;
+	}
+
+	/**
 	 * @return the fieldSource
 	 */
 	public Integer getFieldSource() {
@@ -380,10 +395,17 @@ public class RendererField {
 	}
 
 	/**
-	 * @param fieldSource the fieldSource to set
+	 * @param maxNumber the maxNumber to set
 	 */
-	public void setFieldSource(Integer fieldSource) {
-		this.fieldSource = fieldSource;
+	public void setMaxNumber(Integer maxNumber) {
+		this.maxNumber = maxNumber;
+	}
+
+	/**
+	 * @return the maxNumber
+	 */
+	public Integer getMaxNumber() {
+		return maxNumber;
 	}
 
 }
