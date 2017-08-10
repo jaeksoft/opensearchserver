@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RendererField {
@@ -248,20 +249,21 @@ public class RendererField {
 	private String[] getValues(List<FieldValueItem> fieldValueItems, boolean replace, boolean urlDecode) {
 		if (fieldValueItems == null)
 			return null;
-		final int valueCount = maxNumber == null ? fieldValueItems.size() : Math.min(maxNumber, fieldValueItems.size());
 		replace = replace && !StringUtils.isEmpty(pattern);
-		final String[] fields = new String[fieldValueItems.size()];
-		for (int i = 0; i < valueCount; i++) {
-			String value = fieldValueItems.get(i).value;
-			if (value != null) {
-				if (urlDecode)
-					value = LinkUtils.UTF8_URL_QuietDecode(value);
-				if (replace)
-					value = value.replaceAll(pattern, replacement);
-			}
-			fields[i++] = value;
+		final List<String> fields = new ArrayList<>();
+		for (final FieldValueItem fieldValueItem : fieldValueItems) {
+			if (maxNumber != null && fields.size() == maxNumber)
+				break;
+			if (fieldValueItem.value == null)
+				continue;
+			String value = fieldValueItem.value;
+			if (urlDecode)
+				value = LinkUtils.UTF8_URL_QuietDecode(value);
+			if (replace)
+				value = value.replaceAll(pattern, replacement);
+			fields.add(value);
 		}
-		return fields;
+		return fields.isEmpty() ? null : fields.toArray(new String[fields.size()]);
 	}
 
 	final public ResultDocument getResultDocument(ResultDocument resultDocument,
