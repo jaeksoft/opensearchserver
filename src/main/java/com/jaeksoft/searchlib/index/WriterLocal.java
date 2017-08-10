@@ -68,13 +68,11 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WriterLocal extends WriterAbstract {
 
 	private IndexDirectory indexDirectory;
-	private volatile IndexWriter indexWriter;
 	private final ReentrantLock indexWriterLock;
 
 	protected WriterLocal(IndexConfig indexConfig, IndexDirectory indexDirectory) throws IOException {
 		super(indexConfig);
 		this.indexDirectory = indexDirectory;
-		this.indexWriter = null;
 		indexWriterLock = new ReentrantLock();
 	}
 
@@ -106,6 +104,7 @@ public class WriterLocal extends WriterAbstract {
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
 		config.setWriteLockTimeout(indexConfig.getWriteLockTimeout());
+		config.setRAMBufferSizeMB(128);
 		Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			config.setSimilarity(similarity);
@@ -114,8 +113,7 @@ public class WriterLocal extends WriterAbstract {
 	}
 
 	private IndexWriter open() throws IOException, SearchLibException {
-		IndexWriter indexWriter = open(false);
-		return indexWriter;
+		return open(false);
 	}
 
 	@Deprecated
