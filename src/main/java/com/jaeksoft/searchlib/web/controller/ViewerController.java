@@ -1,67 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.web.controller;
-
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.naming.NamingException;
-
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbFile;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.exceptions.CryptographyException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.icepdf.core.exceptions.PDFException;
-import org.icepdf.core.exceptions.PDFSecurityException;
-import org.icepdf.core.pobjects.Document;
-import org.icepdf.core.pobjects.PDimension;
-import org.icepdf.core.pobjects.Page;
-import org.icepdf.core.pobjects.graphics.text.LineText;
-import org.icepdf.core.pobjects.graphics.text.PageText;
-import org.icepdf.core.pobjects.graphics.text.WordText;
-import org.icepdf.core.util.GraphicsRenderingHints;
-import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.NotifyChange;
-import org.zkoss.zul.Filedownload;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -77,6 +38,39 @@ import com.jaeksoft.searchlib.util.GhostScript;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.pdfbox.PDFBoxHighlighter;
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbFile;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.icepdf.core.exceptions.PDFException;
+import org.icepdf.core.exceptions.PDFSecurityException;
+import org.icepdf.core.pobjects.Document;
+import org.icepdf.core.pobjects.PDimension;
+import org.icepdf.core.pobjects.Page;
+import org.icepdf.core.pobjects.graphics.text.LineText;
+import org.icepdf.core.pobjects.graphics.text.PageText;
+import org.icepdf.core.pobjects.graphics.text.WordText;
+import org.icepdf.core.util.GraphicsRenderingHints;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
+import org.zkoss.zul.Filedownload;
+
+import javax.imageio.ImageIO;
+import javax.naming.NamingException;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
 @AfterCompose(superclass = true)
 public class ViewerController extends CommonController {
@@ -87,8 +81,7 @@ public class ViewerController extends CommonController {
 
 	private float zoom;
 
-	private final static int[] zoomScale = { 10, 20, 30, 40, 50, 60, 70, 80,
-			90, 100, 150, 200, 250, 300, 400 };
+	private final static int[] zoomScale = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200, 250, 300, 400 };
 
 	private HttpDownloadThread downloadThread;
 
@@ -106,8 +99,7 @@ public class ViewerController extends CommonController {
 
 	private GhostScript ghostScript = null;
 
-	public ViewerController() throws SearchLibException, IOException,
-			NamingException, URISyntaxException {
+	public ViewerController() throws SearchLibException, IOException, NamingException, URISyntaxException {
 		super();
 		hocrPdf = null;
 		downloadThread = null;
@@ -152,12 +144,9 @@ public class ViewerController extends CommonController {
 			if (result != null) {
 				AuthPluginInterface.User user = result.getLoggedUser();
 				if (user != null && user.password != null)
-					auth = new NtlmPasswordAuthentication(
-							result.getAuthDomain(), user.username,
-							user.password);
+					auth = new NtlmPasswordAuthentication(result.getAuthDomain(), user.username, user.password);
 				else if (result.isAuthCredential())
-					auth = new NtlmPasswordAuthentication(
-							result.getAuthDomain(), result.getAuthUsername(),
+					auth = new NtlmPasswordAuthentication(result.getAuthDomain(), result.getAuthUsername(),
 							result.getAuthPassword());
 			}
 			smbFile = auth != null ? new SmbFile(url, auth) : new SmbFile(url);
@@ -181,8 +170,7 @@ public class ViewerController extends CommonController {
 	}
 
 	/**
-	 * @param page
-	 *            the page to set
+	 * @param page the page to set
 	 * @throws SearchLibException
 	 */
 	@NotifyChange({ "currentImage", "page" })
@@ -205,8 +193,7 @@ public class ViewerController extends CommonController {
 	}
 
 	/**
-	 * @param zoom
-	 *            the zoom to set
+	 * @param zoom the zoom to set
 	 */
 	@NotifyChange({ "currentImage", "zoom" })
 	public void setZoom(int zoom) {
@@ -257,8 +244,7 @@ public class ViewerController extends CommonController {
 
 	@Command
 	public void onDownload() throws FileNotFoundException {
-		Filedownload.save(new FileInputStream(tempFile), null,
-				FilenameUtils.getName(uri.getPath()));
+		Filedownload.save(new FileInputStream(tempFile), null, FilenameUtils.getName(uri.getPath()));
 	}
 
 	public boolean isDownloading() {
@@ -288,8 +274,7 @@ public class ViewerController extends CommonController {
 		return downloadThread.getPercent();
 	}
 
-	private void checkHocrHighlight(float pageWidth, float pageHeight,
-			List<Rectangle> boxList) {
+	private void checkHocrHighlight(float pageWidth, float pageHeight, List<Rectangle> boxList) {
 		if (hocrPdf == null || keywords == null)
 			return;
 		HocrPage page = hocrPdf.getPage(this.page - 1);
@@ -300,8 +285,7 @@ public class ViewerController extends CommonController {
 				page.addBoxes(keyword, boxList, xFactor, yFactor);
 	}
 
-	private void checkIcePdfHighlight(Document pdf, float pageHeight,
-			float zoomFactor, List<Rectangle> boxList) {
+	private void checkIcePdfHighlight(Document pdf, float pageHeight, float zoomFactor, List<Rectangle> boxList) {
 		if (keywords == null)
 			return;
 		PageText pageText = pdf.getPageViewText(this.page - 1);
@@ -327,8 +311,7 @@ public class ViewerController extends CommonController {
 		}
 	}
 
-	private void loadIcePdf() throws PDFException, PDFSecurityException,
-			IOException {
+	private void loadIcePdf() throws PDFException, PDFSecurityException, IOException {
 		Document pdf = null;
 		try {
 			int pdfPage = page - 1;
@@ -340,9 +323,8 @@ public class ViewerController extends CommonController {
 			float pageHeight = pd.getHeight();
 			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
 			checkIcePdfHighlight(pdf, pageHeight, zoomFactor, boxList);
-			currentImage = (BufferedImage) pdf.getPageImage(pdfPage,
-					GraphicsRenderingHints.SCREEN, Page.BOUNDARY_CROPBOX, 0.0f,
-					zoom / 100);
+			currentImage = (BufferedImage) pdf.getPageImage(pdfPage, GraphicsRenderingHints.SCREEN,
+					Page.BOUNDARY_CROPBOX, 0.0f, zoom / 100);
 			checkHocrHighlight(pageWidth, pageHeight, boxList);
 			ImageUtils.yellowHighlight(currentImage, boxList, 0.1F);
 			numberOfPages = pdf.getNumberOfPages();
@@ -355,12 +337,11 @@ public class ViewerController extends CommonController {
 	/**
 	 * gs -q -dFirstPage=3 -dLastPage=3 -dNOPAUSE -dBATCH -sDEVICE=jpeg -r72
 	 * -dEPSCrop -sOutputFile=out.jpg "document.pdf"
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	private void loadGS(String pdfPassword) throws IOException,
-			InterruptedException {
+	private void loadGS(String pdfPassword) throws IOException, InterruptedException {
 		if (ghostScript == null)
 			ghostScript = new GhostScript(null);
 		File imageFile = null;
@@ -370,8 +351,7 @@ public class ViewerController extends CommonController {
 			int factor = (int) ((zoomFactor * zoom));
 			if (factor > 2400)
 				factor = 2400;
-			ghostScript.generateImage(pdfPassword, page, tempFile, factor,
-					imageFile);
+			ghostScript.generateImage(pdfPassword, page, tempFile, factor, imageFile);
 			currentImage = ImageIO.read(imageFile);
 		} finally {
 			if (imageFile != null)
@@ -380,30 +360,24 @@ public class ViewerController extends CommonController {
 		}
 	}
 
-	private void checkPdfBoxHighlight(PDDocument document,
-			List<Rectangle> boxList) throws IOException {
-		PDFBoxHighlighter pdfstripper = new PDFBoxHighlighter(keywords,
-				boxList, new Dimension(currentImage.getWidth(),
-						currentImage.getHeight()));
+	private void checkPdfBoxHighlight(PDDocument document, List<Rectangle> boxList) throws IOException {
+		PDFBoxHighlighter pdfstripper = new PDFBoxHighlighter(keywords, boxList,
+				new Dimension(currentImage.getWidth(), currentImage.getHeight()));
 		pdfstripper.setStartPage(page);
 		pdfstripper.setEndPage(page);
 		pdfstripper.getText(document);
 	}
 
-	private void loadPdfBox() throws IOException, CryptographyException,
-			SearchLibException, InterruptedException {
+	private void loadPdfBox() throws IOException, SearchLibException, InterruptedException {
 		PDDocument document = null;
 		try {
-			document = PDDocument.loadNonSeq(tempFile, null);
+			document = PDDocument.load(tempFile);
 			// Trying to open with empty password
 			boolean isEncrypted = document.isEncrypted();
-			if (isEncrypted)
-				document.decrypt("");
 			loadGS(isEncrypted ? "" : null);
 			List<Rectangle> boxList = new ArrayList<Rectangle>(0);
 			checkPdfBoxHighlight(document, boxList);
-			checkHocrHighlight(currentImage.getWidth(),
-					currentImage.getHeight(), boxList);
+			checkHocrHighlight(currentImage.getWidth(), currentImage.getHeight(), boxList);
 			ImageUtils.yellowHighlight(currentImage, boxList, 0.1F);
 			numberOfPages = document.getNumberOfPages();
 		} finally {
@@ -463,8 +437,7 @@ public class ViewerController extends CommonController {
 	}
 
 	/**
-	 * @param search
-	 *            the search to set
+	 * @param search the search to set
 	 */
 	@NotifyChange("currentImage")
 	public void setSearch(String search) {

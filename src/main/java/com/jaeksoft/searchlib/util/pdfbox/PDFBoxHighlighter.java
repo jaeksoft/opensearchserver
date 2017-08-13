@@ -1,39 +1,38 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.util.pdfbox;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.TextPosition;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.util.PDFTextStripper;
-import org.apache.pdfbox.util.TextPosition;
 
 public class PDFBoxHighlighter extends PDFTextStripper {
 
@@ -43,8 +42,8 @@ public class PDFBoxHighlighter extends PDFTextStripper {
 	private float xFactor;
 	private float yFactor;
 
-	public PDFBoxHighlighter(String[] keywords, Collection<Rectangle> boxes,
-			Dimension imageDimension) throws IOException {
+	public PDFBoxHighlighter(String[] keywords, Collection<Rectangle> boxes, Dimension imageDimension)
+			throws IOException {
 		this.keywords = keywords;
 		this.boxes = boxes;
 		this.imageDimension = imageDimension;
@@ -53,21 +52,20 @@ public class PDFBoxHighlighter extends PDFTextStripper {
 	@Override
 	protected void startPage(PDPage page) throws IOException {
 		super.startPage(page);
-		PDRectangle rect = page.findCropBox();
+		final PDRectangle rect = page.getCropBox();
 		xFactor = imageDimension.width / rect.getWidth();
 		yFactor = imageDimension.height / rect.getHeight();
 	}
 
 	@Override
-	protected void writeString(String text, List<TextPosition> textPositions)
-			throws IOException {
+	protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
 		super.writeString(text, textPositions);
 		if (textPositions == null)
 			return;
 		StringBuilder term = new StringBuilder();
-		List<Rectangle> rects = new ArrayList<Rectangle>();
+		final List<Rectangle> rects = new ArrayList<>();
 		for (TextPosition tp : textPositions) {
-			String str = tp.getCharacter();
+			String str = tp.getUnicode();
 			if (str.length() > 1) {
 				handleTerm(term, rects);
 				term = new StringBuilder();
@@ -89,7 +87,7 @@ public class PDFBoxHighlighter extends PDFTextStripper {
 		handleTerm(term, rects);
 	}
 
-	final private void addRect(TextPosition tp, List<Rectangle> rects) {
+	private void addRect(TextPosition tp, List<Rectangle> rects) {
 		Rectangle rect = new Rectangle();
 		float xdelta = tp.getWidthDirAdj() * .2F;
 		float ydelta = tp.getHeightDir() * .2F;
@@ -100,7 +98,7 @@ public class PDFBoxHighlighter extends PDFTextStripper {
 		rects.add(rect);
 	}
 
-	final private void handleTerm(CharSequence term, List<Rectangle> rects) {
+	private void handleTerm(CharSequence term, List<Rectangle> rects) {
 		if (term == null)
 			return;
 		if (term.length() == 0)
