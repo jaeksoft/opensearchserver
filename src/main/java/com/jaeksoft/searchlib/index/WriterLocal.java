@@ -50,6 +50,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.SerialMergeScheduler;
+import org.apache.lucene.index.SnapshotDeletionPolicy;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.util.Version;
@@ -67,10 +68,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class WriterLocal extends WriterAbstract {
 
-	private IndexDirectory indexDirectory;
+	private final IndexDirectory indexDirectory;
 	private final ReentrantLock indexWriterLock;
 
-	protected WriterLocal(IndexConfig indexConfig, IndexDirectory indexDirectory) throws IOException {
+	protected WriterLocal(IndexConfig indexConfig, IndexDirectory indexDirectory,
+			IndexDirectory snapshotDeletionDirectory) throws IOException {
 		super(indexConfig);
 		this.indexDirectory = indexDirectory;
 		indexWriterLock = new ReentrantLock();
@@ -84,8 +86,8 @@ public class WriterLocal extends WriterAbstract {
 		} catch (Exception e) {
 			Logging.warn(e);
 		} finally {
-			indexWriterLock.unlock();
 			indexDirectory.unlock();
+			indexWriterLock.unlock();
 		}
 	}
 
@@ -100,14 +102,19 @@ public class WriterLocal extends WriterAbstract {
 
 	private IndexWriter open(boolean create) throws IOException, SearchLibException {
 		indexWriterLock.lock();
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36, null);
+		final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_36, null);
 		config.setOpenMode(create ? OpenMode.CREATE_OR_APPEND : OpenMode.APPEND);
 		config.setMergeScheduler(new SerialMergeScheduler());
 		config.setWriteLockTimeout(indexConfig.getWriteLockTimeout());
 		config.setRAMBufferSizeMB(128);
-		Similarity similarity = indexConfig.getNewSimilarityInstance();
+		final Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			config.setSimilarity(similarity);
+		if (!create) {
+			final SnapshotDeletionPolicy snapshotDeletionPolicy =
+					new SnapshotDeletionPolicy(config.getIndexDeletionPolicy());
+			config.setIndexDeletionPolicy(snapshotDeletionPolicy);
+		}
 		Logging.debug("WriteLocal open " + indexDirectory.getDirectory());
 		return new IndexWriter(indexDirectory.getDirectory(), config);
 	}
@@ -177,8 +184,8 @@ public class WriterLocal extends WriterAbstract {
 			final SchemaField uniqueField = schema.getFieldList().getUniqueField();
 
 			final AtomicReference<Exception> exceptionReference = new AtomicReference<>();
-			final ExecutorService executorService = Executors.newFixedThreadPool(
-					Runtime.getRuntime().availableProcessors() * 2);
+			final ExecutorService executorService =
+					Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 			try {
 				for (IndexDocument document : documents) {
@@ -219,8 +226,8 @@ public class WriterLocal extends WriterAbstract {
 			final SchemaField uniqueField = schema.getFieldList().getUniqueField();
 
 			final AtomicReference<Exception> exceptionReference = new AtomicReference<>();
-			final ExecutorService executorService = Executors.newFixedThreadPool(
-					Runtime.getRuntime().availableProcessors() * 2);
+			final ExecutorService executorService =
+					Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
 			try {
 				for (IndexDocumentResult document : documents) {

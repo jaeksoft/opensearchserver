@@ -1,41 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2012-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.autocompletion;
-
-import java.io.IOException;
-import java.lang.Thread.State;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermDocs;
-import org.apache.lucene.index.TermEnum;
-import org.roaringbitmap.RoaringBitmap;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -46,8 +33,20 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.AbstractSearchRequest;
 import com.jaeksoft.searchlib.result.AbstractResultSearch;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
+import com.qwazr.utils.FunctionUtils;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermEnum;
+import org.roaringbitmap.RoaringBitmap;
+
+import java.io.IOException;
+import java.lang.Thread.State;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuildThread> {
 
@@ -79,9 +78,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 		return autoCompClient.getStatistics().getNumDocs();
 	}
 
-	final private int indexBuffer(int docCount, List<IndexDocument> buffer)
-			throws SearchLibException, NoSuchAlgorithmException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException, ClassNotFoundException {
+	final private int indexBuffer(int docCount, List<IndexDocument> buffer) throws IOException, SearchLibException {
 		if (buffer.size() == 0)
 			return docCount;
 		docCount += autoCompClient.updateDocuments(buffer);
@@ -92,8 +89,7 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 	}
 
 	private int indexTerm(String term, Integer freq, List<IndexDocument> buffer, int docCount)
-			throws NoSuchAlgorithmException, SearchLibException, IOException, URISyntaxException,
-			InstantiationException, IllegalAccessException, ClassNotFoundException {
+			throws IOException, SearchLibException {
 		IndexDocument indexDocument = new IndexDocument();
 		indexDocument.addString("term", term);
 		indexDocument.addString("cluster", term);
@@ -105,28 +101,86 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 		return docCount;
 	}
 
+	private class TermConsumer implements FunctionUtils.ConsumerEx2<TermEnum, IOException, SearchLibException> {
+
+		private int docCount;
+		private final String fieldName;
+		private final List<IndexDocument> buffer;
+
+		private TermConsumer(int docCount, String fieldName, List<IndexDocument> buffer) {
+			this.docCount = docCount;
+			this.fieldName = fieldName;
+			this.buffer = buffer;
+		}
+
+		@Override
+		public void accept(TermEnum termEnum) throws IOException, SearchLibException {
+			Term term;
+			while ((term = termEnum.term()) != null) {
+				if (!fieldName.equals(term.field()))
+					break;
+				if (isAborted())
+					break;
+				docCount = indexTerm(term.text(), termEnum.docFreq(), buffer, docCount);
+				termEnum.next();
+			}
+		}
+	}
+
 	private int buildTermEnum(List<IndexDocument> buffer, int docCount)
 			throws SearchLibException, NoSuchAlgorithmException, IOException, URISyntaxException,
 			InstantiationException, IllegalAccessException, ClassNotFoundException {
 		if (fieldNames == null)
 			return docCount;
 		for (String fieldName : fieldNames) {
-			termEnum = sourceClient.getTermEnum(new Term(fieldName, ""));
-			try {
-				Term term = null;
-				while ((term = termEnum.term()) != null) {
-					if (!fieldName.equals(term.field()))
-						break;
-					if (isAborted())
-						break;
-					docCount = indexTerm(term.text(), termEnum.docFreq(), buffer, docCount);
-					termEnum.next();
-				}
-			} finally {
-				IOUtils.close(termEnum);
-			}
+			final TermConsumer termConsumer = new TermConsumer(docCount, fieldName, buffer);
+			sourceClient.termEnum(new Term(fieldName, ""), termConsumer);
+			docCount = termConsumer.docCount;
 		}
 		return docCount;
+	}
+
+	private class SearchTermConsumer implements FunctionUtils.ConsumerEx2<TermEnum, IOException, SearchLibException> {
+
+		private final List<IndexDocument> buffer;
+		private int docCount;
+		private final RoaringBitmap bitSet;
+		private final String fieldName;
+
+		private SearchTermConsumer(List<IndexDocument> buffer, int docCount, final RoaringBitmap bitSet,
+				final String fieldName) {
+			this.buffer = buffer;
+			this.docCount = docCount;
+			this.bitSet = bitSet;
+			this.fieldName = fieldName;
+		}
+
+		@Override
+		public void accept(TermEnum termEnum) throws IOException, SearchLibException {
+			Term term;
+			while ((term = termEnum.term()) != null) {
+				if (isAborted())
+					break;
+				if (!fieldName.equals(term.field()))
+					break;
+				final TermDocsConsumer termDocsConsumer = new TermDocsConsumer();
+				sourceClient.getIndex().termDocs(term, termDocsConsumer);
+				if (termDocsConsumer.add)
+					docCount = indexTerm(term.text(), termEnum.docFreq(), buffer, docCount);
+				termEnum.next();
+			}
+		}
+
+		private class TermDocsConsumer implements FunctionUtils.ConsumerEx<TermDocs, IOException> {
+
+			private boolean add = false;
+
+			@Override
+			public void accept(TermDocs termDocs) throws IOException {
+				while (termDocs.next() && !add)
+					add = bitSet.contains(termDocs.doc());
+			}
+		}
 	}
 
 	private int buildSearchRequest(List<IndexDocument> buffer, int docCount)
@@ -151,25 +205,9 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 		if (bitSet == null || bitSet.isEmpty())
 			return docCount;
 		for (String fieldName : fieldNames) {
-			termEnum = sourceClient.getTermEnum(new Term(fieldName, ""));
-			try {
-				Term term = null;
-				while ((term = termEnum.term()) != null) {
-					if (isAborted())
-						break;
-					if (!fieldName.equals(term.field()))
-						break;
-					TermDocs termDocs = sourceClient.getIndex().getTermDocs(term);
-					boolean add = false;
-					while (termDocs.next() && !add)
-						add = bitSet.contains(termDocs.doc());
-					if (add)
-						docCount = indexTerm(term.text(), termEnum.docFreq(), buffer, docCount);
-					termEnum.next();
-				}
-			} finally {
-				IOUtils.close(termEnum);
-			}
+			final SearchTermConsumer termEnumConsumer = new SearchTermConsumer(buffer, docCount, bitSet, fieldName);
+			sourceClient.termEnum(new Term(fieldName, ""), termEnumConsumer);
+			docCount = termEnumConsumer.docCount;
 			if (isAborted())
 				break;
 		}

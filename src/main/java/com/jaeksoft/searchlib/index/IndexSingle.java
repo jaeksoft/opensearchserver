@@ -1,4 +1,4 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p/>
  * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.index;
 
@@ -44,8 +44,13 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import com.qwazr.utils.FunctionUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermDocs;
+import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.index.TermFreqVector;
+import org.apache.lucene.index.TermPositions;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.json.JSONException;
@@ -56,12 +61,18 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class IndexSingle extends IndexAbstract {
 
 	final private IndexDirectory indexDirectory;
-
+	final private IndexDirectory snapshotDeletionDirectory;
 	private volatile ReaderLocal _reader;
 	private final WriterLocal writer;
 
@@ -93,6 +104,7 @@ public class IndexSingle extends IndexAbstract {
 		if (!indexDir.exists()) {
 			if (!createIfNotExists) {
 				indexDirectory = null;
+				snapshotDeletionDirectory = null;
 				_reader = null;
 				writer = null;
 				reloadIndexList = null;
@@ -104,11 +116,14 @@ public class IndexSingle extends IndexAbstract {
 			indexDir = findIndexDirOrSub(indexDir);
 		URI remoteURI = indexConfig.getRemoteURI();
 		indexDirectory = remoteURI == null ? new IndexDirectory(indexDir) : new IndexDirectory(remoteURI);
+
+		snapshotDeletionDirectory = new IndexDirectory(new File(configDir, "snapshot"));
+
 		bCreate = bCreate || indexDirectory.isEmpty();
 		if (!indexConfig.isMulti()) {
-			writer = new WriterLocal(indexConfig, indexDirectory);
+			writer = new WriterLocal(indexConfig, indexDirectory, snapshotDeletionDirectory);
 			if (bCreate)
-				((WriterLocal) writer).create();
+				writer.create();
 			reloadIndexList = null;
 		} else {
 			writer = null;
@@ -246,7 +261,9 @@ public class IndexSingle extends IndexAbstract {
 		if (_reader != null)
 			IOUtils.close(_reader);
 		_reader = null;
+
 		indexDirectory.close();
+		snapshotDeletionDirectory.close();
 	}
 
 	private void checkOnline(boolean online) throws SearchLibException {
@@ -376,7 +393,7 @@ public class IndexSingle extends IndexAbstract {
 	public void reload() throws SearchLibException {
 		checkOnline(true);
 		eventUpdateInterface();
-		ReaderLocal reader = acquire();
+		final ReaderLocal reader = acquire();
 		try {
 			reloadNoLock();
 		} finally {
@@ -453,44 +470,49 @@ public class IndexSingle extends IndexAbstract {
 	}
 
 	@Override
-	final public TermEnum getTermEnum() throws SearchLibException {
+	final public void termEnum(final FunctionUtils.ConsumerEx<TermEnum, IOException> termEnumConsumer)
+			throws IOException, SearchLibException {
 		checkOnline(true);
-		ReaderLocal reader = acquire();
+		final ReaderLocal reader = acquire();
 		try {
-			return reader.getTermEnum();
+			reader.termEnum(termEnumConsumer);
 		} finally {
 			release(reader);
 		}
 	}
 
 	@Override
-	final public TermEnum getTermEnum(final Term term) throws SearchLibException {
+	final public void termEnum(final Term term,
+			final FunctionUtils.ConsumerEx2<TermEnum, IOException, SearchLibException> termEnumConsumer)
+			throws IOException, SearchLibException {
 		checkOnline(true);
-		ReaderLocal reader = acquire();
+		final ReaderLocal reader = acquire();
 		try {
-			return reader.getTermEnum(term);
+			reader.termEnum(term, termEnumConsumer);
 		} finally {
 			release(reader);
 		}
 	}
 
 	@Override
-	final public TermDocs getTermDocs(final Term term) throws SearchLibException, IOException {
+	final public void termDocs(final Term term, final FunctionUtils.ConsumerEx<TermDocs, IOException> termDocsConsumer)
+			throws IOException, SearchLibException {
 		checkOnline(true);
-		ReaderLocal reader = acquire();
+		final ReaderLocal reader = acquire();
 		try {
-			return reader.getTermDocs(term);
+			reader.termDocs(term, termDocsConsumer);
 		} finally {
 			release(reader);
 		}
 	}
 
 	@Override
-	final public TermPositions getTermPositions() throws IOException, SearchLibException {
+	final public void termPositions(FunctionUtils.ConsumerEx<TermPositions, IOException> termPositionsConsumer)
+			throws IOException, SearchLibException {
 		checkOnline(true);
-		ReaderLocal reader = acquire();
+		final ReaderLocal reader = acquire();
 		try {
-			return reader.getTermPositions();
+			reader.termPositions(termPositionsConsumer);
 		} finally {
 			release(reader);
 		}

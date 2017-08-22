@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib;
 
@@ -40,6 +40,7 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
+import com.qwazr.utils.FunctionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
@@ -47,7 +48,11 @@ import org.w3c.dom.Node;
 
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPathExpressionException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -208,8 +213,8 @@ public class Client extends Config {
 				}
 				// Consecutive documents with same uniqueKey value are merged
 				// (multivalued)
-				if (uniqueField != null && lastDocument != null && uniqueValue != null && uniqueValue.equals(
-						lastUniqueValue)) {
+				if (uniqueField != null && lastDocument != null && uniqueValue != null &&
+						uniqueValue.equals(lastUniqueValue)) {
 					lastDocument.addIfNotAlreadyHere(document);
 					continue;
 				}
@@ -372,8 +377,10 @@ public class Client extends Config {
 		return getIndexAbstract().getStatistics();
 	}
 
-	public TermEnum getTermEnum(Term term) throws SearchLibException {
-		return getIndexAbstract().getTermEnum(term);
+	public void termEnum(final Term term,
+			final FunctionUtils.ConsumerEx2<TermEnum, IOException, SearchLibException> termEnumConsumer)
+			throws IOException, SearchLibException {
+		getIndexAbstract().termEnum(term, termEnumConsumer);
 	}
 
 	private final static String REPL_CHECK_FILENAME = "repl.check";

@@ -36,14 +36,19 @@ import com.jaeksoft.searchlib.request.AbstractRequest;
 import com.jaeksoft.searchlib.request.DocumentsRequest;
 import com.jaeksoft.searchlib.request.RequestInterfaces;
 import com.jaeksoft.searchlib.result.collector.DocIdInterface;
-import com.jaeksoft.searchlib.schema.*;
-import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.schema.FieldValue;
+import com.jaeksoft.searchlib.schema.Indexed;
+import com.jaeksoft.searchlib.schema.Schema;
+import com.jaeksoft.searchlib.schema.SchemaField;
+import com.jaeksoft.searchlib.schema.SchemaFieldList;
+import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayFactory;
 import com.jaeksoft.searchlib.util.array.IntBufferedArrayInterface;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexField;
 import com.jaeksoft.searchlib.webservice.query.document.IndexDocumentResult.IndexTerm;
+import com.qwazr.utils.FunctionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
@@ -53,7 +58,12 @@ import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 public class ResultDocuments extends AbstractResult<AbstractRequest>
 		implements ResultDocumentsInterface<AbstractRequest> {
@@ -111,52 +121,68 @@ public class ResultDocuments extends AbstractResult<AbstractRequest>
 				sortedDoc(reader, fieldName, uniqueKeys);
 	}
 
-	private final static int[] sortedDoc(ReaderLocal reader, String fieldName, Collection<String> uniqueKeys)
-			throws IOException {
-		int[] docIDs = new int[uniqueKeys.size()];
-		int i = 0;
-		for (String uniqueKey : uniqueKeys) {
-			TermDocs termDocs = reader.getTermDocs(new Term(fieldName, uniqueKey));
-			if (termDocs != null) {
-				try {
-					while (termDocs.next()) {
-						int doc = termDocs.doc();
-						if (!reader.isDeletedNoLock(doc))
-							docIDs[i++] = doc;
-					}
-				} finally {
-					IOUtils.close(termDocs);
-				}
+	private static class TermDocsNonDeletedConsumer implements FunctionUtils.ConsumerEx<TermDocs, IOException> {
+
+		final ReaderLocal reader;
+		final int[] docIDs;
+		int count = 0;
+
+		private TermDocsNonDeletedConsumer(ReaderLocal reader, int size) {
+			this.reader = reader;
+			docIDs = new int[size];
+		}
+
+		@Override
+		public void accept(TermDocs termDocs) throws IOException {
+			if (termDocs == null)
+				return;
+			while (termDocs.next()) {
+				int doc = termDocs.doc();
+				if (!reader.isDeletedNoLock(doc))
+					docIDs[count++] = doc;
 			}
 		}
-		if (i == docIDs.length)
-			return docIDs;
-		return Arrays.copyOf(docIDs, i);
 	}
 
-	private final static int[] reverseDoc(ReaderLocal reader, String fieldName, Collection<String> uniqueKeys)
+	private final static int[] sortedDoc(ReaderLocal reader, String fieldName, Collection<String> uniqueKeys)
 			throws IOException {
+		final TermDocsNonDeletedConsumer termDocsConsumer = new TermDocsNonDeletedConsumer(reader, uniqueKeys.size());
+
+		for (String uniqueKey : uniqueKeys)
+			reader.termDocs(new Term(fieldName, uniqueKey), termDocsConsumer);
+		if (termDocsConsumer.count == termDocsConsumer.docIDs.length)
+			return termDocsConsumer.docIDs;
+		return Arrays.copyOf(termDocsConsumer.docIDs, termDocsConsumer.count);
+	}
+
+	private static class TermDocsHigherConsumer implements FunctionUtils.ConsumerEx<TermDocs, IOException> {
+
 		int higher = -1;
-		RoaringBitmap bitSet = new RoaringBitmap();
-		for (String uniqueKey : uniqueKeys) {
-			TermDocs termDocs = reader.getTermDocs(new Term(fieldName, uniqueKey));
-			if (termDocs != null) {
-				try {
-					while (termDocs.next()) {
-						int doc = termDocs.doc();
-						if (doc > higher)
-							higher = doc;
-						bitSet.add(doc);
-					}
-				} finally {
-					IOUtils.close(termDocs);
-				}
+		final RoaringBitmap bitSet = new RoaringBitmap();
+
+		@Override
+		public void accept(TermDocs termDocs) throws IOException {
+			if (termDocs == null)
+				return;
+			while (termDocs.next()) {
+				int doc = termDocs.doc();
+				if (doc > higher)
+					higher = doc;
+				bitSet.add(doc);
 			}
 		}
-		bitSet.flip(0L, higher + 1);
+
+	}
+
+	private static int[] reverseDoc(ReaderLocal reader, String fieldName, Collection<String> uniqueKeys)
+			throws IOException {
+		final TermDocsHigherConsumer higherConsumer = new TermDocsHigherConsumer();
+		for (String uniqueKey : uniqueKeys)
+			reader.termDocs(new Term(fieldName, uniqueKey), higherConsumer);
+		higherConsumer.bitSet.flip(0L, higherConsumer.higher + 1);
 		IntBufferedArrayInterface intBufferArray =
-				IntBufferedArrayFactory.INSTANCE.newInstance(bitSet.getCardinality());
-		IntIterator iterator = bitSet.getIntIterator();
+				IntBufferedArrayFactory.INSTANCE.newInstance(higherConsumer.bitSet.getCardinality());
+		IntIterator iterator = higherConsumer.bitSet.getIntIterator();
 		while (iterator.hasNext()) {
 			int docId = iterator.next();
 			if (!reader.isDeletedNoLock(docId))

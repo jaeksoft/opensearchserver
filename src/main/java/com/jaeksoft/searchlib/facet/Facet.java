@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.result.collector.DocIdInterface;
 import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.TermVector;
 import com.jaeksoft.searchlib.util.Timer;
+import com.qwazr.utils.FunctionUtils;
 import it.unimi.dsi.fastutil.Arrays;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermDocs;
@@ -156,31 +157,46 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 		return new Facet(facetField, stringIndex.lookup, countIndex);
 	}
 
-	final private static int[] computeMultivaluedTD(ReaderAbstract reader, String fieldName,
-			FieldCacheIndex stringIndex, DocIdInterface docIdInterface) throws IOException, SearchLibException {
-		final int[] countIndex = new int[stringIndex.lookup.length];
-		int indexPos = 0;
-		if (docIdInterface.getSize() == 0)
-			return countIndex;
+	private static class MultiValueConsumer implements FunctionUtils.ConsumerEx<TermDocs, IOException> {
+
+		final int[] countIndex;
 		final int[] docs = new int[100];
 		final int[] freqs = new int[100];
-		final RoaringBitmap bitset = docIdInterface.getBitSet();
+		final RoaringBitmap bitset;
+		int indexPos = 0;
+
+		private MultiValueConsumer(final FieldCacheIndex stringIndex, final DocIdInterface docIdInterface) {
+			countIndex = new int[stringIndex.lookup.length];
+			bitset = docIdInterface.getBitSet();
+		}
+
+		@Override
+		public void accept(TermDocs termDocs) throws IOException {
+			int l;
+			while ((l = termDocs.read(docs, freqs)) > 0)
+				for (int i = 0; i < l; i++)
+					if (freqs[i] > 0)
+						if (bitset.contains(docs[i]))
+							countIndex[indexPos]++;
+		}
+	}
+
+	private static int[] computeMultivaluedTD(ReaderAbstract reader, String fieldName, FieldCacheIndex stringIndex,
+			DocIdInterface docIdInterface) throws IOException, SearchLibException {
+
+		final MultiValueConsumer multiValueConsumer = new MultiValueConsumer(stringIndex, docIdInterface);
+		if (docIdInterface.getSize() == 0)
+			return multiValueConsumer.countIndex;
+
 		Term oTerm = new Term(fieldName);
 		for (String term : stringIndex.lookup) {
 			if (term != null) {
 				Term t = oTerm.createTerm(term);
-				TermDocs termDocs = reader.getTermDocs(t);
-				int l;
-				while ((l = termDocs.read(docs, freqs)) > 0)
-					for (int i = 0; i < l; i++)
-						if (freqs[i] > 0)
-							if (bitset.contains(docs[i]))
-								countIndex[indexPos]++;
-				termDocs.close();
+				reader.termDocs(t, multiValueConsumer);
 			}
-			indexPos++;
+			multiValueConsumer.indexPos++;
 		}
-		return countIndex;
+		return multiValueConsumer.countIndex;
 	}
 
 	private static Map<String, FacetCounter> computeMultivaluedTFV(ReaderAbstract reader, String fieldName,

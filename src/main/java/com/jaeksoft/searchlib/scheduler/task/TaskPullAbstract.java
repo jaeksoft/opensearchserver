@@ -1,36 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2012-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.scheduler.task;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NamingException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.ClientCatalog;
@@ -50,42 +42,42 @@ import com.jaeksoft.searchlib.user.Role;
 import com.jaeksoft.searchlib.user.User;
 import com.jaeksoft.searchlib.util.StringUtils;
 
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class TaskPullAbstract extends TaskAbstract {
 
-	final protected TaskPropertyDef propSourceIndex = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Index source", "Index source",
-			"The source index which will be read", 100);
+	final protected TaskPropertyDef propSourceIndex =
+			new TaskPropertyDef(TaskPropertyType.comboBox, "Index source", "Index source",
+					"The source index which will be read", 100);
 
-	final protected TaskPropertyDef propLogin = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Login (Index target)",
-			"Login (Index target)",
-			"The login used to connect to the targeted index", 20);
+	final protected TaskPropertyDef propLogin =
+			new TaskPropertyDef(TaskPropertyType.textBox, "Login (Index target)", "Login (Index target)",
+					"The login used to connect to the targeted index", 20);
 
-	final protected TaskPropertyDef propApiKey = new TaskPropertyDef(
-			TaskPropertyType.password, "API Key (Index target)",
-			"API Key (Index target)",
-			"The API key used to connect to the targeted index", 50);
+	final protected TaskPropertyDef propApiKey =
+			new TaskPropertyDef(TaskPropertyType.password, "API Key (Index target)", "API Key (Index target)",
+					"The API key used to connect to the targeted index", 50);
 
-	final protected TaskPropertyDef propSourceField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Source field name", "Source field name",
-			null, 50);
+	final protected TaskPropertyDef propSourceField =
+			new TaskPropertyDef(TaskPropertyType.textBox, "Source field name", "Source field name", null, 50);
 
-	final protected TaskPropertyDef propTargetField = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Target field name", "Target field name",
-			null, 50);
+	final protected TaskPropertyDef propTargetField =
+			new TaskPropertyDef(TaskPropertyType.textBox, "Target field name", "Target field name", null, 50);
 
-	final protected TaskPropertyDef propTargetMappedFields = new TaskPropertyDef(
-			TaskPropertyType.multilineTextBox, "Mapped fields on target",
-			"Mapped fields on target", null, 80, 5);
+	final protected TaskPropertyDef propTargetMappedFields =
+			new TaskPropertyDef(TaskPropertyType.multilineTextBox, "Mapped fields on target", "Mapped fields on target",
+					null, 80, 5);
 
-	final protected TaskPropertyDef propBufferSize = new TaskPropertyDef(
-			TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
+	final protected TaskPropertyDef propBufferSize =
+			new TaskPropertyDef(TaskPropertyType.textBox, "Buffer size", "Buffer size", null, 10);
 
-	final protected TaskPropertyDef propLanguage = new TaskPropertyDef(
-			TaskPropertyType.comboBox, "Language", "Language", null, 30);
+	final protected TaskPropertyDef propLanguage =
+			new TaskPropertyDef(TaskPropertyType.comboBox, "Language", "Language", null, 30);
 
-	protected void populateSourceIndexValues(Config config, List<String> values)
-			throws SearchLibException {
+	protected void populateSourceIndexValues(Config config, List<String> values) throws SearchLibException {
 		for (ClientCatalogItem item : ClientCatalog.getClientCatalog(null)) {
 			String v = item.getIndexName();
 			if (!v.equals(config.getIndexName()))
@@ -98,8 +90,7 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 	}
 
 	@Override
-	public String[] getPropertyValues(Config config,
-			TaskPropertyDef propertyDef, TaskProperties taskProperties)
+	public String[] getPropertyValues(Config config, TaskPropertyDef propertyDef, TaskProperties taskProperties)
 			throws SearchLibException {
 		List<String> values = new ArrayList<String>(0);
 		if (propertyDef == propSourceIndex) {
@@ -147,15 +138,13 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 			sourceField = properties.getValue(propSourceField);
 
 			lang = LanguageEnum.findByName(properties.getValue(propLanguage));
-			String targetMappedFields = properties
-					.getValue(propTargetMappedFields);
+			String targetMappedFields = properties.getValue(propTargetMappedFields);
 			targetField = properties.getValue(propTargetField);
 			bufferSize = Integer.parseInt(properties.getValue(propBufferSize));
-			targetFieldMap = StringUtils.isEmpty(targetMappedFields) ? null
-					: new FieldMap(targetMappedFields, ',', '|');
+			targetFieldMap =
+					StringUtils.isEmpty(targetMappedFields) ? null : new FieldMap(targetMappedFields, ',', '|');
 			if (targetMappedFields != null)
-				targetFieldMap.cacheAnalyzers(client.getSchema()
-						.getAnalyzerList(), lang);
+				targetFieldMap.cacheAnalyzers(client.getSchema().getAnalyzerList(), lang);
 			buffer = new ArrayList<IndexDocument>(bufferSize);
 			totalCount = 0;
 			String login = properties.getValue(propLogin);
@@ -172,17 +161,12 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 			if (sourceClient == null)
 				throw new SearchLibException("Client not found: " + sourceIndex);
 
-			SchemaField sourceTermField = sourceClient.getSchema()
-					.getFieldList().get(sourceField);
+			SchemaField sourceTermField = sourceClient.getSchema().getFieldList().get(sourceField);
 			if (sourceTermField == null)
-				throw new SearchLibException("Source field not found: "
-						+ sourceField);
+				throw new SearchLibException("Source field not found: " + sourceField);
 		}
 
-		final protected void indexBuffer(Client target, TaskLog taskLog)
-				throws SearchLibException, NoSuchAlgorithmException,
-				IOException, URISyntaxException, InstantiationException,
-				IllegalAccessException, ClassNotFoundException {
+		final protected void indexBuffer(Client target, TaskLog taskLog) throws SearchLibException, IOException {
 			if (buffer.size() == 0)
 				return;
 			totalCount += target.updateDocuments(buffer);
@@ -193,11 +177,8 @@ public abstract class TaskPullAbstract extends TaskAbstract {
 
 		}
 
-		final protected void indexDocument(Client target,
-				IndexDocument mappedDocument, String value, TaskLog taskLog)
-				throws IOException, NoSuchAlgorithmException,
-				SearchLibException, URISyntaxException, InstantiationException,
-				IllegalAccessException, ClassNotFoundException {
+		final protected void indexDocument(Client target, IndexDocument mappedDocument, String value, TaskLog taskLog)
+				throws IOException, SearchLibException {
 			IndexDocument targetDocument = new IndexDocument(mappedDocument);
 			targetDocument.add(targetField, value, null);
 			IndexDocument finalDocument = new IndexDocument(targetDocument);

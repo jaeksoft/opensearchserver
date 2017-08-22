@@ -1,38 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.scheduler.task;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import javax.naming.NamingException;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -53,17 +43,32 @@ import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.util.map.TargetField;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.util.List;
 
 public class TaskPullFields extends TaskPullAbstract {
 
-	final private TaskPropertyDef propSourceQuery = new TaskPropertyDef(TaskPropertyType.textBox, "Source query",
-			"Source query", "The search query on the source index", 50);
+	final private TaskPropertyDef propSourceQuery =
+			new TaskPropertyDef(TaskPropertyType.textBox, "Source query", "Source query",
+					"The search query on the source index", 50);
 
-	final private TaskPropertyDef propSourceMappedFields = new TaskPropertyDef(TaskPropertyType.multilineTextBox,
-			"Mapped fields on source", "Mapped fields on source", null, 80, 5);
+	final private TaskPropertyDef propSourceMappedFields =
+			new TaskPropertyDef(TaskPropertyType.multilineTextBox, "Mapped fields on source", "Mapped fields on source",
+					null, 80, 5);
 
-	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex, propLogin, propApiKey, propSourceQuery,
-			propLanguage, propSourceField, propTargetField, propSourceMappedFields, propTargetMappedFields,
+	final private TaskPropertyDef[] taskPropertyDefs = { propSourceIndex,
+			propLogin,
+			propApiKey,
+			propSourceQuery,
+			propLanguage,
+			propSourceField,
+			propTargetField,
+			propSourceMappedFields,
+			propTargetMappedFields,
 			propBufferSize };
 
 	@Override
@@ -108,10 +113,10 @@ public class TaskPullFields extends TaskPullAbstract {
 			searchRequest.setRows(executionData.bufferSize);
 			int start = 0;
 
-			for (;;) {
+			for (; ; ) {
 				searchRequest.setStart(start);
-				AbstractResultSearch<?> result = (AbstractResultSearch<?>) executionData.sourceClient
-						.request(searchRequest);
+				AbstractResultSearch<?> result =
+						(AbstractResultSearch<?>) executionData.sourceClient.request(searchRequest);
 
 				if (result.getDocumentCount() <= 0)
 					break;
@@ -142,19 +147,7 @@ public class TaskPullFields extends TaskPullAbstract {
 				start += executionData.bufferSize;
 			}
 			executionData.indexBuffer(client, taskLog);
-		} catch (NoSuchAlgorithmException e) {
-			throw new SearchLibException(e);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
-		} catch (URISyntaxException e) {
-			throw new SearchLibException(e);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (ClassNotFoundException e) {
-			throw new SearchLibException(e);
-		} catch (NamingException e) {
+		} catch (IOException | NamingException e) {
 			throw new SearchLibException(e);
 		}
 	}

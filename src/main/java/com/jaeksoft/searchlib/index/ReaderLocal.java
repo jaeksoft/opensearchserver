@@ -42,8 +42,10 @@ import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.spellcheck.SpellCheckCache;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Timer;
+import com.qwazr.utils.FunctionUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldSelector;
+import org.apache.lucene.document.FieldSelectorResult;
 import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
@@ -57,8 +59,11 @@ import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.FieldCache.StringIndex;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Similarity;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similar.MoreLikeThis;
 import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
@@ -99,11 +104,11 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 		this.indexDirectory = indexDirectory;
 		references = new AtomicInteger(0);
 		acquire();
-		Directory directory = indexDirectory.getDirectory();
+		final Directory directory = indexDirectory.getDirectory();
 		if (directory == null)
 			throw new IOException("The directory is closed");
 		if (indexConfig.isMulti()) {
-			List<String> indexList = indexConfig.getIndexList();
+			final List<String> indexList = indexConfig.getIndexList();
 			indexDirectories = new IndexDirectory[indexList.size()];
 			indexReaders = new IndexReader[indexList.size()];
 			int i = 0;
@@ -121,9 +126,15 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 		}
 		indexSearcher = new IndexSearcher(indexReader);
 
-		Similarity similarity = indexConfig.getNewSimilarityInstance();
+		final Similarity similarity = indexConfig.getNewSimilarityInstance();
 		if (similarity != null)
 			indexSearcher.setSimilarity(similarity);
+
+		// Warm
+		final TopDocs topDocs = indexSearcher.search(new MatchAllDocsQuery(), 10);
+		if (topDocs != null && topDocs.scoreDocs != null)
+			for (ScoreDoc scoreDoc : topDocs.scoreDocs)
+				indexSearcher.doc(scoreDoc.doc, (FieldSelector) fieldName -> FieldSelectorResult.LOAD);
 	}
 
 	void acquire() {
@@ -168,13 +179,19 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 	}
 
 	@Override
-	public TermDocs getTermDocs(Term term) throws IOException {
-		return indexReader.termDocs(term);
+	public void termDocs(final Term term, final FunctionUtils.ConsumerEx<TermDocs, IOException> termDocsConsumer)
+			throws IOException {
+		try (final TermDocs termDocs = indexReader.termDocs(term)) {
+			termDocsConsumer.accept(termDocs);
+		}
 	}
 
 	@Override
-	public TermPositions getTermPositions() throws IOException {
-		return indexReader.termPositions();
+	public void termPositions(final FunctionUtils.ConsumerEx<TermPositions, IOException> termPositionsConsumer)
+			throws IOException {
+		try (final TermPositions termPositions = indexReader.termPositions()) {
+			termPositionsConsumer.accept(termPositions);
+		}
 	}
 
 	@Override
@@ -214,20 +231,19 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 	}
 
 	@Override
-	public TermEnum getTermEnum() throws SearchLibException {
-		try {
-			return indexReader.terms();
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+	public void termEnum(final FunctionUtils.ConsumerEx<TermEnum, IOException> termEnumConsumer)
+			throws IOException, SearchLibException {
+		try (final TermEnum termEnum = indexReader.terms()) {
+			termEnumConsumer.accept(termEnum);
 		}
 	}
 
 	@Override
-	public TermEnum getTermEnum(Term term) throws SearchLibException {
-		try {
-			return indexReader.terms(term);
-		} catch (IOException e) {
-			throw new SearchLibException(e);
+	public void termEnum(final Term term,
+			final FunctionUtils.ConsumerEx2<TermEnum, IOException, SearchLibException> termEnumConsumer)
+			throws IOException, SearchLibException {
+		try (final TermEnum termEnum = indexReader.terms(term)) {
+			termEnumConsumer.accept(termEnum);
 		}
 	}
 

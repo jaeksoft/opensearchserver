@@ -1,4 +1,5 @@
-release date=12:00 23.07.2017,version=2.0.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+release date=12:00 22.08.2017,version=1.6.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1877: ClosedChannelException on Terms extraction
  * GH-1870: Crawl cache should use compression
  * GH-1869: Replace CXF by Jersey
  * GH-1857: Update htmlunit

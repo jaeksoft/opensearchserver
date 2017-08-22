@@ -1,41 +1,38 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2015-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.webservice.fields;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
+import org.apache.lucene.index.Term;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermEnum;
-
-import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.SearchLibException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name = "result")
@@ -71,19 +68,16 @@ public class ResultTermList {
 		terms = buildTermList(client, field, term, start, rows);
 	}
 
-	private static List<ResultTermFreq> buildTermList(Client client, String field, String prefix, Integer start,
-			Integer rows) throws SearchLibException, IOException {
-		List<ResultTermFreq> terms = new ArrayList<ResultTermFreq>();
-		final TermEnum termEnum = client.getTermEnum(new Term(field, prefix));
-		try {
-			if (start == null)
-				start = 0;
-			if (rows == null)
-				rows = 10;
-			while (start-- != 0)
+	private static List<ResultTermFreq> buildTermList(final Client client, final String field, final String prefix,
+			final Integer start, final Integer rows) throws SearchLibException, IOException {
+		final List<ResultTermFreq> terms = new ArrayList<>();
+		client.termEnum(new Term(field, prefix), termEnum -> {
+			int s = start == null ? 0 : start;
+			int r = rows == null ? 10 : rows;
+			while (s-- != 0)
 				if (!termEnum.next())
-					return terms;
-			while (rows-- != 0) {
+					return;
+			while (r-- != 0) {
 				final Term term = termEnum.term();
 				if (!term.field().equals(field))
 					break;
@@ -94,10 +88,8 @@ public class ResultTermList {
 				if (!termEnum.next())
 					break;
 			}
-			return terms;
-		} finally {
-			termEnum.close();
-		}
+		});
+		return terms;
 	}
 
 }

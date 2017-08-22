@@ -32,9 +32,11 @@ import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.NoSuchDirectoryException;
 import org.json.JSONException;
 
@@ -50,16 +52,16 @@ public class IndexDirectory {
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
 	protected IndexDirectory(File indexDir) throws IOException {
-		directory = FSDirectory.open(indexDir);
+		directory = SystemUtils.IS_OS_WINDOWS ? new MMapDirectory(indexDir) : new NIOFSDirectory(indexDir);
 	}
 
 	/**
 	 * Create an index directory using an index remotely stored using the Object
 	 * Storage API.
-	 *
+	 * <p>
 	 * The URI should be created like that:
 	 * SWIFT://localhost?tenant=&container=&user=&password=&url=
-	 *
+	 * <p>
 	 * The parameters must be URL encoded as UTF-8
 	 *
 	 * @param uri
