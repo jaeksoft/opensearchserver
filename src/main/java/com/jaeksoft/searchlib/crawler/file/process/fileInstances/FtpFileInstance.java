@@ -1,28 +1,41 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.file.process.fileInstances;
+
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
+import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
+import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
+import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
+import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.RegExpUtils;
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPFileFilter;
+import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,20 +46,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPFileFilter;
-import org.apache.commons.net.ftp.FTPReply;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
-import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
-import com.jaeksoft.searchlib.crawler.file.process.SecurityAccess;
-import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.RegExpUtils;
 
 public class FtpFileInstance extends FileInstanceAbstract implements FileInstanceAbstract.SecurityInterface {
 
@@ -159,6 +158,8 @@ public class FtpFileInstance extends FileInstanceAbstract implements FileInstanc
 			String name = ff.getName();
 			if (name == null)
 				return false;
+			if (".".equals(name))
+				return false;
 			if (ignoreHiddenFiles)
 				if (name.startsWith("."))
 					return false;
@@ -190,8 +191,9 @@ public class FtpFileInstance extends FileInstanceAbstract implements FileInstanc
 		FTPClient f = null;
 		try {
 			f = ftpConnect();
-			FTPFile[] files = f.listFiles(getPath(), new FtpInstanceFileFilter(filePathItem.isIgnoreHiddenFiles(),
-					false, filePathItem.getExclusionMatchers()));
+			FTPFile[] files = f.listFiles(getPath(),
+					new FtpInstanceFileFilter(filePathItem.isIgnoreHiddenFiles(), false,
+							filePathItem.getExclusionMatchers()));
 			return buildFileInstanceArray(files);
 		} finally {
 			ftpQuietDisconnect(f);
@@ -237,7 +239,7 @@ public class FtpFileInstance extends FileInstanceAbstract implements FileInstanc
 	}
 
 	public static List<SecurityAccess> getSecurity(FTPFile ftpFile) {
-		List<SecurityAccess> accesses = new ArrayList<SecurityAccess>();
+		List<SecurityAccess> accesses = new ArrayList<>();
 		if (ftpFile == null)
 			return accesses;
 		if (ftpFile.hasPermission(FTPFile.USER_ACCESS, FTPFile.READ_PERMISSION)) {
