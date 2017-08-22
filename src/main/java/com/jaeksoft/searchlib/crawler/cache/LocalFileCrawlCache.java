@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.parser.ParserResultItem;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.webservice.document.DocumentUpdate;
-import com.qwazr.utils.json.JsonMapper;
+import com.qwazr.utils.ObjectMappers;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -169,8 +169,8 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 
 		private LocalFileItem(final URI uri, long expirationTime) throws UnsupportedEncodingException {
 			this.uri = uri;
-			this.filePrefix = uriToPath(uri, rootPath + File.separator + PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator,
-					32);
+			this.filePrefix =
+					uriToPath(uri, rootPath + File.separator + PATH_HTTP_DOWNLOAD_CACHE, 10, File.separator, 32);
 			this.expirationTime = expirationTime;
 		}
 
@@ -240,7 +240,7 @@ public class LocalFileCrawlCache extends CrawlCacheProvider {
 				parserResults.forEach(parserResultItem -> documentUpdates.add(
 						new DocumentUpdate(parserResultItem.getParserDocument())));
 				final File file = checkPath(filePrefix, INDEXED_EXTENSION_COMPRESSED);
-				JsonMapper.MAPPER.writeValue(FileUtils.writeToGzipFile(file), documentUpdates);
+				ObjectMappers.JSON.writeValue(FileUtils.writeToGzipFile(file), documentUpdates);
 			} finally {
 				rwl.r.unlock();
 			}
