@@ -26,9 +26,6 @@ package com.jaeksoft.searchlib.crawler;
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.database.CommonFieldTarget;
-import com.jaeksoft.searchlib.crawler.file.database.FilePathItem;
-import com.jaeksoft.searchlib.crawler.file.database.FileTypeEnum;
-import com.jaeksoft.searchlib.crawler.file.process.FileInstanceAbstract;
 import com.jaeksoft.searchlib.crawler.web.database.HostUrlList.ListType;
 import com.jaeksoft.searchlib.crawler.web.process.WebCrawlThread;
 import com.jaeksoft.searchlib.crawler.web.spider.Crawl;
@@ -39,7 +36,11 @@ import com.jaeksoft.searchlib.parser.Parser;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
 import com.jaeksoft.searchlib.schema.FieldValueOriginEnum;
-import com.jaeksoft.searchlib.util.*;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
+import com.jaeksoft.searchlib.util.XPathParser;
+import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.GenericMap;
 import com.jaeksoft.searchlib.util.map.SourceField;
@@ -57,7 +58,6 @@ import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
@@ -144,11 +144,11 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		if (fc == null)
 			return;
 		for (FieldValueItem fvi : fc.getValues())
-			mapFieldTarget(context, targetField, fvi.value, target, filePathSet);
+			mapFieldTarget(context, targetField, false, fvi.value, target, filePathSet);
 	}
 
 	final public String mapFieldTarget(CommonFieldTarget dfTarget, String content) {
-		if (StringUtils.isEmpty(content))
+		if (StringUtils.isBlank(content))
 			return null;
 		if (dfTarget.isConvertHtmlEntities())
 			content = StringEscapeUtils.unescapeHtml4(content);
@@ -159,8 +159,8 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		return content;
 	}
 
-	final protected void mapFieldTarget(FieldMapContext context, CommonFieldTarget dfTarget, String content,
-			IndexDocument target, Set<String> filePathSet)
+	final protected void mapFieldTarget(FieldMapContext context, CommonFieldTarget dfTarget, boolean ignorePathPrefix,
+			String content, IndexDocument target, Set<String> filePathSet)
 			throws SearchLibException, IOException, ParseException, SyntaxError, URISyntaxException,
 			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		if (dfTarget == null)
@@ -168,7 +168,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 		if (StringUtils.isEmpty(content))
 			return;
 		if (dfTarget.isCrawlFile()) {
-			String filePath = dfTarget.getFilePath(content);
+			final String filePath = ignorePathPrefix ? content : dfTarget.getFilePath(content);
 			if (filePathSet == null || !filePathSet.contains(filePath)) {
 				if (filePathSet != null)
 					filePathSet.add(filePath);
@@ -183,6 +183,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 				}
 			}
 		}
+		/*
 		if (dfTarget.isCrawlFile()) {
 			final String filePathName = dfTarget.getFilePathPrefix();
 			if (filePathSet == null || !filePathSet.contains(content)) {
@@ -203,7 +204,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 						parser.popupateResult(0, target);
 				}
 			}
-		}
+		}*/
 		if (dfTarget.isCrawlUrl()) {
 			WebCrawlThread crawlThread =
 					context.webCrawlMaster.manualCrawl(LinkUtils.newEncodedURL(content), ListType.DBCRAWL);
@@ -216,8 +217,10 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 					target.add(targetIndexDocument);
 			}
 		}
-		content = mapFieldTarget(dfTarget, content);
-		target.add(dfTarget.getName(), new FieldValueItem(FieldValueOriginEnum.EXTERNAL, content));
+		if (!ignorePathPrefix) {
+			content = mapFieldTarget(dfTarget, content);
+			target.add(dfTarget.getName(), new FieldValueItem(FieldValueOriginEnum.EXTERNAL, content));
+		}
 	}
 
 	public void mapJson(FieldMapContext context, Object jsonObject, IndexDocument target)
@@ -233,11 +236,12 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 					JSONArray jsonArray = (JSONArray) jsonContent;
 					for (Object content : jsonArray) {
 						if (content != null)
-							mapFieldTarget(context, (CommonFieldTarget) link.getTarget(), content.toString(), target,
-									null);
+							mapFieldTarget(context, (CommonFieldTarget) link.getTarget(), false, content.toString(),
+									target, null);
 					}
 				} else
-					mapFieldTarget(context, (CommonFieldTarget) link.getTarget(), jsonContent.toString(), target, null);
+					mapFieldTarget(context, (CommonFieldTarget) link.getTarget(), false, jsonContent.toString(), target,
+							null);
 			} catch (PathNotFoundException e) {
 				continue;
 			} catch (IllegalArgumentException e) {

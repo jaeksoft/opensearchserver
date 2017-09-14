@@ -1,39 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.crawler.database;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
@@ -52,6 +41,19 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import java.util.TreeSet;
+
 public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
@@ -67,8 +69,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 
 	private boolean index(Transaction transaction, List<IndexDocument> indexDocumentList, int limit,
 			List<String> pkList) throws NoSuchAlgorithmException, IOException, URISyntaxException, SearchLibException,
-					InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException,
-					InterruptedException {
+			InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, InterruptedException {
 		int i = indexDocumentList.size();
 		if (i == 0 || i < limit)
 			return false;
@@ -117,7 +118,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		return true;
 	}
 
-	final private void runner_update(Transaction transaction, ResultSet resultSet, TreeSet<String> columns)
+	final private void runner_update(Transaction transaction, ResultSet resultSet, Map<String, Integer> columns)
 			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException, SyntaxError,
 			InterruptedException {
@@ -147,8 +148,8 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			} catch (SQLException e) {
 				if (faultTolerancy <= 0)
 					throw e;
-				Logging.error(e.getMessage() + " Vendor Error Number: " + e.getErrorCode() + " Counters: "
-						+ this.getCountInfo(), e);
+				Logging.error(e.getMessage() + " Vendor Error Number: " + e.getErrorCode() + " Counters: " +
+						this.getCountInfo(), e);
 				faultTolerancy--;
 				continue;
 			}
@@ -185,7 +186,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		index(transaction, indexDocumentList, 0, pkList);
 	}
 
-	final private void runner_delete(Transaction transaction, ResultSet resultSet, TreeSet<String> columns)
+	final private void runner_delete(Transaction transaction, ResultSet resultSet)
 			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		List<String> deleteKeyList = new ArrayList<String>(0);
@@ -222,18 +223,18 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 			setStatus(CrawlStatus.CRAWL);
 
 			// Store the list of columns in a treeset
-			ResultSetMetaData metaData = resultSet.getMetaData();
-			TreeSet<String> columns = new TreeSet<String>();
+			final ResultSetMetaData metaData = resultSet.getMetaData();
+			Map<String, Integer> columns = new LinkedHashMap<>();
 			int columnCount = metaData.getColumnCount();
 			for (int i = 1; i <= columnCount; i++)
-				columns.add(metaData.getColumnLabel(i));
+				columns.put(metaData.getColumnLabel(i), metaData.getColumnType(i));
 
 			String ukDeleteField = databaseCrawl.getUniqueKeyDeleteField();
 			if (ukDeleteField != null && ukDeleteField.length() == 0)
 				ukDeleteField = null;
 
 			if (ukDeleteField != null)
-				runner_delete(transaction, resultSet, columns);
+				runner_delete(transaction, resultSet);
 			else
 				runner_update(transaction, resultSet, columns);
 

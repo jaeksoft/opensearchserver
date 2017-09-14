@@ -1,34 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web.controller.crawler.rest;
-
-import javax.naming.NamingException;
-
-import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.bind.annotation.NotifyChange;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -42,11 +36,15 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem.CredentialType
 import com.jaeksoft.searchlib.crawler.web.spider.HttpDownloader;
 import com.jaeksoft.searchlib.web.controller.AlertController;
 import com.jaeksoft.searchlib.web.controller.crawler.CommonFieldTargetCrawlerController;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.bind.annotation.NotifyChange;
+
+import javax.naming.NamingException;
 
 @AfterCompose(superclass = true)
 public class RestCrawlController
-		extends
-		CommonFieldTargetCrawlerController<RestCrawlItem, RestCrawlThread, RestCrawlMaster> {
+		extends CommonFieldTargetCrawlerController<RestCrawlItem, RestCrawlThread, RestCrawlMaster> {
 
 	private transient RestCrawlList crawlList = null;
 	private transient boolean debug = false;
@@ -73,8 +71,7 @@ public class RestCrawlController
 	}
 
 	public String[] getDriverClassList() {
-		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp()
-				.getClass().getClassLoader());
+		return DatabaseDriverNames.getAvailableList(getDesktop().getWebApp().getClass().getClassLoader());
 	}
 
 	public CredentialType[] getCredentialTypes() {

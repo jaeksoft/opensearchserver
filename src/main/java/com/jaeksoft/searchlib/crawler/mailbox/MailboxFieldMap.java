@@ -1,35 +1,27 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2013-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2013-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.crawler.mailbox;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -44,9 +36,14 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
-public class MailboxFieldMap extends
-		FieldMapGeneric<SourceField, CommonFieldTarget> {
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+
+public class MailboxFieldMap extends FieldMapGeneric<SourceField, CommonFieldTarget> {
 
 	@Override
 	protected CommonFieldTarget loadTarget(String targetName, Node node) {
@@ -59,8 +56,7 @@ public class MailboxFieldMap extends
 	}
 
 	@Override
-	protected void writeTarget(XmlWriter xmlWriter, CommonFieldTarget target)
-			throws SAXException {
+	protected void writeTarget(XmlWriter xmlWriter, CommonFieldTarget target) throws SAXException {
 		target.writeXml(xmlWriter);
 	}
 
@@ -79,8 +75,7 @@ public class MailboxFieldMap extends
 		String uniqueField = client.getSchema().getUniqueField();
 		if (StringUtils.isEmpty(uniqueField))
 			return null;
-		List<CommonFieldTarget> fieldTargets = getLinks(new SourceField(
-				MailboxFieldEnum.message_id.name()));
+		List<CommonFieldTarget> fieldTargets = getLinks(new SourceField(MailboxFieldEnum.message_id.name()));
 		if (fieldTargets == null)
 			return null;
 		for (CommonFieldTarget fieldTarget : fieldTargets)
@@ -89,11 +84,9 @@ public class MailboxFieldMap extends
 		return null;
 	}
 
-	public void mapIndexDocument(FieldMapContext context, IndexDocument source,
-			IndexDocument target) throws IOException, SearchLibException,
-			ParseException, SyntaxError, URISyntaxException,
-			ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
+	public void mapIndexDocument(FieldMapContext context, IndexDocument source, IndexDocument target)
+			throws IOException, SearchLibException, ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
 		for (GenericLink<SourceField, CommonFieldTarget> link : getList()) {
 			SourceField sourceField = link.getSource();
 			CommonFieldTarget targetField = link.getTarget();
@@ -104,7 +97,7 @@ public class MailboxFieldMap extends
 				mapFieldTarget(context, fc, targetField, target, null);
 			} else {
 				String value = sourceField.getConcatString(source, target);
-				mapFieldTarget(context, targetField, value, target, null);
+				mapFieldTarget(context, targetField, false, value, target, null);
 			}
 		}
 	}
