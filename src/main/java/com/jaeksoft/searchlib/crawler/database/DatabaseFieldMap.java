@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -86,32 +87,45 @@ public class DatabaseFieldMap extends FieldMapGeneric<SourceField, CommonFieldTa
 			final String columnName = link.getSource().getUniqueName();
 			if (!columns.containsKey(columnName))
 				continue;
-			final String content;
-			final Path binaryPath;
+			final int columnType = columns.get(columnName);
 			final CommonFieldTarget targetField = link.getTarget();
-			if (targetField.isCrawlFile() && isBlob(columns.get(columnName))) {
-				final String filePath = resultSet.getString(targetField.getFilePathPrefix());
-				if (StringUtils.isBlank(filePath))
-					continue;
-				final String fileName = FilenameUtils.getName(filePath);
-				binaryPath = Files.createTempFile("oss", fileName);
-				try (final InputStream input = resultSet.getBinaryStream(columnName)) {
-					IOUtils.copy(input, binaryPath.toFile());
-				}
-				content = binaryPath.toString();
-			} else {
-				content = resultSet.getString(columnName);
-				binaryPath = null;
+			if (targetField.isCrawlFile() && isBinary(columnType)) {
+				handleBinary(context, resultSet, target, filePathSet, columnName, targetField);
+				continue;
 			}
+			if (columnType == Types.ARRAY) {
+				handleArray(context, resultSet, target, filePathSet, columnName, targetField);
+				continue;
+			}
+			final String content = resultSet.getString(columnName);
 			if (content != null)
-				mapFieldTarget(context, link.getTarget(), binaryPath != null, content, target, filePathSet);
-			if (binaryPath != null)
-				Files.deleteIfExists(binaryPath);
+				mapFieldTarget(context, link.getTarget(), false, content, target, filePathSet);
 		}
 
 	}
 
-	private boolean isBlob(Integer sqlType) {
+	private void handleBinary(FieldMapContext context, ResultSet resultSet, IndexDocument target,
+			Set<String> filePathSet, String columnName, CommonFieldTarget targetField)
+			throws SQLException, IOException, SearchLibException, InterruptedException, ParseException, SyntaxError,
+			InstantiationException, URISyntaxException, IllegalAccessException, ClassNotFoundException {
+		final String filePath = resultSet.getString(targetField.getFilePathPrefix());
+		if (StringUtils.isBlank(filePath))
+			return;
+		final String fileName = FilenameUtils.getName(filePath);
+		Path binaryPath = null;
+		try {
+			binaryPath = Files.createTempFile("oss", fileName);
+			try (final InputStream input = resultSet.getBinaryStream(columnName)) {
+				IOUtils.copy(input, binaryPath.toFile());
+			}
+			mapFieldTarget(context, targetField, true, binaryPath.toString(), target, filePathSet);
+		} finally {
+			if (binaryPath != null)
+				Files.deleteIfExists(binaryPath);
+		}
+	}
+
+	private boolean isBinary(Integer sqlType) {
 		switch (sqlType) {
 		case Types.BLOB:
 		case Types.VARBINARY:
@@ -120,6 +134,24 @@ public class DatabaseFieldMap extends FieldMapGeneric<SourceField, CommonFieldTa
 			return true;
 		default:
 			return false;
+		}
+	}
+
+	private void handleArray(FieldMapContext context, ResultSet resultSet, IndexDocument target,
+			Set<String> filePathSet, String columnName, CommonFieldTarget targetField)
+			throws SQLException, IOException, SearchLibException, InterruptedException, ParseException, SyntaxError,
+			InstantiationException, URISyntaxException, IllegalAccessException, ClassNotFoundException {
+		final Array array = resultSet.getArray(columnName);
+		if (array == null)
+			return;
+		try (final ResultSet arrayResultSet = array.getResultSet()) {
+			if (arrayResultSet.getMetaData().getColumnCount() < 1)
+				return;
+			while (arrayResultSet.next()) {
+				final String content = arrayResultSet.getString(0);
+				if (content != null)
+					mapFieldTarget(context, targetField, false, content, target, filePathSet);
+			}
 		}
 	}
 

@@ -1,4 +1,6 @@
 release date=12:00 14.09.2017,version=1.6.0,urgency=low,by=Emmanuel Keller <ekeller@open-search-server.com>,distribution=unknown
+ * GH-1881: Support of array in database crawler
+ * GH-1879: Parsing of BLOB in the Database crawler
  * GH-1877: ClosedChannelException on Terms extraction
  * GH-1870: Crawl cache should use compression
  * GH-1869: Replace CXF by Jersey
