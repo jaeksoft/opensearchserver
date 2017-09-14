@@ -38,10 +38,11 @@ import java.io.IOException;
 public class RestDeleteIndexTest extends CommonRestAPI {
 
 	@Test
-	public void testADeleteIndexXML() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
+	public void testADeleteIndex() throws IllegalStateException, IOException, XPathExpressionException, SAXException,
 			ParserConfigurationException {
-		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME).request(
-				MediaType.APPLICATION_JSON).delete();
+		Response response = client().path("/services/rest/index/" + IntegrationTest.INDEX_NAME)
+				.request(MediaType.APPLICATION_JSON)
+				.delete();
 		checkCommonResult(response, CommonResult.class, 200);
 	}
 }

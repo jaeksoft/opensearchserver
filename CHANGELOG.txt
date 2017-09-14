@@ -10,9 +10,10 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 
 OpenSearchServer 1.6
 
-New Features:
+Enhancement:
 - GH-1870: Crawl cache should use compression
 - GH-1869: Replace CXF by Jersey
+- GH-1722: ERROR: root - The build is already running
 
 Bug fixes:
 - GH-1877: ClosedChannelException on Terms extraction

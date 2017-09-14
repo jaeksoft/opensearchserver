@@ -1,43 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.web.controller.crawler;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.NamingException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.xml.sax.SAXException;
-import org.zkoss.bind.annotation.AfterCompose;
-import org.zkoss.bind.annotation.BindingParam;
-import org.zkoss.bind.annotation.Command;
-import org.zkoss.zul.Messagebox;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -48,6 +33,19 @@ import com.jaeksoft.searchlib.crawler.common.process.FieldMapCrawlItem;
 import com.jaeksoft.searchlib.util.map.GenericLink;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import com.jaeksoft.searchlib.web.controller.AlertController;
+import org.xml.sax.SAXException;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.BindingParam;
+import org.zkoss.bind.annotation.Command;
+import org.zkoss.zul.Messagebox;
+
+import javax.naming.NamingException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @AfterCompose(superclass = true)
 public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawlItem<?, T, M>, T extends CrawlThreadAbstract<T, M>, M extends CrawlMasterAbstract<M, T>>
@@ -70,9 +68,8 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		private C deleteCrawl;
 
 		protected DeleteAlert(C deleteCrawl) throws InterruptedException {
-			super("Please, confirm that you want to delete the crawl process: "
-					+ deleteCrawl, Messagebox.YES | Messagebox.NO,
-					Messagebox.QUESTION);
+			super("Please, confirm that you want to delete the crawl process: " + deleteCrawl,
+					Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
 			this.deleteCrawl = deleteCrawl;
 		}
 
@@ -83,8 +80,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		}
 	}
 
-	public CommonFieldTargetCrawlerController() throws SearchLibException,
-			NamingException {
+	public CommonFieldTargetCrawlerController() throws SearchLibException, NamingException {
 		super();
 	}
 
@@ -104,8 +100,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 		List<String> list = getIndexFieldList();
 		if (list != null && list.size() > 0)
 			fieldName = list.get(0);
-		return new CommonFieldTarget(fieldName, false, false, false, null,
-				false, false, null, null);
+		return new CommonFieldTarget(fieldName, false, false, false, null, false, false, false, null, null);
 	}
 
 	public C getCurrentCrawl() {
@@ -156,31 +151,27 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	public abstract boolean isCrawlerEditRights() throws SearchLibException;
 
 	@Command
-	public abstract void onSave() throws InterruptedException,
-			SearchLibException;
+	public abstract void onSave() throws InterruptedException, SearchLibException;
 
 	@Command
 	public abstract void onNew() throws SearchLibException;
 
 	@Command
-	public void onSaveField() throws SearchLibException,
-			TransformerConfigurationException, SAXException, IOException,
+	public void onSaveField() throws SearchLibException, TransformerConfigurationException, SAXException, IOException,
 			XPathExpressionException, ParserConfigurationException {
 		if (!isCrawlerEditRights())
 			throw new SearchLibException("Not allowed");
-		if (currentFieldTarget == null || currentFieldTarget.getName() == null
-				|| currentFieldTarget.getName().length() == 0)
+		if (currentFieldTarget == null || currentFieldTarget.getName() == null ||
+				currentFieldTarget.getName().length() == 0)
 			throw new SearchLibException("Error");
 		if (selectedField != null)
 			currentCrawl.getFieldMap().remove(selectedField);
-		currentCrawl.getFieldMap().add(new SourceField(sourceFieldName),
-				currentFieldTarget);
+		currentCrawl.getFieldMap().add(new SourceField(sourceFieldName), currentFieldTarget);
 		onCancelField();
 	}
 
 	@Command
-	public void removeLink(
-			@BindingParam("fieldlink") GenericLink<SourceField, CommonFieldTarget> fieldLink)
+	public void removeLink(@BindingParam("fieldlink") GenericLink<SourceField, CommonFieldTarget> fieldLink)
 			throws SearchLibException, InterruptedException {
 		currentCrawl.getFieldMap().remove(fieldLink);
 		reload();
@@ -194,28 +185,24 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	}
 
 	@Command
-	public void delete(@BindingParam("crawlitem") C item)
-			throws SearchLibException, InterruptedException {
+	public void delete(@BindingParam("crawlitem") C item) throws SearchLibException, InterruptedException {
 		new DeleteAlert(item);
 	}
 
 	@Command
-	public void edit(@BindingParam("crawlitem") C item)
-			throws SearchLibException, InterruptedException {
+	public void edit(@BindingParam("crawlitem") C item) throws SearchLibException, InterruptedException {
 		setSelectedCrawl(item);
 	}
 
 	public abstract void doClone(C item) throws SearchLibException;
 
 	@Command
-	public void clone(@BindingParam("crawlitem") C item)
-			throws SearchLibException {
+	public void clone(@BindingParam("crawlitem") C item) throws SearchLibException {
 		doClone(item);
 	}
 
 	@Command
-	public void execute(@BindingParam("crawlitem") C item)
-			throws SearchLibException, InterruptedException {
+	public void execute(@BindingParam("crawlitem") C item) throws SearchLibException, InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -224,8 +211,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	}
 
 	@Command
-	public void abort(@BindingParam("crawlitem") C item)
-			throws SearchLibException, InterruptedException {
+	public void abort(@BindingParam("crawlitem") C item) throws SearchLibException, InterruptedException {
 		Client client = getClient();
 		if (client == null)
 			return;
@@ -244,8 +230,9 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	public abstract M getCrawlMaster() throws SearchLibException;
 
 	public String getCurrentEditMode() throws SearchLibException {
-		return selectedCrawl == null ? "Create a new crawl process"
-				: "Edit the crawl process : " + selectedCrawl.toString();
+		return selectedCrawl == null ?
+				"Create a new crawl process" :
+				"Edit the crawl process : " + selectedCrawl.toString();
 	}
 
 	public List<String> getIndexFieldList() throws SearchLibException {
@@ -296,13 +283,10 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	}
 
 	/**
-	 * @param selectedField
-	 *            the selectedField to set
+	 * @param selectedField the selectedField to set
 	 * @throws SearchLibException
 	 */
-	public void setSelectedField(
-			GenericLink<SourceField, CommonFieldTarget> selectedField)
-			throws SearchLibException {
+	public void setSelectedField(GenericLink<SourceField, CommonFieldTarget> selectedField) throws SearchLibException {
 		this.selectedField = selectedField;
 		this.sourceFieldName = selectedField.getSource().getUniqueName();
 		currentFieldTarget = new CommonFieldTarget(selectedField.getTarget());
@@ -325,8 +309,7 @@ public abstract class CommonFieldTargetCrawlerController<C extends FieldMapCrawl
 	}
 
 	/**
-	 * @param sourceFieldName
-	 *            the sourceFieldName to set
+	 * @param sourceFieldName the sourceFieldName to set
 	 */
 	public void setSourceFieldName(String sourceFieldName) {
 		this.sourceFieldName = sourceFieldName;

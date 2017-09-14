@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.common.database;
 
@@ -48,6 +48,8 @@ public class CommonFieldTarget extends TargetField {
 
 	private boolean crawlFile;
 
+	private boolean crawlBlob;
+
 	private String filePathPrefix;
 
 	private String findRegexpTag;
@@ -57,7 +59,8 @@ public class CommonFieldTarget extends TargetField {
 	private Matcher findRegexpMatcher;
 
 	public CommonFieldTarget(String targetName, boolean removeTag, boolean convertHtmlEntities, boolean filePath,
-			String filePathPrefix, boolean crawlFile, boolean crawlUrl, String findRegexTag, String replaceRegexTag) {
+			String filePathPrefix, boolean crawlFile, boolean crawlUrl, boolean crawlBlob, String findRegexTag,
+			String replaceRegexTag) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
@@ -65,6 +68,7 @@ public class CommonFieldTarget extends TargetField {
 		this.filePath = filePath;
 		this.crawlFile = crawlFile;
 		this.crawlUrl = crawlUrl;
+		this.crawlBlob = crawlBlob;
 		this.findRegexpTag = findRegexTag;
 		this.replaceRegexpTag = replaceRegexTag;
 		checkRegexpPattern();
@@ -83,6 +87,7 @@ public class CommonFieldTarget extends TargetField {
 		this.filePath = from.filePath;
 		this.crawlFile = from.crawlFile;
 		this.crawlUrl = from.crawlUrl;
+		this.crawlBlob = from.crawlBlob;
 		this.findRegexpTag = from.findRegexpTag;
 		this.replaceRegexpTag = from.replaceRegexpTag;
 		checkRegexpPattern();
@@ -105,6 +110,8 @@ public class CommonFieldTarget extends TargetField {
 				crawlFile = true;
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlUrl")))
 				crawlUrl = true;
+			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlBlob")))
+				crawlBlob = true;
 			List<Node> nl = DomUtils.getNodes(node, "findRegexpTag");
 			if (nl.size() > 0)
 				findRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0).getTextContent());
@@ -118,7 +125,8 @@ public class CommonFieldTarget extends TargetField {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no", "convertHtmlEntities",
 				convertHtmlEntities ? "yes" : "no", "filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no", "crawlUrl", crawlUrl ? "yes" : "no");
+				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no", "crawlUrl", crawlUrl ? "yes" : "no", "crawlBlob",
+				crawlBlob ? "yes" : "no");
 		if (findRegexpTag != null) {
 			xmlWriter.startElement("findRegexpTag");
 			xmlWriter.textNode(StringEscapeUtils.escapeXml11(findRegexpTag));
@@ -133,8 +141,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param removeTag
-	 *            the removeTag to set
+	 * @param removeTag the removeTag to set
 	 */
 	public void setRemoveTag(boolean removeTag) {
 		this.removeTag = removeTag;
@@ -148,8 +155,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param convertHtmlEntities
-	 *            the convertHtmlEntities to set
+	 * @param convertHtmlEntities the convertHtmlEntities to set
 	 */
 	public void setConvertHtmlEntities(boolean convertHtmlEntities) {
 		this.convertHtmlEntities = convertHtmlEntities;
@@ -178,8 +184,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param filePathPrefix
-	 *            the filePathPrefix to set
+	 * @param filePathPrefix the filePathPrefix to set
 	 */
 	public void setFilePathPrefix(String filePathPrefix) {
 		this.filePathPrefix = filePathPrefix;
@@ -193,8 +198,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param findRegexpTag
-	 *            the findRegexTag to set
+	 * @param findRegexpTag the findRegexTag to set
 	 */
 	public void setFindRegexpTag(String findRegexpTag) {
 		this.findRegexpTag = findRegexpTag;
@@ -226,16 +230,14 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param replaceRegexpTag
-	 *            the replaceRegexpTag to set
+	 * @param replaceRegexpTag the replaceRegexpTag to set
 	 */
 	public void setReplaceRegexpTag(String replaceRegexpTag) {
 		this.replaceRegexpTag = replaceRegexpTag;
 	}
 
 	/**
-	 * @param filePath
-	 *            the FilePath to set
+	 * @param filePath the FilePath to set
 	 */
 	public void setFilePath(boolean filePath) {
 		this.filePath = filePath;
@@ -262,8 +264,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param crawlUrl
-	 *            the crawlUrl to set
+	 * @param crawlUrl the crawlUrl to set
 	 */
 	public void setCrawlUrl(boolean crawlUrl) {
 		this.crawlUrl = crawlUrl;
@@ -281,8 +282,7 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param crawlFile
-	 *            the crawlFile to set
+	 * @param crawlFile the crawlFile to set
 	 */
 	public void setCrawlFile(boolean crawlFile) {
 		this.crawlFile = crawlFile;
@@ -297,6 +297,24 @@ public class CommonFieldTarget extends TargetField {
 
 	public boolean isNotCrawlFile() {
 		return !crawlFile;
+	}
+
+	/**
+	 * @param crawlBlob the crawlBlob to set
+	 */
+	public void setCrawlBlob(boolean crawlBlob) {
+		this.crawlBlob = crawlBlob;
+	}
+
+	/**
+	 * @return the crawlBlob
+	 */
+	public boolean isCrawlBlob() {
+		return crawlBlob;
+	}
+
+	public boolean isNotCrawlBlob() {
+		return !crawlBlob;
 	}
 
 }

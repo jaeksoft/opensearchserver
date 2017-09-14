@@ -133,7 +133,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 
 		@Override
 		public boolean done() {
-			return startTime != 0 && endTime != 0;
+			return endTime != 0 || startTime == 0;
 		}
 
 	}

@@ -1,41 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.web.screenshot;
-
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import com.jaeksoft.searchlib.ClientFactory;
 import com.jaeksoft.searchlib.Logging;
@@ -51,6 +38,18 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.SimpleLock;
 import com.jaeksoft.searchlib.util.properties.PropertyItem;
 import com.jaeksoft.searchlib.util.properties.PropertyItemListener;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 public class ScreenshotManager implements PropertyItemListener {
 
@@ -75,8 +74,9 @@ public class ScreenshotManager implements PropertyItemListener {
 		screenshotDir = new File(config.getDirectory(), "screenshot");
 		if (!screenshotDir.exists())
 			screenshotDir.mkdir();
-		BrowserDriverEnum defaultBrowserDriverEnum = BrowserDriverEnum
-				.find(ClientFactory.INSTANCE.getDefaultWebBrowserDriver().getValue(), BrowserDriverEnum.FIREFOX);
+		BrowserDriverEnum defaultBrowserDriverEnum =
+				BrowserDriverEnum.find(ClientFactory.INSTANCE.getDefaultWebBrowserDriver().getValue(),
+						BrowserDriverEnum.FIREFOX);
 		WebPropertyManager props = config.getWebPropertyManager();
 		browserDriverEnum = BrowserDriverEnum.find(props.getScreenshotBrowser().getValue(), defaultBrowserDriverEnum);
 		screenshotMethodEnum = ScreenshotMethodEnum.find(props.getScreenshotMethod().getValue());
