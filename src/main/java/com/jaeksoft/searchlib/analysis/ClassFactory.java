@@ -24,24 +24,23 @@
 
 package com.jaeksoft.searchlib.analysis;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.config.Config;
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.text.StringEscapeUtils;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.config.Config;
-import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.XmlWriter;
 
 public abstract class ClassFactory {
 

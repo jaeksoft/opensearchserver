@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,10 +20,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.parser.htmlParser;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
+import com.jaeksoft.searchlib.util.LinkUtils;
+import com.jaeksoft.searchlib.util.MimeUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -32,22 +42,10 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
-import com.jaeksoft.searchlib.util.LinkUtils;
-import com.jaeksoft.searchlib.util.MimeUtils;
-
 public abstract class HtmlDocumentProvider {
 
-	public static interface XPath {
-		public abstract void xPath(String xPath, Collection<Object> nodes) throws XPathExpressionException;
+	public  interface XPath {
+		 void xPath(String xPath, Collection<Object> nodes) throws XPathExpressionException;
 	}
 
 	private final HtmlParserEnum parserEnum;

@@ -1,4 +1,4 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
  * Copyright (C) 2008-2011 Emmanuel Keller / Jaeksoft
@@ -20,11 +20,10 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+*/
 package com.jaeksoft.searchlib.util;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 

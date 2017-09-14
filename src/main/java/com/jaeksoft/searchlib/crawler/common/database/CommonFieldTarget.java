@@ -21,14 +21,13 @@
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.jaeksoft.searchlib.crawler.common.database;
 
 import com.jaeksoft.searchlib.util.DomUtils;
 import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.util.map.TargetField;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -46,10 +45,6 @@ public class CommonFieldTarget extends TargetField {
 
 	private boolean crawlUrl;
 
-	private boolean crawlFile;
-
-	private boolean crawlBlob;
-
 	private String filePathPrefix;
 
 	private String findRegexpTag;
@@ -58,20 +53,21 @@ public class CommonFieldTarget extends TargetField {
 
 	private Matcher findRegexpMatcher;
 
-	public CommonFieldTarget(String targetName, boolean removeTag, boolean convertHtmlEntities, boolean filePath,
-			String filePathPrefix, boolean crawlFile, boolean crawlUrl, boolean crawlBlob, String findRegexTag,
-			String replaceRegexTag) {
+	CommonFieldTarget(String targetName, boolean removeTag, boolean convertHtmlEntities, boolean filePath,
+			String filePathPrefix, boolean crawlUrl, String findRegexTag, String replaceRegexTag) {
 		super(targetName);
 		this.removeTag = removeTag;
 		this.convertHtmlEntities = convertHtmlEntities;
 		this.filePathPrefix = filePathPrefix;
 		this.filePath = filePath;
-		this.crawlFile = crawlFile;
 		this.crawlUrl = crawlUrl;
-		this.crawlBlob = crawlBlob;
 		this.findRegexpTag = findRegexTag;
 		this.replaceRegexpTag = replaceRegexTag;
 		checkRegexpPattern();
+	}
+
+	public CommonFieldTarget(String targetName) {
+		this(targetName, false, false, false, null, false, null, null);
 	}
 
 	public CommonFieldTarget(CommonFieldTarget from) {
@@ -85,9 +81,7 @@ public class CommonFieldTarget extends TargetField {
 		this.convertHtmlEntities = from.convertHtmlEntities;
 		this.filePathPrefix = from.filePathPrefix;
 		this.filePath = from.filePath;
-		this.crawlFile = from.crawlFile;
 		this.crawlUrl = from.crawlUrl;
-		this.crawlBlob = from.crawlBlob;
 		this.findRegexpTag = from.findRegexpTag;
 		this.replaceRegexpTag = from.replaceRegexpTag;
 		checkRegexpPattern();
@@ -106,12 +100,8 @@ public class CommonFieldTarget extends TargetField {
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "filePath")))
 				filePath = true;
 			filePathPrefix = DomUtils.getAttributeText(node, "filePathPrefix");
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlFile")))
-				crawlFile = true;
 			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlUrl")))
 				crawlUrl = true;
-			if ("yes".equalsIgnoreCase(DomUtils.getAttributeText(node, "crawlBlob")))
-				crawlBlob = true;
 			List<Node> nl = DomUtils.getNodes(node, "findRegexpTag");
 			if (nl.size() > 0)
 				findRegexpTag = StringEscapeUtils.unescapeXml(nl.get(0).getTextContent());
@@ -125,8 +115,7 @@ public class CommonFieldTarget extends TargetField {
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {
 		xmlWriter.startElement("filter", "removeTag", removeTag ? "yes" : "no", "convertHtmlEntities",
 				convertHtmlEntities ? "yes" : "no", "filePath", filePath ? "yes" : "no", "filePathPrefix",
-				filePathPrefix, "crawlFile", crawlFile ? "yes" : "no", "crawlUrl", crawlUrl ? "yes" : "no", "crawlBlob",
-				crawlBlob ? "yes" : "no");
+				filePathPrefix, "crawlUrl", crawlUrl ? "yes" : "no");
 		if (findRegexpTag != null) {
 			xmlWriter.startElement("findRegexpTag");
 			xmlWriter.textNode(StringEscapeUtils.escapeXml11(findRegexpTag));
@@ -237,30 +226,30 @@ public class CommonFieldTarget extends TargetField {
 	}
 
 	/**
-	 * @param filePath the FilePath to set
+	 * @param crawlFile the crawlFile to set
 	 */
-	public void setFilePath(boolean filePath) {
-		this.filePath = filePath;
+	public void setCrawlFile(boolean crawlFile) {
+		this.filePath = crawlFile;
 		if (!filePath)
 			setFilePathPrefix(null);
 	}
 
 	/**
-	 * @return the FilePath
+	 * @return true if CrawlFile is set
 	 */
-	public boolean isFilePath() {
+	public boolean isCrawlFile() {
 		return filePath;
 	}
 
 	/**
 	 * @return true if the FilePath is not set
 	 */
-	public boolean isNotFilePath() {
-		return !isFilePath();
+	public boolean isNotCrawlFile() {
+		return !isCrawlFile();
 	}
 
 	public boolean isNotFilePathPrefixEditable() {
-		return !(filePath || crawlFile);
+		return !filePath;
 	}
 
 	/**
@@ -279,42 +268,6 @@ public class CommonFieldTarget extends TargetField {
 
 	public boolean isNotCrawlUrl() {
 		return !crawlUrl;
-	}
-
-	/**
-	 * @param crawlFile the crawlFile to set
-	 */
-	public void setCrawlFile(boolean crawlFile) {
-		this.crawlFile = crawlFile;
-	}
-
-	/**
-	 * @return the crawlFile
-	 */
-	public boolean isCrawlFile() {
-		return crawlFile;
-	}
-
-	public boolean isNotCrawlFile() {
-		return !crawlFile;
-	}
-
-	/**
-	 * @param crawlBlob the crawlBlob to set
-	 */
-	public void setCrawlBlob(boolean crawlBlob) {
-		this.crawlBlob = crawlBlob;
-	}
-
-	/**
-	 * @return the crawlBlob
-	 */
-	public boolean isCrawlBlob() {
-		return crawlBlob;
-	}
-
-	public boolean isNotCrawlBlob() {
-		return !crawlBlob;
 	}
 
 }

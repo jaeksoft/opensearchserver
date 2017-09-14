@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,23 +20,22 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.web.database;
+
+import com.jaeksoft.searchlib.util.DomUtils;
+import com.jaeksoft.searchlib.util.EnumerationUtils;
+import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.text.StringEscapeUtils;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
-import com.jaeksoft.searchlib.util.DomUtils;
-import com.jaeksoft.searchlib.util.EnumerationUtils;
-import com.jaeksoft.searchlib.util.XmlWriter;
 
 public class UrlFilterItem implements Comparable<UrlFilterItem> {
 

@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,8 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler;
 
 import com.jaeksoft.searchlib.Logging;
@@ -48,7 +47,7 @@ import com.jaeksoft.searchlib.util.map.TargetField;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import net.minidev.json.JSONArray;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -168,7 +167,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 			return;
 		if (StringUtils.isEmpty(content))
 			return;
-		if (dfTarget.isFilePath()) {
+		if (dfTarget.isCrawlFile()) {
 			String filePath = dfTarget.getFilePath(content);
 			if (filePathSet == null || !filePathSet.contains(filePath)) {
 				if (filePathSet != null)
@@ -185,7 +184,7 @@ public abstract class FieldMapGeneric<S extends SourceField, T extends TargetFie
 			}
 		}
 		if (dfTarget.isCrawlFile()) {
-			String filePathName = dfTarget.getFilePathPrefix();
+			final String filePathName = dfTarget.getFilePathPrefix();
 			if (filePathSet == null || !filePathSet.contains(content)) {
 				if (filePathSet != null)
 					filePathSet.add(content);

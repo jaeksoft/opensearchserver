@@ -67,12 +67,12 @@
 				checked="@bind(restCrawl.currentFieldTarget.convertHtmlEntities)" />
 		</auxheader>
 		<auxheader align="center">
-			<checkbox tooltiptext="File path"
-				checked="@bind(restCrawl.currentFieldTarget.filePath)" />
+			<checkbox tooltiptext="Crawl the file"
+				checked="@bind(restCrawl.currentFieldTarget.crawlFile)" />
 		</auxheader>
 		<auxheader align="center">
 			<textbox width="95%"
-				disabled="@load(restCrawl.currentFieldTarget.notFilePath)"
+				disabled="@load(restCrawl.currentFieldTarget.notCrawlFile)"
 				value="@bind(restCrawl.currentFieldTarget.filePathPrefix)" />
 		</auxheader>
 		<auxheader align="center">
@@ -106,7 +106,7 @@
 			</listcell>
 			<listcell>
 				<checkbox disabled="true"
-					checked="@load(fieldlink.target.filePath)" />
+					checked="@load(fieldlink.target.crawlFile)" />
 			</listcell>
 			<listcell label="@load(fieldlink.target.filePathPrefix)" />
 			<listcell>

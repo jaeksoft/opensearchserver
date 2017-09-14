@@ -1,4 +1,4 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.web.spider;
 
@@ -40,7 +40,7 @@ import javax.imageio.ImageIO;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 

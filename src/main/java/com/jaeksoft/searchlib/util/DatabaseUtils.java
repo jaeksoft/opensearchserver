@@ -1,4 +1,4 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
@@ -20,17 +20,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.util;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import com.jaeksoft.pojodbc.Transaction;
 import com.jaeksoft.searchlib.crawler.database.DatabaseCrawlSql.SqlUpdateMode;
+import org.apache.commons.text.StringEscapeUtils;
+
+import java.sql.SQLException;
+import java.util.List;
 
 public class DatabaseUtils {
 

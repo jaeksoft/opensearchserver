@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2012 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,16 +20,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.analysis.filter;
 
-import java.io.IOException;
-
-import org.apache.commons.lang3.StringEscapeUtils;
+import com.jaeksoft.searchlib.analysis.FilterFactory;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.lucene.analysis.TokenStream;
 
-import com.jaeksoft.searchlib.analysis.FilterFactory;
+import java.io.IOException;
 
 public class DecodeHtmlEntitiesFilter extends FilterFactory {
 
