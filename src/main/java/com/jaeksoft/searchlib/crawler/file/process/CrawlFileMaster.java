@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,8 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler.file.process;
 
 import com.jaeksoft.searchlib.ClientFactory;
@@ -51,7 +50,7 @@ public class CrawlFileMaster extends CrawlMasterAbstract<CrawlFileMaster, CrawlF
 	private final LinkedList<FilePathItem> filePathList;
 
 	public CrawlFileMaster(Config config) throws IOException {
-		super(config);
+		super(config, "FileCrawler");
 		FilePropertyManager filePropertyManager = config.getFilePropertyManager();
 		fileCrawlQueue = new FileCrawlQueue(config);
 		filePathList = new LinkedList<>();

@@ -2,7 +2,11 @@ package com.jaeksoft.searchlib;
 
 import com.github.jankroken.commandline.CommandLineParser;
 import com.github.jankroken.commandline.OptionStyle;
-import com.github.jankroken.commandline.annotations.*;
+import com.github.jankroken.commandline.annotations.LongSwitch;
+import com.github.jankroken.commandline.annotations.Option;
+import com.github.jankroken.commandline.annotations.ShortSwitch;
+import com.github.jankroken.commandline.annotations.SingleArgument;
+import com.github.jankroken.commandline.annotations.Toggle;
 import com.jaeksoft.searchlib.util.FileUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.web.StartStopListener;
@@ -21,6 +25,7 @@ public class Server {
 	private final Tomcat tomcat;
 
 	private Server(Arguments arguments) {
+		Logging.initLogger();
 		File baseDir = new File(arguments.extractDirectory == null ? "server" : arguments.extractDirectory);
 		if (baseDir.exists())
 			if (arguments.resetExtract && baseDir.isDirectory())

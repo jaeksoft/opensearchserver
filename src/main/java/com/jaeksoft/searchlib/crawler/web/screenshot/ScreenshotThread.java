@@ -1,34 +1,27 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2011-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2011-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.crawler.web.screenshot;
-
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -39,6 +32,12 @@ import com.jaeksoft.searchlib.crawler.web.database.CredentialItem;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
 import com.jaeksoft.searchlib.util.ImageUtils;
 import com.jaeksoft.searchlib.util.SimpleLock;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 
@@ -56,10 +55,9 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 
 	private final SimpleLock lock = new SimpleLock();
 
-	public ScreenshotThread(Config config, ScreenshotManager screenshotManager,
-			URL url, CredentialItem credentialItem,
+	public ScreenshotThread(Config config, ScreenshotManager screenshotManager, URL url, CredentialItem credentialItem,
 			BrowserDriverEnum browserDriverEnum) {
-		super(config, null, null, null);
+		super(config, "Screenshot " + url.toExternalForm(), null, null, null);
 		this.browserDriverEnum = browserDriverEnum;
 		this.url = url;
 		this.screenshotManager = screenshotManager;
@@ -71,10 +69,9 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 		this.visiblePartOnly = true;
 	}
 
-	public ScreenshotThread(Dimension capture, int reduction,
-			boolean visiblePartOnly, URL url, int waitSec,
+	public ScreenshotThread(Dimension capture, int reduction, boolean visiblePartOnly, URL url, int waitSec,
 			BrowserDriverEnum browserDriverEnum) {
-		super(null, null, null, null);
+		super(null, "Screenshot " + url.toExternalForm(), null, null, null);
 		this.browserDriverEnum = browserDriverEnum;
 		this.url = url;
 		this.screenshotManager = null;
@@ -111,10 +108,8 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 			initDriver();
 			String sUrl;
 			if (credentialItem != null) {
-				sUrl = new URI(url.getProtocol(),
-						credentialItem.getURLUserInfo(), url.getHost(),
-						url.getPort(), url.getPath(), url.getQuery(),
-						url.getRef()).toString();
+				sUrl = new URI(url.getProtocol(), credentialItem.getURLUserInfo(), url.getHost(), url.getPort(),
+						url.getPath(), url.getQuery(), url.getRef()).toString();
 			} else
 				sUrl = url.toExternalForm();
 			browserDriver.get(sUrl);
@@ -122,12 +117,10 @@ public class ScreenshotThread extends ThreadAbstract<ScreenshotThread> {
 				sleepSec(waitSec);
 			BufferedImage image = browserDriver.getScreenshot();
 			if (visiblePartOnly)
-				image = ImageUtils.getSubimage(image, 0, 0, capture.width,
-						capture.height);
+				image = ImageUtils.getSubimage(image, 0, 0, capture.width, capture.height);
 
 			if (resize != null)
-				image = ImageUtils.reduceImage(image, resize.width,
-						resize.height);
+				image = ImageUtils.reduceImage(image, resize.width, resize.height);
 			if (reductionPercent < 100)
 				image = ImageUtils.reduceImage(image, reductionPercent);
 			if (screenshotManager != null)

@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,8 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler.file.process;
 
 import com.jaeksoft.searchlib.Logging;
@@ -58,7 +57,7 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 
 	protected CrawlFileThread(Config config, CrawlFileMaster crawlMaster, CrawlStatistics sessionStats,
 			FilePathItem filePathItem, InfoCallback infoCallback) throws SearchLibException {
-		super(config, crawlMaster, null, infoCallback);
+		super(config, "File crawl on " + filePathItem.toString(), crawlMaster, null, infoCallback);
 		this.fileManager = config.getFileManager();
 		this.crawlMaster = (CrawlFileMaster) getThreadMaster();
 		this.crawlQueue = (FileCrawlQueue) crawlMaster.getCrawlQueue();
@@ -148,8 +147,8 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 
 		crawl.download();
 
-		if (fileItem.getFetchStatus() == FetchStatus.FETCHED && fileItem.getParserStatus() == ParserStatus.PARSED
-				&& fileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
+		if (fileItem.getFetchStatus() == FetchStatus.FETCHED && fileItem.getParserStatus() == ParserStatus.PARSED &&
+				fileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 			fileItem.setIndexStatus(IndexStatus.TO_INDEX);
 			currentStats.incParsedCount();
 		} else

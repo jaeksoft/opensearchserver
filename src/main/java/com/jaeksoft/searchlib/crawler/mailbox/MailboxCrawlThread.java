@@ -1,35 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.mailbox;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -47,9 +40,14 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery.SearchField.Mode;
+import org.apache.commons.lang3.StringUtils;
 
-public class MailboxCrawlThread extends
-		CrawlThreadAbstract<MailboxCrawlThread, MailboxCrawlMaster> {
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MailboxCrawlThread extends CrawlThreadAbstract<MailboxCrawlThread, MailboxCrawlMaster> {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
@@ -79,10 +77,9 @@ public class MailboxCrawlThread extends
 
 	private final SearchFieldRequest uniqueSearchRequest;
 
-	public MailboxCrawlThread(Client client, MailboxCrawlMaster crawlMaster,
-			MailboxCrawlItem crawlItem, Variables variables,
-			InfoCallback infoCallback) throws SearchLibException {
-		super(client, crawlMaster, crawlItem, infoCallback);
+	public MailboxCrawlThread(Client client, MailboxCrawlMaster crawlMaster, MailboxCrawlItem crawlItem,
+			Variables variables, InfoCallback infoCallback) throws SearchLibException {
+		super(client, "MailboxCrawl " + crawlItem.getName(), crawlMaster, crawlItem, infoCallback);
 		this.client = client;
 		this.mailboxCrawlItem = crawlItem;
 
@@ -91,8 +88,7 @@ public class MailboxCrawlThread extends
 		uniqueFieldTarget = mailboxFieldMap.getUniqueFieldTarget(client);
 		if (uniqueFieldTarget != null) {
 			uniqueSearchRequest = new SearchFieldRequest(client);
-			uniqueSearchRequest.addSearchField(uniqueFieldTarget.getName(),
-					Mode.TERM, 1.0F, 1.0F, 1, null);
+			uniqueSearchRequest.addSearchField(uniqueFieldTarget.getName(), Mode.TERM, 1.0F, 1.0F, 1, null);
 			uniqueSearchRequest.setRows(0);
 		} else
 			uniqueSearchRequest = null;
@@ -103,7 +99,7 @@ public class MailboxCrawlThread extends
 		updatedDeleteDocumentCount = 0;
 		ignoredDocumentCount = 0;
 		errorDocumentCount = 0;
-		this.documents = new ArrayList<IndexDocument>();
+		this.documents = new ArrayList<>();
 	}
 
 	public FieldMapContext getFieldMapContext() {
@@ -113,8 +109,7 @@ public class MailboxCrawlThread extends
 	@Override
 	public void runner() throws Exception {
 		setStatusInfo(CrawlStatus.STARTING);
-		MailboxAbstractCrawler crawler = MailboxProtocolEnum.getNewCrawler(
-				this, mailboxCrawlItem);
+		MailboxAbstractCrawler crawler = MailboxProtocolEnum.getNewCrawler(this, mailboxCrawlItem);
 		setStatusInfo(CrawlStatus.CRAWL);
 		crawler.read();
 		if (isAborted())
@@ -197,15 +192,12 @@ public class MailboxCrawlThread extends
 		}
 	}
 
-	public void addDocument(IndexDocument crawlDocument,
-			IndexDocument parserIndexDocument) throws IOException,
-			SearchLibException, ParseException, SyntaxError,
-			URISyntaxException, ClassNotFoundException, InterruptedException,
-			InstantiationException, IllegalAccessException {
-		IndexDocument indexDocument = new IndexDocument(
-				mailboxCrawlItem.getLang());
-		((MailboxFieldMap) mailboxCrawlItem.getFieldMap()).mapIndexDocument(
-				fieldMapContext, crawlDocument, indexDocument);
+	public void addDocument(IndexDocument crawlDocument, IndexDocument parserIndexDocument)
+			throws IOException, SearchLibException, ParseException, SyntaxError, URISyntaxException,
+			ClassNotFoundException, InterruptedException, InstantiationException, IllegalAccessException {
+		IndexDocument indexDocument = new IndexDocument(mailboxCrawlItem.getLang());
+		((MailboxFieldMap) mailboxCrawlItem.getFieldMap()).mapIndexDocument(fieldMapContext, crawlDocument,
+				indexDocument);
 		if (parserIndexDocument != null)
 			indexDocument.add(parserIndexDocument);
 		documents.add(indexDocument);
@@ -268,14 +260,12 @@ public class MailboxCrawlThread extends
 	public boolean isAlreadyIndexed(String messageId) throws SearchLibException {
 		if (uniqueFieldTarget == null)
 			return false;
-		String value = mailboxFieldMap.mapFieldTarget(uniqueFieldTarget,
-				messageId);
+		String value = mailboxFieldMap.mapFieldTarget(uniqueFieldTarget, messageId);
 		if (StringUtils.isEmpty(value))
 			return false;
 		uniqueSearchRequest.reset();
 		uniqueSearchRequest.setQueryString(value);
-		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client
-				.request(uniqueSearchRequest);
+		AbstractResultSearch<?> result = (AbstractResultSearch<?>) client.request(uniqueSearchRequest);
 		return result.getNumFound() > 0;
 	}
 

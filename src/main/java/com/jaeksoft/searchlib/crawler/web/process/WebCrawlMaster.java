@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p/>
- * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p/>
  * http://www.open-search-server.com
  * <p/>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.web.process;
 
@@ -77,7 +77,7 @@ public class WebCrawlMaster extends CrawlMasterAbstract<WebCrawlMaster, WebCrawl
 	private final UrlCrawlQueue urlCrawlQueue;
 
 	public WebCrawlMaster(Config config) throws SearchLibException, IOException {
-		super(config);
+		super(config, "WebCrawler");
 		urlCrawlQueue = new UrlCrawlQueue(config);
 		hostList = new LinkedList<>();
 		if (config.getWebPropertyManager().getCrawlEnabled().getValue()) {

@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.crawler.common.process;
 
@@ -50,8 +50,8 @@ public abstract class CrawlMasterAbstract<M extends CrawlMasterAbstract<M, T>, T
 
 	private boolean runOnce;
 
-	protected CrawlMasterAbstract(Config config) {
-		super(config);
+	protected CrawlMasterAbstract(Config config, String taskName) {
+		super(config, taskName);
 		status = CrawlStatus.NOT_RUNNING;
 		statistics = new LinkedList<>();
 	}

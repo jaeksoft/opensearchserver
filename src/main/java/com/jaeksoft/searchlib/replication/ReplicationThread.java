@@ -64,7 +64,7 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread> impleme
 
 	protected ReplicationThread(Client client, ReplicationMaster replicationMaster, ReplicationItem replicationItem,
 			InfoCallback infoCallback) throws SearchLibException {
-		super(client, replicationMaster, replicationItem, infoCallback);
+		super(client, "Replication " + replicationItem.getName(), replicationMaster, replicationItem, infoCallback);
 		this.sourceDirectory = replicationItem.getDirectory(client);
 		this.replicationType = replicationItem.getReplicationType();
 		this.client = client;
@@ -196,8 +196,8 @@ public class ReplicationThread extends ThreadAbstract<ReplicationThread> impleme
 	public String getStatInfo() {
 		rwl.r.lock();
 		try {
-			return getProgress() + "% completed - " + filesSent + " file(s) sent - " + FileUtils
-					.byteCountToDisplaySize(bytesSent) + " sent";
+			return getProgress() + "% completed - " + filesSent + " file(s) sent - " +
+					FileUtils.byteCountToDisplaySize(bytesSent) + " sent";
 		} finally {
 			rwl.r.unlock();
 		}

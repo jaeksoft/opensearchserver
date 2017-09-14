@@ -1,33 +1,27 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.jaeksoft.searchlib.process;
-
-import java.lang.Thread.State;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.TreeMap;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.Logging;
@@ -37,6 +31,11 @@ import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.Variables;
+
+import java.lang.Thread.State;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.TreeMap;
 
 public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>, T extends ThreadAbstract<T>>
 		extends ThreadAbstract<M> {
@@ -49,11 +48,11 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 
 	private volatile T[] threadArray;
 
-	protected ThreadMasterAbstract(Config config) {
-		super(config, null, null, null);
+	protected ThreadMasterAbstract(Config config, String taskName) {
+		super(config, taskName, null, null, null);
 		threadArray = null;
-		threads = new LinkedHashSet<T>();
-		threadMap = new TreeMap<ThreadItem<?, T>, T>();
+		threads = new LinkedHashSet<>();
+		threadMap = new TreeMap<>();
 	}
 
 	public int getThreadsCount() {
@@ -152,13 +151,11 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 							if (thread.getThreadState() == State.TERMINATED) {
 								it.remove();
 								remove = true;
-							} else if (masterAbort
-									&& thread.isIdleTimeExhausted(maxIdleTime)) {
+							} else if (masterAbort && thread.isIdleTimeExhausted(maxIdleTime)) {
 								// Force child aborting if the crawl master is
 								// already aborting and the thread idle time
 								// expired
-								Logging.warn("Thread aborting (time out): "
-										+ thread.getCurrentMethod());
+								Logging.warn("Thread aborting (time out): " + thread.getCurrentMethod());
 								thread.abort();
 								it.remove();
 								remove = true;
@@ -200,21 +197,17 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 		}
 	}
 
-	public T execute(Client client, ThreadItem<?, T> threadItem,
-			boolean bWaitForCompletion, Variables variables,
-			InfoCallback infoCallback) throws InterruptedException,
-			SearchLibException {
+	public T execute(Client client, ThreadItem<?, T> threadItem, boolean bWaitForCompletion, Variables variables,
+			InfoCallback infoCallback) throws InterruptedException, SearchLibException {
 		T crawlThread = null;
 		rwl.w.lock();
 		try {
 			if (threadItem != null) {
 				if (threadMap.containsKey(threadItem)) {
-					throw new SearchLibException("The job "
-							+ threadItem.toString() + " is already running");
+					throw new SearchLibException("The job " + threadItem.toString() + " is already running");
 				}
 			}
-			crawlThread = getNewThread(client, threadItem, variables,
-					infoCallback);
+			crawlThread = getNewThread(client, threadItem, variables, infoCallback);
 			if (threadItem != null) {
 				threadMap.put(threadItem, crawlThread);
 				threadItem.setLastThread(crawlThread);
@@ -231,8 +224,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 		return crawlThread;
 	}
 
-	protected T getNewThread(Client client, ThreadItem<?, T> threadItem,
-			Variables variables, InfoCallback infoCallback)
+	protected T getNewThread(Client client, ThreadItem<?, T> threadItem, Variables variables, InfoCallback infoCallback)
 			throws SearchLibException {
 		throw new SearchLibException("Not implemented");
 	}

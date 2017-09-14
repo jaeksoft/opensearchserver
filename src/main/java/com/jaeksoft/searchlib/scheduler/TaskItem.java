@@ -1,37 +1,28 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.scheduler;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
@@ -41,6 +32,13 @@ import com.jaeksoft.searchlib.util.StringUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class TaskItem extends ExecutionAbstract {
 
@@ -53,8 +51,7 @@ public class TaskItem extends ExecutionAbstract {
 	public TaskItem(Config config, TaskAbstract task) {
 		this.config = config;
 		this.task = task;
-		userProperties = new TaskProperties(config, task,
-				task.getPropertyList());
+		userProperties = new TaskProperties(config, task, task.getPropertyList());
 	}
 
 	public TaskItem(TaskItem selectedJobTask) {
@@ -77,7 +74,6 @@ public class TaskItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * 
 	 * @return user properties
 	 */
 	public TaskProperties getProperties() {
@@ -85,56 +81,45 @@ public class TaskItem extends ExecutionAbstract {
 	}
 
 	/**
-	 * 
 	 * @param propertyDef
 	 * @return the possible value for this property
 	 * @throws SearchLibException
 	 */
-	public String[] getValueList(TaskPropertyDef propertyDef)
-			throws SearchLibException {
+	public String[] getValueList(TaskPropertyDef propertyDef) throws SearchLibException {
 		return task.getPropertyValues(config, propertyDef, userProperties);
 	}
 
-	public void run(Client client, Variables variables, TaskLog taskLog)
-			throws SearchLibException, IOException {
+	public void run(Client client, Variables variables, TaskLog taskLog) throws SearchLibException, IOException {
 		setRunningNow();
 		try {
 			task.execute(client, userProperties, variables, taskLog);
-		} catch (AbortException abort) {
-			abort();
-		} catch (InterruptedException e) {
+		} catch (AbortException | InterruptedException e) {
 			abort();
 		} finally {
 			runningEnd();
 		}
 	}
 
-	public void writeXml(XmlWriter xmlWriter) throws SAXException,
-			UnsupportedEncodingException {
-		xmlWriter
-				.startElement("task", "class", task.getClass().getSimpleName());
+	public void writeXml(XmlWriter xmlWriter) throws SAXException, UnsupportedEncodingException {
+		xmlWriter.startElement("task", "class", task.getClass().getSimpleName());
 		userProperties.writeXml(xmlWriter);
 		xmlWriter.endElement();
 	}
 
-	public static TaskItem fromXml(Config config, XPathParser xpp, Node node)
-			throws XPathExpressionException {
+	public static TaskItem fromXml(Config config, XPathParser xpp, Node node) throws XPathExpressionException {
 		String taskClass = XPathParser.getAttributeString(node, "class");
 		if (taskClass == null)
 			return null;
-		TaskAbstract taskAbstract = config.getJobTaskEnum()
-				.findClass(taskClass);
+		TaskAbstract taskAbstract = config.getJobTaskEnum().findClass(taskClass);
 		if (taskAbstract == null)
 			return null;
 		TaskItem taskItem = new TaskItem(config, taskAbstract);
 		NodeList nodeList = xpp.getNodeList(node, "property");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			Node propNode = nodeList.item(i);
-			String configName = XPathParser
-					.getAttributeString(propNode, "name");
+			String configName = XPathParser.getAttributeString(propNode, "name");
 			String value = xpp.getNodeString(propNode, false);
-			TaskPropertyDef propDef = taskAbstract
-					.findPropertyByConfigName(configName);
+			TaskPropertyDef propDef = taskAbstract.findPropertyByConfigName(configName);
 			if (propDef != null) {
 				if (propDef.type == TaskPropertyType.password)
 					value = StringUtils.base64decode(value);

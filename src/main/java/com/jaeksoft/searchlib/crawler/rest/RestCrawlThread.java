@@ -85,14 +85,14 @@ public class RestCrawlThread extends CrawlThreadAbstract<RestCrawlThread, RestCr
 			jsonPath = JsonPath.compile(restCrawlItem.getPathDocument());
 			restFieldMap = restCrawlItem.getFieldMap();
 			bufferSize = restCrawlItem.getBufferSize();
-			indexDocumentList = new ArrayList<IndexDocument>(bufferSize);
+			indexDocumentList = new ArrayList<>(bufferSize);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public RestCrawlThread(Client client, RestCrawlMaster crawlMaster, RestCrawlItem restCrawlItem, Variables variables,
 			InfoCallback infoCallback) throws SearchLibException {
-		super(client, crawlMaster, restCrawlItem, infoCallback);
+		super(client, "RestCrawl " + restCrawlItem.getName(), crawlMaster, restCrawlItem, infoCallback);
 		this.restCrawlItem = restCrawlItem.duplicate();
 		this.restCrawlItem.apply(variables);
 		this.client = client;
@@ -131,15 +131,16 @@ public class RestCrawlThread extends CrawlThreadAbstract<RestCrawlThread, RestCr
 	}
 
 	private void callback(HttpDownloader downloader, URI uri, String query)
-			throws URISyntaxException, ClientProtocolException, IllegalStateException, IOException, SearchLibException {
+			throws URISyntaxException, IllegalStateException, IOException, SearchLibException {
 		uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), query, uri.getFragment());
-		DownloadItem dlItem = downloader.request(uri, restCrawlItem.getCallbackMethod(), restCrawlItem.getCredential(),
-				null, null, null);
+		DownloadItem dlItem =
+				downloader.request(uri, restCrawlItem.getCallbackMethod(), restCrawlItem.getCredential(), null, null,
+						null);
 		dlItem.checkNoErrorList(200, 201, 202, 203);
 	}
 
 	private final void callbackPerDoc(HttpDownloader downloader, URI uri, String queryPrefix, String key)
-			throws ClientProtocolException, IllegalStateException, IOException, URISyntaxException, SearchLibException {
+			throws IllegalStateException, IOException, URISyntaxException, SearchLibException {
 		StringBuilder queryString = new StringBuilder();
 		String query = uri.getQuery();
 		if (query != null)
@@ -251,8 +252,9 @@ public class RestCrawlThread extends CrawlThreadAbstract<RestCrawlThread, RestCr
 	}
 
 	private int runDownload(RestCrawlContext context, URI uri) throws Exception {
-		DownloadItem dlItem = context.downloader.request(uri, restCrawlItem.getMethod(), restCrawlItem.getCredential(),
-				null, null, null);
+		DownloadItem dlItem =
+				context.downloader.request(uri, restCrawlItem.getMethod(), restCrawlItem.getCredential(), null, null,
+						null);
 		try {
 			List<Object> documents = context.jsonPath.read(dlItem.getContentInputStream());
 			return runDocumentList(context, documents);

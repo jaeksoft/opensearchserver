@@ -1,28 +1,31 @@
-/**   
- *
+/*
  * Copyright (C) 2013-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.util;
 
+import com.jaeksoft.searchlib.Logging;
+import com.jaeksoft.searchlib.SearchLibException;
+
+import javax.naming.NamingException;
 import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,11 +35,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-
-import javax.naming.NamingException;
-
-import com.jaeksoft.searchlib.Logging;
-import com.jaeksoft.searchlib.SearchLibException;
 
 public class ThreadUtils {
 
@@ -95,7 +93,7 @@ public class ThreadUtils {
 
 	public static Thread[] getThreadArray(ThreadGroup group) {
 		Thread[] threads = new Thread[group.activeCount()];
-		for (;;) {
+		for (; ; ) {
 			int l = group.enumerate(threads);
 			if (l == threads.length)
 				break;
@@ -122,7 +120,7 @@ public class ThreadUtils {
 		return threadList;
 	}
 
-	public final static void sleepMs(long millis) {
+	public static void sleepMs(long millis) {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
@@ -131,14 +129,14 @@ public class ThreadUtils {
 
 	}
 
-	public static interface WaitInterface {
+	public interface WaitInterface {
 
 		boolean done();
 
 		boolean abort();
 	}
 
-	public static boolean waitUntil(long secTimeOut, WaitInterface waiter) {
+	public static boolean waitUntil(long secTimeOut, final WaitInterface waiter) {
 		long finalTime = System.currentTimeMillis() + secTimeOut * 1000;
 		while (!waiter.done()) {
 			if (waiter.abort())
@@ -226,7 +224,7 @@ public class ThreadUtils {
 			executor.invokeAll(exceptionThreads);
 			checkException(exceptionThreads);
 		} catch (Exception e) {
-			ExceptionUtils.<SearchLibException> throwException(e, SearchLibException.class);
+			ExceptionUtils.<SearchLibException>throwException(e, SearchLibException.class);
 		}
 	}
 

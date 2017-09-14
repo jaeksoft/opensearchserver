@@ -1,7 +1,7 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
- * Copyright (C) 2010-2013 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * 
  * http://www.open-search-server.com
  * 
@@ -20,7 +20,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.replication;
 
@@ -32,20 +32,16 @@ import com.jaeksoft.searchlib.process.ThreadMasterAbstract;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.Variables;
 
-public class ReplicationMaster extends
-		ThreadMasterAbstract<ReplicationMaster, ReplicationThread> {
+public class ReplicationMaster extends ThreadMasterAbstract<ReplicationMaster, ReplicationThread> {
 
 	public ReplicationMaster(Config config) {
-		super(config);
+		super(config, "ReplicationMaster");
 	}
 
 	@Override
-	protected ReplicationThread getNewThread(Client client,
-			ThreadItem<?, ReplicationThread> replicationItem,
-			Variables variables, InfoCallback infoCallback)
-			throws SearchLibException {
-		return new ReplicationThread(client, this,
-				(ReplicationItem) replicationItem, infoCallback);
+	protected ReplicationThread getNewThread(Client client, ThreadItem<?, ReplicationThread> replicationItem,
+			Variables variables, InfoCallback infoCallback) throws SearchLibException {
+		return new ReplicationThread(client, this, (ReplicationItem) replicationItem, infoCallback);
 	}
 
 	@Override

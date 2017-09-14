@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p/>
- * Copyright (C) 2008-2016 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
  * <p/>
  * http://www.open-search-server.com
  * <p/>
@@ -20,8 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler.web.process;
 
 import com.jaeksoft.searchlib.SearchLibException;
@@ -67,7 +66,7 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 
 	protected WebCrawlThread(Config config, WebCrawlMaster crawlMaster, CrawlStatistics sessionStats,
 			HostUrlList hostUrlList) throws SearchLibException, IOException {
-		super(config, crawlMaster, null, null);
+		super(config, "WebCrawl", crawlMaster, null, null);
 		this.crawlQueue = (UrlCrawlQueue) crawlMaster.getCrawlQueue();
 		this.currentUrlItem = null;
 		this.currentCrawl = null;
@@ -183,9 +182,9 @@ public class WebCrawlThread extends CrawlThreadAbstract<WebCrawlThread, WebCrawl
 					currentStats.incFromCacheCount();
 			}
 
-			if (currentUrlItem.getFetchStatus() == FetchStatus.FETCHED
-					&& currentUrlItem.getParserStatus() == ParserStatus.PARSED
-					&& currentUrlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
+			if (currentUrlItem.getFetchStatus() == FetchStatus.FETCHED &&
+					currentUrlItem.getParserStatus() == ParserStatus.PARSED &&
+					currentUrlItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 				currentUrlItem.setIndexStatus(IndexStatus.TO_INDEX);
 				currentStats.incParsedCount();
 				config.getScreenshotManager().capture(url, crawl.getCredentialItem(), true, 120);

@@ -25,7 +25,6 @@
 package com.jaeksoft.searchlib.autocompletion;
 
 import com.jaeksoft.searchlib.Client;
-import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.process.ThreadAbstract;
@@ -54,21 +53,20 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 	private volatile Client autoCompClient;
 	private volatile String searchRequest;
 	private volatile String[] fieldNames;
-	private volatile TermEnum termEnum;
 	private volatile int bufferSize;
 
-	protected AutoCompletionBuildThread(Client sourceClient, Client autoCompClient, InfoCallback infoCallBack) {
-		super(sourceClient, null, null, infoCallBack);
+	protected AutoCompletionBuildThread(String itemName, Client sourceClient, Client autoCompClient,
+			InfoCallback infoCallBack) {
+		super(sourceClient, "Autocompletion " + itemName, null, null, infoCallBack);
 		this.sourceClient = sourceClient;
 		this.autoCompClient = autoCompClient;
 		this.fieldNames = null;
 		this.searchRequest = null;
-		this.termEnum = null;
 		this.bufferSize = 50;
 	}
 
 	public String getStatus() {
-		State state = getThreadState();
+		final State state = getThreadState();
 		if (state == null)
 			return "STOPPED";
 		return state.toString();
@@ -117,9 +115,9 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 		public void accept(TermEnum termEnum) throws IOException, SearchLibException {
 			Term term;
 			while ((term = termEnum.term()) != null) {
-				if (!fieldName.equals(term.field()))
-					break;
 				if (isAborted())
+					break;
+				if (!fieldName.equals(term.field()))
 					break;
 				docCount = indexTerm(term.text(), termEnum.docFreq(), buffer, docCount);
 				termEnum.next();
@@ -217,25 +215,17 @@ public class AutoCompletionBuildThread extends ThreadAbstract<AutoCompletionBuil
 	@Override
 	public void runner() throws Exception {
 		autoCompClient.deleteAll();
-		List<IndexDocument> buffer = new ArrayList<IndexDocument>();
+		final List<IndexDocument> buffer = new ArrayList<IndexDocument>();
 		int docCount = 0;
 		if (searchRequest != null && searchRequest.length() > 0)
 			docCount = buildSearchRequest(buffer, docCount);
 		else
 			docCount = buildTermEnum(buffer, docCount);
-		docCount = indexBuffer(docCount, buffer);
+		indexBuffer(docCount, buffer);
 	}
 
 	@Override
 	public void release() {
-		if (termEnum != null) {
-			try {
-				termEnum.close();
-			} catch (IOException e) {
-				Logging.warn(e);
-			}
-			termEnum = null;
-		}
 	}
 
 	public void init(Collection<String> fieldNames, String searchRequest, int bufferSize) {

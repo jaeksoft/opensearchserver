@@ -1,4 +1,4 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
@@ -20,21 +20,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
 package com.jaeksoft.searchlib.web.controller.runtime;
-
-import java.util.List;
-
-import javax.naming.NamingException;
-
-import org.zkoss.bind.annotation.AfterCompose;
 
 import com.jaeksoft.searchlib.ClientCatalog;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.ThreadUtils.ThreadInfo;
 import com.jaeksoft.searchlib.web.controller.CommonController;
+import org.zkoss.bind.annotation.AfterCompose;
+
+import javax.naming.NamingException;
+import java.util.List;
 
 @AfterCompose(superclass = true)
 public class ThreadsController extends CommonController {
@@ -45,8 +43,7 @@ public class ThreadsController extends CommonController {
 		super();
 	}
 
-	public List<ThreadInfo> getList() throws SearchLibException,
-			NamingException {
+	public List<ThreadInfo> getList() throws SearchLibException, NamingException {
 		if (threadList != null)
 			return threadList;
 

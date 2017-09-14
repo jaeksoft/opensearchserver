@@ -1,32 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2014 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.process;
-
-import java.lang.Thread.State;
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.config.Config;
@@ -35,6 +31,11 @@ import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.web.StartStopListener.ShutdownWaitInterface;
+import com.qwazr.utils.StringUtils;
+
+import java.lang.Thread.State;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Runnable, InfoCallback {
 
@@ -43,6 +44,8 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 	private final ThreadMasterAbstract<?, T> threadMaster;
 
 	private final ThreadItem<?, T> threadItem;
+
+	private final String taskName;
 
 	private volatile String info;
 
@@ -62,8 +65,9 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 
 	protected final TaskLog taskLog;
 
-	protected ThreadAbstract(Config config, ThreadMasterAbstract<?, T> threadMaster, ThreadItem<?, T> threadItem,
-			InfoCallback infoCallback) {
+	protected ThreadAbstract(Config config, String taskName, ThreadMasterAbstract<?, T> threadMaster,
+			ThreadItem<?, T> threadItem, InfoCallback infoCallback) {
+		this.taskName = taskName;
 		this.config = config;
 		this.threadItem = threadItem;
 		this.threadMaster = threadMaster;
@@ -120,12 +124,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 
 		@Override
 		public boolean done() {
-			if (getStartTime() != 0 || getEndTime() != 0)
-				return true;
-			State state = getThreadState();
-			if (state == State.NEW)
-				return false;
-			return state == State.RUNNABLE;
+			return startTime != 0;
 		}
 
 	}
@@ -134,11 +133,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 
 		@Override
 		public boolean done() {
-			if (getStartTime() == 0)
-				return true;
-			if (getEndTime() != 0)
-				return true;
-			return getThreadState() == State.TERMINATED;
+			return startTime != 0 && endTime != 0;
 		}
 
 	}
@@ -204,7 +199,7 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 			sb.append(config.getIndexName());
 			sb.append(' ');
 		}
-		sb.append(getClass().getSimpleName());
+		sb.append(taskName == null ? getClass().getSimpleName() : taskName);
 		sb.append(' ');
 		sb.append(new Date(startTime));
 		return sb.toString();
@@ -236,7 +231,9 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 			setException(e);
 			setInfo(e.getMessage());
 			if (!(e instanceof LimitException))
-				Logging.error(e.getMessage(), e);
+				Logging.error("Error on task " + taskName + " - Index: " +
+								(config == null ? StringUtils.EMPTY : config.getIndexName()) + " - Error: " + e.getMessage(),
+						e);
 		} finally {
 			initEnd();
 			if (threadMaster != null) {
@@ -323,7 +320,6 @@ public abstract class ThreadAbstract<T extends ThreadAbstract<T>> implements Run
 
 	public long getEndTime() {
 		return endTime;
-
 	}
 
 	@Override
