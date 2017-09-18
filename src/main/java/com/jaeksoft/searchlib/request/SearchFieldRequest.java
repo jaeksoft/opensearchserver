@@ -269,12 +269,13 @@ public class SearchFieldRequest extends AbstractLocalSearchRequest implements
 	 * 
 	 * @param fieldName
 	 *            The name of the field
-	 * @param phrase
-	 *            Activate the phrase search
-	 * @param boost
+         * @param mode
+         * @param termBoost
 	 *            Set the boost for the term search
 	 * @param phraseBoost
 	 *            Set the boost for the phrase search
+         * @param phraseSlop 
+         * @param booleanGroup 
 	 */
 	public void addSearchField(String fieldName, Mode mode, double termBoost,
 			double phraseBoost, Integer phraseSlop, Integer booleanGroup) {

@@ -152,8 +152,6 @@ public abstract class CommonDirectoryController<T> extends CommonController {
 	/**
 	 * @param editName
 	 *            the editName to set
-	 * @throws SearchLibException
-	 * @throws IOException
 	 */
 	public void setEditName(String editName) {
 		this.editName = editName;

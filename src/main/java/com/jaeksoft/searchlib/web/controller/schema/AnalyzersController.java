@@ -167,8 +167,8 @@ public class AnalyzersController extends CommonController {
 	}
 
 	/**
-	 * @param selectedAnalyzer
-	 *            the selectedAnalyzer to set
+	 * @param analyzer
+	 *            the analyzer to set
 	 */
 	public void setSelectedLang(Analyzer analyzer) {
 		this.selectedAnalyzer = analyzer;
@@ -315,8 +315,8 @@ public class AnalyzersController extends CommonController {
 	}
 
 	/**
-	 * @param selectedFilter
-	 *            the selectedFilter to set
+	 * @param choosenFilter
+	 *            the choosenFilter to set
 	 * @throws SearchLibException
 	 * @throws ClassNotFoundException
 	 */

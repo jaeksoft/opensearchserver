@@ -194,7 +194,7 @@ public class FilterList implements Iterable<FilterAbstract<?>> {
 	}
 
 	/**
-	 * @param defaultOperator
+	 * @param operator
 	 *            the defaultOperator to set
 	 */
 	public void setDefaultOperator(OperatorEnum operator) {

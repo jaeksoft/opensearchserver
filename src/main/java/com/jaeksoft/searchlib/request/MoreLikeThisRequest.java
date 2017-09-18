@@ -291,8 +291,8 @@ public class MoreLikeThisRequest extends AbstractRequest implements
 
 	/**
 	 * 
-	 * @param lang
-	 *            The language to set
+	 * @param analyzerName
+	 *            The analyzerName to set
 	 */
 	public void setAnalyzerName(String analyzerName) {
 		rwl.w.lock();

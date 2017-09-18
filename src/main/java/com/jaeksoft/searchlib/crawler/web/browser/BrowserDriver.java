@@ -296,7 +296,6 @@ public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 	 * Click on the given WebElement using Actions
 	 *
 	 * @param element
-	 * @return
 	 */
 	public void click(WebElement element) {
 		Actions builder = new Actions(driver);

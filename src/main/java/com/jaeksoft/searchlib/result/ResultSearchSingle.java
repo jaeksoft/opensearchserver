@@ -61,8 +61,8 @@ public class ResultSearchSingle extends AbstractResultSearch<AbstractLocalSearch
 	 * The constructor executes the request using the searcher provided and
 	 * computes the facets.
 	 * 
-	 * @param searcher
-	 * @param request
+	 * @param reader
+	 * @param searchRequest
 	 * @throws IOException
 	 * @throws ParseException
 	 * @throws SyntaxError

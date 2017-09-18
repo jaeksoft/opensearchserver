@@ -72,6 +72,9 @@ public enum DatabaseDriverNames {
 	private static String[] dbDriverList = null;
 
 	/**
+         * From the builtin list of JDBC drivers, list the ones that are
+         * actually available.
+         * @param classLoader The classloader to search the drivers in
 	 * @return the list of available driver classes
 	 */
 	public static synchronized String[] getAvailableList(ClassLoader classLoader) {

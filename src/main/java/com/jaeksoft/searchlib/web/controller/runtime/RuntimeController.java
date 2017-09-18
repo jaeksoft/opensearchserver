@@ -81,8 +81,8 @@ public class RuntimeController extends CommonController {
 	}
 
 	/**
-	 * @param selectedTab
-	 *            the selectedTab to set
+	 * @param selectedTabIndex
+	 *            the selectedTabIndex to set
 	 */
 	public void setSelectedTabIndex(int selectedTabIndex) {
 		this.selectedTabIndex = selectedTabIndex;

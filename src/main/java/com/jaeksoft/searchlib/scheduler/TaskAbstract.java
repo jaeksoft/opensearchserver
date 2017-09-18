@@ -57,8 +57,8 @@ public abstract class TaskAbstract {
 	/**
 	 * The possible values for a property.
 	 * 
-	 * @param client
-	 * @param property
+         * @param config
+	 * @param propertyDef
 	 * @param properties
 	 * @return an array with the possible value name
 	 */
@@ -94,7 +94,7 @@ public abstract class TaskAbstract {
 	/**
 	 * Find a propertyDef from its configName
 	 * 
-	 * @param name
+	 * @param configName
 	 * @return
 	 */
 	public TaskPropertyDef findPropertyByConfigName(String configName) {

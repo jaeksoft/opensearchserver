@@ -210,7 +210,7 @@ public class MailboxCrawlItem
 	}
 
 	/**
-	 * @param itemName
+	 * @param name
 	 *            the itemName to set
 	 */
 	public void setName(String name) {

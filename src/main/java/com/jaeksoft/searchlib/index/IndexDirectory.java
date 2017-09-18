@@ -60,7 +60,7 @@ public class IndexDirectory {
 	 * Storage API.
 	 * <p>
 	 * The URI should be created like that:
-	 * SWIFT://localhost?tenant=&container=&user=&password=&url=
+	 * SWIFT://localhost?tenant=&amp;container=&amp;user=&amp;password=&amp;url=
 	 * <p>
 	 * The parameters must be URL encoded as UTF-8
 	 *

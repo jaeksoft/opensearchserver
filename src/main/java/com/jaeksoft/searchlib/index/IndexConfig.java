@@ -209,8 +209,8 @@ public class IndexConfig {
 	}
 
 	/**
-	 * @param documentCache
-	 *            the documentCache to set
+	 * @param fieldCache
+	 *            the fieldCache to set
 	 */
 	public void setFieldCache(int fieldCache) {
 		this.fieldCache.set(fieldCache);

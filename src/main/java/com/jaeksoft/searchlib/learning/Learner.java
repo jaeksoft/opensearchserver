@@ -523,7 +523,8 @@ public class Learner implements InfoCallback, XmlWriter.Interface {
 	}
 
 	/**
-	 * @param RunningStatus the RunningStatus to set
+	 * @param runningStatus the RunningStatus to set
+         * @param lastRunInfo 
 	 */
 	protected void setRunningStatus(RunningStatus runningStatus, String lastRunInfo) {
 		rwlStatusLock.w.lock();

@@ -184,7 +184,8 @@ public class ParserFactory extends ClassFactory implements
 	 * Create a new ParserFactory by reading the attributes of an XML node
 	 * 
 	 * @param config
-	 * @param node
+         * @param xpp 
+	 * @param parserNode 
 	 * @return a ParserFactory
 	 * @throws SearchLibException
 	 * @throws XPathExpressionException
@@ -235,7 +236,7 @@ public class ParserFactory extends ClassFactory implements
 	/**
 	 * Clone a Parser
 	 * 
-	 * @param filter
+	 * @param parser
 	 * @return a FilterFactory
 	 * @throws SearchLibException
 	 * @throws ClassNotFoundException
