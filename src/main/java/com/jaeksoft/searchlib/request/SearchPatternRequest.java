@@ -170,7 +170,7 @@ public class SearchPatternRequest extends AbstractLocalSearchRequest implements
 	 * 
 	 * @param config
 	 * @param xpp
-	 * @param parentNode
+	 * @param requestNode
 	 * @throws XPathExpressionException
 	 * @throws ParseException
 	 * @throws DOMException

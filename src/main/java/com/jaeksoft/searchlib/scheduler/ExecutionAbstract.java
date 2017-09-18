@@ -182,10 +182,6 @@ public class ExecutionAbstract {
 		}
 	}
 
-	/**
-	 * @param abort
-	 *            the abort to set
-	 */
 	public void abort() {
 		rwl.w.lock();
 		try {

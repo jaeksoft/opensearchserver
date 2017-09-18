@@ -49,8 +49,8 @@ public class RequestMap implements XmlWriter.Interface {
 	 * file.
 	 *
 	 * @param config
-	 * @param document
-	 * @param xPath
+         * @param xpp 
+         * @param parentNode 
 	 * @throws XPathExpressionException
 	 * @throws ParseException
 	 * @throws DOMException

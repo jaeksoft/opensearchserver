@@ -147,7 +147,7 @@ public class Range {
 	}
 
 	/**
-	 * Load a list of range by parsing the DOM nodes <range>
+	 * Load a list of range by parsing the DOM nodes &lt;range&gt;
 	 * 
 	 * @param rangesNode
 	 * @return
@@ -165,7 +165,7 @@ public class Range {
 	}
 
 	/**
-	 * Write a list of range as XML <ranges><range ...>
+	 * Write a list of range as XML &lt;ranges&gt;&lt;range ...&gt;
 	 * 
 	 * @param ranges
 	 *            The array with the list of Range

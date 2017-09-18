@@ -213,10 +213,6 @@ public class TaskLog extends ShutdownWaitInterface implements InfoCallback {
 		}
 	}
 
-	/**
-	 * @param abortRequested
-	 *            the abortRequested to set
-	 */
 	public void abortRequested() {
 		rwl.w.lock();
 		try {

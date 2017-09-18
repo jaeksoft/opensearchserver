@@ -98,11 +98,11 @@ public class IndexDocument implements Iterable<FieldContent> {
 	}
 
 	/**
-	 * Create a new instance of IndexDocument from an XML structure <br/>
-	 * <field name="FIELDNAME"><br/>
-	 * &nbsp;&nbsp;<value>VALUE1</value><br/>
-	 * &nbsp;&nbsp;<value>VALUE2</value><br/>
-	 * </field>
+	 * Create a new instance of IndexDocument from an XML structure <br>
+	 * &lt;field name="FIELDNAME"&gt;<br>
+	 * &nbsp;&nbsp;&lt;value&gt;VALUE1&lt;/value&gt;<br>
+	 * &nbsp;&nbsp;&lt;value&gt;VALUE2&lt;/value&gt;<br>
+	 * &lt;/field&gt;
 	 *
 	 * @param client
 	 * @param parserSelector

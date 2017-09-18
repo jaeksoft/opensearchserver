@@ -161,7 +161,7 @@ public class SearchField implements Cloneable {
 	}
 
 	/**
-	 * @param phrase
+	 * @param phraseBoost
 	 *            boost the phrase boost to set
 	 */
 	public void setPhraseBoost(double phraseBoost) {
@@ -176,8 +176,8 @@ public class SearchField implements Cloneable {
 	}
 
 	/**
-	 * @param phrase
-	 *            slop the phrase slop to set
+	 * @param phraseSlop
+	 *            the phrase slop to set
 	 */
 	public void setPhraseSlop(Integer phraseSlop) {
 		this.phraseSlop = phraseSlop;

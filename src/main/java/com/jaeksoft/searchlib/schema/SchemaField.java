@@ -193,13 +193,10 @@ public class SchemaField extends AbstractField<SchemaField> {
 	/**
 	 * Construit une liste de champs bas� sur le fichier de config XML
 	 * 
-	 * @param analyzers
-	 * @param document
-	 * @param xPath
-	 * @throws XPathExpressionException
+	 * @param xpp
+	 * @param parentNode
 	 * @throws XPathExpressionException
 	 * @throws DOMException
-	 * @throws IOException
 	 */
 	public static SchemaFieldList fromXmlConfig(XPathParser xpp, Node parentNode)
 			throws XPathExpressionException {

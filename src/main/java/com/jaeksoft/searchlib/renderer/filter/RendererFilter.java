@@ -162,8 +162,6 @@ public class RendererFilter {
 	/**
 	 * @param filterType
 	 *            the filterType to set
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
 	 */
 	public void setFilterType(RendererFilterType filterType) {
 		this.filterType = filterType;

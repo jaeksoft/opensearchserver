@@ -346,8 +346,9 @@ public final class ClickCapture implements Comparable<ClickCapture> {
 	 * Collect the final URL
 	 * 
 	 * @param browserDriver
-	 * @param results
+         * @param clickCaptures 
 	 * @param htmlArchiver
+	 * @param screenshot 
 	 * @throws SearchLibException
 	 * @throws IOException
 	 */

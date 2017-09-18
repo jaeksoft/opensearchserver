@@ -313,7 +313,7 @@ public class ActiveDirectory implements Closeable {
 	 * The String value is: S-Revision-Authority-SubAuthority[n]...
 	 * 
 	 * Based on code from here -
-	 * http://forums.oracle.com/forums/thread.jspa?threadID=1155740&tstart=0
+	 * http://forums.oracle.com/forums/thread.jspa?threadID=1155740&amp;tstart=0
 	 */
 	public static String decodeSID(byte[] sid) {
 

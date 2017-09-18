@@ -83,7 +83,6 @@ public interface LearnerInterface {
 	 * @param maxRank
 	 * @param minScore
 	 * @param collector
-	 * @return
 	 * @throws IOException
 	 * @throws SearchLibException
 	 */
@@ -112,7 +111,7 @@ public interface LearnerInterface {
 	 * @param requestName
 	 * @param sourceFieldMap
 	 * @param buffer
-	 * @param taskLog
+	 * @param infoCallback
 	 * @throws SearchLibException
 	 * @throws IOException
 	 */

@@ -171,7 +171,6 @@ public class ViewerController extends CommonController {
 
 	/**
 	 * @param page the page to set
-	 * @throws SearchLibException
 	 */
 	@NotifyChange({ "currentImage", "page" })
 	public void setPage(int page) {

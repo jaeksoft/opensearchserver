@@ -311,6 +311,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	/**
 	 * Create a new FilePathItem instance by reading XML
 	 * 
+         * @param config
 	 * @param node
 	 *            the node with the parameters
 	 * @return a new FilePathItem
@@ -491,7 +492,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	}
 
 	/**
-	 * @param swiftTenant
+	 * @param tenant
 	 *            the swiftTenant to set
 	 */
 	public void setSwiftTenant(String tenant) {
@@ -506,7 +507,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	}
 
 	/**
-	 * @param swiftAuthUrl
+	 * @param swiftAuthURL
 	 *            the swiftAuthURL to set
 	 */
 	public void setSwiftAuthURL(String swiftAuthURL) {
@@ -551,7 +552,7 @@ public class FilePathItem implements Comparable<FilePathItem> {
 	}
 
 	/**
-	 * @param exclusionPattern
+	 * @param exclusionPatterns
 	 *            the exclusionPattern to set
 	 * @throws IOException
 	 *             inherited error

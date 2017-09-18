@@ -173,7 +173,7 @@ public class Fragment {
 	/**
 	 * Find the next highlighted fragment
 	 * 
-	 * @param iterator
+	 * @param fragment
 	 * @return
 	 */
 	final static protected Fragment findNextHighlightedFragment(

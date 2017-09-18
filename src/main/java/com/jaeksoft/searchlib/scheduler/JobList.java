@@ -205,7 +205,6 @@ public class JobList implements XmlWriter.Interface {
 	 *
 	 * @param xmlWriter
 	 * @throws SAXException
-	 * @throws UnsupportedEncodingException
 	 */
 	@Override
 	public void writeXml(XmlWriter xmlWriter) throws SAXException {

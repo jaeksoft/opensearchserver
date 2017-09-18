@@ -181,8 +181,7 @@ public class SchedulerEditController extends SchedulerController {
 	/**
 	 * Move the task up
 	 * 
-	 * @param component
-	 * @throws SearchLibException
+	 * @param taskItem
 	 */
 	@Command
 	public void onTaskUp(@BindingParam("taskitem") TaskItem taskItem)
@@ -199,7 +198,7 @@ public class SchedulerEditController extends SchedulerController {
 	/**
 	 * Move the task down
 	 * 
-	 * @param component
+	 * @param taskItem
 	 * @throws SearchLibException
 	 */
 	@Command
@@ -212,7 +211,7 @@ public class SchedulerEditController extends SchedulerController {
 	/**
 	 * Remove the task
 	 * 
-	 * @param component
+	 * @param taskItem
 	 * @throws SearchLibException
 	 */
 	@Command

@@ -585,8 +585,8 @@ public class ParserController extends CommonController {
 	}
 
 	/**
-	 * @param currentFieldMapItem
-	 *            the currentFieldMapItem to set
+	 * @param selectedFieldMapItem
+	 *            the selectedFieldMapItem to set
 	 * @throws SearchLibException
 	 */
 	public void setSelectedFieldMapItem(
