@@ -32,6 +32,7 @@ import com.jaeksoft.searchlib.result.ResultDocument;
 import com.jaeksoft.searchlib.result.ResultDocumentsInterface;
 import com.jaeksoft.searchlib.schema.FieldValue;
 import com.jaeksoft.searchlib.snippet.SnippetFieldValue;
+import com.qwazr.utils.CollectionsUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -137,20 +138,22 @@ public class DocumentResult {
 				snippets.add(new SnippetValueList(snippetFiedValue));
 
 		this.joinParameter = resultDocument.getJoinParameter();
-		joins = CollectionUtils.isEmpty(joinResultDocuments) ? null : new ArrayList<DocumentResult>(
-				joinResultDocuments.size());
+		joins = CollectionUtils.isEmpty(joinResultDocuments) ?
+				null :
+				new ArrayList<DocumentResult>(joinResultDocuments.size());
 		if (joinResultDocuments != null) {
 			for (ResultDocument joinResultDocument : joinResultDocuments)
 				joins.add(new DocumentResult(joinResultDocument, null, null, null, null, null, null));
 		}
-		collapsedDocs = CollectionUtils.isEmpty(collapsedDocuments) ? null : new ArrayList<DocumentResult>(
-				collapsedDocuments.size());
+		collapsedDocs = CollectionUtils.isEmpty(collapsedDocuments) ?
+				null :
+				new ArrayList<DocumentResult>(collapsedDocuments.size());
 		if (collapsedDocuments != null) {
 			for (ResultDocument collapsedDocument : collapsedDocuments)
 				collapsedDocs.add(new DocumentResult(collapsedDocument, null, null, null, null, null, null));
 		}
-		functions = resultDocument.getFunctionFieldValues();
-		positions = resultDocument.getPositions();
+		functions = CollectionsUtils.copyIfNotEmpty(resultDocument.getFunctionFieldValues(), ArrayList::new);
+		positions = CollectionsUtils.copyIfNotEmpty(resultDocument.getPositions(), ArrayList::new);
 		collapseCount = collapseDocCount;
 		pos = position;
 		score = docScore;
@@ -169,10 +172,11 @@ public class DocumentResult {
 			int collapseDocCount = result.getCollapseCount(i);
 			float docScore = result.getScore(i);
 			Float docDistance = result.getDistance(i);
-			List<ResultDocument> joinResultDocuments = resultSearch == null ? null : resultSearch.getJoinDocumentList(i,
-					null);
-			DocumentResult documentResult = new DocumentResult(resultDocument, collapseDocCount, i, docScore,
-					docDistance, joinResultDocuments, resultDocument.getCollapsedDocuments());
+			List<ResultDocument> joinResultDocuments =
+					resultSearch == null ? null : resultSearch.getJoinDocumentList(i, null);
+			DocumentResult documentResult =
+					new DocumentResult(resultDocument, collapseDocCount, i, docScore, docDistance, joinResultDocuments,
+							resultDocument.getCollapsedDocuments());
 			documents.add(documentResult);
 		}
 		return documents;
