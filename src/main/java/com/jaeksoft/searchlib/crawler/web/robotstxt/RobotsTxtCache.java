@@ -36,12 +36,12 @@ import com.jaeksoft.searchlib.parser.ParserSelector;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.LinkUtils;
 import com.qwazr.crawler.web.robotstxt.RobotsTxt;
+import com.qwazr.crawler.web.robotstxt.RobotsTxt2;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 public class RobotsTxtCache extends GenericCache<String, RobotsTxtItem> {
 
@@ -109,7 +109,8 @@ public class RobotsTxtCache extends GenericCache<String, RobotsTxtItem> {
 		@Override
 		protected void parseContent(StreamLimiter streamLimiter, LanguageEnum lang)
 				throws IOException, SearchLibException {
-			robotsTxt = new RobotsTxt(streamLimiter.getNewInputStream(), StandardCharsets.UTF_8);
+			robotsTxt = new RobotsTxt2(streamLimiter.getNewInputStream());
 		}
 	}
+
 }
