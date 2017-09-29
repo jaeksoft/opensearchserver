@@ -1,37 +1,38 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.jaeksoft.searchlib.crawler.database;
+
+import com.jaeksoft.searchlib.Logging;
+import org.zkoss.zk.ui.Executions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zkoss.zk.ui.Executions;
-
-import com.jaeksoft.searchlib.Logging;
-
 public enum DatabaseDriverNames {
+
+	CASSANDRA("com.github.cassandra.jdbc.CassandraDriver"),
 
 	DERBY("org.apache.derby.jdbc.EmbeddedDriver"),
 
@@ -59,7 +60,7 @@ public enum DatabaseDriverNames {
 
 	private String name;
 
-	private DatabaseDriverNames(String name) {
+	DatabaseDriverNames(String name) {
 		this.name = name;
 	}
 
@@ -76,14 +77,12 @@ public enum DatabaseDriverNames {
 	public static synchronized String[] getAvailableList(ClassLoader classLoader) {
 		if (dbDriverList != null)
 			return dbDriverList;
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (DatabaseDriverNames ddn : values()) {
 			try {
 				Class.forName(ddn.name, false, classLoader);
 				list.add(ddn.name);
-			} catch (Exception e) {
-				Logging.warn(e);
-			} catch (LinkageError e) {
+			} catch (Exception | LinkageError e) {
 				Logging.warn(e);
 			}
 		}
