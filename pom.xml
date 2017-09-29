@@ -959,8 +959,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <keepDependenciesWithProvidedScope>
-                            </keepDependenciesWithProvidedScope>
+                            <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -980,6 +979,7 @@
                                     <include>org.apache.commons:commons-lang3</include>
                                     <include>com.github.jankroken:commandline</include>
                                     <include>org.eclipse.jdt.core.compiler:ecj</include>
+                                    <include>log4j:log4j</include>
                                 </includes>
                             </artifactSet>
                             <transformers>
