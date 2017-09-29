@@ -24,6 +24,7 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import com.jaeksoft.searchlib.Logging;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.FieldMapGeneric;
@@ -40,12 +41,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Array;
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -104,6 +107,37 @@ public class DatabaseFieldMap extends FieldMapGeneric<SourceField, CommonFieldTa
 
 	}
 
+	private boolean tryBinaryStream(ResultSet resultSet, File binaryPath, String columnName) throws IOException {
+		try (final InputStream input = resultSet.getBinaryStream(columnName)) {
+			if (input == null)
+				return false;
+			IOUtils.copy(input, binaryPath);
+			return true;
+		} catch (SQLException e) {
+			Logging.warn(e);
+			return false;
+		}
+	}
+
+	private boolean tryBlob(ResultSet resultSet, File binaryPath, String columnName) throws IOException {
+		try {
+			final Blob blob = resultSet.getBlob(columnName);
+			if (blob == null)
+				return false;
+			try (final InputStream input = blob.getBinaryStream()) {
+				if (input == null)
+					return false;
+				IOUtils.copy(input, binaryPath);
+				return true;
+			} finally {
+				blob.free();
+			}
+		} catch (SQLException e) {
+			Logging.warn(e);
+			return false;
+		}
+	}
+
 	private void handleBinary(FieldMapContext context, ResultSet resultSet, IndexDocument target,
 			Set<String> filePathSet, String columnName, CommonFieldTarget targetField)
 			throws SQLException, IOException, SearchLibException, InterruptedException, ParseException, SyntaxError,
@@ -115,9 +149,10 @@ public class DatabaseFieldMap extends FieldMapGeneric<SourceField, CommonFieldTa
 		Path binaryPath = null;
 		try {
 			binaryPath = Files.createTempFile("oss", fileName);
-			try (final InputStream input = resultSet.getBinaryStream(columnName)) {
-				IOUtils.copy(input, binaryPath.toFile());
-			}
+			File binaryFile = binaryPath.toFile();
+			if (!tryBinaryStream(resultSet, binaryFile, columnName))
+				if (!tryBlob(resultSet, binaryFile, columnName))
+					return;
 			mapFieldTarget(context, targetField, true, binaryPath.toString(), target, filePathSet);
 		} finally {
 			if (binaryPath != null)
