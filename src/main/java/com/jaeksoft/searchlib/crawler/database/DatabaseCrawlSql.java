@@ -1,40 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.crawler.database;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.pojodbc.Query;
 import com.jaeksoft.pojodbc.Transaction;
@@ -44,6 +32,16 @@ import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+import javax.xml.xpath.XPathExpressionException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 
 public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
@@ -85,7 +83,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	private int fetchSize;
 
 	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager, String name) {
-		super(crawlMaster, propertyManager, name);
+		super(crawlMaster, propertyManager, name, new DatabaseSqlFieldMap());
 		driverClass = null;
 		isolationLevel = IsolationLevelEnum.TRANSACTION_NONE;
 		sqlSelect = null;
@@ -108,7 +106,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	protected DatabaseCrawlSql(DatabaseCrawlSql crawl) {
-		super((DatabaseCrawlMaster) crawl.threadMaster, crawl.propertyManager);
+		super((DatabaseCrawlMaster) crawl.threadMaster, crawl.propertyManager, new DatabaseSqlFieldMap());
 		crawl.copyTo(this);
 	}
 
@@ -144,16 +142,14 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @param driverClass
-	 *            the driverClass to set
+	 * @param driverClass the driverClass to set
 	 */
 	public void setDriverClass(String driverClass) {
 		this.driverClass = driverClass;
 	}
 
 	/**
-	 * @param sql
-	 *            the sqlSelect to set
+	 * @param sql the sqlSelect to set
 	 */
 	public void setSqlSelect(String sql) {
 		this.sqlSelect = sql;
@@ -167,8 +163,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @param sql
-	 *            the sqlSelect to set
+	 * @param sql the sqlSelect to set
 	 */
 	public void setSqlUpdate(String sql) {
 		this.sqlUpdate = sql;
@@ -189,16 +184,14 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @param sqlUpdateMode
-	 *            the sqlUpdateMode to set
+	 * @param sqlUpdateMode the sqlUpdateMode to set
 	 */
 	public void setSqlUpdateMode(SqlUpdateMode sqlUpdateMode) {
 		this.sqlUpdateMode = sqlUpdateMode;
 	}
 
 	/**
-	 * @param primaryKey
-	 *            the primaryKey to set
+	 * @param primaryKey the primaryKey to set
 	 */
 	public void setPrimaryKey(String primaryKey) {
 		this.primaryKey = primaryKey;
@@ -221,7 +214,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 
 	public DatabaseCrawlSql(DatabaseCrawlMaster crawlMaster, DatabasePropertyManager propertyManager, XPathParser xpp,
 			Node item) throws XPathExpressionException {
-		super(crawlMaster, propertyManager, xpp, item);
+		super(crawlMaster, propertyManager, xpp, item, new DatabaseSqlFieldMap());
 		setDriverClass(XPathParser.getAttributeString(item, DBCRAWL_ATTR_DRIVER_CLASS));
 		setIsolationLevel(IsolationLevelEnum.find(XPathParser.getAttributeString(item, DBCRAWL_ATTR_ISOLATION_LEVEL)));
 		setPrimaryKey(XPathParser.getAttributeString(item, DBCRAWL_ATTR_PRIMARY_KEY));
@@ -274,8 +267,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @param isolationLevel
-	 *            the isolationLevel to set
+	 * @param isolationLevel the isolationLevel to set
 	 */
 	public void setIsolationLevel(IsolationLevelEnum isolationLevel) {
 		this.isolationLevel = isolationLevel;
@@ -289,8 +281,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @param uniqueKeyDeleteField
-	 *            the uniqueKeyDeleteField to set
+	 * @param uniqueKeyDeleteField the uniqueKeyDeleteField to set
 	 */
 	public void setUniqueKeyDeleteField(String uniqueKeyDeleteField) {
 		this.uniqueKeyDeleteField = uniqueKeyDeleteField;
@@ -304,8 +295,7 @@ public class DatabaseCrawlSql extends DatabaseCrawlAbstract {
 	}
 
 	/**
-	 * @param fetchSize
-	 *            the fetchSize to set
+	 * @param fetchSize the fetchSize to set
 	 */
 	public void setFetchSize(int fetchSize) {
 		this.fetchSize = fetchSize;

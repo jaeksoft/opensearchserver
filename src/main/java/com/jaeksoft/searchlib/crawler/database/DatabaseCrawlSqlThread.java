@@ -118,25 +118,26 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		return true;
 	}
 
-	final private void runner_update(Transaction transaction, ResultSet resultSet, Map<String, Integer> columns)
+	private void runnerUpdate(Transaction transaction, ResultSet resultSet, Map<String, Integer> columns)
 			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException, SyntaxError,
 			InterruptedException {
+
 		String dbPrimaryKey = databaseCrawl.getPrimaryKey();
-		DatabaseFieldMap databaseFieldMap = databaseCrawl.getFieldMap();
-		int bufferSize = databaseCrawl.getBufferSize();
+		final DatabaseSqlFieldMap databaseFieldMap = (DatabaseSqlFieldMap) databaseCrawl.getFieldMap();
+		final int bufferSize = databaseCrawl.getBufferSize();
 
 		IndexDocument indexDocument = null;
 		IndexDocument lastFieldContent = null;
 		boolean merge = false;
 		String lastPrimaryKey = null;
 
-		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
-		List<String> pkList = new ArrayList<String>(0);
+		List<IndexDocument> indexDocumentList = new ArrayList<>(0);
+		List<String> pkList = new ArrayList<>(0);
 
 		FieldMapContext context = new FieldMapContext(client, databaseCrawl.getLang());
 
-		Set<String> filePathSet = new TreeSet<String>();
+		Set<String> filePathSet = new TreeSet<>();
 		int faultTolerancy = 10;
 
 		while (!isAborted()) {
@@ -186,7 +187,7 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 		index(transaction, indexDocumentList, 0, pkList);
 	}
 
-	final private void runner_delete(Transaction transaction, ResultSet resultSet)
+	private void runnerDelete(Transaction transaction, ResultSet resultSet)
 			throws NoSuchAlgorithmException, SQLException, IOException, URISyntaxException, SearchLibException,
 			InstantiationException, IllegalAccessException, ClassNotFoundException, InterruptedException {
 		List<String> deleteKeyList = new ArrayList<String>(0);
@@ -234,9 +235,9 @@ public class DatabaseCrawlSqlThread extends DatabaseCrawlThread {
 				ukDeleteField = null;
 
 			if (ukDeleteField != null)
-				runner_delete(transaction, resultSet);
+				runnerDelete(transaction, resultSet);
 			else
-				runner_update(transaction, resultSet, columns);
+				runnerUpdate(transaction, resultSet, columns);
 
 			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0) {
 				transaction.commit();

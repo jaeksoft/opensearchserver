@@ -24,9 +24,14 @@
 package com.jaeksoft.searchlib.crawler.database;
 
 import com.jaeksoft.searchlib.Client;
+import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlThreadAbstract;
+import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
+
+import java.io.IOException;
+import java.util.List;
 
 public abstract class DatabaseCrawlThread extends CrawlThreadAbstract<DatabaseCrawlThread, DatabaseCrawlMaster> {
 
@@ -71,6 +76,26 @@ public abstract class DatabaseCrawlThread extends CrawlThreadAbstract<DatabaseCr
 		sb.append(" / ");
 		sb.append(getIgnoredDocumentCount());
 		return sb.toString();
+	}
+
+	protected boolean index(List<IndexDocument> indexDocumentList, int limit)
+			throws IOException, SearchLibException, InterruptedException {
+		int i = indexDocumentList.size();
+		if (i == 0 || i < limit)
+			return false;
+		client.updateDocuments(indexDocumentList);
+		rwl.w.lock();
+		try {
+			pendingIndexDocumentCount -= i;
+			updatedIndexDocumentCount += i;
+		} finally {
+			rwl.w.unlock();
+		}
+		indexDocumentList.clear();
+		if (infoCallback != null)
+			infoCallback.setInfo(updatedIndexDocumentCount + " document(s) indexed");
+		sleepMs(databaseCrawl.getMsSleep());
+		return true;
 	}
 
 	final public long getPendingIndexDocumentCount() {

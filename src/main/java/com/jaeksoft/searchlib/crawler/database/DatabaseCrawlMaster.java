@@ -44,6 +44,9 @@ public class DatabaseCrawlMaster extends CrawlMasterAbstract<DatabaseCrawlMaster
 		if (databaseCrawl instanceof DatabaseCrawlMongoDb)
 			return new DatabaseCrawlMongoDbThread(client, this, (DatabaseCrawlMongoDb) databaseCrawl, variables,
 					infoCallback);
+		if (databaseCrawl instanceof DatabaseCrawlCassandra)
+			return new DatabaseCrawlCassandraThread(client, this, (DatabaseCrawlCassandra) databaseCrawl, variables,
+					infoCallback);
 		return null;
 	}
 

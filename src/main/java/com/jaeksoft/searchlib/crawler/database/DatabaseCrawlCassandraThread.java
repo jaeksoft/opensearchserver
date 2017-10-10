@@ -24,61 +24,60 @@
 
 package com.jaeksoft.searchlib.crawler.database;
 
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.crawler.rest.RestFieldMap;
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
 import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
-import com.jayway.jsonpath.Configuration;
-import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.util.JSON;
-import org.bson.Document;
+import com.qwazr.library.cassandra.CassandraCluster;
+import com.qwazr.library.cassandra.CassandraSession;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
+public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private final DatabaseCrawlMongoDb databaseCrawl;
+	private final DatabaseCrawlCassandra databaseCrawl;
 
-	public DatabaseCrawlMongoDbThread(Client client, DatabaseCrawlMaster crawlMaster,
-			DatabaseCrawlMongoDb databaseCrawl, Variables variables, InfoCallback infoCallback) {
+	public DatabaseCrawlCassandraThread(Client client, DatabaseCrawlMaster crawlMaster,
+			DatabaseCrawlCassandra databaseCrawl, Variables variables, InfoCallback infoCallback) {
 		super(client, crawlMaster, databaseCrawl, infoCallback);
-		this.databaseCrawl = (DatabaseCrawlMongoDb) databaseCrawl.duplicate();
+		this.databaseCrawl = (DatabaseCrawlCassandra) databaseCrawl.duplicate();
 		this.databaseCrawl.applyVariables(variables);
 	}
 
-	private void runnerUpdate(FindIterable<Document> iterable)
+	private void runnerUpdate(ResultSet resultSet)
 			throws SearchLibException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 			IOException, ParseException, SyntaxError, URISyntaxException, InterruptedException {
 		final int limit = databaseCrawl.getBufferSize();
-		iterable.batchSize(limit);
-		final RestFieldMap fieldMap = (RestFieldMap) databaseCrawl.getFieldMap();
-		List<IndexDocument> indexDocumentList = new ArrayList<IndexDocument>(0);
-		LanguageEnum lang = databaseCrawl.getLang();
-		FieldMapContext fieldMapContext = new FieldMapContext(client, lang);
-		String uniqueField = client.getSchema().getUniqueField();
-		MongoCursor<Document> cursor = iterable.iterator();
-		while (cursor.hasNext() && !isAborted()) {
+		final DatabaseCassandraFieldMap fieldMap = (DatabaseCassandraFieldMap) databaseCrawl.getFieldMap();
+		final List<IndexDocument> indexDocumentList = new ArrayList<>(0);
+		final LanguageEnum lang = databaseCrawl.getLang();
+		final FieldMapContext fieldMapContext = new FieldMapContext(client, lang);
+		final String uniqueField = client.getSchema().getUniqueField();
+		final ColumnDefinitions columnDefinitions = resultSet.getColumnDefinitions();
+		final Set<String> filePathSet = new TreeSet<>();
 
-			String json = JSON.serialize(cursor.next());
-			Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
+		for (final Row row : resultSet) {
+			if (isAborted())
+				break;
 			IndexDocument indexDocument = new IndexDocument(lang);
-			fieldMap.mapJson(fieldMapContext, document, indexDocument);
+			fieldMap.mapRow(fieldMapContext, row, columnDefinitions, indexDocument, filePathSet);
 			if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
 				rwl.w.lock();
 				try {
@@ -105,16 +104,18 @@ public class DatabaseCrawlMongoDbThread extends DatabaseCrawlThread {
 	@Override
 	public void runner() throws Exception {
 		setStatus(CrawlStatus.STARTING);
-
-		try (final MongoClient mongoClient = databaseCrawl.getMongoClient()) {
-			final MongoCollection<Document> collection = databaseCrawl.getCollection(mongoClient);
-			final FindIterable<Document> iterable = collection.find(databaseCrawl.getCriteriaObject());
-			setStatus(CrawlStatus.CRAWL);
-			if (iterable != null)
-				runnerUpdate(iterable);
-			if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
-				client.reload();
+		try (final CassandraCluster cluster = databaseCrawl.getCluster()) {
+			try (final CassandraSession session = databaseCrawl.getKeySpace() == null ?
+					cluster.getSession() :
+					cluster.getSession(databaseCrawl.getKeySpace())) {
+				final ResultSet resultSet =
+						session.executeWithFetchSize(databaseCrawl.getCqlQuery(), databaseCrawl.getBufferSize());
+				setStatus(CrawlStatus.CRAWL);
+				if (resultSet != null)
+					runnerUpdate(resultSet);
+				if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
+					client.reload();
+			}
 		}
-
 	}
 }

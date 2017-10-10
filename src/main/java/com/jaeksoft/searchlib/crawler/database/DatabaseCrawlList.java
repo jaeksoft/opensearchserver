@@ -1,7 +1,7 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
- * Copyright (C) 2010-2016 Emmanuel Keller / Jaeksoft
+ * Copyright (C) 2010-2017 Emmanuel Keller / Jaeksoft
  * <p>
  * http://www.open-search-server.com
  * <p>
@@ -20,25 +20,22 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
-
+ */
 package com.jaeksoft.searchlib.crawler.database;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.TreeMap;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.TreeMap;
 
 public class DatabaseCrawlList implements XmlWriter.Interface {
 
@@ -48,7 +45,7 @@ public class DatabaseCrawlList implements XmlWriter.Interface {
 	private DatabaseCrawlAbstract[] array;
 
 	private DatabaseCrawlList() {
-		map = new TreeMap<String, DatabaseCrawlAbstract>();
+		map = new TreeMap<>();
 	}
 
 	private final static String DBCRAWLLIST_ROOTNODE_NAME = "databaseCrawlList";
@@ -66,9 +63,9 @@ public class DatabaseCrawlList implements XmlWriter.Interface {
 		if (nodes == null)
 			return dbCrawlList;
 		for (int i = 0; i < nodes.getLength(); i++) {
-			Node crawlNode = nodes.item(i);
-			DatabaseCrawlEnum type = DatabaseCrawlEnum
-					.find(XPathParser.getAttributeString(crawlNode, DatabaseCrawlAbstract.DBCRAWL_ATTR_TYPE));
+			final Node crawlNode = nodes.item(i);
+			DatabaseCrawlEnum type = DatabaseCrawlEnum.find(
+					XPathParser.getAttributeString(crawlNode, DatabaseCrawlAbstract.DBCRAWL_ATTR_TYPE));
 			DatabaseCrawlAbstract dbCrawl = null;
 			switch (type) {
 			case DB_SQL:
@@ -77,9 +74,11 @@ public class DatabaseCrawlList implements XmlWriter.Interface {
 			case DB_MONGO_DB:
 				dbCrawl = new DatabaseCrawlMongoDb(crawlMaster, propertyManager, xpp, nodes.item(i));
 				break;
+			case DB_CASSANDRA:
+				dbCrawl = new DatabaseCrawlCassandra(crawlMaster, propertyManager, xpp, nodes.item(i));
+				break;
 			}
-			if (dbCrawl != null)
-				dbCrawlList.add(dbCrawl);
+			dbCrawlList.add(dbCrawl);
 		}
 		return dbCrawlList;
 	}

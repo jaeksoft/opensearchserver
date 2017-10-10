@@ -859,9 +859,9 @@
             <version>3.19.3</version>
         </dependency>
         <dependency>
-            <groupId>com.github.zhicwu</groupId>
-            <artifactId>cassandra-jdbc-driver</artifactId>
-            <version>0.6.4</version>
+            <groupId>com.qwazr</groupId>
+            <artifactId>qwazr-library-cassandra</artifactId>
+            <version>1.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.jankroken</groupId>
