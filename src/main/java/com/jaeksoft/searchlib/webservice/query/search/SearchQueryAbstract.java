@@ -1,4 +1,4 @@
-/**   
+/*
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
@@ -20,27 +20,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenSearchServer. 
  *  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.webservice.query.search;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-
-import org.apache.lucene.queryParser.QueryParser.Operator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -79,6 +66,18 @@ import com.jaeksoft.searchlib.sort.SortField;
 import com.jaeksoft.searchlib.sort.SortFieldList;
 import com.jaeksoft.searchlib.webservice.CommonServices.CommonServiceException;
 import com.jaeksoft.searchlib.webservice.query.QueryAbstract;
+import org.apache.lucene.queryParser.QueryParser.Operator;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @JsonInclude(Include.NON_NULL)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -93,8 +92,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	final public Geo geo;
 	final public boolean emptyReturnsAll;
 
-	@XmlElements({
-			@XmlElement(name = "QueryFilter", type = QueryFilter.class),
+	@XmlElements({ @XmlElement(name = "QueryFilter", type = QueryFilter.class),
 			@XmlElement(name = "TermFilter", type = TermFilter.class),
 			@XmlElement(name = "GeoFilter", type = GeoFilter.class),
 			@XmlElement(name = "RelativeDateFilter", type = RelativeDateFilter.class),
@@ -113,7 +111,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	final public Boolean enableLog;
 	final public List<String> customLogs;
 
-	public static enum BatchAction {
+	public enum BatchAction {
 
 		/**
 		 * The batch is stopped if the request found documents. IF not document
@@ -159,11 +157,11 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		@XmlTransient
 		public final Operator lucop;
 
-		private OperatorEnum(Operator operator) {
+		OperatorEnum(Operator operator) {
 			lucop = operator;
 		}
 
-		public final static OperatorEnum find(String value) {
+		public static OperatorEnum find(String value) {
 			for (OperatorEnum operator : values())
 				if (value.equalsIgnoreCase(operator.name()))
 					return operator;
@@ -214,8 +212,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				type = TypeEnum.OPTIMIZED;
 				break;
 			}
-			functionFields = FunctionField.newList(request
-					.getCollapseFunctionFields());
+			functionFields = FunctionField.newList(request.getCollapseFunctionFields());
 		}
 
 		public void apply(AbstractSearchRequest request) {
@@ -229,15 +226,14 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				request.setCollapseType(type.type);
 			if (functionFields != null)
 				for (FunctionField functionField : functionFields)
-					request.addCollapseFunctionField(functionField
-							.getCollapseFunctionField());
+					request.addCollapseFunctionField(functionField.getCollapseFunctionField());
 		}
 
 		public enum ModeEnum {
 
-			OFF(CollapseParameters.Mode.OFF), ADJACENT(
-					CollapseParameters.Mode.ADJACENT), CLUSTER(
-					CollapseParameters.Mode.CLUSTER);
+			OFF(CollapseParameters.Mode.OFF),
+			ADJACENT(CollapseParameters.Mode.ADJACENT),
+			CLUSTER(CollapseParameters.Mode.CLUSTER);
 
 			private final CollapseParameters.Mode mode;
 
@@ -248,12 +244,11 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		public enum TypeEnum {
 
-			FULL(CollapseParameters.Type.FULL), OPTIMIZED(
-					CollapseParameters.Type.OPTIMIZED);
+			FULL(CollapseParameters.Type.FULL), OPTIMIZED(CollapseParameters.Type.OPTIMIZED);
 
 			private final CollapseParameters.Type type;
 
-			private TypeEnum(CollapseParameters.Type type) {
+			TypeEnum(CollapseParameters.Type type) {
 				this.type = type;
 			}
 		}
@@ -276,12 +271,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 				return new CollapseFunctionField(function, field);
 			}
 
-			private static List<FunctionField> newList(
-					Collection<CollapseFunctionField> collapseFunctionFields) {
+			private static List<FunctionField> newList(Collection<CollapseFunctionField> collapseFunctionFields) {
 				if (collapseFunctionFields == null)
 					return null;
-				List<FunctionField> functionFieldList = new ArrayList<FunctionField>(
-						collapseFunctionFields.size());
+				List<FunctionField> functionFieldList = new ArrayList<FunctionField>(collapseFunctionFields.size());
 				for (CollapseFunctionField functionField : collapseFunctionFields)
 					functionFieldList.add(new FunctionField(functionField));
 				return functionFieldList;
@@ -336,9 +329,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	}
 
 	@XmlTransient
-	@JsonTypeInfo(use = Id.NAME, property = "type")
-	@JsonSubTypes({
-			@JsonSubTypes.Type(value = QueryFilter.class, name = "QueryFilter"),
+	@JsonTypeInfo(use = Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+	@JsonSubTypes({ @JsonSubTypes.Type(value = QueryFilter.class, name = "QueryFilter"),
 			@JsonSubTypes.Type(value = TermFilter.class, name = "TermFilter"),
 			@JsonSubTypes.Type(value = GeoFilter.class, name = "GeoFilter"),
 			@JsonSubTypes.Type(value = RelativeDateFilter.class, name = "RelativeDateFilter"),
@@ -347,6 +339,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	public static abstract class Filter {
 
 		final public Boolean negative;
+
+		@JsonTypeId
 		final public String type;
 
 		public Filter() {
@@ -510,11 +504,9 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			dateFormat = null;
 		}
 
-		public RelativeDateFilter(
-				com.jaeksoft.searchlib.filter.RelativeDateFilter src) {
+		public RelativeDateFilter(com.jaeksoft.searchlib.filter.RelativeDateFilter src) {
 			super(src.isNegative());
-			from = src.getFrom() == null ? null : new TimeInterval(
-					src.getFrom());
+			from = src.getFrom() == null ? null : new TimeInterval(src.getFrom());
 			to = src.getTo() == null ? null : new TimeInterval(src.getTo());
 			field = src.getField();
 			dateFormat = src.getDateFormat();
@@ -523,7 +515,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		@Override
 		protected void apply(FilterAbstract<?> filter) {
 			super.apply(filter);
-			com.jaeksoft.searchlib.filter.RelativeDateFilter dateFilter = (com.jaeksoft.searchlib.filter.RelativeDateFilter) filter;
+			com.jaeksoft.searchlib.filter.RelativeDateFilter dateFilter =
+					(com.jaeksoft.searchlib.filter.RelativeDateFilter) filter;
 			if (from != null)
 				from.apply(dateFilter.getFrom());
 			if (to != null)
@@ -556,14 +549,12 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			interval = null;
 		}
 
-		protected TimeInterval(
-				com.jaeksoft.searchlib.crawler.common.database.TimeInterval src) {
+		protected TimeInterval(com.jaeksoft.searchlib.crawler.common.database.TimeInterval src) {
 			unit = src.getUnit();
 			interval = src.getInterval();
 		}
 
-		protected void apply(
-				com.jaeksoft.searchlib.crawler.common.database.TimeInterval timeInterval) {
+		protected void apply(com.jaeksoft.searchlib.crawler.common.database.TimeInterval timeInterval) {
 			if (unit != null)
 				timeInterval.setUnit(unit);
 			if (interval != null)
@@ -581,8 +572,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		public MirrorAndFilter() {
 		}
 
-		protected MirrorAndFilter(
-				com.jaeksoft.searchlib.filter.MirrorAndFilter src) {
+		protected MirrorAndFilter(com.jaeksoft.searchlib.filter.MirrorAndFilter src) {
 			super(src.isNegative());
 		}
 
@@ -616,8 +606,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 			queryString = null;
 		}
 
-		protected RequestTemplateFilter(
-				com.jaeksoft.searchlib.filter.RequestTemplateFilter src) {
+		protected RequestTemplateFilter(com.jaeksoft.searchlib.filter.RequestTemplateFilter src) {
 			super(src.isNegative());
 			this.requestName = src.getRequestName();
 			this.queryString = src.getQueryString();
@@ -626,7 +615,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		@Override
 		protected void apply(FilterAbstract<?> filter) {
 			super.apply(filter);
-			com.jaeksoft.searchlib.filter.RequestTemplateFilter requestFilter = (com.jaeksoft.searchlib.filter.RequestTemplateFilter) filter;
+			com.jaeksoft.searchlib.filter.RequestTemplateFilter requestFilter =
+					(com.jaeksoft.searchlib.filter.RequestTemplateFilter) filter;
 			if (requestName != null)
 				requestFilter.setRequestName(requestName);
 			if (queryString != null)
@@ -652,24 +642,19 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		for (FilterAbstract<?> filterAbstract : filterList) {
 			switch (filterAbstract.getFilterType()) {
 			case QUERY_FILTER:
-				filters.add(new QueryFilter(
-						(com.jaeksoft.searchlib.filter.QueryFilter) filterAbstract));
+				filters.add(new QueryFilter((com.jaeksoft.searchlib.filter.QueryFilter) filterAbstract));
 				break;
 			case TERM_FILTER:
-				filters.add(new TermFilter(
-						(com.jaeksoft.searchlib.filter.TermFilter) filterAbstract));
+				filters.add(new TermFilter((com.jaeksoft.searchlib.filter.TermFilter) filterAbstract));
 				break;
 			case GEO_FILTER:
-				filters.add(new GeoFilter(
-						(com.jaeksoft.searchlib.filter.GeoFilter) filterAbstract));
+				filters.add(new GeoFilter((com.jaeksoft.searchlib.filter.GeoFilter) filterAbstract));
 				break;
 			case RELATIVE_DATE_FILTER:
-				filters.add(new RelativeDateFilter(
-						(com.jaeksoft.searchlib.filter.RelativeDateFilter) filterAbstract));
+				filters.add(new RelativeDateFilter((com.jaeksoft.searchlib.filter.RelativeDateFilter) filterAbstract));
 				break;
 			case MIRROR_AND_FILTER:
-				filters.add(new MirrorAndFilter(
-						(com.jaeksoft.searchlib.filter.MirrorAndFilter) filterAbstract));
+				filters.add(new MirrorAndFilter((com.jaeksoft.searchlib.filter.MirrorAndFilter) filterAbstract));
 				break;
 			case REQUEST_TEMPLATE_FILTER:
 				filters.add(new RequestTemplateFilter(
@@ -705,8 +690,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 
 		public Sort(SortField sortField) {
-			joinNumber = sortField.getJoinNumber() == 0 ? null : sortField
-					.getJoinNumber();
+			joinNumber = sortField.getJoinNumber() == 0 ? null : sortField.getJoinNumber();
 			field = sortField.getName();
 			direction = sortField.isDesc() ? Direction.DESC : Direction.ASC;
 			empty = sortField.isNullFirst() ? Empty.first : Empty.last;
@@ -714,8 +698,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 
 		@JsonIgnore
 		final private SortField newSortField() {
-			SortField sortField = new SortField(joinNumber == null ? 0
-					: joinNumber, field, false, false);
+			SortField sortField = new SortField(joinNumber == null ? 0 : joinNumber, field, false, false);
 			if (direction != null)
 				sortField.setDirection(direction.name());
 			if (empty != null)
@@ -779,33 +762,28 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
-	final private static List<Scoring> newScoringList(
-			final AdvancedScore advancedScore) {
+	final private static List<Scoring> newScoringList(final AdvancedScore advancedScore) {
 		if (advancedScore == null)
 			return null;
 		AdvancedScoreItem[] advancedScoreItems = advancedScore.getArray();
 		if (advancedScoreItems == null)
 			return null;
-		List<Scoring> scorings = new ArrayList<Scoring>(
-				advancedScoreItems.length);
+		List<Scoring> scorings = new ArrayList<Scoring>(advancedScoreItems.length);
 		for (AdvancedScoreItem advancedScoreItem : advancedScoreItems)
 			scorings.add(new Scoring(advancedScoreItem));
 		return scorings;
 	}
 
-	final private static List<BoostingQuery> newBoostingQueryList(
-			final BoostQuery[] boostQueries) {
+	final private static List<BoostingQuery> newBoostingQueryList(final BoostQuery[] boostQueries) {
 		if (boostQueries == null)
 			return null;
-		List<BoostingQuery> boostingQueries = new ArrayList<BoostingQuery>(
-				boostQueries.length);
+		List<BoostingQuery> boostingQueries = new ArrayList<BoostingQuery>(boostQueries.length);
 		for (BoostQuery boostQuery : boostQueries)
 			boostingQueries.add(new BoostingQuery(boostQuery));
 		return boostingQueries;
 	}
 
-	final private static List<Sort> newSortList(
-			final SortFieldList sortFieldList) {
+	final private static List<Sort> newSortList(final SortFieldList sortFieldList) {
 		if (sortFieldList == null)
 			return null;
 		if (sortFieldList.size() == 0)
@@ -816,8 +794,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		return sorts;
 	}
 
-	final private static List<String> newReturnFieldList(
-			final ReturnFieldList returnFieldList) {
+	final private static List<String> newReturnFieldList(final ReturnFieldList returnFieldList) {
 		if (returnFieldList == null)
 			return null;
 		if (returnFieldList.size() == 0)
@@ -893,8 +870,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		}
 	}
 
-	private static List<Snippet> newSnippetList(
-			SnippetFieldList snippetFieldList) {
+	private static List<Snippet> newSnippetList(SnippetFieldList snippetFieldList) {
 		if (snippetFieldList == null)
 			return null;
 		if (snippetFieldList.size() == 0)
@@ -1056,13 +1032,12 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		start = request.getStart();
 		rows = request.getRows();
 		lang = request.getLang();
-		operator = request.getDefaultOperator() == null ? null : OperatorEnum
-				.valueOf(request.getDefaultOperator());
+		operator = request.getDefaultOperator() == null ? null : OperatorEnum.valueOf(request.getDefaultOperator());
 		collapsing = new Collapsing(request);
 		geo = new Geo(request.getGeoParameters());
-		filterOperator = request.getFilterList().getDefaultOperator() == null ? null
-				: OperatorEnum.valueOf(request.getFilterList()
-						.getDefaultOperatorString());
+		filterOperator = request.getFilterList().getDefaultOperator() == null ?
+				null :
+				OperatorEnum.valueOf(request.getFilterList().getDefaultOperatorString());
 		filters = newFilterList(request.getFilterList());
 		sorts = newSortList(request.getSortFieldList());
 		returnedFields = newReturnFieldList(request.getReturnFieldList());
@@ -1119,12 +1094,10 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 					request.getSortFieldList().put(sort.newSortField());
 			if (returnedFields != null)
 				for (String returnedField : returnedFields)
-					request.getReturnFieldList().put(
-							new ReturnField(returnedField));
+					request.getReturnFieldList().put(new ReturnField(returnedField));
 			if (snippets != null)
 				for (Snippet snippet : snippets)
-					request.getSnippetFieldList()
-							.put(snippet.newSnippetField());
+					request.getSnippetFieldList().put(snippet.newSnippetField());
 			if (facets != null)
 				for (Facet facet : facets)
 					request.getFacetFieldList().put(facet.newFacetField());
@@ -1136,8 +1109,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 					request.addAdvancedScore(scoring.newAdvancedScoreItem());
 			if (boostingQueries != null)
 				for (BoostingQuery boostingQuery : boostingQueries)
-					request.setBoostingQuery(null,
-							boostingQuery.newBoostQuery());
+					request.setBoostingQuery(null, boostingQuery.newBoostQuery());
 			if (enableLog != null)
 				request.setLogReport(enableLog);
 			if (customLogs != null)

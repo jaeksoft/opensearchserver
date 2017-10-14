@@ -24,9 +24,10 @@
 
 package com.jaeksoft.searchlib.test.rest;
 
+import com.jaeksoft.searchlib.webservice.query.search.SearchFieldQuery;
 import com.jaeksoft.searchlib.webservice.query.search.SearchPatternQuery;
 import com.jaeksoft.searchlib.webservice.query.search.SearchResult;
-import org.apache.http.client.ClientProtocolException;
+import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -39,9 +40,18 @@ import static org.junit.Assert.assertEquals;
 public class RestSearchTest extends CommonRestAPI {
 
 	@Test
-	public void testA_WildcardSearchPattern() throws ClientProtocolException, IOException {
+	public void testA_WildcardSearchPattern() throws IOException {
 		SearchPatternQuery query = getResource("wildcard_search_pattern.json", SearchPatternQuery.class);
 		SearchResult searchResult = searchPattern(query);
 		assertEquals(10, searchResult.numFound);
 	}
+
+	@Test
+	public void testC_SearchField() throws IOException {
+		SearchFieldQuery query = getResource("search_field.json", SearchFieldQuery.class);
+		SearchResult searchResult = searchField(query);
+		Assert.assertNotNull(searchResult.query);
+		assertEquals(0, searchResult.numFound);
+	}
+
 }

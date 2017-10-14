@@ -34,6 +34,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,14 +44,16 @@ public class RestApplication extends Application {
 	public RestApplication(@Context ServletContext sc) {
 	}
 
+	public static Class<?>[] CLASSES = { RestException.class,
+			JacksonConfig.class,
+			JaxbContextProvider.class,
+			JacksonJsonProvider.class,
+			XmlJsonFilter.class };
+
 	@Override
 	public Set<Class<?>> getClasses() {
 		final Set<Class<?>> classes = new HashSet<>();
-		classes.add(RestException.class);
-		classes.add(JacksonConfig.class);
-		classes.add(JaxbContextProvider.class);
-		classes.add(JacksonJsonProvider.class);
-		classes.add(XmlJsonFilter.class);
+		Collections.addAll(classes, CLASSES);
 		for (WebServiceEnum webServiceEnum : WebServiceEnum.values())
 			classes.add(webServiceEnum.getServiceClass());
 		return classes;
