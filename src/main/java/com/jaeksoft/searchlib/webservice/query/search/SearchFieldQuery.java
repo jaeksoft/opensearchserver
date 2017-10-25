@@ -1,4 +1,4 @@
-/**
+/*
  * License Agreement for OpenSearchServer
  * <p>
  * Copyright (C) 2011-2014 Emmanuel Keller / Jaeksoft
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenSearchServer.
  * If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 package com.jaeksoft.searchlib.webservice.query.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
