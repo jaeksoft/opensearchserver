@@ -37,12 +37,13 @@ import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 import com.qwazr.library.cassandra.CassandraCluster;
 import com.qwazr.library.cassandra.CassandraSession;
-import com.qwazr.utils.ObjectMappers;
+import com.qwazr.utils.FunctionUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -66,19 +67,16 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 			try (final CassandraSession session = databaseCrawl.getKeySpace() == null ?
 					cluster.getSession() :
 					cluster.getSession(databaseCrawl.getKeySpace())) {
-				final DatabaseCrawlCassandra.ComplexQuery complexQuery =
-						ObjectMappers.JSON.readValue(databaseCrawl.getCqlQuery(),
-								DatabaseCrawlCassandra.ComplexQuery.class);
 				setStatus(CrawlStatus.CRAWL);
 				try (final ResultSetConsumer resultSetConsumer = new ResultSetConsumer(session)) {
-					resultSetConsumer.execute(null, complexQuery);
+					resultSetConsumer.execute(databaseCrawl.getCqlQuery());
 				}
 				if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
 					client.reload();
 			}
 		}
 	}
-	
+
 	class ResultSetConsumer extends DatabaseCrawlCassandra.ResultSetConsumer implements Closeable {
 
 		private final DatabaseCassandraFieldMap fieldMap;
@@ -87,8 +85,6 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 		private final FieldMapContext fieldMapContext;
 		private final String uniqueField;
 		private final Set<String> filePathSet;
-
-		volatile ColumnDefinitions columnDefinitions;
 
 		ResultSetConsumer(CassandraSession session) throws SearchLibException {
 			super(session, databaseCrawl.getBufferSize());
@@ -101,16 +97,16 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 		}
 
 		@Override
-		void columns(ColumnDefinitions columnsDef) {
-			columnDefinitions = columnsDef;
+		boolean abort() {
+			return isAborted();
 		}
 
 		@Override
-		boolean row(Row row) throws Exception {
-			if (isAborted())
-				return false;
+		void index(Map<Row, ColumnDefinitions> rows) throws Exception {
 			IndexDocument indexDocument = new IndexDocument(lang);
-			fieldMap.mapRow(fieldMapContext, row, columnDefinitions, indexDocument, filePathSet);
+			FunctionUtils.forEachEx(rows,
+					(row, columnDefinitions) -> fieldMap.mapRow(fieldMapContext, row, columnDefinitions, indexDocument,
+							filePathSet));
 			if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
 				rwl.w.lock();
 				try {
@@ -118,7 +114,7 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 				} finally {
 					rwl.w.unlock();
 				}
-				return true;
+				return;
 			}
 			indexDocumentList.add(indexDocument);
 			rwl.w.lock();
@@ -127,14 +123,13 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 			} finally {
 				rwl.w.unlock();
 			}
-			if (index(indexDocumentList, bufferSize))
+			if (DatabaseCrawlCassandraThread.this.index(indexDocumentList, bufferSize))
 				setStatus(CrawlStatus.CRAWL);
-			return false;
 		}
 
 		public void close() throws IOException {
 			try {
-				index(indexDocumentList, 0);
+				DatabaseCrawlCassandraThread.this.index(indexDocumentList, 0);
 			} catch (SearchLibException | InterruptedException e) {
 				throw new IOException(e);
 			}

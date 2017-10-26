@@ -30,9 +30,6 @@ import com.datastax.driver.core.Row;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
@@ -45,10 +42,10 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -166,8 +163,7 @@ public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 				sb.append("Connection established.");
 				if (!StringUtils.isBlank(cqlQuery)) {
 					sb.append(StringUtils.LF);
-					final ComplexQuery complexQuery = ObjectMappers.JSON.readValue(cqlQuery, ComplexQuery.class);
-					new TestConsumer(session, getBufferSize(), sb).execute(null, complexQuery);
+					new TestConsumer(session, getBufferSize(), sb).execute(cqlQuery);
 				}
 			}
 		}
@@ -184,18 +180,18 @@ public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 		}
 
 		@Override
-		void columns(ColumnDefinitions columnDefinitions) {
-			columnDefinitions.forEach(columnDefinition -> {
+		boolean abort() {
+			return true;
+		}
+
+		@Override
+		void index(Map<Row, ColumnDefinitions> rows) {
+			rows.forEach((row, columnDefinitions) -> columnDefinitions.forEach(columnDefinition -> {
 				sb.append(columnDefinition.getName());
 				sb.append(" -> ");
 				sb.append(columnDefinition.getType().getName());
 				sb.append(StringUtils.LF);
-			});
-		}
-
-		@Override
-		boolean row(Row row) {
-			return false;
+			}));
 		}
 	}
 
@@ -209,31 +205,39 @@ public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 			this.bufferSize = bufferSize;
 		}
 
-		abstract void columns(ColumnDefinitions columnsDef);
+		abstract void index(Map<Row, ColumnDefinitions> rows) throws Exception;
 
-		abstract boolean row(Row row)
-				throws SearchLibException, InterruptedException, IOException, IllegalAccessException, ParseException,
-				SyntaxError, InstantiationException, URISyntaxException, ClassNotFoundException, Exception;
+		abstract boolean abort();
 
-		void execute(final Object joinColumnValue, final ComplexQuery complexQuery) throws Exception {
+		void execute(final String query) throws Exception {
+			LinkedHashMap<Row, ColumnDefinitions> rowStack = new LinkedHashMap<>();
+			final ComplexQuery complexQuery = ObjectMappers.JSON.readValue(query, ComplexQuery.class);
+			execute(null, complexQuery, rowStack);
+		}
+
+		private void execute(final Object joinColumnValue, final ComplexQuery complexQuery,
+				final LinkedHashMap<Row, ColumnDefinitions> rowStack) throws Exception {
 
 			final ResultSet resultSet = joinColumnValue == null || StringUtils.isBlank(joinColumnValue.toString()) ?
 					session.executeWithFetchSize(complexQuery.cql, bufferSize) :
 					session.executeWithFetchSize(complexQuery.cql, bufferSize, joinColumnValue);
 			if (resultSet == null)
 				return;
-			columns(resultSet.getColumnDefinitions());
+			final ColumnDefinitions columnDefinitions = resultSet.getColumnDefinitions();
 			for (final Row row : resultSet) {
-				final boolean run = row(row);
+				rowStack.put(row, columnDefinitions);
 				if (complexQuery.join != null) {
 					FunctionUtils.forEachEx(complexQuery.join, (column, queries) -> {
 						final Object columnValue = row.getObject(column);
 						if (queries != null)
 							for (ComplexQuery query : queries)
-								execute(columnValue, query);
+								execute(columnValue, query, rowStack);
 					});
 				}
-				if (!run)
+				if (complexQuery.index != null && complexQuery.index)
+					index(rowStack);
+				rowStack.remove(row);
+				if (abort())
 					break;
 			}
 		}
@@ -244,12 +248,15 @@ public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 
 		public final String cql;
 		public final Map<String, List<ComplexQuery>> join;
+		public final Boolean index;
 
 		@JsonCreator
 		ComplexQuery(@JsonProperty("cql") final String cql,
-				@JsonProperty("join") final Map<String, List<ComplexQuery>> join) {
+				@JsonProperty("join") final Map<String, List<ComplexQuery>> join,
+				@JsonProperty("index") final Boolean index) {
 			this.cql = cql;
 			this.join = join;
+			this.index = index;
 		}
 
 	}
