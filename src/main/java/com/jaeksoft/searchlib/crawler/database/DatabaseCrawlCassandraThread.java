@@ -25,24 +25,22 @@
 package com.jaeksoft.searchlib.crawler.database;
 
 import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.jaeksoft.searchlib.Client;
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
 import com.jaeksoft.searchlib.crawler.FieldMapContext;
 import com.jaeksoft.searchlib.crawler.common.process.CrawlStatus;
-import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.index.IndexDocument;
-import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ReadWriteLock;
 import com.jaeksoft.searchlib.util.Variables;
 import com.qwazr.library.cassandra.CassandraCluster;
 import com.qwazr.library.cassandra.CassandraSession;
+import com.qwazr.utils.ObjectMappers;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -61,21 +59,56 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 		this.databaseCrawl.applyVariables(variables);
 	}
 
-	private void runnerUpdate(ResultSet resultSet)
-			throws SearchLibException, ClassNotFoundException, InstantiationException, IllegalAccessException,
-			IOException, ParseException, SyntaxError, URISyntaxException, InterruptedException {
-		final int limit = databaseCrawl.getBufferSize();
-		final DatabaseCassandraFieldMap fieldMap = (DatabaseCassandraFieldMap) databaseCrawl.getFieldMap();
-		final List<IndexDocument> indexDocumentList = new ArrayList<>(0);
-		final LanguageEnum lang = databaseCrawl.getLang();
-		final FieldMapContext fieldMapContext = new FieldMapContext(client, lang);
-		final String uniqueField = client.getSchema().getUniqueField();
-		final ColumnDefinitions columnDefinitions = resultSet.getColumnDefinitions();
-		final Set<String> filePathSet = new TreeSet<>();
+	@Override
+	public void runner() throws Exception {
+		setStatus(CrawlStatus.STARTING);
+		try (final CassandraCluster cluster = databaseCrawl.getCluster()) {
+			try (final CassandraSession session = databaseCrawl.getKeySpace() == null ?
+					cluster.getSession() :
+					cluster.getSession(databaseCrawl.getKeySpace())) {
+				final DatabaseCrawlCassandra.ComplexQuery complexQuery =
+						ObjectMappers.JSON.readValue(databaseCrawl.getCqlQuery(),
+								DatabaseCrawlCassandra.ComplexQuery.class);
+				setStatus(CrawlStatus.CRAWL);
+				try (final ResultSetConsumer resultSetConsumer = new ResultSetConsumer(session)) {
+					resultSetConsumer.execute(null, complexQuery);
+				}
+				if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
+					client.reload();
+			}
+		}
+	}
+	
+	class ResultSetConsumer extends DatabaseCrawlCassandra.ResultSetConsumer implements Closeable {
 
-		for (final Row row : resultSet) {
+		private final DatabaseCassandraFieldMap fieldMap;
+		private final List<IndexDocument> indexDocumentList;
+		private final LanguageEnum lang;
+		private final FieldMapContext fieldMapContext;
+		private final String uniqueField;
+		private final Set<String> filePathSet;
+
+		volatile ColumnDefinitions columnDefinitions;
+
+		ResultSetConsumer(CassandraSession session) throws SearchLibException {
+			super(session, databaseCrawl.getBufferSize());
+			fieldMap = (DatabaseCassandraFieldMap) databaseCrawl.getFieldMap();
+			indexDocumentList = new ArrayList<>(0);
+			lang = databaseCrawl.getLang();
+			fieldMapContext = new FieldMapContext(client, lang);
+			uniqueField = client.getSchema().getUniqueField();
+			filePathSet = new TreeSet<>();
+		}
+
+		@Override
+		void columns(ColumnDefinitions columnsDef) {
+			columnDefinitions = columnsDef;
+		}
+
+		@Override
+		boolean row(Row row) throws Exception {
 			if (isAborted())
-				break;
+				return false;
 			IndexDocument indexDocument = new IndexDocument(lang);
 			fieldMap.mapRow(fieldMapContext, row, columnDefinitions, indexDocument, filePathSet);
 			if (uniqueField != null && !indexDocument.hasContent(uniqueField)) {
@@ -85,7 +118,7 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 				} finally {
 					rwl.w.unlock();
 				}
-				continue;
+				return true;
 			}
 			indexDocumentList.add(indexDocument);
 			rwl.w.lock();
@@ -94,28 +127,18 @@ public class DatabaseCrawlCassandraThread extends DatabaseCrawlThread {
 			} finally {
 				rwl.w.unlock();
 			}
-			if (index(indexDocumentList, limit))
+			if (index(indexDocumentList, bufferSize))
 				setStatus(CrawlStatus.CRAWL);
-
+			return false;
 		}
-		index(indexDocumentList, 0);
-	}
 
-	@Override
-	public void runner() throws Exception {
-		setStatus(CrawlStatus.STARTING);
-		try (final CassandraCluster cluster = databaseCrawl.getCluster()) {
-			try (final CassandraSession session = databaseCrawl.getKeySpace() == null ?
-					cluster.getSession() :
-					cluster.getSession(databaseCrawl.getKeySpace())) {
-				final ResultSet resultSet =
-						session.executeWithFetchSize(databaseCrawl.getCqlQuery(), databaseCrawl.getBufferSize());
-				setStatus(CrawlStatus.CRAWL);
-				if (resultSet != null)
-					runnerUpdate(resultSet);
-				if (updatedIndexDocumentCount > 0 || updatedDeleteDocumentCount > 0)
-					client.reload();
+		public void close() throws IOException {
+			try {
+				index(indexDocumentList, 0);
+			} catch (SearchLibException | InterruptedException e) {
+				throw new IOException(e);
 			}
 		}
 	}
+
 }

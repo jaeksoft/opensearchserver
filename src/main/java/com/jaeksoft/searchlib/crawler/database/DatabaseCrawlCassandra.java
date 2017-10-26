@@ -28,28 +28,30 @@ import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.function.expression.SyntaxError;
+import com.jaeksoft.searchlib.query.ParseException;
 import com.jaeksoft.searchlib.util.Variables;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.qwazr.library.cassandra.CassandraCluster;
 import com.qwazr.library.cassandra.CassandraSession;
+import com.qwazr.utils.FunctionUtils;
 import com.qwazr.utils.ObjectMappers;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 
@@ -164,20 +166,77 @@ public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 				sb.append("Connection established.");
 				if (!StringUtils.isBlank(cqlQuery)) {
 					sb.append(StringUtils.LF);
-					ComplexQuery complexQuery = ObjectMappers.JSON.readValue(cqlQuery, ComplexQuery.class);
-					final Consumer<ColumnDefinitions> columnsConsumer = columnDefinitions -> {
-						columnDefinitions.forEach(columnDefinition -> {
-							sb.append(columnDefinition.getName());
-							sb.append(" -> ");
-							sb.append(columnDefinition.getType().getName());
-							sb.append(StringUtils.LF);
-						});
-					};
-					complexQuery.execute(session, columnsConsumer, null, row -> false, getBufferSize());
+					final ComplexQuery complexQuery = ObjectMappers.JSON.readValue(cqlQuery, ComplexQuery.class);
+					new TestConsumer(session, getBufferSize(), sb).execute(null, complexQuery);
 				}
 			}
 		}
 		return sb.toString();
+	}
+
+	class TestConsumer extends ResultSetConsumer {
+
+		final StringBuilder sb;
+
+		TestConsumer(CassandraSession session, int bufferSize, StringBuilder sb) {
+			super(session, bufferSize);
+			this.sb = sb;
+		}
+
+		@Override
+		void columns(ColumnDefinitions columnDefinitions) {
+			columnDefinitions.forEach(columnDefinition -> {
+				sb.append(columnDefinition.getName());
+				sb.append(" -> ");
+				sb.append(columnDefinition.getType().getName());
+				sb.append(StringUtils.LF);
+			});
+		}
+
+		@Override
+		boolean row(Row row) {
+			return false;
+		}
+	}
+
+	static abstract class ResultSetConsumer {
+
+		final CassandraSession session;
+		final int bufferSize;
+
+		ResultSetConsumer(final CassandraSession session, int bufferSize) {
+			this.session = session;
+			this.bufferSize = bufferSize;
+		}
+
+		abstract void columns(ColumnDefinitions columnsDef);
+
+		abstract boolean row(Row row)
+				throws SearchLibException, InterruptedException, IOException, IllegalAccessException, ParseException,
+				SyntaxError, InstantiationException, URISyntaxException, ClassNotFoundException, Exception;
+
+		void execute(final Object joinColumnValue, final ComplexQuery complexQuery) throws Exception {
+
+			final ResultSet resultSet = joinColumnValue == null || StringUtils.isBlank(joinColumnValue.toString()) ?
+					session.executeWithFetchSize(complexQuery.cql, bufferSize) :
+					session.executeWithFetchSize(complexQuery.cql, bufferSize, joinColumnValue);
+			if (resultSet == null)
+				return;
+			columns(resultSet.getColumnDefinitions());
+			for (final Row row : resultSet) {
+				final boolean run = row(row);
+				if (complexQuery.join != null) {
+					FunctionUtils.forEachEx(complexQuery.join, (column, queries) -> {
+						final Object columnValue = row.getObject(column);
+						if (queries != null)
+							for (ComplexQuery query : queries)
+								execute(columnValue, query);
+					});
+				}
+				if (!run)
+					break;
+			}
+		}
 	}
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
@@ -193,30 +252,6 @@ public class DatabaseCrawlCassandra extends DatabaseCrawlAbstract {
 			this.join = join;
 		}
 
-		@JsonIgnore
-		void execute(final CassandraSession session, final Consumer<ColumnDefinitions> columnsConsumer,
-				final Object joinColumnValue, final Function<Row, Boolean> rowFunction, final int bufferSize) {
-			final ResultSet resultSet = joinColumnValue == null || StringUtils.isBlank(joinColumnValue.toString()) ?
-					session.executeWithFetchSize(cql, bufferSize) :
-					session.executeWithFetchSize(cql, bufferSize, joinColumnValue);
-			if (resultSet == null)
-				return;
-			if (columnsConsumer != null)
-				columnsConsumer.accept(resultSet.getColumnDefinitions());
-			for (final Row row : resultSet) {
-				final boolean run = rowFunction.apply(row);
-				if (join != null) {
-					join.forEach((column, queries) -> {
-						final Object columnValue = row.getObject(column);
-						if (queries != null)
-							queries.forEach(query -> query.execute(session, columnsConsumer, columnValue, rowFunction,
-									bufferSize));
-					});
-				}
-				if (!run)
-					break;
-			}
-		}
 	}
 
 }
