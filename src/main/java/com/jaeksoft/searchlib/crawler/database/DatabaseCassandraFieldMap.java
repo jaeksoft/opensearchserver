@@ -46,6 +46,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Set;
 
 class DatabaseCassandraFieldMap extends DatabaseFieldMap {
@@ -65,9 +66,15 @@ class DatabaseCassandraFieldMap extends DatabaseFieldMap {
 				handleBlob(context, row, columns, target, filePathSet, columnName, targetField);
 				continue;
 			}
-			final String content = row.getObject(columnName).toString();
-			if (content != null)
-				mapFieldTarget(context, link.getTarget(), false, content, target, filePathSet);
+			final Object rowValue = row.getObject(columnName);
+			if (rowValue != null) {
+				if (rowValue instanceof Collection) {
+					for (Object value : ((Collection) rowValue))
+						if (value != null)
+							mapFieldTarget(context, link.getTarget(), false, value.toString(), target, filePathSet);
+				} else
+					mapFieldTarget(context, link.getTarget(), false, rowValue.toString(), target, filePathSet);
+			}
 		}
 
 	}
