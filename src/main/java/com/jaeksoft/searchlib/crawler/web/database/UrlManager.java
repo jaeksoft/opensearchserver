@@ -62,6 +62,7 @@ import com.jaeksoft.searchlib.util.FormatUtils.ThreadSafeSimpleDateFormat;
 import com.jaeksoft.searchlib.util.InfoCallback;
 import com.jaeksoft.searchlib.util.ThreadUtils;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import com.qwazr.utils.StringUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
@@ -111,6 +112,9 @@ public class UrlManager extends AbstractManager {
 	}
 
 	public boolean exists(String sUrl) throws SearchLibException {
+		if (sUrl == null)
+			return false;
+		sUrl = sUrl.trim();
 		AbstractSearchRequest request = (AbstractSearchRequest) dbClient.getNewRequest(SearchTemplate.urlExport.name());
 		request.getReturnFieldList().clear();
 		request.setQueryString("url:\"" + sUrl + '"');
@@ -130,6 +134,11 @@ public class UrlManager extends AbstractManager {
 			int injected = 0;
 			List<IndexDocument> injectList = new ArrayList<IndexDocument>(0);
 			for (String url : urls) {
+				if (url == null)
+					continue;
+				url = url.trim();
+				if (StringUtils.isBlank(url))
+					continue;
 				if (exists(url))
 					already++;
 				else {
@@ -252,8 +261,8 @@ public class UrlManager extends AbstractManager {
 			InterruptedException, SearchLibException, InstantiationException, IllegalAccessException {
 		AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(field + "Facet");
 		searchRequest.setQueryString(queryString);
-		searchRequest.getFilterList().add(
-				new QueryFilter(field + ":" + start + "*", false, FilterAbstract.Source.REQUEST, null));
+		searchRequest.getFilterList()
+				.add(new QueryFilter(field + ":" + start + "*", false, FilterAbstract.Source.REQUEST, null));
 		getFacetLimit(field, searchRequest, urlLimit, maxUrlPerHost, null, list, null);
 	}
 
@@ -339,8 +348,8 @@ public class UrlManager extends AbstractManager {
 			IndexStatus indexStatus, Date startDate, Date endDate, Date startModifiedDate, Date endModifiedDate)
 			throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(
-					urlSearchTemplate.name());
+			AbstractSearchRequest searchRequest =
+					(AbstractSearchRequest) dbClient.getNewRequest(urlSearchTemplate.name());
 			StringBuilder query = new StringBuilder();
 			if (like != null) {
 				like = like.trim();
@@ -487,8 +496,8 @@ public class UrlManager extends AbstractManager {
 
 	public Facet getHostFacetList(int minCount) throws SearchLibException {
 		try {
-			AbstractSearchRequest searchRequest = (AbstractSearchRequest) dbClient.getNewRequest(
-					UrlManager.SearchTemplate.hostFacet.name());
+			AbstractSearchRequest searchRequest =
+					(AbstractSearchRequest) dbClient.getNewRequest(UrlManager.SearchTemplate.hostFacet.name());
 			searchRequest.setEmptyReturnsAll(true);
 			FacetField facetField = searchRequest.getFacetFieldList().get(UrlItemFieldEnum.INSTANCE.host.getName());
 			if (minCount < 0)
@@ -791,8 +800,8 @@ public class UrlManager extends AbstractManager {
 		setCurrentTaskLog(taskLog);
 		HttpDownloader httpDownloader = null;
 		try {
-			AbstractSearchRequest request = (AbstractSearchRequest) dbClient.getNewRequest(
-					SearchTemplate.urlSearch.name());
+			AbstractSearchRequest request =
+					(AbstractSearchRequest) dbClient.getNewRequest(SearchTemplate.urlSearch.name());
 			long inserted = 0;
 			long existing = 0;
 			long setToFetchFirst = 0;
@@ -815,9 +824,8 @@ public class UrlManager extends AbstractManager {
 						existing++;
 						long timeDistanceMs = now - urlItem.getWhen().getTime();
 						FetchStatus fetchStatus = urlItem.getFetchStatus();
-						if (fetchStatus == FetchStatus.UN_FETCHED ||
-								(fetchStatus == FetchStatus.FETCHED && siteMapUrl.getChangeFreq().needUpdate(
-										timeDistanceMs))) {
+						if (fetchStatus == FetchStatus.UN_FETCHED || (fetchStatus == FetchStatus.FETCHED &&
+								siteMapUrl.getChangeFreq().needUpdate(timeDistanceMs))) {
 							if (fetchStatus != FetchStatus.FETCH_FIRST) {
 								urlItem.setFetchStatus(FetchStatus.FETCH_FIRST);
 								urlItemList.add(urlItem);
