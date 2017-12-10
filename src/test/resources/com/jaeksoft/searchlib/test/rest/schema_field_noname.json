@@ -1,9 +1,0 @@
-{
-	  "analyzer": "AutoCompletionAnalyzer",
-	  "indexed": "YES",
-	  "stored": "NO",
-	  "termVector": "NO",
-	  "copyOf": [
-	    "content"
-	  ]
-}
