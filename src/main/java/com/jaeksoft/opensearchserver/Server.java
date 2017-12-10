@@ -44,6 +44,7 @@ public class Server {
 		final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
 				.registerDefaultFaviconServlet()
 				.registerWebjars()
+				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
 				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker));
 		webAppBuilder.build();
 

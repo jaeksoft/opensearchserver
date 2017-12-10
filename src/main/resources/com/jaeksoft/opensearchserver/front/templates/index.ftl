@@ -17,13 +17,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Indexes</title>
     <#include 'includes/head.ftl'>
 </head>
 <body>
     <#include 'includes/nav.ftl'>
+<br/>
 <div class="container">
-    <h1>Welcome to OpenSearchServer</h1>
+    <h1>Released in 2018</h1>
 </div>
     <#include 'includes/foot.ftl'>
 </body>
