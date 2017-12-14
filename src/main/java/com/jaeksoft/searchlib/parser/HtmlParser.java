@@ -35,7 +35,6 @@ import com.jaeksoft.searchlib.parser.htmlParser.HtmlDocumentProvider;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlNodeAbstract;
 import com.jaeksoft.searchlib.parser.htmlParser.HtmlParserEnum;
 import com.jaeksoft.searchlib.schema.FieldValueItem;
-import com.jaeksoft.searchlib.streamlimiter.LimitException;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.util.IOUtils;
 import com.jaeksoft.searchlib.util.Lang;
@@ -72,7 +71,7 @@ public class HtmlParser extends Parser {
 
 	public static final String[] DEFAULT_EXTENSIONS = { "html", "xhtml" };
 
-	private final static TreeSet<String> sentenceTagSet = new TreeSet<String>();
+	private final static TreeSet<String> sentenceTagSet = new TreeSet<>();
 
 	private static ParserFieldEnum[] fl = { ParserFieldEnum.parser_name,
 			ParserFieldEnum.title,
@@ -87,7 +86,8 @@ public class HtmlParser extends Parser {
 			ParserFieldEnum.external_link_nofollow,
 			ParserFieldEnum.lang,
 			ParserFieldEnum.htmlProvider,
-			ParserFieldEnum.htmlSource };
+			ParserFieldEnum.htmlSource,
+			ParserFieldEnum.generatedSource };
 
 	private class BoostTag {
 		private final Float boost;
@@ -174,7 +174,7 @@ public class HtmlParser extends Parser {
 	private final static String OPENSEARCHSERVER_IGNORE = "opensearchserver.ignore";
 	private final static int OPENSEARCHSERVER_FIELD_LENGTH = OPENSEARCHSERVER_FIELD.length();
 
-	private void getBodyTextContent(ParserResultItem result, StringBuilder sb, HtmlNodeAbstract<?> node,
+	private void getBodyTextContent(ParserResultItem result, StringBuilder sb, HtmlNodeAbstract<Object> node,
 			boolean bAddBlock, String[] directFields, int recursion, Set<Object> nodeExclusionsSet) {
 		if (recursion == 0) {
 			Logging.warn("Max recursion reached (getBodyTextContent)");
@@ -233,9 +233,9 @@ public class HtmlParser extends Parser {
 				sb.append(text);
 			}
 		}
-		List<HtmlNodeAbstract<?>> children = node.getChildNodes();
+		final List<HtmlNodeAbstract<Object>> children = node.getChildNodes();
 		if (children != null)
-			for (HtmlNodeAbstract<?> htmlNode : children)
+			for (HtmlNodeAbstract<Object> htmlNode : children)
 				getBodyTextContent(result, sb, htmlNode, bAddBlock, directFields, recursion, nodeExclusionsSet);
 
 		if (bAddBlock && nodeName != null && sb.length() > 0) {
@@ -291,26 +291,20 @@ public class HtmlParser extends Parser {
 		return first;
 	}
 
-	private final HtmlDocumentProvider getHtmlDocumentProvider(HtmlParserEnum htmlParserEnum, String charset,
+	private final HtmlDocumentProvider<Object> getHtmlDocumentProvider(HtmlParserEnum htmlParserEnum, String charset,
 			StreamLimiter streamLimiter, String xPathExclusions, Set<Object> xPathExclusionSet)
-			throws LimitException, IOException, SearchLibException {
+			throws IOException, SearchLibException {
 
-		HtmlDocumentProvider htmlProvider;
+		final HtmlDocumentProvider<Object> htmlProvider;
 		try {
 			htmlProvider = htmlParserEnum.getHtmlParser(charset, streamLimiter, xPathExclusionSet != null);
-		} catch (InstantiationException e) {
-			throw new SearchLibException(e);
-		} catch (IllegalAccessException e) {
-			throw new SearchLibException(e);
-		} catch (SAXException e) {
-			throw new SearchLibException(e);
-		} catch (ParserConfigurationException e) {
+		} catch (InstantiationException | IllegalAccessException | SAXException | ParserConfigurationException e) {
 			throw new SearchLibException(e);
 		}
 		if (htmlProvider == null)
 			return null;
 		if (xPathExclusionSet != null) {
-			String[] xPathLines = StringUtils.splitLines(xPathExclusions);
+			final String[] xPathLines = StringUtils.splitLines(xPathExclusions);
 			try {
 				for (String xPath : xPathLines)
 					if (!StringUtils.isBlank(xPath))
@@ -327,7 +321,7 @@ public class HtmlParser extends Parser {
 			throws IOException, SearchLibException {
 
 		titleBoost = getFloatProperty(ClassPropertyEnum.TITLE_BOOST);
-		boostTagMap = new TreeMap<String, BoostTag>();
+		boostTagMap = new TreeMap<>();
 		boostTagMap.put("h1", new BoostTag(ClassPropertyEnum.H1_BOOST));
 		boostTagMap.put("h2", new BoostTag(ClassPropertyEnum.H2_BOOST));
 		boostTagMap.put("h3", new BoostTag(ClassPropertyEnum.H3_BOOST));
@@ -347,8 +341,8 @@ public class HtmlParser extends Parser {
 		IndexDocument sourceDocument = getSourceDocument();
 
 		if (sourceDocument != null) {
-			FieldValueItem fieldValueItem = sourceDocument.getFieldValue(
-					UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
+			FieldValueItem fieldValueItem =
+					sourceDocument.getFieldValue(UrlItemFieldEnum.INSTANCE.contentTypeCharset.getName(), 0);
 			if (fieldValueItem != null)
 				headerCharset = fieldValueItem.getValue();
 			if (headerCharset == null) {
@@ -371,17 +365,18 @@ public class HtmlParser extends Parser {
 		String xPathExclusions = getProperty(ClassPropertyEnum.XPATH_EXCLUSION).getValue();
 		Set<Object> xPathExclusionsSet = null;
 		if (!StringUtils.isEmpty(xPathExclusions))
-			xPathExclusionsSet = new HashSet<Object>();
+			xPathExclusionsSet = new HashSet<>();
 
 		HtmlParserEnum htmlParserEnum = HtmlParserEnum.find(getProperty(ClassPropertyEnum.HTML_PARSER).getValue());
 
-		HtmlDocumentProvider htmlProvider = getHtmlDocumentProvider(htmlParserEnum, currentCharset, streamLimiter,
-				xPathExclusions, xPathExclusionsSet);
+		HtmlDocumentProvider<Object> htmlProvider =
+				getHtmlDocumentProvider(htmlParserEnum, currentCharset, streamLimiter, xPathExclusions,
+						xPathExclusionsSet);
 		if (htmlProvider == null)
 			return;
 
 		URL currentURL = htmlProvider.getBaseHref();
-		IndexDocument srcDoc = getSourceDocument();
+		final IndexDocument srcDoc = getSourceDocument();
 		String streamOriginalUrl = streamLimiter.getOriginURL();
 		try {
 			if (currentURL == null && !StringUtils.isEmpty(streamOriginalUrl))
@@ -395,14 +390,13 @@ public class HtmlParser extends Parser {
 			throw new IOException(e);
 		}
 
-		URL canonicalURL = htmlProvider.getCanonicalLink(currentURL);
+		final URL canonicalURL = htmlProvider.getCanonicalLink(currentURL);
 		if (canonicalURL != null) {
 			String canUrl = canonicalURL.toExternalForm();
 			addDetectedLink(canUrl);
 			if (ignoreNonCanonical) {
-				final String curUrl = StringUtils.isEmpty(streamOriginalUrl) ?
-						currentURL.toExternalForm() :
-						streamOriginalUrl;
+				final String curUrl =
+						StringUtils.isEmpty(streamOriginalUrl) ? currentURL.toExternalForm() : streamOriginalUrl;
 				if (!canUrl.equals(curUrl)) {
 					isCanonical = false;
 					return;
@@ -411,7 +405,7 @@ public class HtmlParser extends Parser {
 		}
 		isCanonical = true;
 
-		String title = htmlProvider.getTitle();
+		final String title = htmlProvider.getTitle();
 		if (ignoreUntitledDocuments)
 			if (title == null || title.length() == 0)
 				return;
@@ -440,9 +434,12 @@ public class HtmlParser extends Parser {
 		result.addField(ParserFieldEnum.htmlSource, writer.toString());
 		writer.close();
 
-		HtmlNodeAbstract<?> rootNode = htmlProvider.getRootNode();
+		final HtmlNodeAbstract<Object> rootNode = htmlProvider.getRootNode();
 		if (rootNode == null)
 			return;
+
+		if (!StringUtils.isBlank(xPathExclusions))
+			result.addField(ParserFieldEnum.generatedSource, htmlProvider.generateSource());
 
 		for (HtmlNodeAbstract<?> metaNode : htmlProvider.getMetas()) {
 			String metaName = metaNode.getAttributeText("name");
@@ -498,7 +495,7 @@ public class HtmlParser extends Parser {
 		boolean removeFragment = ClassPropertyEnum.KEEP_REMOVE_LIST[1].equalsIgnoreCase(
 				getProperty(ClassPropertyEnum.URL_FRAGMENT).getValue());
 
-		List<HtmlNodeAbstract<?>> nodes = rootNode.getAllNodes("a", "frame", "img");
+		List<HtmlNodeAbstract<Object>> nodes = rootNode.getAllNodes("a", "frame", "img");
 		if (srcDoc != null && nodes != null && metaRobotsFollow) {
 			for (HtmlNodeAbstract<?> node : nodes) {
 				String href = null;
@@ -522,7 +519,7 @@ public class HtmlParser extends Parser {
 							newUrl = LinkUtils.getLink(currentURL, href, urlFilterList, removeFragment);
 						}
 				if (newUrl != null) {
-					ParserFieldEnum field = null;
+					final ParserFieldEnum field;
 					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {
 						if (follow)
 							field = ParserFieldEnum.internal_link;
@@ -573,11 +570,13 @@ public class HtmlParser extends Parser {
 			lang = Lang.findLocaleISO639(metaDcLanguage);
 		}
 
+		if (lang == null && !metaRobotsNoIndex)
+			lang = result.langDetection(10000, ParserFieldEnum.body);
+
 		if (lang != null) {
 			result.addField(ParserFieldEnum.lang, lang.getLanguage());
 			result.addField(ParserFieldEnum.lang_method, langMethod);
-		} else if (!metaRobotsNoIndex)
-			lang = result.langDetection(10000, ParserFieldEnum.body);
+		}
 
 		if (getFieldMap().isMapped(ParserFieldEnum.generated_title)) {
 

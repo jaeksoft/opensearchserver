@@ -2,9 +2,9 @@
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2012-2017 Emmanuel Keller / Jaeksoft
- * 
+ *
  * http://www.open-search-server.com
- * 
+ *
  * This file is part of OpenSearchServer.
  *
  * OpenSearchServer is free software: you can redistribute it and/or
@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
+ *  along with OpenSearchServer.
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -42,19 +42,19 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class HtmlDocumentProvider {
+public abstract class HtmlDocumentProvider<T> {
 
-	public  interface XPath {
-		 void xPath(String xPath, Collection<Object> nodes) throws XPathExpressionException;
+	public interface XPath {
+		void xPath(String xPath, Collection<Object> nodes) throws XPathExpressionException;
 	}
 
 	private final HtmlParserEnum parserEnum;
 
 	private String titleCache;
 
-	private List<HtmlNodeAbstract<?>> metasCache;
+	private List<HtmlNodeAbstract<T>> metasCache;
 
-	private HtmlNodeAbstract<?> rootNode;
+	private HtmlNodeAbstract<T> rootNode;
 
 	private int score;
 
@@ -75,7 +75,7 @@ public abstract class HtmlDocumentProvider {
 		rootNode = getDocument(htmlSource);
 	}
 
-	public HtmlNodeAbstract<?> getRootNode() {
+	public HtmlNodeAbstract<T> getRootNode() {
 		return rootNode;
 	}
 
@@ -83,15 +83,15 @@ public abstract class HtmlDocumentProvider {
 		return parserEnum.getLabel();
 	}
 
-	protected abstract HtmlNodeAbstract<?> getDocument(String charset, InputStream inputStream)
+	protected abstract HtmlNodeAbstract<T> getDocument(String charset, InputStream inputStream)
 			throws SAXException, IOException, ParserConfigurationException;
 
-	protected HtmlNodeAbstract<?> getDocument(String charset, StreamLimiter streamLimiter)
+	protected HtmlNodeAbstract<T> getDocument(String charset, StreamLimiter streamLimiter)
 			throws SAXException, IOException, ParserConfigurationException, SearchLibException {
 		return getDocument(charset, streamLimiter.getNewInputStream());
 	}
 
-	protected abstract HtmlNodeAbstract<?> getDocument(String htmlSource)
+	protected abstract HtmlNodeAbstract<T> getDocument(String htmlSource)
 			throws IOException, ParserConfigurationException, SAXException;
 
 	public void score() {
@@ -121,7 +121,7 @@ public abstract class HtmlDocumentProvider {
 		if (rootNode == null)
 			return null;
 		String[] p1 = { "html", "head", "link" };
-		List<HtmlNodeAbstract<?>> nodes = rootNode.getNodes(p1);
+		List<HtmlNodeAbstract<T>> nodes = rootNode.getNodes(p1);
 		if (nodes == null)
 			return null;
 		for (HtmlNodeAbstract<?> node : nodes) {
@@ -138,7 +138,7 @@ public abstract class HtmlDocumentProvider {
 		return null;
 	}
 
-	final public List<HtmlNodeAbstract<?>> getMetas() {
+	final public List<HtmlNodeAbstract<T>> getMetas() {
 		if (metasCache != null)
 			return metasCache;
 		if (rootNode == null)
@@ -178,23 +178,20 @@ public abstract class HtmlDocumentProvider {
 	}
 
 	final public URL getBaseHref() {
-		List<HtmlNodeAbstract<?>> list = rootNode.getNodes("html", "head", "base");
+		final List<HtmlNodeAbstract<T>> list = rootNode.getNodes("html", "head", "base");
 		if (list == null)
 			return null;
 		if (list.size() == 0)
 			return null;
-		HtmlNodeAbstract<?> node = list.get(0);
+		final HtmlNodeAbstract<?> node = list.get(0);
 		if (node == null)
 			return null;
-		String url = node.getAttributeText("href");
+		final String url = node.getAttributeText("href");
 		if (url == null)
 			return null;
 		try {
 			return LinkUtils.newEncodedURL(url);
-		} catch (MalformedURLException e) {
-			Logging.warn(e);
-			return null;
-		} catch (URISyntaxException e) {
+		} catch (MalformedURLException | URISyntaxException e) {
 			Logging.warn(e);
 			return null;
 		}
@@ -218,4 +215,5 @@ public abstract class HtmlDocumentProvider {
 		((XPath) rootNode).xPath(xPath, nodes);
 	}
 
+	public abstract String generateSource();
 }
