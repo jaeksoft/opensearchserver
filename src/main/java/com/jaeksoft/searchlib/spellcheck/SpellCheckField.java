@@ -1,43 +1,42 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2012 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.spellcheck;
 
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 import com.jaeksoft.searchlib.function.expression.SyntaxError;
 import com.jaeksoft.searchlib.schema.AbstractField;
+import com.jaeksoft.searchlib.schema.SchemaField;
 import com.jaeksoft.searchlib.schema.SchemaFieldList;
 import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
-public class SpellCheckField extends AbstractField<SpellCheckField> implements
-		Comparable<SpellCheckField> {
+public class SpellCheckField extends AbstractField<SpellCheckField> implements Comparable<SpellCheckField> {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -1417527967951473421L;
 
@@ -60,8 +59,7 @@ public class SpellCheckField extends AbstractField<SpellCheckField> implements
 		this.stringDistance = field.stringDistance;
 	}
 
-	public SpellCheckField(String name, float minScore, int suggestionNumber,
-			SpellCheckDistanceEnum stringDistance) {
+	public SpellCheckField(String name, float minScore, int suggestionNumber, SpellCheckDistanceEnum stringDistance) {
 		super(name);
 		this.minScore = minScore;
 		this.suggestionNumber = suggestionNumber;
@@ -97,25 +95,23 @@ public class SpellCheckField extends AbstractField<SpellCheckField> implements
 		suggestionNumber = n;
 	}
 
-	public static void copySpellCheckFields(Node node, SchemaFieldList source,
-			SpellCheckFieldList target) {
+	public static void copySpellCheckFields(Node node, SchemaFieldList source, SpellCheckFieldList target) {
 		String fieldName = XPathParser.getAttributeString(node, "name");
 		String p = XPathParser.getAttributeString(node, "minScore");
 		float minScore = 0.5F;
 		if (p != null)
 			if (p.length() > 0)
 				minScore = Float.parseFloat(p);
-		int suggestionNumber = XPathParser.getAttributeValue(node,
-				"suggestionNumber");
-		SpellCheckDistanceEnum distance = SpellCheckDistanceEnum
-				.find(XPathParser.getAttributeString(node, "stringDistance"));
-		SpellCheckField spellCheckField = new SpellCheckField(source.get(
-				fieldName).getName(), minScore, suggestionNumber, distance);
+		int suggestionNumber = XPathParser.getAttributeValue(node, "suggestionNumber");
+		SpellCheckDistanceEnum distance =
+				SpellCheckDistanceEnum.find(XPathParser.getAttributeString(node, "stringDistance"));
+		final SchemaField field = source.get(fieldName);
+		SpellCheckField spellCheckField =
+				new SpellCheckField(field == null ? fieldName : field.getName(), minScore, suggestionNumber, distance);
 		target.put(spellCheckField);
 	}
 
-	public static SpellCheckField buildSpellCheckField(String value,
-			boolean multivalued) throws SyntaxError {
+	public static SpellCheckField buildSpellCheckField(String value, boolean multivalued) throws SyntaxError {
 		float minScore = 0.5F;
 		int suggestionNumber = 5;
 		String fieldName = null;
@@ -134,16 +130,13 @@ public class SpellCheckField extends AbstractField<SpellCheckField> implements
 		} else
 			fieldName = value;
 		// TODO Support distance
-		return new SpellCheckField(fieldName, minScore, suggestionNumber,
-				SpellCheckDistanceEnum.LevensteinDistance);
+		return new SpellCheckField(fieldName, minScore, suggestionNumber, SpellCheckDistanceEnum.LevensteinDistance);
 	}
 
 	@Override
 	public void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
-		xmlWriter.startElement("spellCheckField", "name", name, "minScore",
-				Float.toString(minScore), "suggestionNumber",
-				Integer.toString(suggestionNumber), "stringDistance",
-				stringDistance.name());
+		xmlWriter.startElement("spellCheckField", "name", name, "minScore", Float.toString(minScore),
+				"suggestionNumber", Integer.toString(suggestionNumber), "stringDistance", stringDistance.name());
 		xmlWriter.endElement();
 	}
 
@@ -166,8 +159,7 @@ public class SpellCheckField extends AbstractField<SpellCheckField> implements
 	}
 
 	/**
-	 * @param stringDistance
-	 *            the stringDistance to set
+	 * @param stringDistance the stringDistance to set
 	 */
 	public void setStringDistance(SpellCheckDistanceEnum stringDistance) {
 		this.stringDistance = stringDistance;
