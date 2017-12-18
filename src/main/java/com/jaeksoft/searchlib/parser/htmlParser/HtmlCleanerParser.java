@@ -42,7 +42,6 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collection;
-import java.util.Set;
 
 public class HtmlCleanerParser extends HtmlDocumentProvider<Node> {
 
@@ -98,7 +97,6 @@ public class HtmlCleanerParser extends HtmlDocumentProvider<Node> {
 				return charsetCache;
 			} catch (UnsupportedCharsetException e2) {
 				Logging.warn(e2);
-				charsetCache = null;
 				return null;
 			}
 		}

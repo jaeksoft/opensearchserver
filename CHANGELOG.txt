@@ -11,6 +11,7 @@ http://sourceforge.net/p/opensearchserve/bug-report/ (SF)
 OpenSearchServer 1.6
 
 Enhancement:
+- GH-1900: Allow leading wildcard in Pattern query
 - GH-1881: Support of array in database crawler
 - GH-1879: Parsing of BLOB in the Database crawler
 - GH-1870: Crawl cache should use compression

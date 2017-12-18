@@ -1,28 +1,34 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2008-2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.streamlimiter;
+
+import com.jaeksoft.searchlib.SearchLibException;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.util.StringUtils;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
@@ -32,13 +38,6 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-
-import com.jaeksoft.searchlib.SearchLibException;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.util.StringUtils;
 
 public abstract class StreamLimiter implements Closeable {
 
@@ -50,12 +49,11 @@ public abstract class StreamLimiter implements Closeable {
 	private final String originURL;
 	private String detectedCharset;
 
-	protected StreamLimiter(long limit, String originalFileName,
-			String originURL) throws IOException {
+	protected StreamLimiter(long limit, String originalFileName, String originURL) {
 		this.limit = limit;
 		this.outputCache = null;
-		this.inputStreamList = new ArrayList<InputStream>(0);
-		this.tempFiles = new ArrayList<File>(0);
+		this.inputStreamList = new ArrayList<>(0);
+		this.tempFiles = new ArrayList<>(0);
 		this.originalFileName = originalFileName;
 		this.originURL = originURL;
 		this.detectedCharset = null;
@@ -63,15 +61,13 @@ public abstract class StreamLimiter implements Closeable {
 
 	public abstract File getFile() throws IOException, SearchLibException;
 
-	final protected void loadOutputCache(InputStream inputStream)
-			throws LimitException, IOException {
+	final protected void loadOutputCache(InputStream inputStream) throws LimitException, IOException {
 		if (outputCache != null)
 			return;
 		outputCache = CachedMemoryStream.getCachedStream(inputStream, limit);
 	}
 
-	final protected void loadOutputCache(File file) throws LimitException,
-			IOException {
+	final protected void loadOutputCache(File file) throws LimitException, IOException {
 		if (outputCache != null)
 			return;
 		if (file.isDirectory())
@@ -79,16 +75,14 @@ public abstract class StreamLimiter implements Closeable {
 		outputCache = new CachedFileStream(file, limit);
 	}
 
-	protected abstract void loadOutputCache() throws LimitException,
-			IOException;
+	protected abstract void loadOutputCache() throws LimitException, IOException;
 
 	public InputStream getNewInputStream() throws IOException {
 		if (outputCache == null)
 			loadOutputCache();
 		if (outputCache == null)
 			return null;
-		InputStream inputStream = registerInputStream(outputCache
-				.getNewInputStream());
+		InputStream inputStream = registerInputStream(outputCache.getNewInputStream());
 		if (inputStream.markSupported())
 			return inputStream;
 		inputStream = registerInputStream(new BufferedInputStream(inputStream));
@@ -100,8 +94,7 @@ public abstract class StreamLimiter implements Closeable {
 		return inputStream;
 	}
 
-	public String getMD5Hash() throws NoSuchAlgorithmException, LimitException,
-			IOException {
+	public String getMD5Hash() throws NoSuchAlgorithmException, LimitException, IOException {
 		if (outputCache == null)
 			loadOutputCache();
 		if (outputCache == null)
