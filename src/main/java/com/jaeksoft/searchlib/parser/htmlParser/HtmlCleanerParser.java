@@ -118,10 +118,10 @@ public class HtmlCleanerParser extends HtmlDocumentProvider<Node> {
 	final public int xpath(String xPathExpression, Collection<TagNode> tagNodeCollection) throws XPatherException {
 		if (xPathExpression.startsWith("/html"))
 			xPathExpression = xPathExpression.substring(5);
-		Object[] objects = rootTagNode.evaluateXPath(xPathExpression);
+		final Object[] objects = rootTagNode.evaluateXPath(xPathExpression);
 		if (objects == null)
 			return 0;
-		for (Object object : objects)
+		for (final Object object : objects)
 			tagNodeCollection.add((TagNode) object);
 		return objects.length;
 	}

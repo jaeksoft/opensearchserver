@@ -35,6 +35,7 @@ import com.jaeksoft.searchlib.streamlimiter.StreamLimiter;
 import com.jaeksoft.searchlib.streamlimiter.StreamLimiterFile;
 import com.jaeksoft.searchlib.util.map.SourceField;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -74,7 +75,7 @@ public class HtmlParserTest {
 		testGeneratedSourceWithExclusion(HtmlParserEnum.HtmlCleanerParser);
 	}
 
-	@Test
+	@Ignore
 	public void testGeneratedSourceWithExclusionTagSoup() {
 		testGeneratedSourceWithExclusion(HtmlParserEnum.TagSoupParser);
 	}

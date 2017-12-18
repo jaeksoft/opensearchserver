@@ -24,7 +24,8 @@
 
 package com.jaeksoft.searchlib.parser.htmlParser;
 
-import org.cyberneko.html.parsers.DOMParser;
+import org.apache.xerces.parsers.DOMParser;
+import org.cyberneko.html.HTMLConfiguration;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -40,7 +41,7 @@ public class NekoHtmlParser extends HtmlDocumentProvider<Node> {
 	}
 
 	private DomHtmlNode getDomHtmlNode(InputSource inputSource) throws SAXException, IOException {
-		DOMParser parser = new DOMParser();
+		DOMParser parser = new DOMParser(new HTMLConfiguration());
 		parser.setFeature("http://xml.org/sax/features/namespaces", true);
 		parser.setFeature("http://cyberneko.org/html/features/balance-tags/ignore-outside-content", false);
 		parser.setFeature("http://cyberneko.org/html/features/balance-tags", true);
