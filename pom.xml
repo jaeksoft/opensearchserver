@@ -775,16 +775,6 @@
             <version>1.1-20120112</version>
         </dependency>
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>1.47</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk15</artifactId>
-            <version>1.47</version>
-        </dependency>
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.7.1</version>
@@ -819,9 +809,9 @@
             <artifactId>RoaringBitmap</artifactId>
         </dependency>
         <dependency>
-            <groupId>mylil</groupId>
+            <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.43</version>
+            <version>5.1.45</version>
         </dependency>
         <dependency>
             <groupId>com.jaeksoft</groupId>
