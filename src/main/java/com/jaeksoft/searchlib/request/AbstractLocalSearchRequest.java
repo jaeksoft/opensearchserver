@@ -1,35 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.request;
-
-import java.io.IOException;
-
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -44,10 +37,15 @@ import com.jaeksoft.searchlib.result.AbstractResult;
 import com.jaeksoft.searchlib.result.ResultSearchSingle;
 import com.jaeksoft.searchlib.schema.Schema;
 import com.jaeksoft.searchlib.schema.SchemaField;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
+
+import java.io.IOException;
 
 public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
-		implements RequestInterfaces.ReturnedFieldInterface,
-		RequestInterfaces.FilterListInterface {
+		implements RequestInterfaces.ReturnedFieldInterface, RequestInterfaces.FilterListInterface {
 
 	private transient Query boostedComplexQuery;
 	private transient Query notBoostedComplexQuery;
@@ -121,8 +119,7 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 	protected abstract Query newSnippetQuery(String queryString)
 			throws IOException, ParseException, SyntaxError, SearchLibException;
 
-	public Query getSnippetQuery() throws IOException, ParseException,
-			SyntaxError, SearchLibException {
+	public Query getSnippetQuery() throws IOException, ParseException, SyntaxError, SearchLibException {
 		rwl.r.lock();
 		try {
 			if (snippetSimpleQuery != null)
@@ -146,8 +143,7 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 	protected abstract Query newComplexQuery(String queryString)
 			throws ParseException, SyntaxError, SearchLibException, IOException;
 
-	private Query newComplexQuery() throws ParseException, SearchLibException,
-			SyntaxError, IOException {
+	private Query newComplexQuery() throws ParseException, SearchLibException, SyntaxError, IOException {
 		getQueryParser();
 		checkAnalyzer();
 		Query query = newComplexQuery(queryString);
@@ -156,8 +152,7 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 		return query;
 	}
 
-	public Query getNotBoostedQuery() throws ParseException,
-			SearchLibException, SyntaxError, IOException {
+	public Query getNotBoostedQuery() throws ParseException, SearchLibException, SyntaxError, IOException {
 		rwl.r.lock();
 		try {
 			if (notBoostedComplexQuery != null)
@@ -177,8 +172,7 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 	}
 
 	@Override
-	public Query getQuery() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
+	public Query getQuery() throws ParseException, SyntaxError, SearchLibException, IOException {
 		rwl.r.lock();
 		try {
 			if (boostedComplexQuery != null)
@@ -192,8 +186,7 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 				return boostedComplexQuery;
 			boostedComplexQuery = newComplexQuery();
 			for (BoostQuery boostQuery : boostingQueries)
-				boostedComplexQuery = boostQuery.getNewQuery(
-						boostedComplexQuery, queryParser);
+				boostedComplexQuery = boostQuery.getNewQuery(boostedComplexQuery, queryParser);
 			queryParsed = boostedComplexQuery.toString();
 			return boostedComplexQuery;
 		} finally {
@@ -201,17 +194,14 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 		}
 	}
 
-	private QueryParser getQueryParser() throws ParseException,
-			SearchLibException {
+	private QueryParser getQueryParser() throws SearchLibException {
 		if (queryParser != null)
 			return queryParser;
 		Schema schema = getConfig().getSchema();
 		SchemaField field = schema.getFieldList().getDefaultField();
 		if (field == null)
-			throw new SearchLibException(
-					"Please select a default field in the schema");
-		queryParser = new QueryParser(Version.LUCENE_36, field.getName(),
-				checkAnalyzer());
+			throw new SearchLibException("Please select a default field in the schema");
+		queryParser = new QueryParser(Version.LUCENE_36, field.getName(), checkAnalyzer());
 		queryParser.setAllowLeadingWildcard(allowLeadingWildcard);
 		queryParser.setPhraseSlop(phraseSlop);
 		queryParser.setDefaultOperator(defaultOperator.lucop);
@@ -228,8 +218,7 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 		}
 	}
 
-	final public String getQueryParsed() throws ParseException, SyntaxError,
-			SearchLibException, IOException {
+	final public String getQueryParsed() throws ParseException, SyntaxError, SearchLibException, IOException {
 		getQuery();
 		rwl.r.lock();
 		try {
@@ -254,12 +243,10 @@ public abstract class AbstractLocalSearchRequest extends AbstractSearchRequest
 	}
 
 	@Override
-	public AbstractResult<?> execute(ReaderInterface reader)
-			throws SearchLibException {
+	public AbstractResult<?> execute(ReaderInterface reader) throws SearchLibException {
 		try {
 			AuthManager authManager = config.getAuthManager();
-			if (authManager.isEnabled()
-					&& !(this instanceof SearchFilterRequest)) {
+			if (authManager.isEnabled() && !(this instanceof SearchFilterRequest)) {
 				authManager.apply(this);
 			}
 			return new ResultSearchSingle((ReaderAbstract) reader, this);

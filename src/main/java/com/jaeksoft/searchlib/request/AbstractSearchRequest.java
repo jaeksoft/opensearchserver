@@ -1,41 +1,28 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
- * Copyright (C) 2008-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
+ * Copyright (C) 2008-2017 Emmanuel Keller / Jaeksoft
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.request;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.xpath.XPathExpressionException;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.jaeksoft.searchlib.SearchLibException;
 import com.jaeksoft.searchlib.analysis.LanguageEnum;
@@ -72,10 +59,20 @@ import com.jaeksoft.searchlib.util.XPathParser;
 import com.jaeksoft.searchlib.util.XmlWriter;
 import com.jaeksoft.searchlib.web.ServletTransaction;
 import com.jaeksoft.searchlib.webservice.query.search.SearchQueryAbstract.OperatorEnum;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
-public abstract class AbstractSearchRequest extends AbstractRequest implements
-		RequestInterfaces.ReturnedFieldInterface,
-		RequestInterfaces.FilterListInterface {
+import javax.xml.xpath.XPathExpressionException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public abstract class AbstractSearchRequest extends AbstractRequest
+		implements RequestInterfaces.ReturnedFieldInterface, RequestInterfaces.FilterListInterface {
 
 	private FilterList filterList;
 	private JoinList joinList;
@@ -152,14 +149,11 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.allowLeadingWildcard = searchRequest.allowLeadingWildcard;
 		this.phraseSlop = searchRequest.phraseSlop;
 		this.defaultOperator = searchRequest.defaultOperator;
-		this.snippetFieldList = new SnippetFieldList(
-				searchRequest.snippetFieldList);
-		this.returnFieldList = new ReturnFieldList(
-				searchRequest.returnFieldList);
+		this.snippetFieldList = new SnippetFieldList(searchRequest.snippetFieldList);
+		this.returnFieldList = new ReturnFieldList(searchRequest.returnFieldList);
 		this.sortFieldList = new SortFieldList(searchRequest.sortFieldList);
 		this.facetFieldList = new FacetFieldList(searchRequest.facetFieldList);
-		this.boostingQueries = new ArrayList<BoostQuery>(
-				searchRequest.boostingQueries.size());
+		this.boostingQueries = new ArrayList<BoostQuery>(searchRequest.boostingQueries.size());
 		for (BoostQuery boostQuery : searchRequest.boostingQueries)
 			this.boostingQueries.add(new BoostQuery(boostQuery));
 
@@ -167,8 +161,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		this.collapseMax = searchRequest.collapseMax;
 		this.collapseMode = searchRequest.collapseMode;
 		this.collapseType = searchRequest.collapseType;
-		this.collapseFunctionFields = CollapseFunctionField
-				.duplicate(searchRequest.collapseFunctionFields);
+		this.collapseFunctionFields = CollapseFunctionField.duplicate(searchRequest.collapseFunctionFields);
 		this.geoParameters.set(searchRequest.geoParameters);
 
 		this.withSortValues = searchRequest.withSortValues;
@@ -220,6 +213,24 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		rwl.w.lock();
 		try {
 			emptyReturnsAll = value;
+		} finally {
+			rwl.w.unlock();
+		}
+	}
+
+	final public boolean getAllowLeadingWildcard() {
+		rwl.r.lock();
+		try {
+			return allowLeadingWildcard;
+		} finally {
+			rwl.r.unlock();
+		}
+	}
+
+	final public void setAllowLeadingWildcard(boolean value) {
+		rwl.w.lock();
+		try {
+			allowLeadingWildcard = value;
 		} finally {
 			rwl.w.unlock();
 		}
@@ -302,12 +313,10 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	final public void addFilter(String req, boolean negative)
-			throws ParseException {
+	final public void addFilter(String req, boolean negative) throws ParseException {
 		rwl.w.lock();
 		try {
-			this.filterList.add(new QueryFilter(req, negative,
-					FilterAbstract.Source.REQUEST, null));
+			this.filterList.add(new QueryFilter(req, negative, FilterAbstract.Source.REQUEST, null));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -316,8 +325,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	final public void addTermFilter(String field, String term, boolean negative) {
 		rwl.w.lock();
 		try {
-			this.filterList.add(new TermFilter(field, term, negative,
-					FilterAbstract.Source.REQUEST, null));
+			this.filterList.add(new TermFilter(field, term, negative, FilterAbstract.Source.REQUEST, null));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -327,8 +335,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	final public void removeFilterSource(FilterAbstract.Source source) {
 		rwl.w.lock();
 		try {
-			List<FilterAbstract<?>> toRemoveList = new ArrayList<FilterAbstract<?>>(
-					0);
+			List<FilterAbstract<?>> toRemoveList = new ArrayList<FilterAbstract<?>>(0);
 			for (FilterAbstract<?> filterAbstract : filterList)
 				if (filterAbstract.getSource() == source)
 					toRemoveList.add(filterAbstract);
@@ -358,24 +365,20 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	private SchemaField getCheckSchemaField(SchemaFieldList schemaFieldList,
-			String fieldName) throws SearchLibException {
+	private SchemaField getCheckSchemaField(SchemaFieldList schemaFieldList, String fieldName)
+			throws SearchLibException {
 		SchemaField schemaField = schemaFieldList.get(fieldName);
 		if (schemaField == null)
-			throw new SearchLibException("Returned field: The field: "
-					+ fieldName + " does not exist");
+			throw new SearchLibException("Returned field: The field: " + fieldName + " does not exist");
 		return schemaField;
 	}
 
-	private void addReturnFieldNoLock(SchemaFieldList schemaFieldList,
-			String fieldName) throws SearchLibException {
-		returnFieldList.put(new ReturnField(getCheckSchemaField(
-				schemaFieldList, fieldName).getName()));
+	private void addReturnFieldNoLock(SchemaFieldList schemaFieldList, String fieldName) throws SearchLibException {
+		returnFieldList.put(new ReturnField(getCheckSchemaField(schemaFieldList, fieldName).getName()));
 	}
 
 	@Override
-	final public void addReturnField(String fieldName)
-			throws SearchLibException {
+	final public void addReturnField(String fieldName) throws SearchLibException {
 		rwl.w.lock();
 		try {
 			addReturnFieldNoLock(config.getSchema().getFieldList(), fieldName);
@@ -457,12 +460,11 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	final public void addSort(final int joinNumber, final String fieldName,
-			final boolean desc, final boolean nullFirst) {
+	final public void addSort(final int joinNumber, final String fieldName, final boolean desc,
+			final boolean nullFirst) {
 		rwl.w.lock();
 		try {
-			sortFieldList.put(new SortField(joinNumber, fieldName, desc,
-					nullFirst));
+			sortFieldList.put(new SortField(joinNumber, fieldName, desc, nullFirst));
 		} finally {
 			rwl.w.unlock();
 		}
@@ -522,23 +524,20 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	final public void addCollapseFunctionField(
-			CollapseFunctionField functionField) {
+	final public void addCollapseFunctionField(CollapseFunctionField functionField) {
 		if (functionField == null)
 			return;
 		rwl.w.lock();
 		try {
 			if (collapseFunctionFields == null)
 				collapseFunctionFields = new HashSet<CollapseFunctionField>();
-			collapseFunctionFields
-					.add(new CollapseFunctionField(functionField));
+			collapseFunctionFields.add(new CollapseFunctionField(functionField));
 		} finally {
 			rwl.w.unlock();
 		}
 	}
 
-	final public void removeCollapseFunctionField(
-			CollapseFunctionField functionField) {
+	final public void removeCollapseFunctionField(CollapseFunctionField functionField) {
 		rwl.w.lock();
 		try {
 			collapseFunctionFields.remove(functionField);
@@ -638,9 +637,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			sb.append(queryString);
 			sb.append(" Facet: " + getFacetFieldList().toString());
 			if (getCollapseMode() != CollapseParameters.Mode.OFF)
-				sb.append(" Collapsing Mode: " + getCollapseMode() + " Type: "
-						+ getCollapseType() + " Field: " + getCollapseField()
-						+ "(" + getCollapseMax() + ")");
+				sb.append(" Collapsing Mode: " + getCollapseMode() + " Type: " + getCollapseType() + " Field: " +
+						getCollapseField() + "(" + getCollapseMax() + ")");
 			return sb.toString();
 		} finally {
 			rwl.r.unlock();
@@ -777,41 +775,33 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	protected void fromXmlConfigNoLock(Config config, XPathParser xpp,
-			Node requestNode) throws XPathExpressionException,
-			InstantiationException, IllegalAccessException, DOMException,
+	protected void fromXmlConfigNoLock(Config config, XPathParser xpp, Node requestNode)
+			throws XPathExpressionException, InstantiationException, IllegalAccessException, DOMException,
 			ParseException, ClassNotFoundException {
 		super.fromXmlConfigNoLock(config, xpp, requestNode);
-		allowLeadingWildcard = "yes".equalsIgnoreCase(XPathParser
-				.getAttributeString(requestNode, "allowLeadingWildcard"));
+		allowLeadingWildcard =
+				"yes".equalsIgnoreCase(XPathParser.getAttributeString(requestNode, "allowLeadingWildcard"));
 		setPhraseSlop(XPathParser.getAttributeValue(requestNode, "phraseSlop"));
-		setDefaultOperator(XPathParser.getAttributeString(requestNode,
-				"defaultOperator"));
+		setDefaultOperator(XPathParser.getAttributeString(requestNode, "defaultOperator"));
 		setStart(XPathParser.getAttributeValue(requestNode, "start"));
 		setRows(XPathParser.getAttributeValue(requestNode, "rows"));
-		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(
-				requestNode, "lang")));
-		setEmptyReturnsAll(!"no".equalsIgnoreCase(DomUtils.getAttributeText(
-				requestNode, "emptyReturnsAll")));
+		setLang(LanguageEnum.findByCode(XPathParser.getAttributeString(requestNode, "lang")));
+		setEmptyReturnsAll(!"no".equalsIgnoreCase(DomUtils.getAttributeText(requestNode, "emptyReturnsAll")));
 
-		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp,
-				requestNode);
+		AdvancedScore advancedScore = AdvancedScore.fromXmlConfig(xpp, requestNode);
 		if (advancedScore != null)
 			this.advancedScore = advancedScore;
 
-		setCollapseMode(CollapseParameters.Mode.valueOfLabel(XPathParser
-				.getAttributeString(requestNode, "collapseMode")));
-		setCollapseType(CollapseParameters.Type.valueOfLabel(XPathParser
-				.getAttributeString(requestNode, "collapseType")));
-		setCollapseField(XPathParser.getAttributeString(requestNode,
-				"collapseField"));
-		setCollapseMax(XPathParser
-				.getAttributeValue(requestNode, "collapseMax"));
+		setCollapseMode(
+				CollapseParameters.Mode.valueOfLabel(XPathParser.getAttributeString(requestNode, "collapseMode")));
+		setCollapseType(
+				CollapseParameters.Type.valueOfLabel(XPathParser.getAttributeString(requestNode, "collapseType")));
+		setCollapseField(XPathParser.getAttributeString(requestNode, "collapseField"));
+		setCollapseMax(XPathParser.getAttributeValue(requestNode, "collapseMax"));
 
 		NodeList nodes = xpp.getNodeList(requestNode, "collapseFunction");
 		for (int i = 0; i < nodes.getLength(); i++)
-			addCollapseFunctionField(CollapseFunctionField.fromXmlConfig(nodes
-					.item(i)));
+			addCollapseFunctionField(CollapseFunctionField.fromXmlConfig(nodes.item(i)));
 
 		Node geoNode = xpp.getNode(requestNode, "geoParameters");
 		if (geoNode != null)
@@ -822,8 +812,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 			BoostQuery.loadFromXml(xpp, bqNode, boostingQueries);
 
 		SchemaFieldList fieldList = config.getSchema().getFieldList();
-		returnFieldList.filterCopy(fieldList,
-				xpp.getNodeString(requestNode, "returnFields"));
+		returnFieldList.filterCopy(fieldList, xpp.getNodeString(requestNode, "returnFields"));
 		nodes = xpp.getNodeList(requestNode, "returnFields/field");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			ReturnField field = ReturnField.fromXmlConfig(nodes.item(i));
@@ -833,19 +822,16 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 
 		nodes = xpp.getNodeList(requestNode, "snippet/field");
 		for (int i = 0; i < nodes.getLength(); i++)
-			SnippetField.copySnippetFields(nodes.item(i), fieldList,
-					snippetFieldList);
+			SnippetField.copySnippetFields(nodes.item(i), fieldList, snippetFieldList);
 
 		nodes = xpp.getNodeList(requestNode, "facetFields/facetField");
 		for (int i = 0; i < nodes.getLength(); i++)
-			FacetField
-					.copyFacetFields(nodes.item(i), fieldList, facetFieldList);
+			FacetField.copyFacetFields(nodes.item(i), fieldList, facetFieldList);
 
 		Node filterNode = DomUtils.getFirstNode(requestNode, "filters");
 		if (filterNode != null) {
-			filterList.setDefaultOperator(OperatorEnum.find(DomUtils
-					.getAttributeText(filterNode, "defaultOperator",
-							OperatorEnum.AND.name())));
+			filterList.setDefaultOperator(OperatorEnum.find(
+					DomUtils.getAttributeText(filterNode, "defaultOperator", OperatorEnum.AND.name())));
 			nodes = xpp.getNodeList(requestNode, "filters/*");
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node node = nodes.item(i);
@@ -880,23 +866,18 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 		}
 	}
 
-	protected abstract void writeSubXmlConfig(XmlWriter xmlWriter)
-			throws SAXException;
+	protected abstract void writeSubXmlConfig(XmlWriter xmlWriter) throws SAXException;
 
 	@Override
 	public final void writeXmlConfig(XmlWriter xmlWriter) throws SAXException {
 		rwl.r.lock();
 		try {
-			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME,
-					getRequestName(), XML_ATTR_TYPE, getType().name(),
-					"phraseSlop", Integer.toString(phraseSlop),
-					"defaultOperator", getDefaultOperator(), "start",
-					Integer.toString(start), "rows", Integer.toString(rows),
-					"lang", lang != null ? lang.getCode() : null,
-					"collapseMode", collapseMode.getLabel(), "collapseType",
-					collapseType.getLabel(), "collapseField", collapseField,
-					"collapseMax", Integer.toString(collapseMax),
-					"emptyReturnsAll", emptyReturnsAll ? "yes" : "no");
+			xmlWriter.startElement(XML_NODE_REQUEST, XML_ATTR_NAME, getRequestName(), XML_ATTR_TYPE, getType().name(),
+					"phraseSlop", Integer.toString(phraseSlop), "defaultOperator", getDefaultOperator(), "start",
+					Integer.toString(start), "rows", Integer.toString(rows), "lang",
+					lang != null ? lang.getCode() : null, "collapseMode", collapseMode.getLabel(), "collapseType",
+					collapseType.getLabel(), "collapseField", collapseField, "collapseMax",
+					Integer.toString(collapseMax), "emptyReturnsAll", emptyReturnsAll ? "yes" : "no");
 
 			if (collapseFunctionFields != null)
 				for (CollapseFunctionField functionField : collapseFunctionFields)
@@ -956,8 +937,8 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 	}
 
 	@Override
-	protected void setFromServletNoLock(final ServletTransaction transaction,
-			final String prefix) throws SyntaxError, SearchLibException {
+	protected void setFromServletNoLock(final ServletTransaction transaction, final String prefix)
+			throws SyntaxError, SearchLibException {
 		super.setFromServletNoLock(transaction, prefix);
 
 		String p;
@@ -965,47 +946,36 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 
 		SchemaFieldList schemaFieldList = config.getSchema().getFieldList();
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"query"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "query"))) != null)
 			setQueryString(p);
-		else if ((p = transaction.getParameterString(StringUtils.fastConcat(
-				prefix, "q"))) != null)
+		else if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "q"))) != null)
 			setQueryString(p);
 
-		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
-				"start"))) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix, "start"))) != null)
 			setStart(i);
 
-		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
-				"rows"))) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix, "rows"))) != null)
 			setRows(i);
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"lang"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "lang"))) != null)
 			setLang(LanguageEnum.findByCode(p));
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"collapse.mode"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "collapse.mode"))) != null)
 			setCollapseMode(CollapseParameters.Mode.valueOfLabel(p));
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"collapse.type"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "collapse.type"))) != null)
 			setCollapseType(CollapseParameters.Type.valueOfLabel(p));
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"collapse.field"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "collapse.field"))) != null)
 			setCollapseField(schemaFieldList.get(p).getName());
 
-		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix,
-				"collapse.max"))) != null)
+		if ((i = transaction.getParameterInteger(StringUtils.fastConcat(prefix, "collapse.max"))) != null)
 			setCollapseMax(i);
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"log"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "log"))) != null)
 			setLogReport(true);
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"operator"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "operator"))) != null)
 			setDefaultOperator(p);
 
 		if (joinList != null)
@@ -1016,28 +986,24 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 
 		if (isLogReport()) {
 			for (int j = 1; j <= 10; j++) {
-				p = transaction.getParameterString(StringUtils.fastConcat(
-						prefix, "log", j));
+				p = transaction.getParameterString(StringUtils.fastConcat(prefix, "log", j));
 				if (p == null)
 					break;
 				addCustomLog(p);
 			}
 		}
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"timer.minTime"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "timer.minTime"))) != null)
 			setTimerMinTime(Integer.parseInt(p));
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-				"timer.maxDepth"))) != null)
+		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix, "timer.maxDepth"))) != null)
 			setTimerMaxDepth(Integer.parseInt(p));
 
 		String[] values;
 
 		filterList.addFromServlet(transaction, prefix);
 
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "rf"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "rf"))) != null) {
 			for (String value : values)
 				if (value != null) {
 					value = value.trim();
@@ -1046,60 +1012,46 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				}
 		}
 
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "hl"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "hl"))) != null) {
 			for (String value : values)
-				snippetFieldList.put(new SnippetField(getCheckSchemaField(
-						schemaFieldList, value).getName()));
+				snippetFieldList.put(new SnippetField(getCheckSchemaField(schemaFieldList, value).getName()));
 		}
 
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "fl"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "fl"))) != null) {
 			for (String value : values)
-				returnFieldList.put(new ReturnField(getCheckSchemaField(
-						schemaFieldList, value).getName()));
+				returnFieldList.put(new ReturnField(getCheckSchemaField(schemaFieldList, value).getName()));
 		}
 
 		if (transaction.getParameterString("sort.clear") != null)
 			sortFieldList.clear();
 
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "sort"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "sort"))) != null) {
 			for (String value : values)
 				sortFieldList.put(new SortField(value));
 		}
 
 		for (int j = 1; j <= 10; j++) {
-			p = transaction.getParameterString(StringUtils.fastConcat(prefix,
-					"sort", j));
+			p = transaction.getParameterString(StringUtils.fastConcat(prefix, "sort", j));
 			if (p == null)
 				break;
 			sortFieldList.put(new SortField(p));
 		}
 
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "facet"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "facet"))) != null) {
 			for (String value : values)
-				facetFieldList.put(FacetField.buildFacetField(value, false,
-						false));
+				facetFieldList.put(FacetField.buildFacetField(value, false, false));
 		}
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "facet.collapse"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "facet.collapse"))) != null) {
 			for (String value : values)
-				facetFieldList.put(FacetField.buildFacetField(value, false,
-						true));
+				facetFieldList.put(FacetField.buildFacetField(value, false, true));
 		}
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "facet.multi"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "facet.multi"))) != null) {
 			for (String value : values)
-				facetFieldList.put(FacetField.buildFacetField(value, true,
-						false));
+				facetFieldList.put(FacetField.buildFacetField(value, true, false));
 		}
-		if ((values = transaction.getParameterValues(StringUtils.fastConcat(
-				prefix, "facet.multi.collapse"))) != null) {
+		if ((values = transaction.getParameterValues(StringUtils.fastConcat(prefix, "facet.multi.collapse"))) != null) {
 			for (String value : values)
-				facetFieldList.put(FacetField
-						.buildFacetField(value, true, true));
+				facetFieldList.put(FacetField.buildFacetField(value, true, true));
 		}
 
 		geoParameters.setFromServlet(transaction, prefix);

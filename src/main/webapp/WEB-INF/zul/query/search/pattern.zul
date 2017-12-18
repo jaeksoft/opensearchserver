@@ -15,29 +15,34 @@
 	If not, see <http://www.gnu.org/licenses/>.
 -->
 <window apply="org.zkoss.bind.BindComposer"
-	viewModel="@id('pattern') @init('com.jaeksoft.searchlib.web.controller.query.PatternController')">
-	<grid>
-		<columns>
-			<column align="right" />
-			<column align="left" />
-		</columns>
-		<rows>
-			<row>
-				<label>Search pattern:</label>
-				<textbox value="@bind(pattern.request.patternQuery)"
-					multiline="true" width="90%" rows="5" />
-			</row>
-			<row>
-				<label>Snippet pattern:</label>
-				<textbox
-					value="@bind(pattern.request.snippetPatternQuery)" multiline="true"
-					width="90%" rows="3" />
-			</row>
-			<row>
-				<label>Enter the query:</label>
-				<textbox value="@bind(pattern.request.queryString)"
-					width="90%" />
-			</row>
-		</rows>
-	</grid>
+        viewModel="@id('pattern') @init('com.jaeksoft.searchlib.web.controller.query.PatternController')">
+    <grid>
+        <columns>
+            <column align="right"/>
+            <column align="left"/>
+        </columns>
+        <rows>
+            <row>
+                <label>Search pattern:</label>
+                <textbox value="@bind(pattern.request.patternQuery)"
+                         multiline="true" width="90%" rows="5"/>
+            </row>
+            <row>
+                <label>Snippet pattern:</label>
+                <textbox
+                        value="@bind(pattern.request.snippetPatternQuery)" multiline="true"
+                        width="90%" rows="3"/>
+            </row>
+            <row>
+                <label>Allow leading wildcard:</label>
+                <checkbox
+                        checked="@bind(pattern.request.allowLeadingWildcard)"/>
+            </row>
+            <row>
+                <label>Enter the query:</label>
+                <textbox value="@bind(pattern.request.queryString)"
+                         width="90%"/>
+            </row>
+        </rows>
+    </grid>
 </window>
