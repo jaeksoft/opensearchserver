@@ -2,9 +2,9 @@
  * License Agreement for OpenSearchServer
  *
  * Copyright (C) 2011-2015 Emmanuel Keller / Jaeksoft
- * 
+ *
  * http://www.open-search-server.com
- * 
+ *
  * This file is part of OpenSearchServer.
  *
  * OpenSearchServer is free software: you can redistribute it and/or
@@ -18,7 +18,7 @@
  * GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
+ *  along with OpenSearchServer.
  *  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.jaeksoft.searchlib.webservice.query.search;
@@ -109,6 +109,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 	final public List<Scoring> scorings;
 	final public List<BoostingQuery> boostingQueries;
 	final public Boolean enableLog;
+	final public Boolean allowLeadingWildcard;
 	final public List<String> customLogs;
 
 	public enum BatchAction {
@@ -145,6 +146,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		scorings = null;
 		boostingQueries = null;
 		enableLog = null;
+		allowLeadingWildcard = null;
 		customLogs = null;
 		emptyReturnsAll = true;
 		batchAction = null;
@@ -1047,6 +1049,7 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 		scorings = newScoringList(request.getAdvancedScore());
 		boostingQueries = newBoostingQueryList(request.getBoostingQueries());
 		enableLog = request.isLogReport();
+		allowLeadingWildcard = request.getAllowLeadingWildcard();
 		customLogs = newLogList(request.getCustomLogs());
 		batchAction = null;
 	}
@@ -1112,6 +1115,8 @@ public abstract class SearchQueryAbstract extends QueryAbstract {
 					request.setBoostingQuery(null, boostingQuery.newBoostQuery());
 			if (enableLog != null)
 				request.setLogReport(enableLog);
+			if (allowLeadingWildcard != null)
+				request.setAllowLeadingWildcard(allowLeadingWildcard);
 			if (customLogs != null)
 				for (String customLog : customLogs)
 					request.getCustomLogs().add(customLog);
