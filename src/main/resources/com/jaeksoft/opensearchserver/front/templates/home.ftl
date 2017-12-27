@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<#--
+<!--
   ~ Copyright 2017 Emmanuel Keller / Jaeksoft
   ~ <p>
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,33 +24,35 @@
     <#include 'includes/nav.ftl'>
 <br/>
 <div class="container">
- <#include 'includes/messages.ftl'>
-    <table class="table">
-        <tbody>
-        <tr>
-            <th scope="row">Index name :</th>
-            <td>${indexName!?html}</td>
-        </tr>
-        <tr>
-            <th scope="row">Storage size :</th>
-            <td>${indexSize!?html}</td>
-        </tr>
-        <tr>
-            <th scope="row">Number of records :</th>
-            <td>${indexCount!0}</td>
-        </tr>
-        </tbody>
-    </table>
-    <hr/>
+<#include 'includes/messages.ftl'>
     <form class="form-inline" method="post">
         <div class="form-group mx-sm-3">
             <label for="indexName" class="sr-only">Index name</label>
             <input type="text" name="indexName" class="form-control" id="indexName" placeholder="index name">
         </div>
         <div class="form-group">
-            <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+            <button type="submit" name="action" value="create" class="btn btn-primary">Create</button>
         </div>
     </form>
+    <br/>
+    <#if indexes?has_content>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Index</th>
+            </tr>
+            </thead>
+            <tbody>
+            <#list indexes as index>
+            <tr>
+                <th scope="row">${index?counter}</th>
+                <td><a href="/index/${index!?html}">${index!?html}</a></td>
+            </tr>
+            </#list>
+            </tbody>
+        </table>
+    </#if>
 </div>
     <#include 'includes/foot.ftl'>
 </body>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017 Emmanuel Keller / Jaeksoft
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
-import com.qwazr.search.index.IndexStatus;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -26,16 +25,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/index/*")
-public class IndexServlet extends BaseServlet {
+@WebServlet("")
+public class HomeServlet extends BaseServlet {
 
-	public IndexServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
-		super(freemarker, "index.ftl", indexesService);
-	}
-
-	private String getIndexName(final HttpServletRequest request) {
-		final String pathInfo = request.getPathInfo();
-		return pathInfo.substring(1);
+	public HomeServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
+		super(freemarker, "home.ftl", indexesService);
 	}
 
 	@Override
@@ -43,27 +37,15 @@ public class IndexServlet extends BaseServlet {
 			throws IOException, ServletException {
 		final String action = request.getParameter("action");
 		final String indexName = request.getParameter("indexName");
-		if ("delete".equals(action) && !StringUtils.isBlank(indexName)) {
-			if (indexName.equals(getIndexName(request))) {
-				indexesService.deleteIndex(indexName);
-				addMessage(request, Css.info, null, "Index \"" + indexName + "\" deleted");
-				response.sendRedirect("/");
-				return;
-			} else
-				addMessage(request, Css.warning, null, "Please confirm the name of the index to delete it");
-		}
+		if ("create".equals(action) && !StringUtils.isBlank(indexName))
+			indexesService.createIndex(indexName);
 		doGet(request, response);
 	}
 
 	@Override
 	public void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, ServletException {
-		final String indexName = getIndexName(request);
-		request.setAttribute("indexName", indexName);
-		final IndexStatus status = indexesService.getIndex(indexName).getIndexStatus();
-		request.setAttribute("indexSize", status.segments_size);
-		request.setAttribute("indexCount", status.num_docs);
+		request.setAttribute("indexes", indexesService.getIndexes());
 		doTemplate(request, response);
-
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,32 @@
  */
 package com.jaeksoft.opensearchserver;
 
+import com.jaeksoft.opensearchserver.front.HomeServlet;
 import com.jaeksoft.opensearchserver.front.IndexServlet;
+import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.library.freemarker.FreeMarkerTool;
+import com.qwazr.scheduler.SchedulerServiceInterface;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
+import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.webapps.WebappManager;
+import org.quartz.SchedulerException;
 
-import javax.management.JMException;
-import javax.servlet.ServletException;
 import java.io.IOException;
 
-public class Server {
+public class Server extends Components {
 
 	private final GenericServer server;
 
-	private Server(final ServerConfiguration configuration)
-			throws IOException, ServletException, ReflectiveOperationException, JMException {
+	private Server(final ServerConfiguration configuration) throws IOException, SchedulerException {
+		super(configuration);
+
+		final IndexesService indexesService = getIndexesService();
+		final WebCrawlerServiceInterface webCrawlerService = getWebCrawlerService();
+		final SchedulerServiceInterface schedulerService = getSchedulerService();
+		final StoreServiceInterface storeService = getStoreService();
 
 		final FreeMarkerTool freemarker = FreeMarkerTool.of()
 				.defaultContentType("text/html")
@@ -45,11 +54,18 @@ public class Server {
 				.registerDefaultFaviconServlet()
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
-				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker));
+				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(freemarker, indexesService))
+				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService));
+
 		webAppBuilder.build();
 
 		server = serverBuilder.build();
-		server.start(true);
+	}
+
+	@Override
+	public void close() {
+		server.stopAll();
+		super.close();
 	}
 
 	private static volatile Server instance;
@@ -62,12 +78,14 @@ public class Server {
 		if (instance != null)
 			throw new Exception("The instance has already be started");
 		instance = new Server(new ServerConfiguration(args));
+		instance.server.start(true);
 	}
 
 	public static synchronized void stop() {
 		if (instance == null)
 			return;
-		instance.server.stopAll();
+		instance.close();
 		instance = null;
 	}
+
 }

@@ -6,5 +6,7 @@
 /temp
 .DS_Store
 /.idea
+/indexes
+/logs
 opensearchserver.iml
 dependency-reduced-pom.xml
