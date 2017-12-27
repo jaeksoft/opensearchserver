@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" href="/">
         <img src="/s/images/oss_logo_32.png" width="32" height="32" class="d-inline-block align-top"
              alt="OpenSearchServer">
         OpenSearchServer 2.0-Alpha
@@ -15,10 +15,6 @@
             <li class="nav-item<#if request.servletPath=='/'> active</#if>">
                 <a class="nav-link" href="/">Indexes
                     <#if request.servletPath=='/'><span class="sr-only">(current)</span></#if></a>
-            </li>
-            <li class="nav-item<#if request.servletPath=='/crawls'> active</#if>">
-                <a class="nav-link" href="/crawls">Crawls
-                    <#if request.servletPath=='/crawls'><span class="sr-only">(current)</span></#if></a>
             </li>
         </ul>
     </div>
