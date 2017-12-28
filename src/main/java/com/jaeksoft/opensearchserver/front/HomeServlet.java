@@ -28,24 +28,37 @@ import java.io.IOException;
 @WebServlet("")
 public class HomeServlet extends BaseServlet {
 
+	private final static String TEMPLATE = "home.ftl";
+
 	public HomeServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
-		super(freemarker, "home.ftl", indexesService);
+		super(freemarker, indexesService);
 	}
 
 	@Override
-	public void doPost(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		final String action = request.getParameter("action");
-		final String indexName = request.getParameter("indexName");
-		if ("create".equals(action) && !StringUtils.isBlank(indexName))
-			indexesService.createIndex(indexName);
-		doGet(request, response);
+	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
+			final HttpServletResponse response) {
+		return new Transaction(request, response);
 	}
 
-	@Override
-	public void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		request.setAttribute("indexes", indexesService.getIndexes());
-		doTemplate(request, response);
+	class Transaction extends ServletTransaction {
+
+		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
+			super(HomeServlet.this, request, response);
+		}
+
+		@Override
+		void doPost() throws IOException, ServletException {
+			final String action = request.getParameter("action");
+			final String indexName = request.getParameter("indexName");
+			if ("create".equals(action) && !StringUtils.isBlank(indexName))
+				indexesService.createIndex(indexName);
+			doGet();
+		}
+
+		@Override
+		void doGet() throws IOException, ServletException {
+			request.setAttribute("indexes", indexesService.getIndexes());
+			doTemplate(TEMPLATE);
+		}
 	}
 }

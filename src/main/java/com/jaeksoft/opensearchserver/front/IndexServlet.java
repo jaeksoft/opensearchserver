@@ -17,53 +17,67 @@ package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
-import com.qwazr.search.index.IndexStatus;
 import com.qwazr.utils.StringUtils;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @WebServlet("/index/*")
 public class IndexServlet extends BaseServlet {
 
 	public IndexServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
-		super(freemarker, "index.ftl", indexesService);
-	}
-
-	private String getIndexName(final HttpServletRequest request) {
-		final String pathInfo = request.getPathInfo();
-		return pathInfo.substring(1);
+		super(freemarker, indexesService);
 	}
 
 	@Override
-	public void doPost(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		final String action = request.getParameter("action");
-		final String indexName = request.getParameter("indexName");
-		if ("delete".equals(action) && !StringUtils.isBlank(indexName)) {
-			if (indexName.equals(getIndexName(request))) {
-				indexesService.deleteIndex(indexName);
-				addMessage(request, Css.info, null, "Index \"" + indexName + "\" deleted");
-				response.sendRedirect("/");
-				return;
-			} else
-				addMessage(request, Css.warning, null, "Please confirm the name of the index to delete it");
+	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
+			final HttpServletResponse response) {
+		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
+		if (pathParts == null || pathParts.length == 0)
+			return null;
+		final String indexName = pathParts[0];
+		if (pathParts.length == 1)
+			return new IndexTransaction(this, indexName, request, response);
+		return dispatchIndex(indexName, pathParts, request, response);
+	}
+
+	private ServletTransaction dispatchIndex(final String indexName, final String[] pathParts,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		final String path2 = pathParts[1];
+		if (StringUtils.isBlank(path2))
+			return null;
+		switch (path2) {
+		case "crawler":
+			return dispatchCrawler(indexName, pathParts, request, response);
+		default:
+			return null;
 		}
-		doGet(request, response);
 	}
 
-	@Override
-	public void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		final String indexName = getIndexName(request);
-		request.setAttribute("indexName", indexName);
-		final IndexStatus status = indexesService.getIndex(indexName).getIndexStatus();
-		request.setAttribute("indexSize", status.segments_size);
-		request.setAttribute("indexCount", status.num_docs);
-		doTemplate(request, response);
-
+	private ServletTransaction dispatchCrawler(final String indexName, final String[] pathParts,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		if (pathParts.length < 3)
+			return null;
+		final String path3 = pathParts[2];
+		if (StringUtils.isBlank(path3))
+			return null;
+		switch (path3) {
+		case "web":
+			return dispatchCrawlerWeb(indexName, pathParts, request, response);
+		default:
+			return null;
+		}
 	}
+
+	private ServletTransaction dispatchCrawlerWeb(final String indexName, final String[] pathParts,
+			final HttpServletRequest request, final HttpServletResponse response) {
+		if (pathParts.length < 4)
+			return new CrawlerWebListTransaction(this, indexName, request, response);
+		final String path4 = pathParts[3];
+		if (StringUtils.isBlank(path4))
+			return null;
+		return new CrawlerWebTransaction(this, indexName, path4, request, response);
+	}
+
 }

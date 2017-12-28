@@ -2,8 +2,8 @@
 
     <a class="navbar-brand" href="/">
         <img src="/s/images/oss_logo_32.png" width="32" height="32" class="d-inline-block align-top"
-             alt="OpenSearchServer">
-        OpenSearchServer 2.0-Alpha
+             alt="OpenSearchServer 2.0 Alpha">
+        OpenSearchServer 2.0<em>&alpha;</em>
     </a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
