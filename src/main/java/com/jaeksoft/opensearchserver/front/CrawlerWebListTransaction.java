@@ -15,13 +15,23 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-class CrawlerWebListTransaction extends ServletTransaction {
+class CrawlerWebListTransaction extends IndexBaseTransaction {
+
+	private final static String TEMPLATE_INDEX = "web_crawl_list.ftl";
 
 	CrawlerWebListTransaction(final IndexServlet servlet, final String indexName, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(servlet, request, response);
+		super(servlet, indexName, request, response);
+	}
+
+	@Override
+	void doGet() throws IOException, ServletException {
+		request.setAttribute("indexName", indexName);
+		doTemplate(TEMPLATE_INDEX);
 	}
 }

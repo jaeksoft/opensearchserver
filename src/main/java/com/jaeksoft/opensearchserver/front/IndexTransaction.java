@@ -24,16 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class IndexTransaction extends ServletTransaction {
+class IndexTransaction extends IndexBaseTransaction {
 
 	private final static String TEMPLATE_INDEX = "index.ftl";
 
-	private final String indexName;
-
 	IndexTransaction(final IndexServlet indexServlet, final String indexName, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(indexServlet, request, response);
-		this.indexName = indexName;
+		super(indexServlet, indexName, request, response);
 	}
 
 	@Override

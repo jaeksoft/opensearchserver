@@ -13,28 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.jaeksoft.opensearchserver.front;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-class CrawlerWebTransaction extends IndexBaseTransaction {
+class IndexBaseTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "web_crawl.ftl";
+	protected final String indexName;
 
-	private final String crawlName;
-
-	CrawlerWebTransaction(final IndexServlet servlet, final String indexName, final String crawlName,
-			final HttpServletRequest request, final HttpServletResponse response) {
-		super(servlet, indexName, request, response);
-		this.crawlName = crawlName;
-	}
-
-	@Override
-	void doGet() throws IOException, ServletException {
-		request.setAttribute("indexName", indexName);
-		doTemplate(TEMPLATE_INDEX);
+	IndexBaseTransaction(IndexServlet servlet, final String indexName, HttpServletRequest request,
+			HttpServletResponse response) {
+		super(servlet, request, response);
+		this.indexName = indexName;
 	}
 }

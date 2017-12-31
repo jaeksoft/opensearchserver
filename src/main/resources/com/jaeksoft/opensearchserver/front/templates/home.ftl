@@ -38,7 +38,10 @@
             <#list indexes as index>
             <tr>
                 <th>${index!?html}</th>
-                <td align="right"><a href="/index/${index!?html}" class=" btn btn-sm btn-info">Edit</a></td>
+                <td align="right">
+                    <a href="/index/${index!?html}" class=" btn btn-sm btn-info">Edit</a>
+                    <a href="/index/${index!?html}/crawler/web" class=" btn btn-sm btn-info">Web Crawl</a>
+                </td>
             </tr>
             </#list>
             </tbody>
