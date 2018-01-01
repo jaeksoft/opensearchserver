@@ -16,16 +16,23 @@
 
 package com.jaeksoft.opensearchserver.front;
 
+import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 class IndexBaseTransaction extends ServletTransaction {
 
+	protected final IndexesService indexesService;
+	protected final WebCrawlsService webCrawlsService;
 	protected final String indexName;
 
-	IndexBaseTransaction(IndexServlet servlet, final String indexName, HttpServletRequest request,
+	IndexBaseTransaction(final IndexServlet servlet, final String indexName, HttpServletRequest request,
 			HttpServletResponse response) {
-		super(servlet, request, response);
+		super(servlet.freemarker, request, response);
 		this.indexName = indexName;
+		this.indexesService = servlet.indexesService;
+		this.webCrawlsService = servlet.webCrawlsService;
 	}
 }

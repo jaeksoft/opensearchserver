@@ -19,22 +19,25 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 class CrawlerWebTransaction extends IndexBaseTransaction {
 
 	private final static String TEMPLATE_INDEX = "web_crawl.ftl";
 
-	private final String crawlName;
+	private final String webCrawlName;
 
-	CrawlerWebTransaction(final IndexServlet servlet, final String indexName, final String crawlName,
+	CrawlerWebTransaction(final IndexServlet servlet, final String indexName, final String webCrawlName,
 			final HttpServletRequest request, final HttpServletResponse response) {
 		super(servlet, indexName, request, response);
-		this.crawlName = crawlName;
+		this.webCrawlName = webCrawlName;
 	}
 
 	@Override
 	void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
+		Optional.of(webCrawlsService.get(indexName))
+				.ifPresent(r -> request.setAttribute("webCrawl", r.crawls.get(webCrawlName)));
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

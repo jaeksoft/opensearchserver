@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
+import com.qwazr.library.freemarker.FreeMarkerTool;
 import freemarker.template.TemplateException;
 
 import javax.servlet.ServletException;
@@ -27,13 +28,14 @@ import java.util.List;
 
 abstract class ServletTransaction<T extends BaseServlet> {
 
-	protected final T servlet;
+	private final FreeMarkerTool freemarker;
 	protected final HttpServletRequest request;
 	protected final HttpServletResponse response;
 	protected final HttpSession session;
 
-	ServletTransaction(final T servlet, final HttpServletRequest request, final HttpServletResponse response) {
-		this.servlet = servlet;
+	ServletTransaction(final FreeMarkerTool freemarker, final HttpServletRequest request,
+			final HttpServletResponse response) {
+		this.freemarker = freemarker;
 		this.request = request;
 		this.response = response;
 		this.session = request.getSession();
@@ -60,7 +62,7 @@ abstract class ServletTransaction<T extends BaseServlet> {
 		try {
 			final List<Message> messages = getMessages();
 			request.setAttribute("messages", messages);
-			servlet.freemarker.template(templatePath, request, response);
+			freemarker.template(templatePath, request, response);
 			messages.clear();
 		} catch (TemplateException e) {
 			throw new ServletException(e);

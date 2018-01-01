@@ -28,10 +28,14 @@ import java.io.IOException;
 @WebServlet("")
 public class HomeServlet extends BaseServlet {
 
+	private final FreeMarkerTool freemarker;
+	private final IndexesService indexesService;
+
 	private final static String TEMPLATE = "home.ftl";
 
 	public HomeServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
-		super(freemarker, indexesService);
+		this.freemarker = freemarker;
+		this.indexesService = indexesService;
 	}
 
 	@Override
@@ -43,7 +47,7 @@ public class HomeServlet extends BaseServlet {
 	class Transaction extends ServletTransaction {
 
 		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
-			super(HomeServlet.this, request, response);
+			super(freemarker, request, response);
 		}
 
 		@Override

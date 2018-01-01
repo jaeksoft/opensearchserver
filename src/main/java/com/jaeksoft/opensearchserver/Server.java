@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver;
 import com.jaeksoft.opensearchserver.front.HomeServlet;
 import com.jaeksoft.opensearchserver.front.IndexServlet;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.scheduler.SchedulerServiceInterface;
@@ -38,6 +39,7 @@ public class Server extends Components {
 		super(configuration);
 
 		final IndexesService indexesService = getIndexesService();
+		final WebCrawlsService webCrawlsService = getWebCrawlsService();
 		final WebCrawlerServiceInterface webCrawlerService = getWebCrawlerService();
 		final SchedulerServiceInterface schedulerService = getSchedulerService();
 		final StoreServiceInterface storeService = getStoreService();
@@ -55,7 +57,7 @@ public class Server extends Components {
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
 				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(freemarker, indexesService))
-				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService));
+				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService, webCrawlsService));
 
 		webAppBuilder.build();
 

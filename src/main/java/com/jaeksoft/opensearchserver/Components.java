@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver;
 
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.scheduler.SchedulerManager;
@@ -44,6 +45,8 @@ class Components implements Closeable {
 
 	private final static String DEFAULT_SCHEMA = System.getProperty("OSS_SCHEMA", "opensearchserver");
 
+	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
+
 	private final Path dataDirectory;
 
 	private final List<Closeable> closing;
@@ -60,6 +63,7 @@ class Components implements Closeable {
 
 	private volatile WebCrawlerManager webCrawlerManager;
 	private volatile WebCrawlerServiceInterface webCrawlerService;
+	private volatile WebCrawlsService webCrawlsService;
 
 	private volatile StoreManager storeManager;
 	private volatile StoreServiceInterface storeService;
@@ -97,6 +101,16 @@ class Components implements Closeable {
 			indexesService = new IndexesService(getIndexService(), DEFAULT_SCHEMA, getSchemaDefinition(DEFAULT_SCHEMA));
 		}
 		return indexesService;
+	}
+
+	synchronized WebCrawlsService getWebCrawlsService() throws IOException {
+		if (webCrawlsService == null) {
+			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
+			if (!Files.exists(webCrawlsDirectory))
+				Files.createDirectory(webCrawlsDirectory);
+			webCrawlsService = new WebCrawlsService(webCrawlsDirectory);
+		}
+		return webCrawlsService;
 	}
 
 	private synchronized ScriptManager getScriptManager() {

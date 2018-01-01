@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.StringUtils;
 
@@ -26,8 +27,15 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/index/*")
 public class IndexServlet extends BaseServlet {
 
-	public IndexServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
-		super(freemarker, indexesService);
+	final FreeMarkerTool freemarker;
+	final IndexesService indexesService;
+	final WebCrawlsService webCrawlsService;
+
+	public IndexServlet(final FreeMarkerTool freemarker, final IndexesService indexesService,
+			final WebCrawlsService webCrawlsService) {
+		this.freemarker = freemarker;
+		this.indexesService = indexesService;
+		this.webCrawlsService = webCrawlsService;
 	}
 
 	@Override
@@ -73,7 +81,7 @@ public class IndexServlet extends BaseServlet {
 	private ServletTransaction dispatchCrawlerWeb(final String indexName, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length < 4)
-			return new CrawlerWebListTransaction(this, indexName, request, response);
+			return new CrawlerWebsTransaction(this, indexName, request, response);
 		final String path4 = pathParts[3];
 		if (StringUtils.isBlank(path4))
 			return null;

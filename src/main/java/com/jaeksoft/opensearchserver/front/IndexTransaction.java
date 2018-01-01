@@ -39,7 +39,7 @@ class IndexTransaction extends IndexBaseTransaction {
 		final String indexName = request.getParameter("indexName");
 		if ("delete".equals(action) && !StringUtils.isBlank(indexName)) {
 			if (indexName.equals(this.indexName)) {
-				servlet.indexesService.deleteIndex(indexName);
+				indexesService.deleteIndex(indexName);
 				addMessage(ServletTransaction.Css.info, null, "Index \"" + indexName + "\" deleted");
 				response.sendRedirect("/");
 				return;
@@ -52,7 +52,7 @@ class IndexTransaction extends IndexBaseTransaction {
 	@Override
 	void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
-		final IndexStatus status = servlet.indexesService.getIndex(indexName).getIndexStatus();
+		final IndexStatus status = indexesService.getIndex(indexName).getIndexStatus();
 		request.setAttribute("indexSize", status.segments_size);
 		request.setAttribute("indexCount", status.num_docs);
 		doTemplate(TEMPLATE_INDEX);

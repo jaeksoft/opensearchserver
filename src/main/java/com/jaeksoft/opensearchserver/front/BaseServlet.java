@@ -15,9 +15,6 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.qwazr.library.freemarker.FreeMarkerTool;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,14 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 abstract class BaseServlet extends HttpServlet {
-
-	final FreeMarkerTool freemarker;
-	final IndexesService indexesService;
-
-	protected BaseServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
-		this.freemarker = freemarker;
-		this.indexesService = indexesService;
-	}
 
 	protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
 			final HttpServletResponse response);

@@ -20,11 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class CrawlerWebListTransaction extends IndexBaseTransaction {
+class CrawlerWebsTransaction extends IndexBaseTransaction {
 
 	private final static String TEMPLATE_INDEX = "web_crawl_list.ftl";
 
-	CrawlerWebListTransaction(final IndexServlet servlet, final String indexName, final HttpServletRequest request,
+	CrawlerWebsTransaction(final IndexServlet servlet, final String indexName, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		super(servlet, indexName, request, response);
 	}
@@ -32,6 +32,7 @@ class CrawlerWebListTransaction extends IndexBaseTransaction {
 	@Override
 	void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
+		request.setAttribute("webCrawls", webCrawlsService.get(indexName));
 		doTemplate(TEMPLATE_INDEX);
 	}
 }
