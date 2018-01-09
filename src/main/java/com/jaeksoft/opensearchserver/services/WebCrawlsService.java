@@ -29,6 +29,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -53,11 +55,11 @@ public class WebCrawlsService {
 	 * Set the web crawls for the given index
 	 *
 	 * @param indexName the name of the index
-	 * @param record    the web crawls or null
+	 * @param crawls    the web crawls or null
 	 * @throws IOException if any I/O error occured
 	 */
-	public void set(final String indexName, WebCrawlRecord record) throws IOException {
-		if (record == null || record.crawls == null || record.crawls.isEmpty()) {
+	public void set(final String indexName, final Collection<WebCrawlRecord> crawls) throws IOException {
+		if (crawls == null || crawls.isEmpty()) {
 			remove(indexName);
 			return;
 		}
@@ -66,10 +68,11 @@ public class WebCrawlsService {
 			try (final OutputStream fileOutput = Files.newOutputStream(tmpJsonCrawlFile, StandardOpenOption.CREATE)) {
 				try (final BufferedOutputStream bufOutput = new BufferedOutputStream(fileOutput)) {
 					try (final GZIPOutputStream compressedOutput = new GZIPOutputStream(bufOutput)) {
-						ObjectMappers.JSON.writeValue(compressedOutput, record);
+						ObjectMappers.JSON.writeValue(compressedOutput, crawls);
 					}
 				}
 			}
+			storeService.createSchema(storeSchema);
 			storeService.putFile(storeSchema, getWebCrawlPath(indexName), tmpJsonCrawlFile, System.currentTimeMillis());
 		} finally {
 			Files.deleteIfExists(tmpJsonCrawlFile);
@@ -83,11 +86,11 @@ public class WebCrawlsService {
 	 * @return the WebCrawlRecord or null if there is any
 	 * @throws IOException if any I/O error occured
 	 */
-	public WebCrawlRecord get(final String indexName) throws IOException {
+	public List<WebCrawlRecord> get(final String indexName) throws IOException {
 		try (final InputStream fileInput = storeService.getFile(storeSchema, getWebCrawlPath(indexName))) {
 			try (final BufferedInputStream bufInput = new BufferedInputStream(fileInput)) {
 				try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
-					return ObjectMappers.JSON.readValue(compressedInput, WebCrawlRecord.TYPE_REFERENCE);
+					return ObjectMappers.JSON.readValue(compressedInput, WebCrawlRecord.TYPE_WEBCRAWLS);
 				}
 			}
 		} catch (ServerException e) {

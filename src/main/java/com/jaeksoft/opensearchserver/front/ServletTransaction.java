@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.qwazr.library.freemarker.FreeMarkerTool;
+import com.qwazr.utils.StringUtils;
 import freemarker.template.TemplateException;
 
 import javax.servlet.ServletException;
@@ -25,8 +26,10 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-abstract class ServletTransaction<T extends BaseServlet> {
+abstract class ServletTransaction {
 
 	private final FreeMarkerTool freemarker;
 	protected final HttpServletRequest request;
@@ -62,7 +65,28 @@ abstract class ServletTransaction<T extends BaseServlet> {
 	 */
 	protected Integer getRequestParameter(String parameterName, Integer defaultValue) {
 		final String value = request.getParameter(parameterName);
-		return value == null ? defaultValue : Integer.parseInt(value);
+		if (StringUtils.isBlank(value))
+			return defaultValue;
+		return Integer.parseInt(value);
+	}
+
+	/**
+	 * Returns the parameter value from the HTTP request or the value provided by the supplier
+	 *
+	 * @param parameterName the name of the parameter
+	 * @param converter     convert the string to the value
+	 * @param defaultValue  a default value supplier
+	 * @return the value of the given parameter
+	 */
+	protected <T> T getRequestParameter(final String parameterName, final Function<String, T> converter,
+			final Supplier<T> defaultValue) {
+		final String value = request.getParameter(parameterName);
+		if (StringUtils.isBlank(value))
+			if (defaultValue == null)
+				return null;
+			else
+				return defaultValue.get();
+		return converter.apply(value);
 	}
 
 	/**

@@ -17,11 +17,18 @@ package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.HashUtils;
+import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 class CrawlerWebs extends IndexBase {
 
@@ -33,34 +40,44 @@ class CrawlerWebs extends IndexBase {
 	}
 
 	@Override
-	void doPost() throws IOException {
-		final WebCrawlRecord webCrawlRecord = webCrawlsService.get(indexName);
-		final WebCrawlRecord.Builder builder = WebCrawlRecord.of(webCrawlRecord);
-		final String newName = request.getParameter("newName");
-		final String oldName = request.getParameter("oldName");
+	void doPost() throws IOException, ServletException {
+		final List<WebCrawlRecord> webCrawlRecordList = webCrawlsService.get(indexName);
+		final Map<UUID, WebCrawlRecord> webCrawlRecordMap = new LinkedHashMap<>();
+		if (webCrawlRecordList != null)
+			webCrawlRecordList.forEach(r -> webCrawlRecordMap.put(UUID.fromString(r.uuid), r));
+
+		final UUID crawlUuid = getRequestParameter("crawlUuid", UUID::fromString, HashUtils::newTimeBasedUUID);
+		final String crawlName = request.getParameter("crawlName");
 		final String action = request.getParameter("action");
 		switch (action) {
-		case "save":
-			final String startUrl = request.getParameter("url");
-			final Integer maxDepth = getRequestParameter("depth", null);
+		case "create":
+			final String entryUrl = request.getParameter("entryUrl");
+			final Integer maxDepth = getRequestParameter("maxDepth", null);
 			final WebCrawlDefinition.Builder webCrawlDefBuilder = WebCrawlDefinition.of();
-			webCrawlDefBuilder.setEntryUrl(startUrl);
+			if (!StringUtils.isBlank(entryUrl))
+				webCrawlDefBuilder.setEntryUrl(entryUrl);
 			if (maxDepth != null)
 				webCrawlDefBuilder.setMaxDepth(maxDepth);
-			builder.remove(oldName);
-			builder.set(newName, webCrawlDefBuilder.build());
-			webCrawlsService.set(indexName, builder.build());
+			webCrawlRecordMap.put(crawlUuid,
+					WebCrawlRecord.of(crawlUuid).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+			webCrawlsService.set(indexName, webCrawlRecordMap.values());
 			break;
 		case "del":
-			builder.remove(oldName);
+			webCrawlRecordMap.remove(crawlUuid);
+			webCrawlsService.set(indexName, webCrawlRecordMap.values());
 			break;
 		}
+		doGet();
 	}
 
 	@Override
 	void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
-		request.setAttribute("webCrawls", webCrawlsService.get(indexName));
+		final List<WebCrawlRecord> webCrawlRecords = webCrawlsService.get(indexName);
+		if (webCrawlRecords != null) {
+			Collections.sort(webCrawlRecords, (r1, r2) -> StringUtils.compare(r1.name, r2.name));
+			request.setAttribute("webCrawlRecords", webCrawlRecords);
+		}
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

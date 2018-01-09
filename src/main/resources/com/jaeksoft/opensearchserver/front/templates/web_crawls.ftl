@@ -33,6 +33,47 @@
         </ol>
     </nav>
  <#include 'includes/messages.ftl'>
+</div>
+<#if webCrawlRecords?has_content>
+    <div class="container">
+        <table class="table table-hover">
+            <tbody>
+            <#list webCrawlRecords as webCrawlRecord>
+            <tr>
+                <th>${webCrawlRecord.name!?html}</th>
+                <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
+                <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
+                <td align="right">
+                    <a href="/index/${indexName!?html}/crawler/web/${webCrawlRecord.uuid!}"
+                       class=" btn btn-sm btn-info">Edit</a>
+                </td>
+            </tr>
+            </#list>
+            </tbody>
+        </table>
+    </div>
+</#if>
+<div class="container">
+    <form method="post">
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
+                       aria-label="Crawl name">
+            </div>
+            <div class="form-group col-md-7">
+                <input type="url" name="entryUrl" class="form-control" placeholder="Entry URL"
+                       aria-label="Entry URL">
+            </div>
+            <div class="form-group col-md-2">
+                <input type="number" name="maxDepth" class="form-control" placeholder="maxDepth"
+                       aria-label="Max depth">
+            </div>
+            <div class="form-group col-md-1">
+                <button class="btn btn-primary" name="action" value="create" type="submit">Create</button>
+            </div>
+        </div>
+    </form>
+</div>
 <#include 'includes/foot.ftl'>
 </body>
 </html>

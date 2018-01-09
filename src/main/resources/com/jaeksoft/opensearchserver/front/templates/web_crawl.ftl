@@ -27,12 +27,35 @@
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Indexes</a></li>
-            <li class="breadcrumb-item active" aria-current="page">${indexName!?html}</li>
+            <li class="breadcrumb-item"><a href="/index/${indexName!?url}">${indexName!?html}</a></li>
             <li class="breadcrumb-item">Crawler</li>
-            <li class="breadcrumb-item">Web</li>
+            <li class="breadcrumb-item"><a href="/index/${indexName!?url}/crawler/web">Web</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+            ${webCrawlRecord.name!webCrawlRecord.uuid!?html}
+            </li>
         </ol>
     </nav>
  <#include 'includes/messages.ftl'>
+    <div class="card">
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Entry URL : ${webCrawlRecord.entryUrl!?html}</li>
+                <li class="list-group-item">Max depth: ${webCrawlRecord.maxDepth!}</li>
+            </ul>
+        </div>
+        <div class="card-footer">
+            <form method="post">
+                <div class="input-group">
+                    <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
+                           aria-label="Crawl name">
+                    <span class="input-group-btn">
+                        <button class="btn btn-danger" name="action" value="delete" type="submit">Delete</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <#include 'includes/foot.ftl'>
 </body>
 </html>

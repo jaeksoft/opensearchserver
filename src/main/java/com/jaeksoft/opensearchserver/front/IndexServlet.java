@@ -23,6 +23,7 @@ import com.qwazr.utils.StringUtils;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @WebServlet("/index/*")
 public class IndexServlet extends BaseServlet {
@@ -40,7 +41,7 @@ public class IndexServlet extends BaseServlet {
 
 	@Override
 	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) {
+			final HttpServletResponse response) throws IOException {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			return null;
@@ -51,7 +52,7 @@ public class IndexServlet extends BaseServlet {
 	}
 
 	private ServletTransaction dispatchIndex(final String indexName, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) {
+			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		final String path2 = pathParts[1];
 		if (StringUtils.isBlank(path2))
 			return null;
@@ -64,7 +65,7 @@ public class IndexServlet extends BaseServlet {
 	}
 
 	private ServletTransaction dispatchCrawler(final String indexName, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) {
+			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		if (pathParts.length < 3)
 			return null;
 		final String path3 = pathParts[2];
@@ -79,7 +80,7 @@ public class IndexServlet extends BaseServlet {
 	}
 
 	private ServletTransaction dispatchCrawlerWeb(final String indexName, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) {
+			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		if (pathParts.length < 4)
 			return new CrawlerWebs(this, indexName, request, response);
 		final String path4 = pathParts[3];

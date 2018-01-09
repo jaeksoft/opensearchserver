@@ -24,7 +24,7 @@ import java.io.IOException;
 abstract class BaseServlet extends HttpServlet {
 
 	protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response);
+			final HttpServletResponse response) throws IOException;
 
 	private void doTransaction(final HttpServletRequest request, final HttpServletResponse response,
 			final DoMethod doMethod) throws IOException, ServletException {

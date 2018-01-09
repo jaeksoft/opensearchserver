@@ -19,10 +19,12 @@ package com.jaeksoft.opensearchserver.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 
-import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
 		getterVisibility = JsonAutoDetect.Visibility.NONE,
@@ -30,60 +32,67 @@ import java.util.LinkedHashMap;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class WebCrawlRecord {
 
-	public final LinkedHashMap<String, WebCrawlDefinition> crawls;
+	public final String uuid;
 
-	public static final TypeReference<LinkedHashMap<String, WebCrawlDefinition>> TYPE_REFERENCE =
-			new TypeReference<LinkedHashMap<String, WebCrawlDefinition>>() {
-			};
+	public final String name;
+
+	public final WebCrawlDefinition crawlDefinition;
 
 	@JsonCreator
-	WebCrawlRecord(final LinkedHashMap<String, WebCrawlDefinition> crawls) {
-		this.crawls = crawls;
+	WebCrawlRecord(@JsonProperty("uuid") final String uuid, @JsonProperty("name") final String name,
+			@JsonProperty("crawlDefinition") final WebCrawlDefinition crawlDefinition) {
+		this.uuid = uuid;
+		this.name = name;
+		this.crawlDefinition = crawlDefinition;
 	}
 
 	WebCrawlRecord(final Builder builder) {
-		if (builder.crawls == null) {
-			crawls = null;
-		} else {
-			crawls = new LinkedHashMap<>();
-			builder.crawls.forEach((name, webCrawlBuilder) -> crawls.put(name, webCrawlBuilder.build()));
-		}
+		uuid = builder.uuid.toString();
+		name = builder.name;
+		crawlDefinition = builder.crawlDefinition;
 	}
 
-	public static Builder of() {
-		return new Builder();
+	public String getUuid() {
+		return uuid;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public WebCrawlDefinition getCrawlDefinition() {
+		return crawlDefinition;
+	}
+
+	public static Builder of(final UUID uuid) {
+		return new Builder(uuid);
 	}
 
 	public static Builder of(final WebCrawlRecord record) {
-		final Builder builder = new Builder();
-		if (record != null && record.crawls != null)
-			record.crawls.forEach(builder::set);
-		return builder;
+		return new Builder(UUID.fromString(record.uuid)).name(record.name).crawlDefinition(record.crawlDefinition);
 	}
+
+	public static final TypeReference<List<WebCrawlRecord>> TYPE_WEBCRAWLS = new TypeReference<List<WebCrawlRecord>>() {
+	};
 
 	public static class Builder {
 
-		private LinkedHashMap<String, WebCrawlDefinition.Builder> crawls;
+		private final UUID uuid;
+		private String name;
+		private WebCrawlDefinition crawlDefinition;
 
-		public WebCrawlDefinition.Builder set(final String name, final WebCrawlDefinition.Builder builder) {
-			if (crawls == null)
-				crawls = new LinkedHashMap<>();
-			crawls.put(name, builder);
-			return builder;
+		private Builder(final UUID uuid) {
+			this.uuid = uuid;
 		}
 
-		public WebCrawlDefinition.Builder set(final String name, final WebCrawlDefinition webCrawl) {
-			return set(name, WebCrawlDefinition.of(webCrawl));
+		public Builder name(final String name) {
+			this.name = name;
+			return this;
 		}
 
-		public WebCrawlDefinition.Builder set(final String name) {
-			if (crawls == null)
-				crawls = new LinkedHashMap<>();
-			return crawls.computeIfAbsent(name, n -> WebCrawlDefinition.of());
-		}
-
-		public WebCrawlDefinition.Builder remove(String name) {
-			return crawls != null ? crawls.remove(name) : null;
+		public Builder crawlDefinition(final WebCrawlDefinition crawlDefinition) {
+			this.crawlDefinition = crawlDefinition;
+			return this;
 		}
 
 		public WebCrawlRecord build() {
