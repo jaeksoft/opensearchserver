@@ -8,5 +8,8 @@
 /.idea
 /indexes
 /logs
+/store
+/tmp
+/server
 opensearchserver.iml
 dependency-reduced-pom.xml

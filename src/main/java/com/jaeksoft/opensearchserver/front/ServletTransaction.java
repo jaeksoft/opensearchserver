@@ -41,6 +41,9 @@ abstract class ServletTransaction<T extends BaseServlet> {
 		this.session = request.getSession();
 	}
 
+	/**
+	 * @return the message list
+	 */
 	synchronized List<Message> getMessages() {
 		List<Message> messages = (List<Message>) session.getAttribute("messages");
 		if (messages == null) {
@@ -50,14 +53,45 @@ abstract class ServletTransaction<T extends BaseServlet> {
 		return messages;
 	}
 
+	/**
+	 * Returns the parameter value from the HTTP request or the default value.
+	 *
+	 * @param parameterName the name of the parameter
+	 * @param defaultValue  a default value
+	 * @return the value of the given parameter
+	 */
+	protected Integer getRequestParameter(String parameterName, Integer defaultValue) {
+		final String value = request.getParameter(parameterName);
+		return value == null ? defaultValue : Integer.parseInt(value);
+	}
+
+	/**
+	 * This default implementation for HTTP GET method returns a 405 error code.
+	 *
+	 * @throws IOException      if any I/O error occured
+	 * @throws ServletException if any Servlet error occured
+	 */
 	void doGet() throws IOException, ServletException {
 		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 
+	/**
+	 * This default implementation for HTTP POST method returns a 405 error code.
+	 *
+	 * @throws IOException
+	 * @throws ServletException
+	 */
 	void doPost() throws IOException, ServletException {
 		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 
+	/**
+	 * Display a Freemarker template
+	 *
+	 * @param templatePath the path to the freemarker template
+	 * @throws IOException      if any I/O exception occured
+	 * @throws ServletException if any templace exception occured
+	 */
 	protected void doTemplate(String templatePath) throws IOException, ServletException {
 		try {
 			final List<Message> messages = getMessages();
@@ -69,6 +103,13 @@ abstract class ServletTransaction<T extends BaseServlet> {
 		}
 	}
 
+	/**
+	 * Add a message. The message may be displayed to the user.
+	 *
+	 * @param css     the CSS type to use
+	 * @param title   the title of the message
+	 * @param message the content of the message
+	 */
 	protected void addMessage(final Css css, final String title, final String message) {
 		getMessages().add(new Message(css, title, message));
 	}

@@ -16,7 +16,7 @@
         </license>
     </licenses>
 
-    <description>OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface,
+    <description>OpenSearchServer is an enterprise-class search engine program. Using the web user interface,
         the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and
         easily advanced full-text search capabilities in your application. OpenSearchServer runs on Windows and
         Linux/Unix/BSD.
@@ -167,7 +167,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>4.0.0-beta.2</version>
+            <version>4.0.0-beta.3</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

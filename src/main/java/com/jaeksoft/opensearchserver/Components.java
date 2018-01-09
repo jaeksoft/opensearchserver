@@ -73,6 +73,10 @@ class Components implements Closeable {
 		dataDirectory = configuration.dataDirectory.toPath();
 	}
 
+	private synchronized String getAccountSchema() {
+		return "local";
+	}
+
 	private synchronized ExecutorService getExecutorService() {
 		if (executorService == null)
 			executorService = Executors.newCachedThreadPool();
@@ -108,7 +112,7 @@ class Components implements Closeable {
 			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
 			if (!Files.exists(webCrawlsDirectory))
 				Files.createDirectory(webCrawlsDirectory);
-			webCrawlsService = new WebCrawlsService(webCrawlsDirectory);
+			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema());
 		}
 		return webCrawlsService;
 	}

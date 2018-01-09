@@ -17,6 +17,8 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.qwazr.server.ServerException;
+import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
 
 import java.io.BufferedInputStream;
@@ -26,65 +28,82 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class WebCrawlsService {
 
-	private final static String TEMP_EXTENSION = ".temp";
-	private final static String OLD_EXTENSION = ".old.gz";
-	private final static String JSON_GZ_EXTENSION = ".json.gz";
+	private final static String WEB_CRAWLS_PREFIX = "web_crawls";
+	private final static String WEB_CRAWLS_SUFFIX = ".json.gz";
 
-	private final Path webCrawlerDirectory;
+	private final StoreServiceInterface storeService;
+	private final String storeSchema;
 
-	public WebCrawlsService(final Path webCrawlerDirectory) {
-		this.webCrawlerDirectory = webCrawlerDirectory;
+	public WebCrawlsService(final StoreServiceInterface storeService, final String storeSchema) {
+		this.storeService = storeService;
+		this.storeSchema = storeSchema;
 	}
 
-	public SortedSet<String> getList() throws IOException {
-		return Files.list(webCrawlerDirectory)
-				.filter(p -> Files.isRegularFile(p))
-				.filter(p -> p.endsWith(JSON_GZ_EXTENSION))
-				.map(p -> p.getFileName().toString())
-				.collect(Collectors.toCollection(TreeSet::new));
+	private String getWebCrawlPath(String indexName) {
+		return WEB_CRAWLS_PREFIX + '/' + indexName + WEB_CRAWLS_SUFFIX;
 	}
 
+	/**
+	 * Set the web crawls for the given index
+	 *
+	 * @param indexName the name of the index
+	 * @param record    the web crawls or null
+	 * @throws IOException if any I/O error occured
+	 */
 	public void set(final String indexName, WebCrawlRecord record) throws IOException {
-		final Path tmpJsonCrawlFile = webCrawlerDirectory.resolve(indexName + TEMP_EXTENSION);
-		try (final OutputStream fileOutput = Files.newOutputStream(tmpJsonCrawlFile, StandardOpenOption.CREATE)) {
-			try (final BufferedOutputStream bufOutput = new BufferedOutputStream(fileOutput)) {
-				try (final GZIPOutputStream compressedOutput = new GZIPOutputStream(bufOutput)) {
-					ObjectMappers.JSON.writeValue(compressedOutput, record);
+		if (record == null || record.crawls == null || record.crawls.isEmpty()) {
+			remove(indexName);
+			return;
+		}
+		final Path tmpJsonCrawlFile = Files.createTempFile(indexName, WEB_CRAWLS_SUFFIX);
+		try {
+			try (final OutputStream fileOutput = Files.newOutputStream(tmpJsonCrawlFile, StandardOpenOption.CREATE)) {
+				try (final BufferedOutputStream bufOutput = new BufferedOutputStream(fileOutput)) {
+					try (final GZIPOutputStream compressedOutput = new GZIPOutputStream(bufOutput)) {
+						ObjectMappers.JSON.writeValue(compressedOutput, record);
+					}
 				}
 			}
+			storeService.putFile(storeSchema, getWebCrawlPath(indexName), tmpJsonCrawlFile, System.currentTimeMillis());
+		} finally {
+			Files.deleteIfExists(tmpJsonCrawlFile);
 		}
-		final Path gzJsonCrawlFile = webCrawlerDirectory.resolve(indexName + JSON_GZ_EXTENSION);
-		final Path oldGzJsonCrawlFile = webCrawlerDirectory.resolve(indexName + OLD_EXTENSION);
-		if (Files.exists(gzJsonCrawlFile))
-			Files.move(gzJsonCrawlFile, oldGzJsonCrawlFile, StandardCopyOption.ATOMIC_MOVE,
-					StandardCopyOption.REPLACE_EXISTING);
-		Files.move(tmpJsonCrawlFile, gzJsonCrawlFile, StandardCopyOption.ATOMIC_MOVE);
 	}
 
+	/**
+	 * Retrieve the web crawls for a given index
+	 *
+	 * @param indexName the name of the index
+	 * @return the WebCrawlRecord or null if there is any
+	 * @throws IOException if any I/O error occured
+	 */
 	public WebCrawlRecord get(final String indexName) throws IOException {
-		final Path gzJsonCrawlFile = webCrawlerDirectory.resolve(indexName + JSON_GZ_EXTENSION);
-		if (!Files.exists(gzJsonCrawlFile))
-			return null;
-		try (final InputStream fileInput = Files.newInputStream(gzJsonCrawlFile)) {
+		try (final InputStream fileInput = storeService.getFile(storeSchema, getWebCrawlPath(indexName))) {
 			try (final BufferedInputStream bufInput = new BufferedInputStream(fileInput)) {
 				try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
 					return ObjectMappers.JSON.readValue(compressedInput, WebCrawlRecord.TYPE_REFERENCE);
 				}
 			}
+		} catch (ServerException e) {
+			if (e.getStatusCode() == 404)
+				return null;
+			throw e;
 		}
+
 	}
 
-	public void remove(final String indexName) throws IOException {
-		Files.deleteIfExists(webCrawlerDirectory.resolve(indexName + JSON_GZ_EXTENSION));
+	/**
+	 * Remove the web crawl entries for the given index
+	 *
+	 * @param indexName the name of the index
+	 */
+	public void remove(final String indexName) {
+		storeService.deleteFile(storeSchema, getWebCrawlPath(indexName));
 	}
 }

@@ -81,11 +81,11 @@ public class IndexServlet extends BaseServlet {
 	private ServletTransaction dispatchCrawlerWeb(final String indexName, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length < 4)
-			return new CrawlerWebsTransaction(this, indexName, request, response);
+			return new CrawlerWebs(this, indexName, request, response);
 		final String path4 = pathParts[3];
 		if (StringUtils.isBlank(path4))
 			return null;
-		return new CrawlerWebTransaction(this, indexName, path4, request, response);
+		return new CrawlerWeb(this, indexName, path4, request, response);
 	}
 
 }

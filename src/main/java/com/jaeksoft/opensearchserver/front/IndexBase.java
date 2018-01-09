@@ -22,13 +22,13 @@ import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-class IndexBaseTransaction extends ServletTransaction {
+class IndexBase extends ServletTransaction {
 
 	protected final IndexesService indexesService;
 	protected final WebCrawlsService webCrawlsService;
 	protected final String indexName;
 
-	IndexBaseTransaction(final IndexServlet servlet, final String indexName, HttpServletRequest request,
+	IndexBase(final IndexServlet servlet, final String indexName, HttpServletRequest request,
 			HttpServletResponse response) {
 		super(servlet.freemarker, request, response);
 		this.indexName = indexName;

@@ -81,5 +81,14 @@ public class WebCrawlRecord {
 				crawls = new LinkedHashMap<>();
 			return crawls.computeIfAbsent(name, n -> WebCrawlDefinition.of());
 		}
+
+		public WebCrawlDefinition.Builder remove(String name) {
+			return crawls != null ? crawls.remove(name) : null;
+		}
+
+		public WebCrawlRecord build() {
+			return new WebCrawlRecord(this);
+		}
+
 	}
 }

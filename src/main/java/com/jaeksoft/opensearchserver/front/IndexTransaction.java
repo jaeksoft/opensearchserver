@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class IndexTransaction extends IndexBaseTransaction {
+class IndexTransaction extends IndexBase {
 
 	private final static String TEMPLATE_INDEX = "index.ftl";
 
