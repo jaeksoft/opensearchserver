@@ -45,10 +45,6 @@
         <url>http://www.open-search-server.com/jenkins</url>
     </ciManagement>
 
-    <prerequisites>
-        <maven>3.2.1</maven>
-    </prerequisites>
-
     <repositories>
         <repository>
             <id>snapshots-repo</id>

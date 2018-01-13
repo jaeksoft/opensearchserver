@@ -38,15 +38,36 @@
  <#include 'includes/messages.ftl'>
     <div class="card">
         <div class="card-body">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item">Entry URL : ${webCrawlRecord.entryUrl!?html}</li>
-                <li class="list-group-item">Max depth: ${webCrawlRecord.maxDepth!}</li>
-            </ul>
+            <form method="post">
+                <div class="form-row">
+                    <div class="form-group col-md-9">
+                        <label for="webCrawlName">Name</label>
+                        <input type="text" class="form-control" id="webCrawlName"
+                               placeholder="Crawl name" value="${webCrawlRecord.name!?html}">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="entryUrl">Maximum depth</label>
+                        <input type="number" name="maxDepth" class="form-control" placeholder="Maximum depth"
+                               aria-label="Max depth" value="${webCrawlRecord.crawlDefinition.maxDepth!?html}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="entryUrl">Entry URL</label>
+                    <input type="url" class="form-control" id="webCrawlName"
+                           placeholder="Crawl name" value="${webCrawlRecord.crawlDefinition.entryUrl!?html}">
+                </div>
+                <div class="input-group">
+                       <span class="input-group-btn">
+                        <button class="btn btn-primary" name="action" value="save" type="submit">Save</button>
+                    </span>
+                </div>
+            </form>
         </div>
         <div class="card-footer">
             <form method="post">
                 <div class="input-group">
-                    <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
+                    <input type="text" name="crawlName" class="form-control"
+                           placeholder="Enter the name of the crawl to delete it"
                            aria-label="Crawl name">
                     <span class="input-group-btn">
                         <button class="btn btn-danger" name="action" value="delete" type="submit">Delete</button>
