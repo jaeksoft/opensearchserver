@@ -33,11 +33,9 @@ class IndexTransaction extends IndexBase {
 		super(indexServlet, indexName, request, response);
 	}
 
-	@Override
-	void doPost() throws IOException, ServletException {
-		final String action = request.getParameter("action");
+	void delete() throws IOException, ServletException {
 		final String indexName = request.getParameter("indexName");
-		if ("delete".equals(action) && !StringUtils.isBlank(indexName)) {
+		if (!StringUtils.isBlank(indexName)) {
 			if (indexName.equals(this.indexName)) {
 				indexesService.deleteIndex(indexName);
 				addMessage(ServletTransaction.Css.info, null, "Index \"" + indexName + "\" deleted");

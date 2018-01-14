@@ -112,7 +112,7 @@ class Components implements Closeable {
 			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
 			if (!Files.exists(webCrawlsDirectory))
 				Files.createDirectory(webCrawlsDirectory);
-			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema());
+			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema(), getWebCrawlerService());
 		}
 		return webCrawlsService;
 	}

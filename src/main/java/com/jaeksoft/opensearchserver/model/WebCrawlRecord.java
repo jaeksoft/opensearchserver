@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -36,19 +37,29 @@ public class WebCrawlRecord {
 
 	public final String name;
 
+	public final Boolean enabled;
+
 	public final WebCrawlDefinition crawlDefinition;
+
+	@JsonIgnore
+	private final UUID parsedUuid;
 
 	@JsonCreator
 	WebCrawlRecord(@JsonProperty("uuid") final String uuid, @JsonProperty("name") final String name,
+			@JsonProperty("enabled") final Boolean enabled,
 			@JsonProperty("crawlDefinition") final WebCrawlDefinition crawlDefinition) {
 		this.uuid = uuid;
 		this.name = name;
+		this.enabled = enabled;
 		this.crawlDefinition = crawlDefinition;
+		this.parsedUuid = UUID.fromString(uuid);
 	}
 
 	WebCrawlRecord(final Builder builder) {
+		parsedUuid = builder.uuid;
 		uuid = builder.uuid.toString();
 		name = builder.name;
+		enabled = builder.enabled;
 		crawlDefinition = builder.crawlDefinition;
 	}
 
@@ -60,8 +71,16 @@ public class WebCrawlRecord {
 		return name;
 	}
 
+	public Boolean getEnabled() {
+		return enabled;
+	}
+
 	public WebCrawlDefinition getCrawlDefinition() {
 		return crawlDefinition;
+	}
+
+	public UUID getParsedUuid() {
+		return parsedUuid;
 	}
 
 	public static Builder of(final UUID uuid) {
@@ -79,6 +98,7 @@ public class WebCrawlRecord {
 
 		private final UUID uuid;
 		private String name;
+		private Boolean enabled;
 		private WebCrawlDefinition crawlDefinition;
 
 		private Builder(final UUID uuid) {
@@ -87,6 +107,11 @@ public class WebCrawlRecord {
 
 		public Builder name(final String name) {
 			this.name = name;
+			return this;
+		}
+
+		public Builder enabled(final Boolean enabled) {
+			this.enabled = enabled;
 			return this;
 		}
 

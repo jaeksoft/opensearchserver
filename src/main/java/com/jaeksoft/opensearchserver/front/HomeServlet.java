@@ -50,11 +50,9 @@ public class HomeServlet extends BaseServlet {
 			super(freemarker, request, response);
 		}
 
-		@Override
-		void doPost() throws IOException, ServletException {
-			final String action = request.getParameter("action");
+		void create() throws IOException, ServletException {
 			final String indexName = request.getParameter("indexName");
-			if ("create".equals(action) && !StringUtils.isBlank(indexName))
+			if (!StringUtils.isBlank(indexName))
 				indexesService.createIndex(indexName);
 			doGet();
 		}

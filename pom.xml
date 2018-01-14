@@ -85,6 +85,11 @@
                 <version>1.12.5</version>
             </dependency>
             <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>octicons</artifactId>
+                <version>4.3.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
                 <version>1.1.7.1</version>

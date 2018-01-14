@@ -17,6 +17,8 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.qwazr.crawler.web.WebCrawlStatus;
+import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.server.ServerException;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
@@ -31,6 +33,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -41,10 +45,13 @@ public class WebCrawlsService {
 
 	private final StoreServiceInterface storeService;
 	private final String storeSchema;
+	private final WebCrawlerServiceInterface webCrawlerService;
 
-	public WebCrawlsService(final StoreServiceInterface storeService, final String storeSchema) {
+	public WebCrawlsService(final StoreServiceInterface storeService, final String storeSchema,
+			final WebCrawlerServiceInterface webCrawlerService) {
 		this.storeService = storeService;
 		this.storeSchema = storeSchema;
+		this.webCrawlerService = webCrawlerService;
 	}
 
 	private String getWebCrawlPath(String indexName) {
@@ -102,11 +109,34 @@ public class WebCrawlsService {
 	}
 
 	/**
+	 * Fill the given map with all crawl records
+	 *
+	 * @param indexName
+	 * @param crawlMap
+	 * @throws IOException
+	 */
+	public void fillMap(String indexName, final Map<UUID, WebCrawlRecord> crawlMap) throws IOException {
+		final List<WebCrawlRecord> crawlRecords = get(indexName);
+		if (crawlRecords != null)
+			crawlRecords.forEach(r -> crawlMap.put(UUID.fromString(r.uuid), r));
+	}
+
+	/**
 	 * Remove the web crawl entries for the given index
 	 *
 	 * @param indexName the name of the index
 	 */
 	public void remove(final String indexName) {
 		storeService.deleteFile(storeSchema, getWebCrawlPath(indexName));
+	}
+
+	public WebCrawlStatus getCrawlStatus(String indexName, String webCrawlUuid) {
+		try {
+			return webCrawlerService.getSession(indexName + "/" + webCrawlUuid);
+		} catch (ServerException e) {
+			if (e.getStatusCode() == 404)
+				return null;
+			throw e;
+		}
 	}
 }

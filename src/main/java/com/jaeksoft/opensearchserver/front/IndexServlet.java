@@ -83,10 +83,18 @@ public class IndexServlet extends BaseServlet {
 			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		if (pathParts.length < 4)
 			return new CrawlerWebs(this, indexName, request, response);
-		final String path4 = pathParts[3];
-		if (StringUtils.isBlank(path4))
+		final String crawlUuid = pathParts[3];
+		if (StringUtils.isBlank(crawlUuid))
 			return null;
-		return new CrawlerWeb(this, indexName, path4, request, response);
+		if (pathParts.length == 4)
+			return new CrawlerWeb(this, indexName, crawlUuid, request, response);
+		final String path5 = pathParts[4];
+		switch (path5) {
+		case "status":
+			return new CrawlerWebStatus(this, indexName, crawlUuid, request, response);
+		default:
+			return null;
+		}
 	}
 
 }

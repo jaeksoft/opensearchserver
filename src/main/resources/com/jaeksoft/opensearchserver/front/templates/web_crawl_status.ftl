@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Web Crawl</title>
+    <title>Web Crawl Status</title>
     <#include 'includes/head.ftl'>
 </head>
 <body>
@@ -30,9 +30,12 @@
             <li class="breadcrumb-item"><a href="/index/${indexName!?url}">${indexName!?html}</a></li>
             <li class="breadcrumb-item">Crawler</li>
             <li class="breadcrumb-item"><a href="/index/${indexName!?url}/crawler/web">Web</a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-            ${webCrawlRecord.name!webCrawlRecord.uuid!?html}
+            <li class="breadcrumb-item">
+                <a href="/index/${indexName!?url}/crawler/web/${webCrawlRecord.uuid!?url}">
+                ${webCrawlRecord.name!webCrawlRecord.uuid!?html}
+                </a>
             </li>
+            <li class="breadcrumb-item active" aria-current="page">Status</li>
         </ol>
     </nav>
  <#include 'includes/messages.ftl'>

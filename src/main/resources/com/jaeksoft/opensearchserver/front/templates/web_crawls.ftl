@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Indexes</title>
+    <title>Web Crawlss</title>
     <#include 'includes/head.ftl'>
 </head>
 <body>
@@ -43,9 +43,17 @@
                 <th>${webCrawlRecord.name!?html}</th>
                 <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
                 <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
+                <td><#if webCrawlRecord.crawlDefinition.enabled!false>
+                    enabled
+                <#else>
+                    disabled
+                </#if>
+                </td>
                 <td align="right">
                     <a href="/index/${indexName!?html}/crawler/web/${webCrawlRecord.uuid!}"
                        class=" btn btn-sm btn-info">Edit</a>
+                    <a href="/index/${indexName!?html}/crawler/web/${webCrawlRecord.uuid!}/status"
+                       class=" btn btn-sm btn-primary">Status</a>
                 </td>
             </tr>
             </#list>

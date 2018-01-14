@@ -34,39 +34,25 @@ class CrawlerWebs extends IndexBase {
 
 	private final static String TEMPLATE_INDEX = "web_crawls.ftl";
 
+	private final Map<UUID, WebCrawlRecord> webCrawlRecords;
+
 	CrawlerWebs(final IndexServlet servlet, final String indexName, final HttpServletRequest request,
-			final HttpServletResponse response) {
+			final HttpServletResponse response) throws IOException {
 		super(servlet, indexName, request, response);
+		webCrawlRecords = new LinkedHashMap<>();
+		webCrawlsService.fillMap(indexName, webCrawlRecords);
 	}
 
-	@Override
-	void doPost() throws IOException, ServletException {
-		final List<WebCrawlRecord> webCrawlRecordList = webCrawlsService.get(indexName);
-		final Map<UUID, WebCrawlRecord> webCrawlRecordMap = new LinkedHashMap<>();
-		if (webCrawlRecordList != null)
-			webCrawlRecordList.forEach(r -> webCrawlRecordMap.put(UUID.fromString(r.uuid), r));
-
+	void create() throws IOException, ServletException {
 		final UUID crawlUuid = getRequestParameter("crawlUuid", UUID::fromString, HashUtils::newTimeBasedUUID);
 		final String crawlName = request.getParameter("crawlName");
-		final String action = request.getParameter("action");
-		switch (action) {
-		case "create":
-			final String entryUrl = request.getParameter("entryUrl");
-			final Integer maxDepth = getRequestParameter("maxDepth", null);
-			final WebCrawlDefinition.Builder webCrawlDefBuilder = WebCrawlDefinition.of();
-			if (!StringUtils.isBlank(entryUrl))
-				webCrawlDefBuilder.setEntryUrl(entryUrl);
-			if (maxDepth != null)
-				webCrawlDefBuilder.setMaxDepth(maxDepth);
-			webCrawlRecordMap.put(crawlUuid,
-					WebCrawlRecord.of(crawlUuid).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-			webCrawlsService.set(indexName, webCrawlRecordMap.values());
-			break;
-		case "del":
-			webCrawlRecordMap.remove(crawlUuid);
-			webCrawlsService.set(indexName, webCrawlRecordMap.values());
-			break;
-		}
+		final String entryUrl = request.getParameter("entryUrl");
+		final Integer maxDepth = getRequestParameter("maxDepth", null);
+		final WebCrawlDefinition.Builder webCrawlDefBuilder =
+				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
+		webCrawlRecords.put(crawlUuid,
+				WebCrawlRecord.of(crawlUuid).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+		webCrawlsService.set(indexName, webCrawlRecords.values());
 		doGet();
 	}
 

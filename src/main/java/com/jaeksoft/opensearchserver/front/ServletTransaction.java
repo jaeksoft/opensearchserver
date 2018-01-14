@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -105,7 +106,17 @@ abstract class ServletTransaction {
 	 * @throws IOException
 	 * @throws ServletException
 	 */
-	void doPost() throws IOException, ServletException {
+	final void doPost() throws IOException, ServletException {
+		final String action = request.getParameter("action");
+		if (!StringUtils.isBlank(action)) {
+			try {
+				final Method method = getClass().getDeclaredMethod(action);
+				method.invoke(this);
+				return;
+			} catch (ReflectiveOperationException e) {
+				throw new ServletException(e);
+			}
+		}
 		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 
