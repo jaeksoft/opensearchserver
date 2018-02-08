@@ -17,6 +17,7 @@ package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.utils.LinkUtils;
 import com.qwazr.utils.StringUtils;
 
@@ -34,6 +35,7 @@ class CrawlerWeb extends IndexBase {
 
 	private final Map<UUID, WebCrawlRecord> webCrawlRecords;
 	private final WebCrawlRecord webCrawlRecord;
+	private final WebCrawlStatus webCrawlStatus;
 
 	CrawlerWeb(final IndexServlet servlet, final String indexName, final String webCrawlUuid,
 			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
@@ -41,6 +43,7 @@ class CrawlerWeb extends IndexBase {
 		webCrawlRecords = new LinkedHashMap<>();
 		webCrawlsService.fillMap(indexName, webCrawlRecords);
 		webCrawlRecord = webCrawlRecords.get(UUID.fromString(webCrawlUuid));
+		webCrawlStatus = webCrawlsService.getCrawlStatus(indexName, webCrawlUuid);
 	}
 
 	void delete() throws IOException, ServletException {
@@ -78,6 +81,15 @@ class CrawlerWeb extends IndexBase {
 		response.sendRedirect("/index/" + LinkUtils.urlEncode(indexName) + "/crawler/web/" + webCrawlRecord.getUuid());
 	}
 
+	void start() throws IOException, ServletException {
+		if (webCrawlRecord == null) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+		//TODO
+		doGet();
+	}
+
 	@Override
 	void doGet() throws IOException, ServletException {
 		if (webCrawlRecord == null) {
@@ -86,6 +98,7 @@ class CrawlerWeb extends IndexBase {
 		}
 		request.setAttribute("indexName", indexName);
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
+		request.setAttribute("webCrawlStatus", webCrawlStatus);
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

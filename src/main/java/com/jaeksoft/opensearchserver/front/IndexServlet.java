@@ -88,13 +88,7 @@ public class IndexServlet extends BaseServlet {
 			return null;
 		if (pathParts.length == 4)
 			return new CrawlerWeb(this, indexName, crawlUuid, request, response);
-		final String path5 = pathParts[4];
-		switch (path5) {
-		case "status":
-			return new CrawlerWebStatus(this, indexName, crawlUuid, request, response);
-		default:
-			return null;
-		}
+		return null;
 	}
 
 }

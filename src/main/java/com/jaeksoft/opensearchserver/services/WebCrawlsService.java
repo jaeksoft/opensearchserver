@@ -19,7 +19,7 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
-import com.qwazr.server.ServerException;
+import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
 
@@ -94,25 +94,22 @@ public class WebCrawlsService {
 	 * @throws IOException if any I/O error occured
 	 */
 	public List<WebCrawlRecord> get(final String indexName) throws IOException {
-		try (final InputStream fileInput = storeService.getFile(storeSchema, getWebCrawlPath(indexName))) {
-			try (final BufferedInputStream bufInput = new BufferedInputStream(fileInput)) {
-				try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
-					return ObjectMappers.JSON.readValue(compressedInput, WebCrawlRecord.TYPE_WEBCRAWLS);
+		return ErrorWrapper.bypass(() -> {
+			try (final InputStream fileInput = storeService.getFile(storeSchema, getWebCrawlPath(indexName))) {
+				try (final BufferedInputStream bufInput = new BufferedInputStream(fileInput)) {
+					try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
+						return ObjectMappers.JSON.readValue(compressedInput, WebCrawlRecord.TYPE_WEBCRAWLS);
+					}
 				}
 			}
-		} catch (ServerException e) {
-			if (e.getStatusCode() == 404)
-				return null;
-			throw e;
-		}
-
+		}, 404);
 	}
 
 	/**
 	 * Fill the given map with all crawl records
 	 *
-	 * @param indexName
-	 * @param crawlMap
+	 * @param indexName the name of the index
+	 * @param crawlMap  a map of crawl definition and UUID
 	 * @throws IOException
 	 */
 	public void fillMap(String indexName, final Map<UUID, WebCrawlRecord> crawlMap) throws IOException {
@@ -131,12 +128,7 @@ public class WebCrawlsService {
 	}
 
 	public WebCrawlStatus getCrawlStatus(String indexName, String webCrawlUuid) {
-		try {
-			return webCrawlerService.getSession(indexName + "/" + webCrawlUuid);
-		} catch (ServerException e) {
-			if (e.getStatusCode() == 404)
-				return null;
-			throw e;
-		}
+		return ErrorWrapper.bypass(() -> webCrawlerService.getSession(indexName + "/" + webCrawlUuid), 404);
 	}
+	
 }

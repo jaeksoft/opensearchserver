@@ -36,9 +36,43 @@
         </ol>
     </nav>
  <#include 'includes/messages.ftl'>
+<#-- WEB CRAWL STATUS -->
     <div class="card">
-        <div class="card-body">
-            <form method="post">
+        <form method="post">
+            <div class="card-body">
+                <h5 class="card-title">Crawl status</h5>
+                <#if webCrawlStatus??>
+                <table class="table">
+                    <tr>
+                        <th>Start time</th>
+                        <td><#if webCrawlStatus.startTime??>${webCrawlStatus.starTime?number_to_datetime}</#if></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th>End time</th>
+                        <td><#if webCrawlStatus.startTime??>${webCrawlStatus.endTime?number_to_datetime}</#if></td>
+                        <td></td>
+                        <td><</td>
+                    </tr>
+                </table>
+                </#if>
+            </div>
+            <div class="card-footer text-right">
+                    <#if webCrawlStatus?? && webCrawlStatus.endTime??>
+                        <button class="btn btn-warning" name="action" value="stop" type="submit">Stop</button>
+                    <#else>
+                    <button class="btn btn-success" name="action" value="start" type="submit">Start</button>
+                    </#if>
+            </div>
+        </form>
+    </div>
+    <br/>
+<#-- WEB CRAWL EDITION -->
+    <div class="card">
+        <form method="post">
+            <div class="card-body">
+                <h5 class="card-title">Edit this web crawl</h5>
                 <div class="form-row">
                     <div class="form-group col-md-9">
                         <label for="webCrawlName">Name</label>
@@ -57,18 +91,23 @@
                     <input type="url" class="form-control" id="group" name="entryUrl"
                            placeholder="Entry URL" value="${webCrawlRecord.crawlDefinition.entryUrl!?html}">
                 </div>
-                <div class="input-group">
-                       <span class="input-group-btn">
-                        <button class="btn btn-primary" name="action" value="save" type="submit">Save</button>
-                    </span>
-                </div>
-            </form>
-        </div>
-        <div class="card-footer">
+            </div>
+            <div class="card-footer text-right">
+                <button class="btn btn-primary" name="action" value="save" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+    <br/>
+
+<#-- WEB CRAWL DELETION -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Delete this web crawl</h5>
+            <p class="card-text text-danger">Once you delete a web crawl, there is no going back. Please be certain.</p>
             <form method="post">
                 <div class="input-group">
                     <input type="text" name="crawlName" class="form-control"
-                           placeholder="Enter the name of the crawl to delete it"
+                           placeholder="To delete it, enter the name of the crawl and click on the Delete button"
                            aria-label="Crawl name">
                     <span class="input-group-btn">
                         <button class="btn btn-danger" name="action" value="delete" type="submit">Delete</button>

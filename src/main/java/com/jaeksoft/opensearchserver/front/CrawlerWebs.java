@@ -61,7 +61,7 @@ class CrawlerWebs extends IndexBase {
 		request.setAttribute("indexName", indexName);
 		final List<WebCrawlRecord> webCrawlRecords = webCrawlsService.get(indexName);
 		if (webCrawlRecords != null) {
-			Collections.sort(webCrawlRecords, (r1, r2) -> StringUtils.compare(r1.name, r2.name));
+			webCrawlRecords.sort((r1, r2) -> StringUtils.compare(r1.name, r2.name));
 			request.setAttribute("webCrawlRecords", webCrawlRecords);
 		}
 		doTemplate(TEMPLATE_INDEX);

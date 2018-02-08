@@ -1,1 +1,1 @@
-<link rel="stylesheet" href="/webjars/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="/webjars/bootstrap/4.0.0/css/bootstrap.min.css">
