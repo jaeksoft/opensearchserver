@@ -18,52 +18,44 @@ package com.jaeksoft.opensearchserver.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
 		getterVisibility = JsonAutoDetect.Visibility.NONE,
 		setterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WebCrawlRecord {
 
-	public final String uuid;
+	public final UUID uuid;
 
 	public final String name;
 
-	public final Boolean enabled;
-
 	public final WebCrawlDefinition crawlDefinition;
 
-	@JsonIgnore
-	private final UUID parsedUuid;
-
 	@JsonCreator
-	WebCrawlRecord(@JsonProperty("uuid") final String uuid, @JsonProperty("name") final String name,
-			@JsonProperty("enabled") final Boolean enabled,
+	WebCrawlRecord(@JsonProperty("uuid") final UUID uuid, @JsonProperty("name") final String name,
 			@JsonProperty("crawlDefinition") final WebCrawlDefinition crawlDefinition) {
 		this.uuid = uuid;
 		this.name = name;
-		this.enabled = enabled;
 		this.crawlDefinition = crawlDefinition;
-		this.parsedUuid = UUID.fromString(uuid);
 	}
 
 	WebCrawlRecord(final Builder builder) {
-		parsedUuid = builder.uuid;
-		uuid = builder.uuid.toString();
+		uuid = builder.uuid;
 		name = builder.name;
-		enabled = builder.enabled;
 		crawlDefinition = builder.crawlDefinition;
 	}
 
-	public String getUuid() {
+	public UUID getUuid() {
 		return uuid;
 	}
 
@@ -71,16 +63,19 @@ public class WebCrawlRecord {
 		return name;
 	}
 
-	public Boolean getEnabled() {
-		return enabled;
-	}
-
 	public WebCrawlDefinition getCrawlDefinition() {
 		return crawlDefinition;
 	}
 
-	public UUID getParsedUuid() {
-		return parsedUuid;
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || !(o instanceof WebCrawlRecord))
+			return false;
+		if (o == this)
+			return true;
+		final WebCrawlRecord w = (WebCrawlRecord) o;
+		return Objects.equals(uuid, w.uuid) && Objects.equals(name, w.name) &&
+				Objects.equals(crawlDefinition, w.crawlDefinition);
 	}
 
 	public static Builder of(final UUID uuid) {
@@ -88,7 +83,7 @@ public class WebCrawlRecord {
 	}
 
 	public static Builder of(final WebCrawlRecord record) {
-		return new Builder(UUID.fromString(record.uuid)).name(record.name).crawlDefinition(record.crawlDefinition);
+		return new Builder(record.uuid).name(record.name).crawlDefinition(record.crawlDefinition);
 	}
 
 	public static final TypeReference<List<WebCrawlRecord>> TYPE_WEBCRAWLS = new TypeReference<List<WebCrawlRecord>>() {
@@ -98,7 +93,6 @@ public class WebCrawlRecord {
 
 		private final UUID uuid;
 		private String name;
-		private Boolean enabled;
 		private WebCrawlDefinition crawlDefinition;
 
 		private Builder(final UUID uuid) {
@@ -107,11 +101,6 @@ public class WebCrawlRecord {
 
 		public Builder name(final String name) {
 			this.name = name;
-			return this;
-		}
-
-		public Builder enabled(final Boolean enabled) {
-			this.enabled = enabled;
 			return this;
 		}
 

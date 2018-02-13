@@ -115,7 +115,7 @@ public class WebCrawlsService {
 	public void fillMap(String indexName, final Map<UUID, WebCrawlRecord> crawlMap) throws IOException {
 		final List<WebCrawlRecord> crawlRecords = get(indexName);
 		if (crawlRecords != null)
-			crawlRecords.forEach(r -> crawlMap.put(UUID.fromString(r.uuid), r));
+			crawlRecords.forEach(r -> crawlMap.put(r.uuid, r));
 	}
 
 	/**
@@ -130,5 +130,5 @@ public class WebCrawlsService {
 	public WebCrawlStatus getCrawlStatus(String indexName, String webCrawlUuid) {
 		return ErrorWrapper.bypass(() -> webCrawlerService.getSession(indexName + "/" + webCrawlUuid), 404);
 	}
-	
+
 }

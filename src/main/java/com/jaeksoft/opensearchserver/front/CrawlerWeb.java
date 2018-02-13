@@ -54,7 +54,7 @@ class CrawlerWeb extends IndexBase {
 		final String crawlName = request.getParameter("crawlName");
 		if (!StringUtils.isBlank(crawlName)) {
 			if (crawlName.equals(webCrawlRecord.name)) {
-				webCrawlRecords.remove(UUID.fromString(webCrawlRecord.getUuid()));
+				webCrawlRecords.remove(webCrawlRecord.getUuid());
 				webCrawlsService.set(indexName, webCrawlRecords.values());
 				addMessage(ServletTransaction.Css.info, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
 				response.sendRedirect("/index/" + LinkUtils.urlEncode(indexName) + "/crawler/web");
@@ -75,7 +75,7 @@ class CrawlerWeb extends IndexBase {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlRecords.put(webCrawlRecord.getParsedUuid(),
+		webCrawlRecords.put(webCrawlRecord.getUuid(),
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		webCrawlsService.set(indexName, webCrawlRecords.values());
 		response.sendRedirect("/index/" + LinkUtils.urlEncode(indexName) + "/crawler/web/" + webCrawlRecord.getUuid());

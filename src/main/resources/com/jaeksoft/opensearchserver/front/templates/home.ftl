@@ -53,9 +53,12 @@
         <div class="input-group">
             <input type="text" name="indexName" class="form-control" placeholder="Index name"
                    aria-label="Index name">
-            <span class="input-group-btn">
-                        <button class="btn btn-primary" name="action" value="create" type="submit">Create</button>
-                    </span>
+            <div class="input-group-append">
+                <button class="btn btn-primary"
+                        name="action" value="create" type="submit">
+                    Create
+                </button>
+            </div>
         </div>
     </form>
 </div>
