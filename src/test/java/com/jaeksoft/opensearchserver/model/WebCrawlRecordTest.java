@@ -14,21 +14,19 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver;
+package com.jaeksoft.opensearchserver.model;
 
-import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.qwazr.utils.ObjectMappers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class WebCrawlRecordTest {
 
 	@Test
 	public void jsonSerializationDeserialization() throws IOException {
-		final WebCrawlRecord record1 = WebCrawlRecord.of(UUID.randomUUID()).name("test").build();
+		final WebCrawlRecord record1 = WebCrawlRecord.of().name("test").build();
 		final WebCrawlRecord record2 =
 				ObjectMappers.JSON.readValue(ObjectMappers.JSON.writeValueAsString(record1), WebCrawlRecord.class);
 		Assert.assertEquals(record1, record2);

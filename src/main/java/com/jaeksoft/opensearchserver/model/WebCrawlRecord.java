@@ -21,16 +21,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.HashUtils;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
 		getterVisibility = JsonAutoDetect.Visibility.NONE,
-		setterVisibility = JsonAutoDetect.Visibility.NONE)
+		setterVisibility = JsonAutoDetect.Visibility.NONE,
+		creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WebCrawlRecord {
@@ -78,16 +78,25 @@ public class WebCrawlRecord {
 				Objects.equals(crawlDefinition, w.crawlDefinition);
 	}
 
-	public static Builder of(final UUID uuid) {
-		return new Builder(uuid);
+	/**
+	 * Create a new builder with a new UUID
+	 *
+	 * @return a new WebCrawlRecord builder
+	 */
+	public static Builder of() {
+		return new Builder(HashUtils.newTimeBasedUUID());
 	}
 
+	/**
+	 * Create a builder that can be used to update the given WebCrawlRecord.
+	 * The builder is initially filled with all the data from the given WebCrawlRecord.
+	 *
+	 * @param record an existing WebCrawlRecord
+	 * @return a new WebCrawlRecord builder
+	 */
 	public static Builder of(final WebCrawlRecord record) {
 		return new Builder(record.uuid).name(record.name).crawlDefinition(record.crawlDefinition);
 	}
-
-	public static final TypeReference<List<WebCrawlRecord>> TYPE_WEBCRAWLS = new TypeReference<List<WebCrawlRecord>>() {
-	};
 
 	public static class Builder {
 

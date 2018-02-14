@@ -16,34 +16,30 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
-import com.qwazr.utils.LinkUtils;
-import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.UUID;
 
-class CrawlerWeb extends IndexBase {
+class WebCrawlTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE_INDEX = "web_crawl.ftl";
 
-	private final Map<UUID, WebCrawlRecord> webCrawlRecords;
+	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
 	private final WebCrawlStatus webCrawlStatus;
 
-	CrawlerWeb(final IndexServlet servlet, final String indexName, final String webCrawlUuid,
-			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-		super(servlet, indexName, request, response);
-		webCrawlRecords = new LinkedHashMap<>();
-		webCrawlsService.fillMap(indexName, webCrawlRecords);
-		webCrawlRecord = webCrawlRecords.get(UUID.fromString(webCrawlUuid));
-		webCrawlStatus = webCrawlsService.getCrawlStatus(indexName, webCrawlUuid);
+	WebCrawlTransaction(final CrawlerWebServlet servlet, final UUID webCrawlUuid, final HttpServletRequest request,
+			final HttpServletResponse response) throws IOException {
+		super(servlet.freemarker, request, response);
+		this.webCrawlsService = servlet.webCrawlsService;
+		webCrawlRecord = webCrawlsService.read(null, webCrawlUuid);
+		webCrawlStatus = webCrawlsService.getCrawlStatus(webCrawlUuid);
 	}
 
 	void delete() throws IOException, ServletException {
@@ -52,16 +48,13 @@ class CrawlerWeb extends IndexBase {
 			return;
 		}
 		final String crawlName = request.getParameter("crawlName");
-		if (!StringUtils.isBlank(crawlName)) {
-			if (crawlName.equals(webCrawlRecord.name)) {
-				webCrawlRecords.remove(webCrawlRecord.getUuid());
-				webCrawlsService.set(indexName, webCrawlRecords.values());
-				addMessage(ServletTransaction.Css.info, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-				response.sendRedirect("/index/" + LinkUtils.urlEncode(indexName) + "/crawler/web");
-				return;
-			} else
-				addMessage(ServletTransaction.Css.warning, null, "Please confirm the name of the crawl to delete");
-		}
+		if (webCrawlRecord.name.equals(crawlName)) {
+			webCrawlsService.remove(null, webCrawlRecord.getUuid());
+			addMessage(Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
+			response.sendRedirect("/crawlers/web");
+			return;
+		} else
+			addMessage(ServletTransaction.Css.warning, null, "Please confirm the name of the crawl to delete");
 		doGet();
 	}
 
@@ -75,10 +68,9 @@ class CrawlerWeb extends IndexBase {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlRecords.put(webCrawlRecord.getUuid(),
+		webCrawlsService.save(null,
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		webCrawlsService.set(indexName, webCrawlRecords.values());
-		response.sendRedirect("/index/" + LinkUtils.urlEncode(indexName) + "/crawler/web/" + webCrawlRecord.getUuid());
+		response.sendRedirect("/crawlers/web/" + webCrawlRecord.getUuid());
 	}
 
 	void start() throws IOException, ServletException {
@@ -96,7 +88,6 @@ class CrawlerWeb extends IndexBase {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		request.setAttribute("indexName", indexName);
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		request.setAttribute("webCrawlStatus", webCrawlStatus);
 		doTemplate(TEMPLATE_INDEX);

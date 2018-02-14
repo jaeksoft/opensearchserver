@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Web Crawl</title>
+    <title>Web Crawler - OpenSearchServer</title>
     <#include 'includes/head.ftl'>
 </head>
 <body>
@@ -26,10 +26,8 @@
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Indexes</a></li>
-            <li class="breadcrumb-item"><a href="/index/${indexName!?url}">${indexName!?html}</a></li>
-            <li class="breadcrumb-item">Crawler</li>
-            <li class="breadcrumb-item"><a href="/index/${indexName!?url}/crawler/web">Web</a></li>
+            <li class="breadcrumb-item">Crawlers</li>
+            <li class="breadcrumb-item"><a href="/crawlers/web">Web</a></li>
             <li class="breadcrumb-item active" aria-current="page">
             ${webCrawlRecord.name!webCrawlRecord.uuid!?html}
             </li>

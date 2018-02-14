@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Indexes</title>
+    <title>OpenSearchServer</title>
     <#include 'includes/head.ftl'>
 </head>
 <body>
@@ -25,42 +25,45 @@
 <br/>
 <div class="container">
 <#include 'includes/messages.ftl'>
-    <nav aria-label="breadcrumb" role="navigation">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">Indexes</li>
-        </ol>
-    </nav>
 </div>
-<#if indexes?has_content>
-    <div class="container">
-        <table class="table table-hover">
-            <tbody>
-            <#list indexes as index>
-            <tr>
-                <th>${index!?html}</th>
-                <td align="right">
-                    <a href="/index/${index!?html}" class=" btn btn-sm btn-info">Edit</a>
-                    <a href="/index/${index!?html}/crawler/web" class=" btn btn-sm btn-info">Web Crawl</a>
-                </td>
-            </tr>
-            </#list>
-            </tbody>
-        </table>
-    </div>
-</#if>
 <div class="container">
-    <form method="post">
-        <div class="input-group">
-            <input type="text" name="indexName" class="form-control" placeholder="Index name"
-                   aria-label="Index name">
-            <div class="input-group-append">
-                <button class="btn btn-primary"
-                        name="action" value="create" type="submit">
-                    Create
-                </button>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Welcome to OpenSearchServer</h4>
+            <h6 class="card-subtitle mb-2 text-muted">Discover below the main sections of OpenSearchServer.
+                They are also available any time using the naviguation menu.</h6>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Indexes</h5>
+                    <p class="card-text">Manage your indexes here.</p>
+                    <a href="/indexes" class="btn btn-primary">Indexes</a>
+                </div>
             </div>
         </div>
-    </form>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Web crawls</h5>
+                    <p class="card-text">Manage your Web crawls here.</p>
+                    <a href="/crawlers/web" class="btn btn-primary">Web crawls</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tasks</h5>
+                    <p class="card-text">Manage your running tasks here.</p>
+                    <a href="/tasks" class="btn btn-primary">Tasks</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
     <#include 'includes/foot.ftl'>
 </body>

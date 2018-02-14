@@ -14,25 +14,34 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front;
+package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
+import org.junit.After;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.Files;
 
-class IndexBase extends ServletTransaction {
+public class BaseTest {
 
-	protected final IndexesService indexesService;
-	protected final WebCrawlsService webCrawlsService;
-	protected final String indexName;
+	private Components components;
 
-	IndexBase(final IndexServlet servlet, final String indexName, HttpServletRequest request,
-			HttpServletResponse response) {
-		super(servlet.freemarker, request, response);
-		this.indexName = indexName;
-		this.indexesService = servlet.indexesService;
-		this.webCrawlsService = servlet.webCrawlsService;
+	private synchronized Components getComponents() throws IOException {
+		if (components == null)
+			components = new Components(Files.createTempDirectory("BaseTest"));
+		return components;
 	}
+
+	protected WebCrawlsService getWebCrawlsService() throws IOException {
+		return getComponents().getWebCrawlsService();
+	}
+
+	@After
+	public synchronized void cleanup() {
+		if (components != null) {
+			components.close();
+			components = null;
+		}
+	}
+
 }

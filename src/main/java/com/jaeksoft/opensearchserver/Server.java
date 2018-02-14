@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver;
 
+import com.jaeksoft.opensearchserver.front.CrawlerWebServlet;
 import com.jaeksoft.opensearchserver.front.HomeServlet;
 import com.jaeksoft.opensearchserver.front.IndexServlet;
 import com.jaeksoft.opensearchserver.services.IndexesService;
@@ -36,7 +37,7 @@ public class Server extends Components {
 	private final GenericServer server;
 
 	private Server(final ServerConfiguration configuration) throws IOException, SchedulerException {
-		super(configuration);
+		super(configuration.dataDirectory.toPath());
 
 		final IndexesService indexesService = getIndexesService();
 		final WebCrawlsService webCrawlsService = getWebCrawlsService();
@@ -56,8 +57,10 @@ public class Server extends Components {
 				.registerDefaultFaviconServlet()
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
-				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(freemarker, indexesService))
-				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService, webCrawlsService));
+				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(freemarker))
+				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService))
+				.registerJavaServlet(CrawlerWebServlet.class,
+						() -> new CrawlerWebServlet(freemarker, indexesService, webCrawlsService));
 
 		webAppBuilder.build();
 

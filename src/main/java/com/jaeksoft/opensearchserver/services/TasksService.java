@@ -13,22 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.jaeksoft.opensearchserver.services;
 
-import com.jaeksoft.opensearchserver.model.UrlRecord;
-import com.qwazr.search.annotations.AnnotatedIndexService;
-import com.qwazr.search.index.IndexServiceInterface;
+import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.qwazr.store.StoreServiceInterface;
 
-import java.net.URISyntaxException;
+import java.util.UUID;
 
-public abstract class IndexService {
+public class TasksService extends StoreService<TaskRecord> {
 
-	private final AnnotatedIndexService<UrlRecord> index;
+	private final static String DIRECTORY = "tasks";
 
-	IndexService(final IndexServiceInterface indexService, final String schemaName, final String indexName)
-			throws URISyntaxException {
-		index = new AnnotatedIndexService<>(indexService, UrlRecord.class, schemaName, indexName, null);
-		index.createUpdateIndex();
+	public TasksService(final StoreServiceInterface storeService, final String storeSchema) {
+		super(storeService, storeSchema, DIRECTORY, TaskRecord.class);
 	}
 
+	@Override
+	protected UUID getUuid(final TaskRecord record) {
+		return record.getUuid();
+	}
 }

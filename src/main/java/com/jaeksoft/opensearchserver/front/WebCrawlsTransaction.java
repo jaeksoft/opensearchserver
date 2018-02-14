@@ -16,54 +16,43 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
-import com.qwazr.utils.HashUtils;
-import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
-class CrawlerWebs extends IndexBase {
+class WebCrawlsTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE_INDEX = "web_crawls.ftl";
 
-	private final Map<UUID, WebCrawlRecord> webCrawlRecords;
+	private final WebCrawlsService webCrawlsService;
 
-	CrawlerWebs(final IndexServlet servlet, final String indexName, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException {
-		super(servlet, indexName, request, response);
-		webCrawlRecords = new LinkedHashMap<>();
-		webCrawlsService.fillMap(indexName, webCrawlRecords);
+	WebCrawlsTransaction(final CrawlerWebServlet servlet, final HttpServletRequest request,
+			final HttpServletResponse response) {
+		super(servlet.freemarker, request, response);
+		webCrawlsService = servlet.webCrawlsService;
 	}
 
 	void create() throws IOException, ServletException {
-		final UUID crawlUuid = getRequestParameter("crawlUuid", UUID::fromString, HashUtils::newTimeBasedUUID);
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlRecords.put(crawlUuid,
-				WebCrawlRecord.of(crawlUuid).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		webCrawlsService.set(indexName, webCrawlRecords.values());
+		webCrawlsService.save(null,
+				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		doGet();
 	}
 
 	@Override
 	void doGet() throws IOException, ServletException {
-		request.setAttribute("indexName", indexName);
-		final List<WebCrawlRecord> webCrawlRecords = webCrawlsService.get(indexName);
-		if (webCrawlRecords != null) {
-			webCrawlRecords.sort((r1, r2) -> StringUtils.compare(r1.name, r2.name));
-			request.setAttribute("webCrawlRecords", webCrawlRecords);
-		}
+		final WebCrawlsService.RecordsResult webCrawlsResult =
+				webCrawlsService.get(null, getRequestParameter("start", 0), 25);
+		request.setAttribute("webCrawlRecords", webCrawlsResult.getRecords());
+		request.setAttribute("totalCount", webCrawlsResult.getTotalCount());
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

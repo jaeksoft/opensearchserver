@@ -16,79 +16,34 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
-@WebServlet("/index/*")
+@WebServlet("/indexes/*")
 public class IndexServlet extends BaseServlet {
 
 	final FreeMarkerTool freemarker;
 	final IndexesService indexesService;
-	final WebCrawlsService webCrawlsService;
 
-	public IndexServlet(final FreeMarkerTool freemarker, final IndexesService indexesService,
-			final WebCrawlsService webCrawlsService) {
+	public IndexServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
 		this.freemarker = freemarker;
 		this.indexesService = indexesService;
-		this.webCrawlsService = webCrawlsService;
 	}
 
 	@Override
 	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException {
+			final HttpServletResponse response) {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
+			return new IndexesTransaction(this, request, response);
+		else if (pathParts.length == 1)
+			return new IndexTransaction(this, pathParts[0], request, response);
+		else
 			return null;
-		final String indexName = pathParts[0];
-		if (pathParts.length == 1)
-			return new IndexTransaction(this, indexName, request, response);
-		return dispatchIndex(indexName, pathParts, request, response);
-	}
-
-	private ServletTransaction dispatchIndex(final String indexName, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-		final String path2 = pathParts[1];
-		if (StringUtils.isBlank(path2))
-			return null;
-		switch (path2) {
-		case "crawler":
-			return dispatchCrawler(indexName, pathParts, request, response);
-		default:
-			return null;
-		}
-	}
-
-	private ServletTransaction dispatchCrawler(final String indexName, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-		if (pathParts.length < 3)
-			return null;
-		final String path3 = pathParts[2];
-		if (StringUtils.isBlank(path3))
-			return null;
-		switch (path3) {
-		case "web":
-			return dispatchCrawlerWeb(indexName, pathParts, request, response);
-		default:
-			return null;
-		}
-	}
-
-	private ServletTransaction dispatchCrawlerWeb(final String indexName, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-		if (pathParts.length < 4)
-			return new CrawlerWebs(this, indexName, request, response);
-		final String crawlUuid = pathParts[3];
-		if (StringUtils.isBlank(crawlUuid))
-			return null;
-		if (pathParts.length == 4)
-			return new CrawlerWeb(this, indexName, crawlUuid, request, response);
-		return null;
 	}
 
 }

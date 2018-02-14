@@ -25,7 +25,6 @@ import com.qwazr.scripts.ScriptManager;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.SchemaSettingsDefinition;
-import com.qwazr.server.configuration.ServerConfiguration;
 import com.qwazr.store.StoreManager;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.IOUtils;
@@ -68,9 +67,9 @@ class Components implements Closeable {
 	private volatile StoreManager storeManager;
 	private volatile StoreServiceInterface storeService;
 
-	Components(final ServerConfiguration configuration) {
+	Components(final Path dataDirectory) {
 		closing = new ArrayList<>();
-		dataDirectory = configuration.dataDirectory.toPath();
+		this.dataDirectory = dataDirectory;
 	}
 
 	private synchronized String getAccountSchema() {

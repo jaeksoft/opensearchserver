@@ -15,9 +15,7 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
-import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
-import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,13 +27,11 @@ import java.io.IOException;
 public class HomeServlet extends BaseServlet {
 
 	private final FreeMarkerTool freemarker;
-	private final IndexesService indexesService;
 
 	private final static String TEMPLATE = "home.ftl";
 
-	public HomeServlet(final FreeMarkerTool freemarker, final IndexesService indexesService) {
+	public HomeServlet(final FreeMarkerTool freemarker) {
 		this.freemarker = freemarker;
-		this.indexesService = indexesService;
 	}
 
 	@Override
@@ -50,16 +46,8 @@ public class HomeServlet extends BaseServlet {
 			super(freemarker, request, response);
 		}
 
-		void create() throws IOException, ServletException {
-			final String indexName = request.getParameter("indexName");
-			if (!StringUtils.isBlank(indexName))
-				indexesService.createIndex(indexName);
-			doGet();
-		}
-
 		@Override
 		void doGet() throws IOException, ServletException {
-			request.setAttribute("indexes", indexesService.getIndexes());
 			doTemplate(TEMPLATE);
 		}
 	}

@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Indexes</title>
+    <title>Index - OpenSearchServer</title>
     <#include 'includes/head.ftl'>
 </head>
 <body>
