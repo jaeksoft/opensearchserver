@@ -1,27 +1,41 @@
+/*
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ *  <p>
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  <p>
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *  <p>
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package com.jaeksoft.opensearchserver.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.net.InternetDomainName;
 import com.qwazr.search.analysis.SmartAnalyzerSet;
 import com.qwazr.search.annotations.Copy;
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.field.FieldDefinition;
+import com.qwazr.utils.HashUtils;
 import com.qwazr.utils.LinkUtils;
+import com.qwazr.utils.StringUtils;
 import org.apache.lucene.index.IndexOptions;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Index(schema = "", name = "")
 public class UrlRecord {
 
-	@JsonProperty(FieldDefinition.ID_FIELD)
 	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField, stored = true)
 	@Copy(to = { @Copy.To(order = 0, field = "full"), @Copy.To(order = 0, field = "urlLike") })
 	final public String url;
@@ -189,11 +203,14 @@ public class UrlRecord {
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField)
 	final public String httpContentEncoding;
 
-	@IndexField(template = FieldDefinition.Template.SortedLongDocValuesField)
-	final public Long leastUuid;
+	@IndexField(template = FieldDefinition.Template.SortedDocValuesField)
+	final public String storeUuid;
 
-	@IndexField(template = FieldDefinition.Template.SortedLongDocValuesField)
-	final public Long mostUuid;
+	@IndexField(template = FieldDefinition.Template.StringField)
+	final public String crawlUuid;
+
+	@IndexField(template = FieldDefinition.Template.StringField)
+	final public String taskUuid;
 
 	UrlRecord() {
 		url = null;
@@ -222,18 +239,29 @@ public class UrlRecord {
 		httpStatus = null;
 		httpContentType = null;
 		httpContentEncoding = null;
-		leastUuid = null;
-		mostUuid = null;
+		storeUuid = null;
+		crawlUuid = null;
+		taskUuid = null;
 	}
 
-	@JsonIgnore
 	public String getUrl() {
 		return url;
 	}
 
-	@JsonIgnore
 	public String getReducedUrl() {
 		return LinkUtils.urlHostPathWrapReduce(url, 70);
+	}
+
+	public UUID getStoreUuid() {
+		return StringUtils.isBlank(storeUuid) ? null : HashUtils.fromBase64(storeUuid);
+	}
+
+	public UUID getCrawlUuid() {
+		return StringUtils.isBlank(crawlUuid) ? null : HashUtils.fromBase64(crawlUuid);
+	}
+
+	public UUID getTaskUuid() {
+		return StringUtils.isBlank(taskUuid) ? null : HashUtils.fromBase64(taskUuid);
 	}
 
 	UrlRecord(UrlRecordBuilder<?, ?> builder) {
@@ -283,13 +311,10 @@ public class UrlRecord {
 		this.httpStatus = builder.httpStatus;
 		this.httpContentType = builder.httpContentType;
 		this.httpContentEncoding = builder.httpContentEncoding;
-		if (builder.uuid != null) {
-			this.leastUuid = builder.uuid.getLeastSignificantBits();
-			this.mostUuid = builder.uuid.getMostSignificantBits();
-		} else {
-			this.leastUuid = null;
-			this.mostUuid = null;
-		}
+
+		this.storeUuid = builder.storeUuid == null ? null : HashUtils.toBase64(builder.storeUuid);
+		this.crawlUuid = builder.crawlUuid == null ? null : HashUtils.toBase64(builder.crawlUuid);
+		this.taskUuid = builder.taskUuid == null ? null : HashUtils.toBase64(builder.taskUuid);
 	}
 
 	public static class Builder extends UrlRecordBuilder<UrlRecord, Builder> {
