@@ -34,15 +34,21 @@
 <#if indexes?has_content>
     <div class="container">
         <table class="table table-hover">
-            <tbody>
-            <#list indexes as index>
+            <thead class="thead-dark">
             <tr>
-                <th>${index!?html}</th>
-                <td align="right">
-                    <a href="/indexes/${index!?html}" class=" btn btn-sm btn-info">Edit</a>
-                </td>
+                <th>Index</th>
+                <th></th>
             </tr>
-            </#list>
+            </thead>
+            <tbody>
+        <#list indexes as index>
+        <tr>
+            <th>${index!?html}</th>
+            <td align="right">
+                <a href="/indexes/${index!?html}" class=" btn btn-sm btn-info">Edit</a>
+            </td>
+        </tr>
+        </#list>
             </tbody>
         </table>
     </div>

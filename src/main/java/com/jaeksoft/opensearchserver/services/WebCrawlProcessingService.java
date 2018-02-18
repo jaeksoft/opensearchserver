@@ -17,18 +17,16 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
+import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
-import com.qwazr.server.client.ErrorWrapper;
 
-import java.util.UUID;
+public class WebCrawlProcessingService
+		extends CrawlProcessingService<WebCrawlTaskRecord, WebCrawlDefinition, WebCrawlStatus> {
 
-public class WebCrawlProcessingService implements TasksProcessingService<WebCrawlTaskRecord> {
-
-	private WebCrawlerServiceInterface webCrawlerService;
-
-	public WebCrawlProcessingService(final WebCrawlerServiceInterface webCrawlerService) {
-		this.webCrawlerService = webCrawlerService;
+	public WebCrawlProcessingService(final WebCrawlerServiceInterface webCrawlerService,
+			final IndexesService indexesService) {
+		super(webCrawlerService, indexesService);
 	}
 
 	public Class<WebCrawlTaskRecord> getTaskRecordClass() {
@@ -36,16 +34,9 @@ public class WebCrawlProcessingService implements TasksProcessingService<WebCraw
 	}
 
 	@Override
-	public boolean isRunning(final UUID taskUuid) {
-		final WebCrawlStatus webCrawlStatus =
-				ErrorWrapper.bypass(() -> webCrawlerService.getSession(taskUuid.toString()), 404);
-		return webCrawlStatus != null && webCrawlStatus.endTime != null;
-	}
-
-	public void checkIsRunning(final WebCrawlTaskRecord taskRecord) {
-		if (isRunning(taskRecord.getUuid()))
-			return;
-		// TODO Start the crawl process
-		System.out.println("TODO Start the crawl process");
+	protected WebCrawlDefinition getNewCrawlDefinition(final WebCrawlTaskRecord taskRecord) {
+		//TODO
+		System.out.println("TOTO GetWebCrawlDefinition WEB " + taskRecord.getTaskId());
+		return null;
 	}
 }

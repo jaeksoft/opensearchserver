@@ -19,6 +19,7 @@ import com.jaeksoft.opensearchserver.front.CrawlerWebServlet;
 import com.jaeksoft.opensearchserver.front.HomeServlet;
 import com.jaeksoft.opensearchserver.front.IndexServlet;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.library.freemarker.FreeMarkerTool;
@@ -44,6 +45,7 @@ public class Server extends Components {
 		final WebCrawlerServiceInterface webCrawlerService = getWebCrawlerService();
 		final SchedulerServiceInterface schedulerService = getSchedulerService();
 		final StoreServiceInterface storeService = getStoreService();
+		final TasksService tasksService = getTasksService();
 
 		final FreeMarkerTool freemarker = FreeMarkerTool.of()
 				.defaultContentType("text/html")
@@ -60,7 +62,7 @@ public class Server extends Components {
 				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(freemarker))
 				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService))
 				.registerJavaServlet(CrawlerWebServlet.class,
-						() -> new CrawlerWebServlet(freemarker, indexesService, webCrawlsService));
+						() -> new CrawlerWebServlet(freemarker, indexesService, webCrawlsService, tasksService));
 
 		webAppBuilder.build();
 

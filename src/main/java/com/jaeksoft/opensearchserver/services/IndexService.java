@@ -21,14 +21,12 @@ import com.qwazr.search.index.IndexServiceInterface;
 
 import java.net.URISyntaxException;
 
-public abstract class IndexService {
-
-	private final AnnotatedIndexService<UrlRecord> index;
+public class IndexService extends AnnotatedIndexService<UrlRecord> {
 
 	IndexService(final IndexServiceInterface indexService, final String schemaName, final String indexName)
 			throws URISyntaxException {
-		index = new AnnotatedIndexService<>(indexService, UrlRecord.class, schemaName, indexName, null);
-		index.createUpdateIndex();
+		super(indexService, UrlRecord.class, schemaName, indexName, null);
+		createUpdateFields();
 	}
 
 }

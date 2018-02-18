@@ -18,7 +18,6 @@ package com.jaeksoft.opensearchserver.front;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
-import com.qwazr.crawler.web.WebCrawlStatus;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,20 +25,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-class WebCrawlTransaction extends ServletTransaction {
+class WebCrawlEditTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "web_crawl.ftl";
+	private final static String TEMPLATE_INDEX = "web_crawl/edit.ftl";
 
 	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
-	private final WebCrawlStatus webCrawlStatus;
 
-	WebCrawlTransaction(final CrawlerWebServlet servlet, final UUID webCrawlUuid, final HttpServletRequest request,
+	WebCrawlEditTransaction(final CrawlerWebServlet servlet, final UUID webCrawlUuid, final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException {
 		super(servlet.freemarker, request, response);
 		this.webCrawlsService = servlet.webCrawlsService;
 		webCrawlRecord = webCrawlsService.read(webCrawlUuid);
-		webCrawlStatus = webCrawlsService.getCrawlStatus(webCrawlUuid);
 	}
 
 	void delete() throws IOException, ServletException {
@@ -89,7 +86,6 @@ class WebCrawlTransaction extends ServletTransaction {
 			return;
 		}
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
-		request.setAttribute("webCrawlStatus", webCrawlStatus);
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

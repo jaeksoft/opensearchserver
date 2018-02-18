@@ -21,10 +21,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.qwazr.crawler.web.WebCrawlDefinition;
-import com.qwazr.utils.HashUtils;
 
 import java.util.UUID;
 
@@ -38,10 +36,10 @@ import java.util.UUID;
 public class WebCrawlTaskRecord extends CrawlTaskRecord<WebCrawlDefinition> {
 
 	@JsonCreator
-	WebCrawlTaskRecord(@JsonProperty("uuid") UUID uuid, @JsonProperty("crawlUuid") UUID crawlUuid,
-			@JsonProperty("indexUuid") UUID indexUuid,
-			@JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition) {
-		super(uuid, crawlUuid, indexUuid, crawlDefinition);
+	WebCrawlTaskRecord(@JsonProperty("crawlUuid") UUID crawlUuid, @JsonProperty("indexUuid") UUID indexUuid,
+			@JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition,
+			@JsonProperty("creationTime") Long creationTime) {
+		super(crawlUuid, indexUuid, crawlDefinition, creationTime);
 	}
 
 	WebCrawlTaskRecord(final Builder builder) {
@@ -49,17 +47,17 @@ public class WebCrawlTaskRecord extends CrawlTaskRecord<WebCrawlDefinition> {
 	}
 
 	public Builder from() {
-		return new Builder(uuid, crawlUuid, indexUuid, crawlDefinition);
+		return new Builder(crawlUuid, indexUuid, crawlDefinition);
 	}
 
 	public static Builder of(final WebCrawlRecord record, final UUID indexUuid) {
-		return new Builder(HashUtils.newTimeBasedUUID(), record.getUuid(), indexUuid, record.crawlDefinition);
+		return new Builder(record.getUuid(), indexUuid, record.crawlDefinition);
 	}
 
-	public static class Builder extends BaseBuilder<WebCrawlDefinition, WebCrawlTaskRecord> {
+	public static class Builder extends BaseBuilder<WebCrawlDefinition, WebCrawlTaskRecord, Builder> {
 
-		private Builder(UUID uuid, UUID crawlUuid, UUID indexUuid, WebCrawlDefinition crawlDefinition) {
-			super(uuid, crawlUuid, indexUuid, crawlDefinition);
+		private Builder(UUID crawlUuid, UUID indexUuid, WebCrawlDefinition crawlDefinition) {
+			super(Builder.class, crawlUuid, indexUuid, crawlDefinition);
 		}
 
 		public WebCrawlTaskRecord build() {

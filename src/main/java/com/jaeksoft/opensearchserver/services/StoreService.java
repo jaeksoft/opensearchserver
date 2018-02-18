@@ -20,7 +20,7 @@ import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.store.StoreFileResult;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
-import org.apache.tools.ant.util.StringUtils;
+import com.qwazr.utils.StringUtils;
 
 import javax.ws.rs.WebApplicationException;
 import java.io.BufferedInputStream;
@@ -36,11 +36,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-abstract class StoreService<T> {
+public abstract class StoreService<T> {
 
 	private final static String JSON_GZ_SUFFIX = ".json.gz";
 
@@ -59,14 +59,15 @@ abstract class StoreService<T> {
 		this.empty = new RecordsResult(0, Collections.emptyList());
 	}
 
-	private String getRecordPath(final String subDirectory, final UUID uuid) {
+	private String getRecordPath(final String subDirectory, final String storeName) {
+		final String fileName = storeName + JSON_GZ_SUFFIX;
 		if (subDirectory == null)
-			return directory + '/' + uuid + JSON_GZ_SUFFIX;
+			return directory + '/' + fileName;
 		else
-			return directory + '/' + subDirectory + '/' + uuid + JSON_GZ_SUFFIX;
+			return directory + '/' + subDirectory + '/' + fileName;
 	}
 
-	protected abstract UUID getUuid(T record);
+	protected abstract String getStoreName(T record);
 
 	/**
 	 * Save the given record
@@ -75,8 +76,8 @@ abstract class StoreService<T> {
 	 * @throws IOException if any I/O error occured
 	 */
 	protected void save(final String subDirectory, final T record) throws IOException {
-		final UUID recordUuid = getUuid(record);
-		final Path tmpJsonCrawlFile = Files.createTempFile(recordUuid.toString(), JSON_GZ_SUFFIX);
+		final String storeName = getStoreName(record);
+		final Path tmpJsonCrawlFile = Files.createTempFile(storeName, JSON_GZ_SUFFIX);
 		try {
 			try (final OutputStream fileOutput = Files.newOutputStream(tmpJsonCrawlFile, StandardOpenOption.CREATE)) {
 				try (final BufferedOutputStream bufOutput = new BufferedOutputStream(fileOutput)) {
@@ -86,7 +87,7 @@ abstract class StoreService<T> {
 				}
 			}
 			storeService.createSchema(storeSchema);
-			storeService.putFile(storeSchema, getRecordPath(subDirectory, recordUuid), tmpJsonCrawlFile,
+			storeService.putFile(storeSchema, getRecordPath(subDirectory, getStoreName(record)), tmpJsonCrawlFile,
 					System.currentTimeMillis());
 		} finally {
 			Files.deleteIfExists(tmpJsonCrawlFile);
@@ -96,14 +97,14 @@ abstract class StoreService<T> {
 	/**
 	 * Retrieve a record
 	 *
-	 * @param recordUuid the UUID of the record
+	 * @param storeName the base name of the record
 	 * @return the record or null if there is any
 	 * @throws IOException if any I/O error occured
 	 */
-	protected T read(final String subDirectory, final UUID recordUuid) throws IOException {
+	protected T read(final String subDirectory, final String storeName) throws IOException {
 		return ErrorWrapper.bypass(() -> {
 			try (final InputStream fileInput = storeService.getFile(storeSchema,
-					getRecordPath(subDirectory, recordUuid))) {
+					getRecordPath(subDirectory, storeName))) {
 				try (final BufferedInputStream bufInput = new BufferedInputStream(fileInput)) {
 					try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
 						return ObjectMappers.JSON.readValue(compressedInput, recordClass);
@@ -116,26 +117,41 @@ abstract class StoreService<T> {
 	/**
 	 * Read the web crawl list with paging parameters
 	 *
-	 * @param start pagination start (can be null)
-	 * @param rows  pagination end (can be null)
+	 * @param start  pagination start (can be null)
+	 * @param rows   pagination end (can be null)
+	 * @param filter an optional filter
 	 * @return the total number of records found, and the paginated records as a list
 	 */
-	protected RecordsResult get(final String subDirectory, Integer start, Integer rows) throws IOException {
+	protected RecordsResult get(final String subDirectory, Integer start, Integer rows,
+			final Function<String, Boolean> filter) throws IOException {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
 			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;
 			if (files == null)
 				return empty;
 			final Iterator<String> iterator = files.keySet().iterator();
-			if (start != null)
-				while (start-- > 0 && iterator.hasNext())
-					iterator.next();
+			int count = 0;
+			if (start != null) {
+				while (start > 0 && iterator.hasNext()) {
+					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
+					if (filter != null && !filter.apply(baseName))
+						continue;
+					start--;
+					count++;
+				}
+			}
 			final List<T> records = new ArrayList<>();
-			if (rows != null)
-				while (rows-- > 0 && iterator.hasNext())
-					records.add(read(subDirectory,
-							UUID.fromString(StringUtils.removeSuffix(iterator.next(), JSON_GZ_SUFFIX))));
-			return new RecordsResult(files.size(), records);
+			if (rows != null) {
+				while (rows > 0 && iterator.hasNext()) {
+					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
+					if (filter != null && !filter.apply(baseName))
+						continue;
+					records.add(read(subDirectory, baseName));
+					rows--;
+					count++;
+				}
+			}
+			return new RecordsResult(count, records);
 		} catch (WebApplicationException e) {
 			if (e.getResponse().getStatus() == 404)
 				return empty;
@@ -165,9 +181,9 @@ abstract class StoreService<T> {
 	/**
 	 * Remove the records
 	 *
-	 * @param recordUuid the UUID of the record
+	 * @param storeName the ID of the record
 	 */
-	protected void remove(final String subDirectory, final UUID recordUuid) {
-		storeService.deleteFile(storeSchema, getRecordPath(subDirectory, recordUuid));
+	protected void remove(final String subDirectory, final String storeName) {
+		storeService.deleteFile(storeSchema, getRecordPath(subDirectory, storeName));
 	}
 }

@@ -17,7 +17,7 @@ package com.jaeksoft.opensearchserver;
 
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.TasksProcessingService;
+import com.jaeksoft.opensearchserver.services.ProcessingService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlProcessingService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
@@ -70,7 +70,7 @@ class Components implements Closeable {
 	private volatile WebCrawlsService webCrawlsService;
 
 	private volatile TasksService tasksService;
-	private volatile Map<Class<? extends TaskRecord>, TasksProcessingService> tasksProcessors;
+	private volatile Map<Class<? extends TaskRecord>, ProcessingService> tasksProcessors;
 	private volatile WebCrawlProcessingService webCrawlProcessingService;
 
 	private volatile StoreManager storeManager;
@@ -119,27 +119,27 @@ class Components implements Closeable {
 			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
 			if (!Files.exists(webCrawlsDirectory))
 				Files.createDirectory(webCrawlsDirectory);
-			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema(), getWebCrawlerService());
+			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema());
 		}
 		return webCrawlsService;
 	}
 
-	private synchronized WebCrawlProcessingService getWebCrawlProcessingService() {
+	private synchronized WebCrawlProcessingService getWebCrawlProcessingService() throws IOException {
 		if (webCrawlProcessingService == null)
-			webCrawlProcessingService = new WebCrawlProcessingService(getWebCrawlerService());
+			webCrawlProcessingService = new WebCrawlProcessingService(getWebCrawlerService(), getIndexesService());
 		return webCrawlProcessingService;
 
 	}
 
-	private synchronized Map<Class<? extends TaskRecord>, TasksProcessingService> getTasksProcessors() {
+	private synchronized Map<Class<? extends TaskRecord>, ProcessingService> getProcessors() throws IOException {
 		if (tasksProcessors == null)
-			tasksProcessors = TasksProcessingService.of().register(getWebCrawlProcessingService()).build();
+			tasksProcessors = ProcessingService.of().register(getWebCrawlProcessingService()).build();
 		return tasksProcessors;
 	}
 
 	synchronized TasksService getTasksService() throws IOException {
 		if (tasksService == null)
-			tasksService = new TasksService(getStoreService(), getAccountSchema(), getTasksProcessors());
+			tasksService = new TasksService(getStoreService(), getAccountSchema(), getProcessors());
 		return tasksService;
 	}
 

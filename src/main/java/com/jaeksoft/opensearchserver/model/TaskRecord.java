@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.UUID;
+import java.util.Objects;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
 		getterVisibility = JsonAutoDetect.Visibility.NONE,
@@ -34,14 +34,57 @@ import java.util.UUID;
 @JsonSubTypes({ @JsonSubTypes.Type(WebCrawlTaskRecord.class) })
 public abstract class TaskRecord {
 
-	public final UUID uuid;
+	public final String taskId;
+	public final Long creationTime;
 
-	protected TaskRecord(final UUID uuid) {
-		this.uuid = uuid;
+	protected TaskRecord(final String taskId, final Long creationTime) {
+		this.taskId = taskId;
+		this.creationTime = creationTime;
 	}
 
-	public UUID getUuid() {
-		return uuid;
+	protected TaskRecord(TaskBuilder builder) {
+		this(builder.taskId, builder.creationTime);
 	}
 
+	public Long getCreationTime() {
+		return creationTime;
+	}
+
+	public String getTaskId() {
+		return taskId;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (o == null || !(o instanceof TaskRecord))
+			return false;
+		if (o == this)
+			return true;
+		final TaskRecord r = (TaskRecord) o;
+		return Objects.equals(taskId, r.taskId) && Objects.equals(creationTime, r.creationTime);
+	}
+
+	public static abstract class TaskBuilder<R, B extends TaskBuilder<R, ?>> {
+
+		private final Class<B> builderClass;
+
+		private final String taskId;
+		private Long creationTime;
+
+		protected TaskBuilder(final Class<B> builderClass, final String taskId) {
+			this.builderClass = builderClass;
+			this.taskId = taskId;
+		}
+
+		public B creationTime(final Long creationTime) {
+			this.creationTime = creationTime;
+			return me();
+		}
+
+		protected B me() {
+			return builderClass.cast(this);
+		}
+
+		public abstract R build();
+	}
 }

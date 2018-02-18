@@ -17,9 +17,6 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
-import com.qwazr.crawler.web.WebCrawlStatus;
-import com.qwazr.crawler.web.WebCrawlerServiceInterface;
-import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.store.StoreServiceInterface;
 
 import java.io.IOException;
@@ -29,17 +26,13 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 
 	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
 
-	private final WebCrawlerServiceInterface webCrawlerService;
-
-	public WebCrawlsService(final StoreServiceInterface storeService, final String storeSchema,
-			final WebCrawlerServiceInterface webCrawlerService) {
+	public WebCrawlsService(final StoreServiceInterface storeService, final String storeSchema) {
 		super(storeService, storeSchema, WEB_CRAWLS_DIRECTORY, WebCrawlRecord.class);
-		this.webCrawlerService = webCrawlerService;
 	}
 
 	@Override
-	protected UUID getUuid(final WebCrawlRecord record) {
-		return record.getUuid();
+	protected String getStoreName(final WebCrawlRecord record) {
+		return record.getUuid().toString();
 	}
 
 	public void save(final WebCrawlRecord crawlRecord) throws IOException {
@@ -47,19 +40,15 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 	}
 
 	public WebCrawlRecord read(final UUID webCrawlUuid) throws IOException {
-		return super.read(null, webCrawlUuid);
+		return super.read(null, webCrawlUuid.toString());
 	}
 
 	public RecordsResult get(final int start, final int rows) throws IOException {
-		return super.get(null, start, rows);
+		return super.get(null, start, rows, null);
 	}
 
 	public void remove(UUID webCrawlUuid) {
-		super.remove(null, webCrawlUuid);
-	}
-
-	public WebCrawlStatus getCrawlStatus(final UUID webCrawlUuid) {
-		return ErrorWrapper.bypass(() -> webCrawlerService.getSession(webCrawlUuid.toString()), 404);
+		super.remove(null, webCrawlUuid.toString());
 	}
 
 }

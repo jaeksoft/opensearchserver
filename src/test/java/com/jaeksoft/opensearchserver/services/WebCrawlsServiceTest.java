@@ -41,13 +41,13 @@ public class WebCrawlsServiceTest extends BaseTest {
 		int i = 0;
 		for (WebCrawlRecord record : expectedRecords) {
 			Assert.assertEquals(record, result.getRecords().get(i++));
-			Assert.assertEquals(record, webCrawlsService.read(null, record.getUuid()));
+			Assert.assertEquals(record, webCrawlsService.read(record.getUuid()));
 		}
 	}
 
 	@Test
 	public void getEmptyList() throws IOException {
-		checkWebCrawlRecordsResult(webCrawlsService.get(null, 0, 10), 0);
+		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 0);
 	}
 
 	public static WebCrawlRecord createNewCrawlRecord() {
@@ -60,21 +60,21 @@ public class WebCrawlsServiceTest extends BaseTest {
 	public void globalTest() throws IOException {
 		// Save one record
 		final WebCrawlRecord crawlRecord1 = createNewCrawlRecord();
-		webCrawlsService.save(null, crawlRecord1);
-		checkWebCrawlRecordsResult(webCrawlsService.get(null, 0, 10), 1, crawlRecord1);
+		webCrawlsService.save(crawlRecord1);
+		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 1, crawlRecord1);
 
 		// Save a second new record
 		final WebCrawlRecord crawlRecord2 = createNewCrawlRecord();
-		webCrawlsService.save(null, crawlRecord2);
-		checkWebCrawlRecordsResult(webCrawlsService.get(null, 0, 10), 2, crawlRecord1, crawlRecord2);
+		webCrawlsService.save(crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 2, crawlRecord1, crawlRecord2);
 
 		// Update the first one
-		webCrawlsService.save(null, crawlRecord1);
-		checkWebCrawlRecordsResult(webCrawlsService.get(null, 0, 10), 2, crawlRecord1, crawlRecord2);
+		webCrawlsService.save(crawlRecord1);
+		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 2, crawlRecord1, crawlRecord2);
 
 		// Remove the first one
-		webCrawlsService.remove(null, crawlRecord1.getUuid());
-		checkWebCrawlRecordsResult(webCrawlsService.get(null, 0, 10), 1, crawlRecord2);
+		webCrawlsService.remove(crawlRecord1.getUuid());
+		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 1, crawlRecord2);
 	}
 
 }

@@ -24,13 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class WebCrawlsTransaction extends ServletTransaction {
+class WebCrawlListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "web_crawls.ftl";
+	private final static String TEMPLATE_INDEX = "web_crawl/list.ftl";
 
 	private final WebCrawlsService webCrawlsService;
 
-	WebCrawlsTransaction(final CrawlerWebServlet servlet, final HttpServletRequest request,
+	WebCrawlListTransaction(final CrawlerWebServlet servlet, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		super(servlet.freemarker, request, response);
 		webCrawlsService = servlet.webCrawlsService;

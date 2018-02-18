@@ -20,17 +20,20 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.ws.rs.NotSupportedException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.LinkedHashMap;
-import java.util.UUID;
+import java.util.Map;
 
-public interface TasksProcessingService<T extends TaskRecord> {
+public interface ProcessingService<T extends TaskRecord, S> {
 
-	TasksProcessingService DEFAULT = new TasksProcessingService() {
+	ProcessingService DEFAULT = new ProcessingService() {
 	};
 
 	default Class<T> getTaskRecordClass() {
 		throw new NotSupportedException();
+	}
+
+	static NotSupportedException notSupportedException(String taskId) {
+		return new NotSupportedException("No executor available for this task: " + taskId);
 	}
 
 	/**
@@ -38,12 +41,16 @@ public interface TasksProcessingService<T extends TaskRecord> {
 	 *
 	 * @param taskRecord
 	 */
-	default void checkIsRunning(T taskRecord) {
-		throw new NotSupportedException("No executor available for that kind of task: " + taskRecord);
+	default void checkIsRunning(final TaskRecord taskRecord) {
+		throw notSupportedException(taskRecord.getTaskId());
 	}
 
-	default boolean isRunning(UUID taskUuid) {
-		throw new NotSupportedException("No executor available for that kind of task: " + taskUuid);
+	default boolean isRunning(final String taskId) {
+		throw notSupportedException(taskId);
+	}
+
+	default S getStatus(final String taskId) {
+		throw notSupportedException(taskId);
 	}
 
 	static Builder of() {
@@ -52,18 +59,18 @@ public interface TasksProcessingService<T extends TaskRecord> {
 
 	class Builder {
 
-		final Map<Class<? extends TaskRecord>, TasksProcessingService<?>> processorMap;
+		final Map<Class<? extends TaskRecord>, ProcessingService<?, ?>> processorMap;
 
 		private Builder() {
 			processorMap = new LinkedHashMap<>();
 		}
 
-		public Builder register(final TasksProcessingService<?> tasksExecutorService) {
+		public Builder register(final ProcessingService<?, ?> tasksExecutorService) {
 			processorMap.put(tasksExecutorService.getTaskRecordClass(), tasksExecutorService);
 			return this;
 		}
 
-		public Map<Class<? extends TaskRecord>, TasksProcessingService> build() {
+		public Map<Class<? extends TaskRecord>, ProcessingService> build() {
 			return Collections.unmodifiableMap(processorMap);
 		}
 	}

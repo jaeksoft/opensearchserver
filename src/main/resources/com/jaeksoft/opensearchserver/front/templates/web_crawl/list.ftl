@@ -18,10 +18,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Web crawlers - OpenSearchServer</title>
-    <#include 'includes/head.ftl'>
+    <#include '../includes/head.ftl'>
 </head>
 <body>
-    <#include 'includes/nav.ftl'>
+    <#include '../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
@@ -30,31 +30,33 @@
             <li class="breadcrumb-item active">Web</li>
         </ol>
     </nav>
- <#include 'includes/messages.ftl'>
+ <#include '../includes/messages.ftl'>
 </div>
 <#if webCrawlRecords?has_content>
     <div class="container">
         <table class="table table-hover">
-            <tbody>
-            <#list webCrawlRecords as webCrawlRecord>
+            <thead class="thead-dark">
             <tr>
-                <th>${webCrawlRecord.name!?html}</th>
-                <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
-                <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
-                <td><#if webCrawlRecord.crawlDefinition.enabled!false>
-                    enabled
-                <#else>
-                    disabled
-                </#if>
-                </td>
-                <td align="right">
-                    <a href="/crawlers/web/${webCrawlRecord.uuid!}"
-                       class=" btn btn-sm btn-info">Edit</a>
-                    <a href="/crawlers/web/${webCrawlRecord.uuid!}/status"
-                       class=" btn btn-sm btn-primary">Status</a>
-                </td>
+                <th>Name</th>
+                <th>Entry URL</th>
+                <th>Depth</th>
+                <th></th>
             </tr>
-            </#list>
+            </thead>
+            <tbody>
+           <#list webCrawlRecords as webCrawlRecord>
+           <tr>
+               <th>${webCrawlRecord.name!?html}</th>
+               <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
+               <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
+               <td align="right">
+                   <a href="/crawlers/web/${webCrawlRecord.uuid!}"
+                      class=" btn btn-sm btn-secondary">Edit</a>
+                   <a href="/crawlers/web/${webCrawlRecord.uuid!}/status"
+                      class=" btn btn-sm btn-info">Status</a>
+               </td>
+           </tr>
+           </#list>
             </tbody>
         </table>
     </div>
@@ -80,6 +82,6 @@
         </div>
     </form>
 </div>
-<#include 'includes/foot.ftl'>
+<#include '../includes/foot.ftl'>
 </body>
 </html>

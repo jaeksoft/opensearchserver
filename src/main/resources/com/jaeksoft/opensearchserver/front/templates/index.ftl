@@ -26,7 +26,7 @@
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Indexes</a></li>
+            <li class="breadcrumb-item"><a href="/indexes">Indexes</a></li>
             <li class="breadcrumb-item active" aria-current="page">${indexName!?html}</li>
         </ol>
     </nav>

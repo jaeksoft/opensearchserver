@@ -15,20 +15,19 @@
  */
 package com.jaeksoft.opensearchserver.services;
 
-import com.jaeksoft.opensearchserver.model.UrlRecord;
-import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.SchemaSettingsDefinition;
 
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class IndexesService {
 
 	private final IndexServiceInterface indexService;
-	private final ConcurrentHashMap<String, AnnotatedIndexService<UrlRecord>> indexes;
+	private final ConcurrentHashMap<String, IndexService> indexes;
 	private final String schemaName;
 
 	public IndexesService(final IndexServiceInterface indexService, final String schemaName,
@@ -40,8 +39,8 @@ public class IndexesService {
 	}
 
 	public Set<String> getIndexes() {
-		final Set<String> indexes = indexService.getIndexes(schemaName);
-		return indexes == null ? indexes : new TreeSet<>(indexes);
+		final Map<String, UUID> indexMap = indexService.getIndexes(schemaName);
+		return indexMap == null ? null : indexMap.keySet();
 	}
 
 	public void createIndex(final String indexName) {
@@ -50,18 +49,27 @@ public class IndexesService {
 
 	public void deleteIndex(final String indexName) {
 		indexService.deleteIndex(schemaName, indexName);
+		indexes.remove(indexName);
 	}
 
-	public AnnotatedIndexService<UrlRecord> getIndex(String indexName) {
+	public IndexService getIndex(final String indexName) {
 		return indexes.computeIfAbsent(indexName, in -> {
 			try {
-				AnnotatedIndexService<UrlRecord> index =
-						new AnnotatedIndexService<>(indexService, UrlRecord.class, schemaName, indexName, null);
-				index.createUpdateFields();
-				return index;
+				return new IndexService(indexService, schemaName, indexName);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
 		});
 	}
+
+	public String getIndexName(final UUID indexUuid) {
+		final Map<String, UUID> indexMap = indexService.getIndexes(schemaName);
+		if (indexMap == null)
+			return null;
+		for (Map.Entry<String, UUID> entry : indexMap.entrySet())
+			if (indexUuid.equals(entry.getValue()))
+				return entry.getKey();
+		return null;
+	}
+
 }

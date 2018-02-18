@@ -21,50 +21,57 @@ import com.qwazr.crawler.common.CrawlDefinition;
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class CrawlTaskRecord<T extends CrawlDefinition> extends TaskRecord {
+public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRecord {
 
 	public final UUID crawlUuid;
 
 	public final UUID indexUuid;
 
-	public final T crawlDefinition;
+	public final D crawlDefinition;
 
-	protected CrawlTaskRecord(final UUID uuid, final UUID crawlUuid, final UUID indexUuid, final T crawlDefinition) {
-		super(uuid);
+	protected CrawlTaskRecord(final UUID crawlUuid, final UUID indexUuid, final D crawlDefinition,
+			final Long creationTime) {
+		super(taskId(crawlUuid, indexUuid), creationTime);
 		this.crawlUuid = crawlUuid;
 		this.indexUuid = indexUuid;
 		this.crawlDefinition = crawlDefinition;
 	}
 
-	CrawlTaskRecord(final BaseBuilder<T, ?> builder) {
-		super(builder.uuid);
-		crawlUuid = builder.crawlUuid;
-		indexUuid = builder.indexUuid;
-		crawlDefinition = builder.crawlDefinition;
+	CrawlTaskRecord(final BaseBuilder<D, ?, ?> builder) {
+		super(builder);
+		this.crawlUuid = builder.crawlUuid;
+		this.indexUuid = builder.indexUuid;
+		this.crawlDefinition = builder.crawlDefinition;
+	}
+
+	static String taskId(final UUID crawlUuid, final UUID indexUuid) {
+		return crawlUuid.toString() + '_' + indexUuid.toString();
 	}
 
 	@Override
 	public boolean equals(final Object o) {
-		if (o == null || !(o instanceof CrawlTaskRecord))
+		if (!super.equals(o))
+			return false;
+		if (!(o instanceof CrawlTaskRecord))
 			return false;
 		if (o == this)
 			return true;
 		final CrawlTaskRecord r = (CrawlTaskRecord) o;
-		return Objects.equals(uuid, r.uuid) && Objects.equals(crawlUuid, r.crawlUuid) &&
-				Objects.equals(indexUuid, r.indexUuid) && Objects.equals(crawlDefinition, r.crawlDefinition);
+		return Objects.equals(crawlUuid, r.crawlUuid) && Objects.equals(indexUuid, r.indexUuid) &&
+				Objects.equals(crawlDefinition, r.crawlDefinition);
 	}
 
-	public abstract BaseBuilder<T, ?> from();
+	public abstract BaseBuilder<D, ?, ?> from();
 
-	public static abstract class BaseBuilder<T extends CrawlDefinition, R extends CrawlTaskRecord> {
+	public static abstract class BaseBuilder<D extends CrawlDefinition, R extends CrawlTaskRecord, B extends BaseBuilder<D, R, B>>
+			extends TaskBuilder<R, B> {
 
-		private final UUID uuid;
 		private final UUID crawlUuid;
 		private final UUID indexUuid;
-		private final T crawlDefinition;
+		private final D crawlDefinition;
 
-		protected BaseBuilder(UUID uuid, UUID crawlUuid, UUID indexUuid, T crawlDefinition) {
-			this.uuid = uuid;
+		protected BaseBuilder(Class<B> builderClass, UUID crawlUuid, UUID indexUuid, D crawlDefinition) {
+			super(builderClass, taskId(crawlUuid, indexUuid));
 			this.crawlUuid = crawlUuid;
 			this.indexUuid = indexUuid;
 			this.crawlDefinition = crawlDefinition;

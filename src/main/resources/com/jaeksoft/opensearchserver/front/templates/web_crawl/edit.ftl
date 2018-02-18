@@ -18,10 +18,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Web Crawler - OpenSearchServer</title>
-    <#include 'includes/head.ftl'>
+    <#include '../includes/head.ftl'>
 </head>
 <body>
-    <#include 'includes/nav.ftl'>
+    <#include '../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
@@ -33,39 +33,8 @@
             </li>
         </ol>
     </nav>
- <#include 'includes/messages.ftl'>
-<#-- WEB CRAWL STATUS -->
-    <div class="card">
-        <form method="post">
-            <div class="card-body">
-                <h5 class="card-title">Crawl status</h5>
-                <#if webCrawlStatus??>
-                <table class="table">
-                    <tr>
-                        <th>Start time</th>
-                        <td><#if webCrawlStatus.startTime??>${webCrawlStatus.starTime?number_to_datetime}</#if></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <th>End time</th>
-                        <td><#if webCrawlStatus.startTime??>${webCrawlStatus.endTime?number_to_datetime}</#if></td>
-                        <td></td>
-                        <td><</td>
-                    </tr>
-                </table>
-                </#if>
-            </div>
-            <div class="card-footer text-right">
-                    <#if webCrawlStatus?? && webCrawlStatus.endTime??>
-                        <button class="btn btn-warning" name="action" value="stop" type="submit">Stop</button>
-                    <#else>
-                    <button class="btn btn-success" name="action" value="start" type="submit">Start</button>
-                    </#if>
-            </div>
-        </form>
-    </div>
-    <br/>
+ <#include '../includes/messages.ftl'>
+
 <#-- WEB CRAWL EDITION -->
     <div class="card">
         <form method="post">
@@ -96,7 +65,6 @@
         </form>
     </div>
     <br/>
-
 <#-- WEB CRAWL DELETION -->
     <div class="card">
         <div class="card-body">
@@ -115,6 +83,6 @@
         </div>
     </div>
 </div>
-<#include 'includes/foot.ftl'>
+<#include '../includes/foot.ftl'>
 </body>
 </html>

@@ -23,6 +23,7 @@ import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
+import com.qwazr.utils.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,33 +78,33 @@ public class TasksServiceTest extends BaseTest {
 	@Test
 	public void createTaskAndArchive() throws IOException {
 
-		final WebCrawlTaskRecord taskRecord =
-				createWebCrawlTask("index", "test", "https://www.opensearchserver.com", 3);
+		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 
 		// Save as an active task
 		tasksService.saveActiveTask(taskRecord);
-		Assert.assertEquals(taskRecord, tasksService.getActiveTask(taskRecord.getUuid()));
+		Assert.assertEquals(taskRecord, tasksService.getActiveTask(taskRecord.getTaskId()));
 		checkResult(tasksService.getActiveTasks(0, 25), 1, taskRecord);
 		checkResult(tasksService.getArchivedTasks(0, 25), 0);
+		checkResult(tasksService.getActiveTasks(0, 25, taskRecord.crawlUuid), 1, taskRecord);
+		checkResult(tasksService.getActiveTasks(0, 25, UUID.randomUUID()), 0);
 
 		// Archive Task
-		tasksService.archiveActiveTask(taskRecord.getUuid());
-		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(taskRecord.getUuid()));
+		tasksService.archiveActiveTask(taskRecord.getTaskId());
+		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(taskRecord.getTaskId()));
 		checkResult(tasksService.getActiveTasks(0, 25), 0);
 		checkResult(tasksService.getArchivedTasks(0, 25), 1, taskRecord);
 	}
 
 	@Test(expected = NoContentException.class)
 	public void archiveUnkownTask() throws IOException {
-		tasksService.archiveActiveTask(UUID.randomUUID());
+		tasksService.archiveActiveTask(RandomUtils.alphanumeric(8));
 	}
 
 	@Test(expected = NotAllowedException.class)
 	public void saveAlreadyArchived() throws IOException {
-		final WebCrawlTaskRecord taskRecord =
-				createWebCrawlTask("index", "test", "https://www.opensearchserver.com", 3);
+		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 		tasksService.saveActiveTask(taskRecord);
-		tasksService.archiveActiveTask(taskRecord.getUuid());
+		tasksService.archiveActiveTask(taskRecord.getTaskId());
 		tasksService.saveActiveTask(taskRecord);
 	}
 
