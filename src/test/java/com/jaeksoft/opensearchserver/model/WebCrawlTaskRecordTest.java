@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class CrawlTaskRecordTest {
+public class WebCrawlTaskRecordTest {
 
 	@Test
 	public void serializationDeserializationTest() throws IOException {

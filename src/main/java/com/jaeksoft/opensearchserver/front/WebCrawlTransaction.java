@@ -38,7 +38,7 @@ class WebCrawlTransaction extends ServletTransaction {
 			final HttpServletResponse response) throws IOException {
 		super(servlet.freemarker, request, response);
 		this.webCrawlsService = servlet.webCrawlsService;
-		webCrawlRecord = webCrawlsService.read(null, webCrawlUuid);
+		webCrawlRecord = webCrawlsService.read(webCrawlUuid);
 		webCrawlStatus = webCrawlsService.getCrawlStatus(webCrawlUuid);
 	}
 
@@ -49,7 +49,7 @@ class WebCrawlTransaction extends ServletTransaction {
 		}
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
-			webCrawlsService.remove(null, webCrawlRecord.getUuid());
+			webCrawlsService.remove(webCrawlRecord.getUuid());
 			addMessage(Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
 			response.sendRedirect("/crawlers/web");
 			return;
@@ -68,7 +68,7 @@ class WebCrawlTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(null,
+		webCrawlsService.save(
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		response.sendRedirect("/crawlers/web/" + webCrawlRecord.getUuid());
 	}

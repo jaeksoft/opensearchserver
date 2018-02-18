@@ -42,15 +42,14 @@ class WebCrawlsTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(null,
-				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+		webCrawlsService.save(WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		doGet();
 	}
 
 	@Override
 	void doGet() throws IOException, ServletException {
 		final WebCrawlsService.RecordsResult webCrawlsResult =
-				webCrawlsService.get(null, getRequestParameter("start", 0), 25);
+				webCrawlsService.get(getRequestParameter("start", 0), 25);
 		request.setAttribute("webCrawlRecords", webCrawlsResult.getRecords());
 		request.setAttribute("totalCount", webCrawlsResult.getTotalCount());
 		doTemplate(TEMPLATE_INDEX);

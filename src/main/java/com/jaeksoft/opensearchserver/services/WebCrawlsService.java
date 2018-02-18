@@ -22,6 +22,7 @@ import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.store.StoreServiceInterface;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class WebCrawlsService extends StoreService<WebCrawlRecord> {
@@ -39,6 +40,22 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 	@Override
 	protected UUID getUuid(final WebCrawlRecord record) {
 		return record.getUuid();
+	}
+
+	public void save(final WebCrawlRecord crawlRecord) throws IOException {
+		super.save(null, crawlRecord);
+	}
+
+	public WebCrawlRecord read(final UUID webCrawlUuid) throws IOException {
+		return super.read(null, webCrawlUuid);
+	}
+
+	public RecordsResult get(final int start, final int rows) throws IOException {
+		return super.get(null, start, rows);
+	}
+
+	public void remove(UUID webCrawlUuid) {
+		super.remove(null, webCrawlUuid);
 	}
 
 	public WebCrawlStatus getCrawlStatus(final UUID webCrawlUuid) {

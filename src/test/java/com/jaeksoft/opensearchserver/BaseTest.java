@@ -16,6 +16,8 @@
 
 package com.jaeksoft.opensearchserver;
 
+import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import org.junit.After;
 
@@ -34,6 +36,14 @@ public class BaseTest {
 
 	protected WebCrawlsService getWebCrawlsService() throws IOException {
 		return getComponents().getWebCrawlsService();
+	}
+
+	protected TasksService getTasksService() throws IOException {
+		return getComponents().getTasksService();
+	}
+
+	protected IndexesService getIndexesService() throws IOException {
+		return getComponents().getIndexesService();
 	}
 
 	@After

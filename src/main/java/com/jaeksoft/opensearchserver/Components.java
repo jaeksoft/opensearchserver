@@ -15,7 +15,11 @@
  */
 package com.jaeksoft.opensearchserver;
 
+import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.TasksProcessingService;
+import com.jaeksoft.opensearchserver.services.TasksService;
+import com.jaeksoft.opensearchserver.services.WebCrawlProcessingService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
@@ -37,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,6 +68,10 @@ class Components implements Closeable {
 	private volatile WebCrawlerManager webCrawlerManager;
 	private volatile WebCrawlerServiceInterface webCrawlerService;
 	private volatile WebCrawlsService webCrawlsService;
+
+	private volatile TasksService tasksService;
+	private volatile Map<Class<? extends TaskRecord>, TasksProcessingService> tasksProcessors;
+	private volatile WebCrawlProcessingService webCrawlProcessingService;
 
 	private volatile StoreManager storeManager;
 	private volatile StoreServiceInterface storeService;
@@ -100,9 +109,8 @@ class Components implements Closeable {
 	}
 
 	synchronized IndexesService getIndexesService() throws IOException {
-		if (indexesService == null) {
+		if (indexesService == null)
 			indexesService = new IndexesService(getIndexService(), DEFAULT_SCHEMA, getSchemaDefinition(DEFAULT_SCHEMA));
-		}
 		return indexesService;
 	}
 
@@ -114,6 +122,25 @@ class Components implements Closeable {
 			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema(), getWebCrawlerService());
 		}
 		return webCrawlsService;
+	}
+
+	private synchronized WebCrawlProcessingService getWebCrawlProcessingService() {
+		if (webCrawlProcessingService == null)
+			webCrawlProcessingService = new WebCrawlProcessingService(getWebCrawlerService());
+		return webCrawlProcessingService;
+
+	}
+
+	private synchronized Map<Class<? extends TaskRecord>, TasksProcessingService> getTasksProcessors() {
+		if (tasksProcessors == null)
+			tasksProcessors = TasksProcessingService.of().register(getWebCrawlProcessingService()).build();
+		return tasksProcessors;
+	}
+
+	synchronized TasksService getTasksService() throws IOException {
+		if (tasksService == null)
+			tasksService = new TasksService(getStoreService(), getAccountSchema(), getTasksProcessors());
+		return tasksService;
 	}
 
 	private synchronized ScriptManager getScriptManager() {

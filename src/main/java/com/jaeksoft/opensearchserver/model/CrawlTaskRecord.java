@@ -16,13 +16,11 @@
 
 package com.jaeksoft.opensearchserver.model;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.qwazr.crawler.common.CrawlDefinition;
 
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonSubTypes({ @JsonSubTypes.Type(WebCrawlTaskRecord.class) })
 public abstract class CrawlTaskRecord<T extends CrawlDefinition> extends TaskRecord {
 
 	public final UUID crawlUuid;
