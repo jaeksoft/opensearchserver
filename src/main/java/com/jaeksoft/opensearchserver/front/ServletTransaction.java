@@ -30,14 +30,14 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-abstract class ServletTransaction {
+public abstract class ServletTransaction {
 
 	private final FreeMarkerTool freemarker;
 	protected final HttpServletRequest request;
 	protected final HttpServletResponse response;
 	protected final HttpSession session;
 
-	ServletTransaction(final FreeMarkerTool freemarker, final HttpServletRequest request,
+	protected ServletTransaction(final FreeMarkerTool freemarker, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		this.freemarker = freemarker;
 		this.request = request;
@@ -96,7 +96,7 @@ abstract class ServletTransaction {
 	 * @throws IOException      if any I/O error occured
 	 * @throws ServletException if any Servlet error occured
 	 */
-	void doGet() throws IOException, ServletException {
+	protected void doGet() throws IOException, ServletException {
 		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 

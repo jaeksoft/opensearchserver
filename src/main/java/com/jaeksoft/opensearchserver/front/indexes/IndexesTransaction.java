@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front;
+package com.jaeksoft.opensearchserver.front.indexes;
 
+import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.qwazr.search.index.IndexStatus;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -25,41 +25,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class IndexTransaction extends ServletTransaction {
+public class IndexesTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "index.ftl";
+	private final static String TEMPLATE = "indexes.ftl";
 
 	private final IndexesService indexesService;
-	private final String indexName;
 
-	IndexTransaction(final IndexServlet indexServlet, final String indexName, final HttpServletRequest request,
+	IndexesTransaction(final IndexServlet indexServlet, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		super(indexServlet.freemarker, request, response);
 		this.indexesService = indexServlet.indexesService;
-		this.indexName = indexName;
 	}
 
-	void delete() throws IOException, ServletException {
+	public void create() throws IOException, ServletException {
 		final String indexName = request.getParameter("indexName");
-		if (!StringUtils.isBlank(indexName)) {
-			if (indexName.equals(this.indexName)) {
-				indexesService.deleteIndex(indexName);
-				addMessage(ServletTransaction.Css.info, null, "Index \"" + indexName + "\" deleted");
-				response.sendRedirect("/");
-				return;
-			} else
-				addMessage(ServletTransaction.Css.warning, null, "Please confirm the name of the index to delete");
-		}
+		if (!StringUtils.isBlank(indexName))
+			indexesService.createIndex(indexName);
 		doGet();
 	}
 
 	@Override
-	void doGet() throws IOException, ServletException {
-		request.setAttribute("indexName", indexName);
-		final IndexStatus status = indexesService.getIndex(indexName).getIndexStatus();
-		request.setAttribute("indexSize", status.segments_size);
-		request.setAttribute("indexCount", status.num_docs);
-		doTemplate(TEMPLATE_INDEX);
+	protected void doGet() throws IOException, ServletException {
+		request.setAttribute("indexes", indexesService.getIndexes());
+		doTemplate(TEMPLATE);
 	}
 
 }

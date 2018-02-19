@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front;
+package com.jaeksoft.opensearchserver.front.webcrawl;
 
+import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -25,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-class WebCrawlEditTransaction extends ServletTransaction {
+public class WebCrawlEditTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE_INDEX = "web_crawl/edit.ftl";
 
@@ -39,7 +40,7 @@ class WebCrawlEditTransaction extends ServletTransaction {
 		webCrawlRecord = webCrawlsService.read(webCrawlUuid);
 	}
 
-	void delete() throws IOException, ServletException {
+	public void delete() throws IOException, ServletException {
 		if (webCrawlRecord == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
@@ -48,14 +49,14 @@ class WebCrawlEditTransaction extends ServletTransaction {
 		if (webCrawlRecord.name.equals(crawlName)) {
 			webCrawlsService.remove(webCrawlRecord.getUuid());
 			addMessage(Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-			response.sendRedirect("/crawlers/web");
+			response.sendRedirect(CrawlerWebServlet.PATH);
 			return;
 		} else
 			addMessage(ServletTransaction.Css.warning, null, "Please confirm the name of the crawl to delete");
 		doGet();
 	}
 
-	void save() throws IOException {
+	public void save() throws IOException {
 		if (webCrawlRecord == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
@@ -67,20 +68,11 @@ class WebCrawlEditTransaction extends ServletTransaction {
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
 		webCrawlsService.save(
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		response.sendRedirect("/crawlers/web/" + webCrawlRecord.getUuid());
-	}
-
-	void start() throws IOException, ServletException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-		//TODO
-		doGet();
+		response.sendRedirect(CrawlerWebServlet.PATH + '/' + webCrawlRecord.getUuid());
 	}
 
 	@Override
-	void doGet() throws IOException, ServletException {
+	protected void doGet() throws IOException, ServletException {
 		if (webCrawlRecord == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;

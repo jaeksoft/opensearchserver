@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front;
+package com.jaeksoft.opensearchserver.front.webcrawl;
 
+import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -24,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class WebCrawlListTransaction extends ServletTransaction {
+public class WebCrawlListTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE_INDEX = "web_crawl/list.ftl";
 
@@ -36,7 +37,7 @@ class WebCrawlListTransaction extends ServletTransaction {
 		webCrawlsService = servlet.webCrawlsService;
 	}
 
-	void create() throws IOException, ServletException {
+	public void create() throws IOException, ServletException {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
@@ -47,7 +48,7 @@ class WebCrawlListTransaction extends ServletTransaction {
 	}
 
 	@Override
-	void doGet() throws IOException, ServletException {
+	protected void doGet() throws IOException, ServletException {
 		final WebCrawlsService.RecordsResult webCrawlsResult =
 				webCrawlsService.get(getRequestParameter("start", 0), 25);
 		request.setAttribute("webCrawlRecords", webCrawlsResult.getRecords());

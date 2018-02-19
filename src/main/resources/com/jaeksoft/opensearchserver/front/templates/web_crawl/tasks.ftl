@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Web Crawl status - OpenSearchServer</title>
+    <title>Web Crawl tasks - OpenSearchServer</title>
     <#include '../includes/head.ftl'>
 </head>
 <body>
@@ -33,57 +33,44 @@
                 ${webCrawlRecord.name!webCrawlRecord.uuid!?html}</a>
             </li>
             <li class=" breadcrumb-item active" aria-current="page">
-                Status
+                Tasks
             </li>
         </ol>
     </nav>
  <#include '../includes/messages.ftl'>
-    <#if webCrawlTasks?has_content>
-        <table class="table table-hover">
-            <thead class="thead-dark">
-            <tr>
-                <th>Index</th>
-                <th>Creation time</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <#list webCrawlTasks as index,record>
-            <tr>
-                <th>${index}</th>
-                <td>${record.creationTime?number_to_datetime}</td>
-                <td align="right">
-                    <a href="/tasks/${record.taskId?html}"
-                       class=" btn btn-sm btn-info">Status</a>
-                </td>
-            </tr>
-            </#list>
-            </tbody>
-        </table>
+    <#if tasks.records?has_content>
+     <div class="card">
+         <div class="card-body">
+             <h5 class="card-title">Active tasks</h5>
+            <#include '../tasks/includes/task_list.ftl'>
+         </div>
+     </div>
+    <br/>
     </#if>
 
     <#if indexes?has_content>
-      <div class="card">
-          <div class="card-body">
-              <h5 class="card-title">Start a crawl</h5>
-              <p class="card-text text-muted">Choose an index and click on the button to start the crawl process.</p>
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="card-title">Start a crawl</h5>
+                  <p class="card-text text-muted">Choose an index and click on the button to start the crawl
+                      process.</p>
+              </div>
+              <div class="card-footer">
+                  <form method="post" class="form-inline">
+                      <label for="indexList" class="sr-only">Index list</label>
+                      <select class="form-control mb-2 mr-sm-2" id="indexList" name="index">
+                    <#list indexes as index>
+                        <option value="${index?html}">${index?html}</option>
+                    </#list>
+                      </select>
+                      <button class="btn btn-primary mb-2"
+                              name="action" value="crawl" type="submit">
+                          Start crawling
+                      </button>
+                  </form>
+              </div>
           </div>
-          <div class="card-footer">
-              <form method="post" class="form-inline">
-                  <label for="indexList" class="sr-only">Index list</label>
-                  <select class="form-control mb-2 mr-sm-2" id="indexList" name="index">
-                <#list indexes as index>
-                    <option value="${index?html}">${index?html}</option>
-                </#list>
-                  </select>
-                  <button class="btn btn-primary mb-2"
-                          name="action" value="crawl" type="submit">
-                      Start crawling
-                  </button>
-              </form>
-          </div>
-      </div>
-
+        <br/>
     </#if>
 
 <#-- START CRAWLING

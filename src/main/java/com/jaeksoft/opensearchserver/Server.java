@@ -15,21 +15,19 @@
  */
 package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.front.CrawlerWebServlet;
 import com.jaeksoft.opensearchserver.front.HomeServlet;
-import com.jaeksoft.opensearchserver.front.IndexServlet;
+import com.jaeksoft.opensearchserver.front.indexes.IndexServlet;
+import com.jaeksoft.opensearchserver.front.tasks.TasksServlet;
+import com.jaeksoft.opensearchserver.front.webcrawl.CrawlerWebServlet;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
-import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.library.freemarker.FreeMarkerTool;
-import com.qwazr.scheduler.SchedulerServiceInterface;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
-import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.webapps.WebappManager;
-import org.quartz.SchedulerException;
 
 import java.io.IOException;
 
@@ -37,32 +35,19 @@ public class Server extends Components {
 
 	private final GenericServer server;
 
-	private Server(final ServerConfiguration configuration) throws IOException, SchedulerException {
+	private Server(final ServerConfiguration configuration) throws IOException {
 		super(configuration.dataDirectory.toPath());
-
-		final IndexesService indexesService = getIndexesService();
-		final WebCrawlsService webCrawlsService = getWebCrawlsService();
-		final WebCrawlerServiceInterface webCrawlerService = getWebCrawlerService();
-		final SchedulerServiceInterface schedulerService = getSchedulerService();
-		final StoreServiceInterface storeService = getStoreService();
-		final TasksService tasksService = getTasksService();
-
-		final FreeMarkerTool freemarker = FreeMarkerTool.of()
-				.defaultContentType("text/html")
-				.defaultEncoding("UTF-8")
-				.templateLoader(FreeMarkerTool.Loader.Type.resource, "com/jaeksoft/opensearchserver/front/templates/")
-				.build();
-		freemarker.load();
 
 		final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
 		final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
 				.registerDefaultFaviconServlet()
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
-				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(freemarker))
-				.registerJavaServlet(IndexServlet.class, () -> new IndexServlet(freemarker, indexesService))
+				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
+				.registerJavaServlet(IndexServlet.class, () -> ExceptionUtils.bypass(() -> new IndexServlet(this)))
 				.registerJavaServlet(CrawlerWebServlet.class,
-						() -> new CrawlerWebServlet(freemarker, indexesService, webCrawlsService, tasksService));
+						() -> ExceptionUtils.bypass(() -> new CrawlerWebServlet(this)))
+				.registerJavaServlet(TasksServlet.class, () -> ExceptionUtils.bypass(() -> new TasksServlet(this)));
 
 		webAppBuilder.build();
 

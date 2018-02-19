@@ -52,8 +52,8 @@
                <td align="right">
                    <a href="/crawlers/web/${webCrawlRecord.uuid!}"
                       class=" btn btn-sm btn-secondary">Edit</a>
-                   <a href="/crawlers/web/${webCrawlRecord.uuid!}/status"
-                      class=" btn btn-sm btn-info">Status</a>
+                   <a href="/crawlers/web/${webCrawlRecord.uuid!}/tasks"
+                      class=" btn btn-sm btn-info">Tasks</a>
                </td>
            </tr>
            </#list>

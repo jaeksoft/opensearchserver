@@ -48,7 +48,7 @@ public abstract class StoreService<T> {
 	private final String storeSchema;
 	private final String directory;
 	private final Class<T> recordClass;
-	private final RecordsResult empty;
+	private final RecordsResult<T> empty;
 
 	StoreService(final StoreServiceInterface storeService, final String storeSchema, final String directory,
 			final Class<T> recordClass) {
@@ -56,7 +56,7 @@ public abstract class StoreService<T> {
 		this.storeSchema = storeSchema;
 		this.directory = directory;
 		this.recordClass = recordClass;
-		this.empty = new RecordsResult(0, Collections.emptyList());
+		this.empty = new RecordsResult<>(0, Collections.emptyList());
 	}
 
 	private String getRecordPath(final String subDirectory, final String storeName) {
@@ -122,7 +122,7 @@ public abstract class StoreService<T> {
 	 * @param filter an optional filter
 	 * @return the total number of records found, and the paginated records as a list
 	 */
-	protected RecordsResult get(final String subDirectory, Integer start, Integer rows,
+	protected RecordsResult<T> get(final String subDirectory, Integer start, Integer rows,
 			final Function<String, Boolean> filter) throws IOException {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
@@ -159,7 +159,7 @@ public abstract class StoreService<T> {
 		}
 	}
 
-	public class RecordsResult {
+	public static class RecordsResult<T> {
 
 		public final int totalCount;
 		public final List<T> records;

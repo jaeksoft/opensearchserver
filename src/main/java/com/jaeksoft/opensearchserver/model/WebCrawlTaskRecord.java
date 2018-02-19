@@ -32,14 +32,21 @@ import java.util.UUID;
 		creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeName("web")
+@JsonTypeName(WebCrawlTaskRecord.TYPE)
 public class WebCrawlTaskRecord extends CrawlTaskRecord<WebCrawlDefinition> {
+
+	final static String TYPE = "web";
 
 	@JsonCreator
 	WebCrawlTaskRecord(@JsonProperty("crawlUuid") UUID crawlUuid, @JsonProperty("indexUuid") UUID indexUuid,
 			@JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition,
-			@JsonProperty("creationTime") Long creationTime) {
-		super(crawlUuid, indexUuid, crawlDefinition, creationTime);
+			@JsonProperty("creationTime") Long creationTime, @JsonProperty("status") Status status,
+			@JsonProperty("statusTime") Long statusTime) {
+		super(crawlUuid, indexUuid, crawlDefinition, creationTime, status, statusTime);
+	}
+
+	public String getType() {
+		return TYPE;
 	}
 
 	WebCrawlTaskRecord(final Builder builder) {
@@ -47,7 +54,7 @@ public class WebCrawlTaskRecord extends CrawlTaskRecord<WebCrawlDefinition> {
 	}
 
 	public Builder from() {
-		return new Builder(crawlUuid, indexUuid, crawlDefinition);
+		return new Builder(this);
 	}
 
 	public static Builder of(final WebCrawlRecord record, final UUID indexUuid) {
@@ -55,6 +62,15 @@ public class WebCrawlTaskRecord extends CrawlTaskRecord<WebCrawlDefinition> {
 	}
 
 	public static class Builder extends BaseBuilder<WebCrawlDefinition, WebCrawlTaskRecord, Builder> {
+
+		/**
+		 * Constructor to use when updating a record
+		 *
+		 * @param record
+		 */
+		private Builder(final WebCrawlTaskRecord record) {
+			super(Builder.class, record);
+		}
 
 		private Builder(UUID crawlUuid, UUID indexUuid, WebCrawlDefinition crawlDefinition) {
 			super(Builder.class, crawlUuid, indexUuid, crawlDefinition);

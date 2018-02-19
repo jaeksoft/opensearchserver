@@ -30,8 +30,8 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 	public final D crawlDefinition;
 
 	protected CrawlTaskRecord(final UUID crawlUuid, final UUID indexUuid, final D crawlDefinition,
-			final Long creationTime) {
-		super(taskId(crawlUuid, indexUuid), creationTime);
+			final Long creationTime, final Status status, final Long statusTime) {
+		super(taskId(crawlUuid, indexUuid), creationTime, status, statusTime);
 		this.crawlUuid = crawlUuid;
 		this.indexUuid = indexUuid;
 		this.crawlDefinition = crawlDefinition;
@@ -70,7 +70,29 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 		private final UUID indexUuid;
 		private final D crawlDefinition;
 
-		protected BaseBuilder(Class<B> builderClass, UUID crawlUuid, UUID indexUuid, D crawlDefinition) {
+		/**
+		 * Constructor used to update a task
+		 *
+		 * @param builderClass
+		 * @param crawlTaskRecord
+		 */
+		protected BaseBuilder(final Class<B> builderClass, final CrawlTaskRecord<D> crawlTaskRecord) {
+			super(builderClass, crawlTaskRecord);
+			this.crawlUuid = crawlTaskRecord.crawlUuid;
+			this.indexUuid = crawlTaskRecord.indexUuid;
+			this.crawlDefinition = crawlTaskRecord.crawlDefinition;
+		}
+
+		/**
+		 * Constructor to use for a new task
+		 *
+		 * @param builderClass
+		 * @param crawlUuid
+		 * @param indexUuid
+		 * @param crawlDefinition
+		 */
+		protected BaseBuilder(final Class<B> builderClass, final UUID crawlUuid, final UUID indexUuid,
+				final D crawlDefinition) {
 			super(builderClass, taskId(crawlUuid, indexUuid));
 			this.crawlUuid = crawlUuid;
 			this.indexUuid = indexUuid;

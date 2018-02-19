@@ -34,16 +34,24 @@ import java.util.Objects;
 @JsonSubTypes({ @JsonSubTypes.Type(WebCrawlTaskRecord.class) })
 public abstract class TaskRecord {
 
+	public enum Status {
+		NOT_YET_STARTED, STARTED, ERROR, DONE;
+	}
+
 	public final String taskId;
 	public final Long creationTime;
+	public final Status status;
+	public final Long statusTime;
 
-	protected TaskRecord(final String taskId, final Long creationTime) {
+	protected TaskRecord(final String taskId, final Long creationTime, final Status status, final Long statusTime) {
 		this.taskId = taskId;
 		this.creationTime = creationTime;
+		this.status = status;
+		this.statusTime = statusTime;
 	}
 
 	protected TaskRecord(TaskBuilder builder) {
-		this(builder.taskId, builder.creationTime);
+		this(builder.taskId, builder.creationTime, builder.status, builder.statusTime);
 	}
 
 	public Long getCreationTime() {
@@ -52,6 +60,16 @@ public abstract class TaskRecord {
 
 	public String getTaskId() {
 		return taskId;
+	}
+
+	public abstract String getType();
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public Long getStatusTime() {
+		return statusTime;
 	}
 
 	@Override
@@ -69,15 +87,39 @@ public abstract class TaskRecord {
 		private final Class<B> builderClass;
 
 		private final String taskId;
-		private Long creationTime;
+		private final Long creationTime;
 
+		private Status status;
+		private Long statusTime;
+
+		/**
+		 * Constructor to use when updating TaskRecord
+		 *
+		 * @param taskRecord
+		 */
+		protected TaskBuilder(final Class<B> builderClass, TaskRecord taskRecord) {
+			this.builderClass = builderClass;
+			taskId = taskRecord.getTaskId();
+			creationTime = taskRecord.getCreationTime();
+			status = taskRecord.getStatus();
+			statusTime = taskRecord.getStatusTime();
+		}
+
+		/**
+		 * Constructor to use on a new TaskRecord
+		 *
+		 * @param builderClass
+		 * @param taskId
+		 */
 		protected TaskBuilder(final Class<B> builderClass, final String taskId) {
 			this.builderClass = builderClass;
 			this.taskId = taskId;
+			this.creationTime = System.currentTimeMillis();
 		}
 
-		public B creationTime(final Long creationTime) {
-			this.creationTime = creationTime;
+		public B status(final Status status) {
+			this.status = status;
+			this.statusTime = System.currentTimeMillis();
 			return me();
 		}
 

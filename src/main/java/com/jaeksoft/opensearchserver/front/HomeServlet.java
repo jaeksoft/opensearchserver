@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
+import com.jaeksoft.opensearchserver.Components;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 
 import javax.servlet.ServletException;
@@ -30,8 +31,8 @@ public class HomeServlet extends BaseServlet {
 
 	private final static String TEMPLATE = "home.ftl";
 
-	public HomeServlet(final FreeMarkerTool freemarker) {
-		this.freemarker = freemarker;
+	public HomeServlet(final Components components) {
+		this.freemarker = components.getFreemarkerTool();
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class HomeServlet extends BaseServlet {
 		}
 
 		@Override
-		void doGet() throws IOException, ServletException {
+		protected void doGet() throws IOException, ServletException {
 			doTemplate(TEMPLATE);
 		}
 	}

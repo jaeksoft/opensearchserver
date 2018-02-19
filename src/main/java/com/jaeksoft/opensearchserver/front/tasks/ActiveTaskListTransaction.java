@@ -13,40 +13,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package com.jaeksoft.opensearchserver.front.tasks;
 
-package com.jaeksoft.opensearchserver.front;
-
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.qwazr.utils.StringUtils;
+import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.services.TasksService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class IndexesTransaction extends ServletTransaction {
+public class ActiveTaskListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "indexes.ftl";
+	private final static String TEMPLATE_INDEX = "tasks/active_list.ftl";
 
-	private final IndexesService indexesService;
+	private final TasksService tasksService;
 
-	IndexesTransaction(final IndexServlet indexServlet, final HttpServletRequest request,
+	ActiveTaskListTransaction(final TasksServlet servlet, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(indexServlet.freemarker, request, response);
-		this.indexesService = indexServlet.indexesService;
-	}
-
-	void create() throws IOException, ServletException {
-		final String indexName = request.getParameter("indexName");
-		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(indexName);
-		doGet();
+		super(servlet.freemarker, request, response);
+		tasksService = servlet.tasksService;
 	}
 
 	@Override
-	void doGet() throws IOException, ServletException {
-		request.setAttribute("indexes", indexesService.getIndexes());
-		doTemplate(TEMPLATE);
+	protected void doGet() throws IOException, ServletException {
+		final int start = getRequestParameter("start", 0);
+		final int rows = getRequestParameter("rows", 25);
+		request.setAttribute("tasks", tasksService.getActiveTasks(start, rows));
+		doTemplate(TEMPLATE_INDEX);
 	}
-
 }

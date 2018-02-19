@@ -73,11 +73,12 @@ public class TasksService extends StoreService<TaskRecord> {
 		return rwl.readEx(() -> super.read(ACTIVE_DIRECTORY, taskId));
 	}
 
-	public RecordsResult getActiveTasks(final int start, final int rows) throws IOException {
+	public RecordsResult<TaskRecord> getActiveTasks(final int start, final int rows) throws IOException {
 		return rwl.readEx(() -> super.get(ACTIVE_DIRECTORY, start, rows, null));
 	}
 
-	public RecordsResult getActiveTasks(final int start, final int rows, final UUID crawlUuid) throws IOException {
+	public RecordsResult<TaskRecord> getActiveTasks(final int start, final int rows, final UUID crawlUuid)
+			throws IOException {
 		final String crawlUuidString = crawlUuid.toString();
 		return rwl.readEx(() -> super.get(ACTIVE_DIRECTORY, start, rows, name -> name.startsWith(crawlUuidString)));
 	}
@@ -86,7 +87,7 @@ public class TasksService extends StoreService<TaskRecord> {
 		return rwl.readEx(() -> super.read(ARCHIVE_DIRECTORY, taskId));
 	}
 
-	public RecordsResult getArchivedTasks(final int start, final int rows) throws IOException {
+	public RecordsResult<TaskRecord> getArchivedTasks(final int start, final int rows) throws IOException {
 		return rwl.readEx(() -> super.get(ARCHIVE_DIRECTORY, start, rows, null));
 	}
 

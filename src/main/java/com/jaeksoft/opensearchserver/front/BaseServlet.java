@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-abstract class BaseServlet extends HttpServlet {
+public abstract class BaseServlet extends HttpServlet {
 
 	protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException;

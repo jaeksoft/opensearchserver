@@ -23,6 +23,7 @@ import com.jaeksoft.opensearchserver.services.WebCrawlProcessingService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
+import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.scheduler.SchedulerManager;
 import com.qwazr.scheduler.SchedulerServiceInterface;
 import com.qwazr.scripts.ScriptManager;
@@ -31,6 +32,7 @@ import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.SchemaSettingsDefinition;
 import com.qwazr.store.StoreManager;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.IOUtils;
 import com.qwazr.utils.ObjectMappers;
 import org.quartz.SchedulerException;
@@ -44,8 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-class Components implements Closeable {
+public class Components implements Closeable {
 
 	private final static String DEFAULT_SCHEMA = System.getProperty("OSS_SCHEMA", "opensearchserver");
 
@@ -56,6 +59,8 @@ class Components implements Closeable {
 	private final List<Closeable> closing;
 
 	private volatile ExecutorService executorService;
+
+	private volatile FreeMarkerTool freemarkerTool;
 
 	private volatile ScriptManager scriptManager;
 	private volatile SchedulerManager schedulerManager;
@@ -77,7 +82,7 @@ class Components implements Closeable {
 	private volatile StoreServiceInterface storeService;
 
 	Components(final Path dataDirectory) {
-		closing = new ArrayList<>();
+		this.closing = new ArrayList<>();
 		this.dataDirectory = dataDirectory;
 	}
 
@@ -102,19 +107,33 @@ class Components implements Closeable {
 		return indexManager;
 	}
 
+	public synchronized FreeMarkerTool getFreemarkerTool() {
+		if (freemarkerTool == null) {
+			freemarkerTool = FreeMarkerTool.of()
+					.defaultContentType("text/html")
+					.defaultEncoding("UTF-8")
+					.templateLoader(FreeMarkerTool.Loader.Type.resource,
+							"com/jaeksoft/opensearchserver/front/templates/")
+					.build();
+			freemarkerTool.load();
+			closing.add(freemarkerTool);
+		}
+		return freemarkerTool;
+	}
+
 	private synchronized IndexServiceInterface getIndexService() throws IOException {
 		if (indexService == null)
 			indexService = getIndexManager().getService();
 		return indexService;
 	}
 
-	synchronized IndexesService getIndexesService() throws IOException {
+	public synchronized IndexesService getIndexesService() throws IOException {
 		if (indexesService == null)
 			indexesService = new IndexesService(getIndexService(), DEFAULT_SCHEMA, getSchemaDefinition(DEFAULT_SCHEMA));
 		return indexesService;
 	}
 
-	synchronized WebCrawlsService getWebCrawlsService() throws IOException {
+	public synchronized WebCrawlsService getWebCrawlsService() throws IOException {
 		if (webCrawlsService == null) {
 			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
 			if (!Files.exists(webCrawlsDirectory))
@@ -137,7 +156,7 @@ class Components implements Closeable {
 		return tasksProcessors;
 	}
 
-	synchronized TasksService getTasksService() throws IOException {
+	public synchronized TasksService getTasksService() throws IOException {
 		if (tasksService == null)
 			tasksService = new TasksService(getStoreService(), getAccountSchema(), getProcessors());
 		return tasksService;
@@ -199,14 +218,41 @@ class Components implements Closeable {
 	}
 
 	@Override
-	public void close() {
-		// Close components in reverse order
+	public synchronized void close() {
+
+		// First we shutdown the executorService
+		if (executorService != null)
+			executorService.shutdown();
+
+		// Then we close components in reverse order
 		int i = closing.size();
 		while (i > 0)
 			IOUtils.closeQuietly(closing.get(--i));
+
+		// Let's wait for all threads to be done
 		if (executorService != null) {
-			executorService.shutdown();
+			ExceptionUtils.bypass(() -> executorService.awaitTermination(5, TimeUnit.MINUTES));
 			executorService = null;
 		}
+
+		// Set the singletons back to null
+		scriptManager = null;
+		schedulerManager = null;
+		schedulerServiceInterface = null;
+
+		indexManager = null;
+		indexService = null;
+		indexesService = null;
+
+		webCrawlerManager = null;
+		webCrawlerService = null;
+		webCrawlsService = null;
+
+		tasksService = null;
+		tasksProcessors = null;
+		webCrawlProcessingService = null;
+
+		storeManager = null;
+		storeService = null;
 	}
 }
