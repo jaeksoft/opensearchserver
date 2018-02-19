@@ -19,6 +19,7 @@ import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.SchemaSettingsDefinition;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -62,14 +63,10 @@ public class IndexesService {
 		});
 	}
 
-	public String getIndexName(final UUID indexUuid) {
-		final Map<String, UUID> indexMap = indexService.getIndexes(schemaName);
-		if (indexMap == null)
-			return null;
-		for (Map.Entry<String, UUID> entry : indexMap.entrySet())
-			if (indexUuid.equals(entry.getValue()))
-				return entry.getKey();
-		return null;
+	public Map<UUID, String> getIndexNameResolver() {
+		final Map<UUID, String> indexMap = new HashMap<>();
+		indexService.getIndexes(schemaName).forEach((name, uuid) -> indexMap.put(uuid, name));
+		return indexMap;
 	}
 
 }

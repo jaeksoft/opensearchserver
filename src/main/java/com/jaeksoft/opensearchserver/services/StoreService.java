@@ -31,11 +31,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -48,7 +46,6 @@ public abstract class StoreService<T> {
 	private final String storeSchema;
 	private final String directory;
 	private final Class<T> recordClass;
-	private final RecordsResult<T> empty;
 
 	StoreService(final StoreServiceInterface storeService, final String storeSchema, final String directory,
 			final Class<T> recordClass) {
@@ -56,7 +53,6 @@ public abstract class StoreService<T> {
 		this.storeSchema = storeSchema;
 		this.directory = directory;
 		this.recordClass = recordClass;
-		this.empty = new RecordsResult<>(0, Collections.emptyList());
 	}
 
 	private String getRecordPath(final String subDirectory, final String storeName) {
@@ -122,13 +118,13 @@ public abstract class StoreService<T> {
 	 * @param filter an optional filter
 	 * @return the total number of records found, and the paginated records as a list
 	 */
-	protected RecordsResult<T> get(final String subDirectory, Integer start, Integer rows,
-			final Function<String, Boolean> filter) throws IOException {
+	protected int collect(final String subDirectory, Integer start, Integer rows,
+			final Function<String, Boolean> filter, final Consumer<T> recordsConsumer) throws IOException {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
 			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;
 			if (files == null)
-				return empty;
+				return 0;
 			final Iterator<String> iterator = files.keySet().iterator();
 			int count = 0;
 			if (start != null) {
@@ -140,41 +136,22 @@ public abstract class StoreService<T> {
 					count++;
 				}
 			}
-			final List<T> records = new ArrayList<>();
 			if (rows != null) {
 				while (rows > 0 && iterator.hasNext()) {
 					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
 					if (filter != null && !filter.apply(baseName))
 						continue;
-					records.add(read(subDirectory, baseName));
+					if (recordsConsumer != null)
+						recordsConsumer.accept(read(subDirectory, baseName));
 					rows--;
 					count++;
 				}
 			}
-			return new RecordsResult(count, records);
+			return count;
 		} catch (WebApplicationException e) {
 			if (e.getResponse().getStatus() == 404)
-				return empty;
+				return 0;
 			throw e;
-		}
-	}
-
-	public static class RecordsResult<T> {
-
-		public final int totalCount;
-		public final List<T> records;
-
-		private RecordsResult(final int totalCount, final List<T> crawlRecords) {
-			this.totalCount = totalCount;
-			this.records = crawlRecords == null ? Collections.emptyList() : Collections.unmodifiableList(crawlRecords);
-		}
-
-		public int getTotalCount() {
-			return totalCount;
-		}
-
-		public List<T> getRecords() {
-			return records;
 		}
 	}
 

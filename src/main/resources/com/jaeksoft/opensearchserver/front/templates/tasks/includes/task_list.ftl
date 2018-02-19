@@ -4,6 +4,9 @@
             <tr>
                 <th>Creation time</th>
                 <th>Type</th>
+                <#if crawlResolver??>
+                <th>Crawl</th>
+                </#if>
                 <#if indexResolver??>
                 <th>Index</th>
                 </#if>
@@ -17,9 +20,12 @@
             <tr>
                 <td>${task.creationTime?number_to_datetime}</td>
                 <td>${task.type?capitalize}</td>
-                 <#if indexResolver??>
+                <#if crawlResolver??>
+                <td>${crawlResolver[task.taskId]!}</td>
+                </#if>
+                <#if indexResolver??>
                 <td>${indexResolver[task.taskId]!}</td>
-                 </#if>
+                </#if>
                 <td>${task.status!'Unknown'?capitalize}</td>
                 <td><#if task.statusTime??>${task.statusTime?number_to_datetime}</#if></td>
                 <td align="right">

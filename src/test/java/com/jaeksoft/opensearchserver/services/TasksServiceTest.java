@@ -31,6 +31,8 @@ import org.junit.Test;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class TasksServiceTest extends BaseTest {
@@ -42,16 +44,18 @@ public class TasksServiceTest extends BaseTest {
 		tasksService = getTasksService();
 	}
 
-	private void checkResult(StoreService.RecordsResult results, int expectedResults, TaskRecord... records) {
-		Assert.assertNotNull(results);
-		Assert.assertEquals(expectedResults, results.getTotalCount());
-		Assert.assertEquals(records.length, results.getRecords().size());
+	private void checkResult(int totalCount, List<TaskRecord> records, int expectedResults,
+			TaskRecord... expectedRecords) {
+		Assert.assertNotNull(records);
+		Assert.assertEquals(expectedResults, totalCount);
+		Assert.assertEquals(expectedRecords.length, records.size());
 	}
 
 	@Test
 	public void emptyList() throws IOException {
-		checkResult(tasksService.getActiveTasks(0, 25), 0);
-		checkResult(tasksService.getArchivedTasks(0, 25), 0);
+		List<TaskRecord> records = new ArrayList<>();
+		checkResult(tasksService.collectActiveTasks(0, 25, records::add), records, 0);
+		checkResult(tasksService.getArchivedTasks(0, 25, records::add), records, 0);
 	}
 
 	/**
@@ -83,16 +87,27 @@ public class TasksServiceTest extends BaseTest {
 		// Save as an active task
 		tasksService.saveActiveTask(taskRecord);
 		Assert.assertEquals(taskRecord, tasksService.getActiveTask(taskRecord.getTaskId()));
-		checkResult(tasksService.getActiveTasks(0, 25), 1, taskRecord);
-		checkResult(tasksService.getArchivedTasks(0, 25), 0);
-		checkResult(tasksService.getActiveTasks(0, 25, taskRecord.crawlUuid), 1, taskRecord);
-		checkResult(tasksService.getActiveTasks(0, 25, UUID.randomUUID()), 0);
+
+		final List<TaskRecord> records = new ArrayList<>();
+		checkResult(tasksService.collectActiveTasks(0, 25, records::add), records, 1, taskRecord);
+
+		records.clear();
+		checkResult(tasksService.getArchivedTasks(0, 25, records::add), records, 0);
+
+		records.clear();
+		checkResult(tasksService.collectActiveTasks(0, 25, taskRecord.crawlUuid, records::add), records, 1, taskRecord);
+
+		records.clear();
+		checkResult(tasksService.collectActiveTasks(0, 25, UUID.randomUUID(), records::add), records, 0);
 
 		// Archive Task
 		tasksService.archiveActiveTask(taskRecord.getTaskId());
 		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(taskRecord.getTaskId()));
-		checkResult(tasksService.getActiveTasks(0, 25), 0);
-		checkResult(tasksService.getArchivedTasks(0, 25), 1, taskRecord);
+		records.clear();
+		checkResult(tasksService.collectActiveTasks(0, 25, records::add), records, 0);
+
+		records.clear();
+		checkResult(tasksService.getArchivedTasks(0, 25, records::add), records, 1, taskRecord);
 	}
 
 	@Test(expected = NoContentException.class)

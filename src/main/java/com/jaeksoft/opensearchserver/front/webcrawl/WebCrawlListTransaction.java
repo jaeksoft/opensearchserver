@@ -24,6 +24,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WebCrawlListTransaction extends ServletTransaction {
 
@@ -49,10 +51,14 @@ public class WebCrawlListTransaction extends ServletTransaction {
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final WebCrawlsService.RecordsResult webCrawlsResult =
-				webCrawlsService.get(getRequestParameter("start", 0), 25);
-		request.setAttribute("webCrawlRecords", webCrawlsResult.getRecords());
-		request.setAttribute("totalCount", webCrawlsResult.getTotalCount());
+		final int start = getRequestParameter("start", 0);
+		final int rows = getRequestParameter("rows", 25);
+
+		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
+		final int totalCount = webCrawlsService.collect(start, rows, webCrawlRecords::add);
+
+		request.setAttribute("webCrawlRecords", webCrawlRecords);
+		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

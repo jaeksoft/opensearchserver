@@ -25,6 +25,7 @@ import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class TasksService extends StoreService<TaskRecord> {
 
@@ -73,22 +74,25 @@ public class TasksService extends StoreService<TaskRecord> {
 		return rwl.readEx(() -> super.read(ACTIVE_DIRECTORY, taskId));
 	}
 
-	public RecordsResult<TaskRecord> getActiveTasks(final int start, final int rows) throws IOException {
-		return rwl.readEx(() -> super.get(ACTIVE_DIRECTORY, start, rows, null));
+	public int collectActiveTasks(final int start, final int rows, final Consumer<TaskRecord> recordConsumer)
+			throws IOException {
+		return rwl.readEx(() -> super.collect(ACTIVE_DIRECTORY, start, rows, null, recordConsumer));
 	}
 
-	public RecordsResult<TaskRecord> getActiveTasks(final int start, final int rows, final UUID crawlUuid)
-			throws IOException {
+	public int collectActiveTasks(final int start, final int rows, final UUID crawlUuid,
+			final Consumer<TaskRecord> recordConsumer) throws IOException {
 		final String crawlUuidString = crawlUuid.toString();
-		return rwl.readEx(() -> super.get(ACTIVE_DIRECTORY, start, rows, name -> name.startsWith(crawlUuidString)));
+		return rwl.readEx(() -> super.collect(ACTIVE_DIRECTORY, start, rows, name -> name.startsWith(crawlUuidString),
+				recordConsumer));
 	}
 
 	public TaskRecord getArchivedTask(final String taskId) throws IOException {
 		return rwl.readEx(() -> super.read(ARCHIVE_DIRECTORY, taskId));
 	}
 
-	public RecordsResult<TaskRecord> getArchivedTasks(final int start, final int rows) throws IOException {
-		return rwl.readEx(() -> super.get(ARCHIVE_DIRECTORY, start, rows, null));
+	public int getArchivedTasks(final int start, final int rows, final Consumer<TaskRecord> recordConsumer)
+			throws IOException {
+		return rwl.readEx(() -> super.collect(ARCHIVE_DIRECTORY, start, rows, null, recordConsumer));
 	}
 
 	@Override

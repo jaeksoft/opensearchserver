@@ -21,6 +21,7 @@ import com.qwazr.store.StoreServiceInterface;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 
@@ -43,8 +44,9 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 		return super.read(null, webCrawlUuid.toString());
 	}
 
-	public RecordsResult get(final int start, final int rows) throws IOException {
-		return super.get(null, start, rows, null);
+	public int collect(final int start, final int rows, final Consumer<WebCrawlRecord> recordConsumer)
+			throws IOException {
+		return super.collect(null, start, rows, null, recordConsumer);
 	}
 
 	public void remove(UUID webCrawlUuid) {

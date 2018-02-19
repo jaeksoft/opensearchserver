@@ -16,19 +16,17 @@
 package com.jaeksoft.opensearchserver.front.webcrawl;
 
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.jaeksoft.opensearchserver.front.tasks.TaskResult;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.StoreService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 public class WebCrawlTasksTransaction extends ServletTransaction {
@@ -70,19 +68,14 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		final StoreService.RecordsResult<TaskRecord> tasks =
-				tasksService.getActiveTasks(0, 1000, webCrawlRecord.getUuid());
 
-		final Map<String, String> indexResolver = new HashMap<>();
-		for (TaskRecord task : tasks.records) {
-			final WebCrawlTaskRecord webTask = (WebCrawlTaskRecord) task;
-			final String indexName = indexesService.getIndexName(webTask.indexUuid);
-			if (indexName != null)
-				indexResolver.put(webTask.getTaskId(), indexName);
-		}
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, null);
+		int totalCount = tasksService.collectActiveTasks(0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
+		final List<TaskResult> tasks = resultBuilder.build();
+
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		request.setAttribute("tasks", tasks);
-		request.setAttribute("indexResolver", indexResolver);
+		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("indexes", indexesService.getIndexes());
 		doTemplate(TEMPLATE_INDEX);
 	}

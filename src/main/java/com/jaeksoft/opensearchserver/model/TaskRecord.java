@@ -35,7 +35,7 @@ import java.util.Objects;
 public abstract class TaskRecord {
 
 	public enum Status {
-		NOT_YET_STARTED, STARTED, ERROR, DONE;
+		STARTED, ERROR, DONE, PAUSED
 	}
 
 	public final String taskId;
@@ -72,6 +72,14 @@ public abstract class TaskRecord {
 		return statusTime;
 	}
 
+	public boolean isPausable() {
+		return status == null || status == Status.STARTED;
+	}
+
+	public boolean isStartable() {
+		return status == Status.PAUSED;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if (o == null || !(o instanceof TaskRecord))
@@ -79,7 +87,8 @@ public abstract class TaskRecord {
 		if (o == this)
 			return true;
 		final TaskRecord r = (TaskRecord) o;
-		return Objects.equals(taskId, r.taskId) && Objects.equals(creationTime, r.creationTime);
+		return Objects.equals(taskId, r.taskId) && Objects.equals(creationTime, r.creationTime) &&
+				Objects.equals(status, r.status) && Objects.equals(statusTime, r.statusTime);
 	}
 
 	public static abstract class TaskBuilder<R, B extends TaskBuilder<R, ?>> {

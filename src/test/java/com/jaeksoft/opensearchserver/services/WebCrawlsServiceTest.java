@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WebCrawlsServiceTest extends BaseTest {
 
@@ -34,20 +36,21 @@ public class WebCrawlsServiceTest extends BaseTest {
 		webCrawlsService = getWebCrawlsService();
 	}
 
-	private void checkWebCrawlRecordsResult(WebCrawlsService.RecordsResult result, int expectedTotalCount,
+	private void checkWebCrawlRecordsResult(int totalCount, List<WebCrawlRecord> records, int expectedTotalCount,
 			WebCrawlRecord... expectedRecords) throws IOException {
-		Assert.assertNotNull(result);
-		Assert.assertEquals(expectedTotalCount, result.getTotalCount());
+		Assert.assertEquals(expectedTotalCount, totalCount);
+		Assert.assertEquals(expectedRecords.length, records.size());
 		int i = 0;
 		for (WebCrawlRecord record : expectedRecords) {
-			Assert.assertEquals(record, result.getRecords().get(i++));
+			Assert.assertEquals(record, records.get(i++));
 			Assert.assertEquals(record, webCrawlsService.read(record.getUuid()));
 		}
 	}
 
 	@Test
 	public void getEmptyList() throws IOException {
-		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 0);
+		List<WebCrawlRecord> crawlRecords = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(0, 10, crawlRecords::add), crawlRecords, 0);
 	}
 
 	public static WebCrawlRecord createNewCrawlRecord() {
@@ -61,20 +64,32 @@ public class WebCrawlsServiceTest extends BaseTest {
 		// Save one record
 		final WebCrawlRecord crawlRecord1 = createNewCrawlRecord();
 		webCrawlsService.save(crawlRecord1);
-		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 1, crawlRecord1);
+
+		final List<WebCrawlRecord> crawlRecords = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(0, 10, crawlRecords::add), crawlRecords, 1, crawlRecord1);
 
 		// Save a second new record
+		crawlRecords.clear();
+		;
 		final WebCrawlRecord crawlRecord2 = createNewCrawlRecord();
 		webCrawlsService.save(crawlRecord2);
-		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 2, crawlRecord1, crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(0, 10, crawlRecords::add), crawlRecords, 2, crawlRecord1,
+				crawlRecord2);
+		crawlRecords.clear();
+		;
 
 		// Update the first one
+		crawlRecords.clear();
+		;
 		webCrawlsService.save(crawlRecord1);
-		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 2, crawlRecord1, crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(0, 10, crawlRecords::add), crawlRecords, 2, crawlRecord1,
+				crawlRecord2);
 
 		// Remove the first one
+		crawlRecords.clear();
+		;
 		webCrawlsService.remove(crawlRecord1.getUuid());
-		checkWebCrawlRecordsResult(webCrawlsService.get(0, 10), 1, crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(0, 10, crawlRecords::add), crawlRecords, 1, crawlRecord2);
 	}
 
 }

@@ -26,7 +26,7 @@
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item">Tasks</li>
+            <li class="breadcrumb-item active">Tasks</li>
         </ol>
     </nav>
  <#include '../includes/messages.ftl'>

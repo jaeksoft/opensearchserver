@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.front.BaseServlet;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.StringUtils;
 
@@ -37,11 +38,13 @@ public class TasksServlet extends BaseServlet {
 	final FreeMarkerTool freemarker;
 	final IndexesService indexesService;
 	final TasksService tasksService;
+	final WebCrawlsService webCrawlsService;
 
 	public TasksServlet(final Components components) throws IOException {
 		this.freemarker = components.getFreemarkerTool();
 		this.indexesService = components.getIndexesService();
 		this.tasksService = components.getTasksService();
+		this.webCrawlsService = components.getWebCrawlsService();
 	}
 
 	@Override
