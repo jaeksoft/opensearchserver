@@ -80,6 +80,8 @@ public abstract class TaskRecord {
 		return status == Status.PAUSED;
 	}
 
+	public abstract TaskBuilder<? extends TaskRecord, ? extends TaskBuilder> from();
+
 	@Override
 	public boolean equals(final Object o) {
 		if (o == null || !(o instanceof TaskRecord))

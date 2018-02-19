@@ -16,6 +16,8 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.qwazr.library.freemarker.FreeMarkerTool;
+import com.qwazr.utils.ExceptionUtils;
+import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.StringUtils;
 import freemarker.template.TemplateException;
 
@@ -23,14 +25,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class ServletTransaction {
+
+	private final static Logger LOGGER = LoggerUtils.getLogger(ServletTransaction.class);
 
 	private final FreeMarkerTool freemarker;
 	protected final HttpServletRequest request;
@@ -108,16 +115,17 @@ public abstract class ServletTransaction {
 	 */
 	final void doPost() throws IOException, ServletException {
 		final String action = request.getParameter("action");
-		if (!StringUtils.isBlank(action)) {
-			try {
-				final Method method = getClass().getDeclaredMethod(action);
-				method.invoke(this);
-				return;
-			} catch (ReflectiveOperationException e) {
-				throw new ServletException(e);
-			}
+		if (StringUtils.isBlank(action)) {
+			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+			return;
 		}
-		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+		try {
+			final Method method = getClass().getDeclaredMethod(action);
+			method.invoke(this);
+		} catch (ReflectiveOperationException | WebApplicationException e) {
+			addMessage(e);
+			doGet();
+		}
 	}
 
 	/**
@@ -145,38 +153,13 @@ public abstract class ServletTransaction {
 	 * @param title   the title of the message
 	 * @param message the content of the message
 	 */
-	protected void addMessage(final Css css, final String title, final String message) {
+	protected void addMessage(final Message.Css css, final String title, final String message) {
 		getMessages().add(new Message(css, title, message));
 	}
 
-	public enum Css {
-		success, warning, info, danger;
-	}
-
-	public static class Message {
-
-		private final Css css;
-		private final String title;
-		private final String message;
-
-		Message(final Css css, final String title, final String message) {
-			this.css = css;
-			this.title = title;
-			this.message = message;
-		}
-
-		public String getCss() {
-			return css.name();
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-
+	protected void addMessage(final Exception e) {
+		LOGGER.log(Level.SEVERE, e, e::getMessage);
+		addMessage(Message.Css.danger, "Internal error", ExceptionUtils.getRootCauseMessage(e));
 	}
 
 }

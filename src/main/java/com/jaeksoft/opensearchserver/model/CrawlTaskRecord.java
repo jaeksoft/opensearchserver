@@ -60,9 +60,7 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 		return Objects.equals(crawlUuid, r.crawlUuid) && Objects.equals(indexUuid, r.indexUuid) &&
 				Objects.equals(crawlDefinition, r.crawlDefinition);
 	}
-
-	public abstract BaseBuilder<D, ?, ?> from();
-
+	
 	public static abstract class BaseBuilder<D extends CrawlDefinition, R extends CrawlTaskRecord, B extends BaseBuilder<D, R, B>>
 			extends TaskBuilder<R, B> {
 

@@ -33,7 +33,7 @@ public interface ProcessingService<T extends TaskRecord, S> {
 	}
 
 	static NotSupportedException notSupportedException(String taskId) {
-		return new NotSupportedException("No executor available for this task: " + taskId);
+		return new NotSupportedException("Action not supported for this task: " + taskId);
 	}
 
 	/**
@@ -50,6 +50,10 @@ public interface ProcessingService<T extends TaskRecord, S> {
 	}
 
 	default S getStatus(final String taskId) {
+		throw notSupportedException(taskId);
+	}
+
+	default void abort(final String taskId) {
 		throw notSupportedException(taskId);
 	}
 

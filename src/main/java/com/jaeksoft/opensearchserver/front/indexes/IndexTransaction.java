@@ -16,6 +16,7 @@
 
 package com.jaeksoft.opensearchserver.front.indexes;
 
+import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.search.index.IndexStatus;
@@ -45,11 +46,11 @@ public class IndexTransaction extends ServletTransaction {
 		if (!StringUtils.isBlank(indexName)) {
 			if (indexName.equals(this.indexName)) {
 				indexesService.deleteIndex(indexName);
-				addMessage(ServletTransaction.Css.info, null, "Index \"" + indexName + "\" deleted");
+				addMessage(Message.Css.info, null, "Index \"" + indexName + "\" deleted");
 				response.sendRedirect("/");
 				return;
 			} else
-				addMessage(ServletTransaction.Css.warning, null, "Please confirm the name of the index to delete");
+				addMessage(Message.Css.warning, null, "Please confirm the name of the index to delete");
 		}
 		doGet();
 	}

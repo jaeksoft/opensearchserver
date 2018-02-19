@@ -21,7 +21,10 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.crawler.common.CrawlDefinition;
 import com.qwazr.crawler.common.CrawlStatus;
 import com.qwazr.crawler.common.CrawlerServiceInterface;
+import com.qwazr.server.ServerException;
 import com.qwazr.server.client.ErrorWrapper;
+
+import javax.ws.rs.WebApplicationException;
 
 public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extends CrawlDefinition, S extends CrawlStatus<D>>
 		implements ProcessingService<T, S> {
@@ -44,6 +47,21 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 	final public boolean isRunning(final String taskId) {
 		final S crawlStatus = getStatus(taskId);
 		return crawlStatus != null && crawlStatus.endTime != null;
+	}
+
+	@Override
+	public void abort(final String taskId) {
+		try {
+			crawlerService.abortSession(taskId, "User request");
+		} catch (WebApplicationException e) {
+			if (e.getResponse().getStatus() == 404)
+				return;
+			throw e;
+		} catch (ServerException e) {
+			if (e.getStatusCode() == 404)
+				return;
+			throw e;
+		}
 	}
 
 	protected abstract D getNewCrawlDefinition(final T taskRecord);

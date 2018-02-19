@@ -29,21 +29,38 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 	private final static String TEMPLATE_INDEX = "tasks/active_status.ftl";
 
 	private final TasksService tasksService;
-	private final TaskRecord taskRecord;
+	private final String taskId;
 
 	ActiveTaskStatusTransaction(final TasksServlet servlet, final String taskId, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException {
+			final HttpServletResponse response) {
 		super(servlet.freemarker, request, response);
 		tasksService = servlet.tasksService;
-		taskRecord = tasksService.getActiveTask(taskId);
+		this.taskId = taskId;
+	}
+
+	private TaskRecord checkTaskRecord() throws IOException {
+		final TaskRecord taskRecord = tasksService.getActiveTask(taskId);
+		if (taskRecord != null)
+			return taskRecord;
+		response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		return null;
+	}
+
+	public void pause() throws IOException, ServletException {
+		tasksService.pause(taskId);
+		doGet();
+	}
+
+	public void start() throws IOException, ServletException {
+		tasksService.start(taskId);
+		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		if (taskRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		final TaskRecord taskRecord = checkTaskRecord();
+		if (taskRecord == null)
 			return;
-		}
 		request.setAttribute("task", taskRecord);
 		doTemplate(TEMPLATE_INDEX);
 	}

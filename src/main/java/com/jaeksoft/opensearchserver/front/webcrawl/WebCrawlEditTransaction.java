@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver.front.webcrawl;
 
+import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
@@ -48,11 +49,11 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
 			webCrawlsService.remove(webCrawlRecord.getUuid());
-			addMessage(Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
+			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
 			response.sendRedirect(CrawlerWebServlet.PATH);
 			return;
 		} else
-			addMessage(ServletTransaction.Css.warning, null, "Please confirm the name of the crawl to delete");
+			addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
 		doGet();
 	}
 

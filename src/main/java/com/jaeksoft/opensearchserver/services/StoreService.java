@@ -163,4 +163,5 @@ public abstract class StoreService<T> {
 	protected void remove(final String subDirectory, final String storeName) {
 		storeService.deleteFile(storeSchema, getRecordPath(subDirectory, storeName));
 	}
+
 }

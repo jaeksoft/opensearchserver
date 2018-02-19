@@ -41,7 +41,7 @@ public class ActiveTaskListTransaction extends ServletTransaction {
 		indexesService = servlet.indexesService;
 		webCrawlsService = servlet.webCrawlsService;
 	}
-
+	
 	@Override
 	protected void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0);

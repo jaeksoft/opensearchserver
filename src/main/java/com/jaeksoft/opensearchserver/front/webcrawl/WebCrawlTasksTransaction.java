@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver.front.webcrawl;
 
+import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.front.tasks.TaskResult;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
@@ -54,10 +55,11 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 		final UUID indexUuid = UUID.fromString(indexesService.getIndex(index).getIndexStatus().index_uuid);
 		final WebCrawlTaskRecord record = WebCrawlTaskRecord.of(webCrawlRecord, indexUuid).build();
 		if (tasksService.getActiveTask(record.getTaskId()) != null) {
-			addMessage(Css.warning, "Web crawl already started", "This Web crawl has already been started on " + index);
+			addMessage(Message.Css.warning, "Web crawl already started",
+					"This Web crawl has already been started on " + index);
 		} else {
 			tasksService.saveActiveTask(record);
-			addMessage(Css.success, "Web crawl started", "The Web crawl has been started on " + index);
+			addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
 		}
 		doGet();
 	}

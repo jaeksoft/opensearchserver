@@ -20,7 +20,9 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.concurrent.ReadWriteLock;
 
+import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
 import java.util.Map;
@@ -44,7 +46,7 @@ public class TasksService extends StoreService<TaskRecord> {
 		this.tasksProcessors = tasksProcessors;
 	}
 
-	private ProcessingService<?, ?> getTasksExecutor(final TaskRecord taskRecord) {
+	private ProcessingService<?, ?> getTasksProcessor(final TaskRecord taskRecord) {
 		return tasksProcessors.getOrDefault(taskRecord.getClass(), ProcessingService.DEFAULT);
 	}
 
@@ -53,7 +55,7 @@ public class TasksService extends StoreService<TaskRecord> {
 			if (super.read(ARCHIVE_DIRECTORY, taskRecord.getTaskId()) != null)
 				throw new NotAllowedException("The task has already been archived");
 			super.save(ACTIVE_DIRECTORY, taskRecord);
-			getTasksExecutor(taskRecord).checkIsRunning(taskRecord);
+			getTasksProcessor(taskRecord).checkIsRunning(taskRecord);
 		});
 	}
 
@@ -62,7 +64,7 @@ public class TasksService extends StoreService<TaskRecord> {
 			final TaskRecord taskRecord = super.read(ACTIVE_DIRECTORY, taskId);
 			if (taskRecord == null)
 				throw new NoContentException("Task not found");
-			if (getTasksExecutor(taskRecord).isRunning(taskId))
+			if (getTasksProcessor(taskRecord).isRunning(taskId))
 				throw new NotAllowedException(
 						"Can't archive the task because it is running. It should be stopped first.");
 			super.save(ARCHIVE_DIRECTORY, taskRecord);
@@ -100,4 +102,27 @@ public class TasksService extends StoreService<TaskRecord> {
 		return record.getTaskId();
 	}
 
+	private TaskRecord checkExistingTaskRecord(final String taskId) throws IOException {
+		final TaskRecord taskRecord = getActiveTask(taskId);
+		if (taskRecord != null)
+			return taskRecord;
+		throw new NotFoundException("Task not found: " + taskId);
+	}
+
+	public void pause(final String taskId) throws IOException {
+		final TaskRecord taskRecord = checkExistingTaskRecord(taskId);
+		if (!taskRecord.isPausable())
+			throw new NotAcceptableException("This task cannot be paused: " + taskId);
+		getTasksProcessor(taskRecord).abort(taskId);
+		saveActiveTask(taskRecord.from().status(TaskRecord.Status.PAUSED).build());
+	}
+
+	public void start(final String taskId) throws IOException {
+		final TaskRecord taskRecord = checkExistingTaskRecord(taskId);
+		if (!taskRecord.isStartable())
+			throw new NotAcceptableException("This task cannot be started: " + taskId);
+		final TaskRecord newTaskRecord = taskRecord.from().status(TaskRecord.Status.STARTED).build();
+		saveActiveTask(newTaskRecord);
+		getTasksProcessor(taskRecord).checkIsRunning(newTaskRecord);
+	}
 }
