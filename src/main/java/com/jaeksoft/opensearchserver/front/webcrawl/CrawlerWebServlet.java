@@ -33,7 +33,7 @@ import java.util.UUID;
 @WebServlet(CrawlerWebServlet.PATH + "/*")
 public class CrawlerWebServlet extends BaseServlet {
 
-	final static String PATH = "/crawlers/web";
+	public final static String PATH = "/crawlers/web";
 
 	final static String TASKS = "tasks";
 

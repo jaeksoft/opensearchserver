@@ -1,35 +1,33 @@
-<#if tasks.records?has_content>
+<#if tasks?has_content>
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
                 <th>Creation time</th>
+                <#if show_crawl>
                 <th>Type</th>
-                <#if crawlResolver??>
                 <th>Crawl</th>
                 </#if>
-                <#if indexResolver??>
                 <th>Index</th>
-                </#if>
                 <th>Status</th>
                 <th>Status time</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <#list tasks.records as task>
+            <#list tasks as task>
             <tr>
-                <td>${task.creationTime?number_to_datetime}</td>
-                <td>${task.type?capitalize}</td>
-                <#if crawlResolver??>
-                <td>${crawlResolver[task.taskId]!}</td>
+                <td>${task.record.creationTime?number_to_datetime}</td>
+                <#if show_crawl>
+                <td>${task.record.type?capitalize}</td>
+                <td><#if task.crawlName??>
+                    <a href="${task.crawlPath!'#'}">${task.crawlName}</a></#if>
+                </td>
                 </#if>
-                <#if indexResolver??>
-                <td>${indexResolver[task.taskId]!}</td>
-                </#if>
-                <td>${task.status!'Unknown'?capitalize}</td>
-                <td><#if task.statusTime??>${task.statusTime?number_to_datetime}</#if></td>
+                <td><#if task.indexName??><a href="${task.indexPath!'#'}">${task.indexName}</a></#if></td>
+                <td>${task.record.status!'Unknown'?capitalize}</td>
+                <td><#if task.record.statusTime??>${task.record.statusTime?number_to_datetime}</#if></td>
                 <td align="right">
-                    <a href="/tasks/${task.taskId?html}"
+                    <a href="/tasks/${task.record.taskId?html}"
                        class=" btn btn-sm btn-info">Info</a>
                 </td>
             </tr>

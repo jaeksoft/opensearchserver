@@ -27,8 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/indexes/*")
+@WebServlet(IndexServlet.PATH + "/*")
 public class IndexServlet extends BaseServlet {
+
+	public final static String PATH = "/indexes";
 
 	final FreeMarkerTool freemarker;
 	final IndexesService indexesService;

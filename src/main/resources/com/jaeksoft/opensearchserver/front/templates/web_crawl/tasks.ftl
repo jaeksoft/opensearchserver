@@ -38,11 +38,12 @@
         </ol>
     </nav>
  <#include '../includes/messages.ftl'>
-    <#if tasks.records?has_content>
+    <#if tasks?has_content>
      <div class="card">
          <div class="card-body">
              <h5 class="card-title">Active tasks</h5>
-            <#include '../tasks/includes/task_list.ftl'>
+             <#assign show_crawl = false>
+             <#include '../tasks/includes/task_list.ftl'>
          </div>
      </div>
     <br/>

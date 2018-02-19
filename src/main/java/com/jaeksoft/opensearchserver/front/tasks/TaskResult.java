@@ -16,6 +16,8 @@
 
 package com.jaeksoft.opensearchserver.front.tasks;
 
+import com.jaeksoft.opensearchserver.front.indexes.IndexServlet;
+import com.jaeksoft.opensearchserver.front.webcrawl.CrawlerWebServlet;
 import com.jaeksoft.opensearchserver.model.CrawlTaskRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
@@ -23,26 +25,54 @@ import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.utils.ExceptionUtils;
+import com.qwazr.utils.LinkUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.UUID;
 
 public class TaskResult {
 
-	private final TaskRecord task;
+	private final TaskRecord taskRecord;
 
 	private final String indexName;
 
+	private final String indexPath;
+
 	private final String crawlName;
 
-	private TaskResult(final TaskRecord task, final String indexName, final String crawlName) {
-		this.task = task;
+	private final String crawlPath;
+
+	private TaskResult(final TaskRecord taskRecord, final String indexName, final String indexPath,
+			final String crawlName, final String crawlPath) {
+		this.taskRecord = taskRecord;
+		this.indexPath = indexPath;
 		this.indexName = indexName;
 		this.crawlName = crawlName;
+		this.crawlPath = crawlPath;
+	}
+
+	public String getIndexName() {
+		return indexName;
+	}
+
+	public String getIndexPath() {
+		return indexPath;
+	}
+
+	public String getCrawlName() {
+		return crawlName;
+	}
+
+	public String getCrawlPath() {
+		return crawlPath;
+	}
+
+	public TaskRecord getRecord() {
+		return taskRecord;
 	}
 
 	public static Builder of(final IndexesService indexesService, final WebCrawlsService webCrawlsService) {
@@ -72,21 +102,28 @@ public class TaskResult {
 			if (results == null)
 				results = new ArrayList<>();
 			String indexName = null;
+			String indexPath = null;
 			String crawlName = null;
+			String crawlPath = null;
 			if (taskRecord instanceof CrawlTaskRecord) {
 				final CrawlTaskRecord crawlTask = (CrawlTaskRecord) taskRecord;
 				indexName = indexNameResolver.get(crawlTask.indexUuid);
+				if (indexName == null)
+					indexName = crawlTask.indexUuid.toString();
+				else
+					indexPath = IndexServlet.PATH + '/' + LinkUtils.urlEncode(indexName);
 				if (taskRecord instanceof WebCrawlTaskRecord) {
 					if (webCrawlsService != null && crawlResolver != null) {
 						crawlName = crawlResolver.computeIfAbsent(taskRecord.taskId, taskId -> {
 							final WebCrawlRecord webCrawlRecord =
 									ExceptionUtils.bypass(() -> webCrawlsService.read(crawlTask.crawlUuid));
-							return webCrawlRecord == null ? null : webCrawlRecord.getName();
+							return webCrawlRecord == null ? crawlTask.crawlUuid.toString() : webCrawlRecord.getName();
 						});
+						crawlPath = CrawlerWebServlet.PATH + '/' + crawlTask.crawlUuid.toString();
 					}
 				}
 			}
-			results.add(new TaskResult(taskRecord, indexName, crawlName));
+			results.add(new TaskResult(taskRecord, indexName, indexPath, crawlName, crawlPath));
 		}
 
 		public List<TaskResult> build() {

@@ -35,7 +35,8 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Active tasks</h5>
-<#include 'includes/task_list.ftl'>
+                <#assign show_crawl = true>
+        <#include 'includes/task_list.ftl'>
         </div>
     </div>
 </div>
