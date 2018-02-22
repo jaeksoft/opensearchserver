@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver;
 
+import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.ProcessingService;
@@ -50,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Components implements Closeable {
 
-	private final static String DEFAULT_SCHEMA = System.getProperty("OSS_SCHEMA", "opensearchserver");
+	public final static String DEFAULT_SCHEMA = System.getProperty("OSS_SCHEMA", "opensearchserver");
 
 	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
 
@@ -84,6 +85,7 @@ public class Components implements Closeable {
 	Components(final Path dataDirectory) {
 		this.closing = new ArrayList<>();
 		this.dataDirectory = dataDirectory;
+		CrawlerComponents.setLocalComponents(this);
 	}
 
 	private synchronized String getAccountSchema() {

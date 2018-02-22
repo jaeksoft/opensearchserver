@@ -16,6 +16,8 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
@@ -35,8 +37,24 @@ public class WebCrawlProcessingService
 
 	@Override
 	protected WebCrawlDefinition getNewCrawlDefinition(final WebCrawlTaskRecord taskRecord) {
-		//TODO
-		System.out.println("TOTO GetWebCrawlDefinition WEB " + taskRecord.getTaskId());
-		return null;
+
+		final WebCrawlDefinition.Builder crawlBuilder = WebCrawlDefinition.of(taskRecord.crawlDefinition);
+
+		final String indexName = indexesService.getIndexNameResolver().get(taskRecord.indexUuid);
+		final IndexService indexService = indexesService.getIndex(indexName);
+
+		final int count = indexService.fillUnknownUrls(100, taskRecord.crawlUuid, crawlBuilder);
+		if (count == 0)
+			crawlBuilder.addUrl(taskRecord.crawlDefinition.entryUrl, 0);
+
+		if (taskRecord.crawlDefinition.crawlWaitMs == null)
+			crawlBuilder.setCrawlWaitMs(1000);
+		else if (taskRecord.crawlDefinition.crawlWaitMs < 1000)
+			crawlBuilder.setCrawlWaitMs(1000);
+		else if (taskRecord.crawlDefinition.crawlWaitMs > 60000)
+			crawlBuilder.setCrawlWaitMs(60000);
+
+		return CrawlerComponents.buildCrawl(Components.DEFAULT_SCHEMA, indexName, taskRecord.crawlUuid, null, null,
+				crawlBuilder);
 	}
 }

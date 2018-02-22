@@ -43,7 +43,7 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 	public WebCrawlRecord read(final UUID webCrawlUuid) throws IOException {
 		return super.read(null, webCrawlUuid.toString());
 	}
-
+	
 	public int collect(final int start, final int rows, final Consumer<WebCrawlRecord> recordConsumer)
 			throws IOException {
 		return super.collect(null, start, rows, null, recordConsumer);

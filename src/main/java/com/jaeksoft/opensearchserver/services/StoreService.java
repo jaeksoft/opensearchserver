@@ -111,7 +111,7 @@ public abstract class StoreService<T> {
 	}
 
 	/**
-	 * Read the web crawl list with paging parameters
+	 * Read the record list with paging parameters
 	 *
 	 * @param start  pagination start (can be null)
 	 * @param rows   pagination end (can be null)

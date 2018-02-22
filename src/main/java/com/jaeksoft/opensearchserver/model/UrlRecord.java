@@ -203,14 +203,14 @@ public class UrlRecord {
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField)
 	final public String httpContentEncoding;
 
+	@IndexField(template = FieldDefinition.Template.SortedLongDocValuesField)
+	final public Long lastModificationTime;
+
 	@IndexField(template = FieldDefinition.Template.SortedDocValuesField)
 	final public String storeUuid;
 
 	@IndexField(template = FieldDefinition.Template.StringField)
 	final public String crawlUuid;
-
-	@IndexField(template = FieldDefinition.Template.StringField)
-	final public String taskUuid;
 
 	UrlRecord() {
 		url = null;
@@ -239,13 +239,17 @@ public class UrlRecord {
 		httpStatus = null;
 		httpContentType = null;
 		httpContentEncoding = null;
+		lastModificationTime = null;
 		storeUuid = null;
 		crawlUuid = null;
-		taskUuid = null;
 	}
 
 	public String getUrl() {
 		return url;
+	}
+
+	public Long getLastModificationTime() {
+		return lastModificationTime;
 	}
 
 	public String getReducedUrl() {
@@ -258,10 +262,6 @@ public class UrlRecord {
 
 	public UUID getCrawlUuid() {
 		return StringUtils.isBlank(crawlUuid) ? null : HashUtils.fromBase64(crawlUuid);
-	}
-
-	public UUID getTaskUuid() {
-		return StringUtils.isBlank(taskUuid) ? null : HashUtils.fromBase64(taskUuid);
 	}
 
 	UrlRecord(UrlRecordBuilder<?, ?> builder) {
@@ -312,9 +312,10 @@ public class UrlRecord {
 		this.httpContentType = builder.httpContentType;
 		this.httpContentEncoding = builder.httpContentEncoding;
 
+		this.lastModificationTime = builder.lastModificationTime;
+
 		this.storeUuid = builder.storeUuid == null ? null : HashUtils.toBase64(builder.storeUuid);
 		this.crawlUuid = builder.crawlUuid == null ? null : HashUtils.toBase64(builder.crawlUuid);
-		this.taskUuid = builder.taskUuid == null ? null : HashUtils.toBase64(builder.taskUuid);
 	}
 
 	public static class Builder extends UrlRecordBuilder<UrlRecord, Builder> {
@@ -329,7 +330,7 @@ public class UrlRecord {
 		}
 	}
 
-	public Builder of(final URI url) {
+	public static Builder of(final URI url) {
 		return new Builder(url);
 	}
 }

@@ -55,9 +55,10 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	Integer httpStatus;
 	String httpContentType;
 	String httpContentEncoding;
+	Long lastModificationTime;
 	UUID storeUuid;
 	UUID crawlUuid;
-	UUID taskUuid;
+	String taskId;
 
 	UrlRecordBuilder(final Class<T> builderClass, final URI url, final String host) {
 		this.builderClass = builderClass;
@@ -250,6 +251,11 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 		return me();
 	}
 
+	public T lastModificationTime(final Long lastModificationTime) {
+		this.lastModificationTime = lastModificationTime;
+		return me();
+	}
+
 	public T storeUuid(final UUID storeUuid) {
 		this.storeUuid = storeUuid;
 		return me();
@@ -260,8 +266,8 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 		return me();
 	}
 
-	public T taskUuid(final UUID taskUuid) {
-		this.taskUuid = taskUuid;
+	public T taskId(final String taskId) {
+		this.taskId = taskId;
 		return me();
 	}
 
