@@ -43,7 +43,8 @@ public class WebCrawlProcessingService
 		final String indexName = indexesService.getIndexNameResolver().get(taskRecord.indexUuid);
 		final IndexService indexService = indexesService.getIndex(indexName);
 
-		final int count = indexService.fillUnknownUrls(100, taskRecord.crawlUuid, crawlBuilder);
+		final int count =
+				indexService.fillUnknownUrls(100, taskRecord.crawlUuid, taskRecord.creationTime, crawlBuilder);
 		if (count == 0)
 			crawlBuilder.addUrl(taskRecord.crawlDefinition.entryUrl, 0);
 
@@ -54,7 +55,7 @@ public class WebCrawlProcessingService
 		else if (taskRecord.crawlDefinition.crawlWaitMs > 60000)
 			crawlBuilder.setCrawlWaitMs(60000);
 
-		return CrawlerComponents.buildCrawl(Components.DEFAULT_SCHEMA, indexName, taskRecord.crawlUuid, null, null,
-				crawlBuilder);
+		return CrawlerComponents.buildCrawl(Components.DEFAULT_SCHEMA, indexName, taskRecord.crawlUuid,
+				taskRecord.creationTime, null, null, crawlBuilder);
 	}
 }

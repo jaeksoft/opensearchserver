@@ -25,6 +25,7 @@ import com.qwazr.server.ServerException;
 import com.qwazr.server.client.ErrorWrapper;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extends CrawlDefinition, S extends CrawlStatus<D>>
 		implements ProcessingService<T, S> {
@@ -46,7 +47,7 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 	@Override
 	final public boolean isRunning(final String taskId) {
 		final S crawlStatus = getStatus(taskId);
-		return crawlStatus != null && crawlStatus.endTime != null;
+		return crawlStatus != null && crawlStatus.endTime == null;
 	}
 
 	@Override
@@ -73,6 +74,11 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 		final D crawlDefinition = getNewCrawlDefinition(getTaskRecordClass().cast(taskRecord));
 		if (crawlDefinition == null) // Nothing to do
 			return;
-		crawlerService.runSession(taskRecord.getTaskId(), crawlDefinition);
+		try {
+			crawlerService.runSession(taskRecord.getTaskId(), crawlDefinition);
+		} catch (WebApplicationException e) {
+			if (e.getResponse().getStatus() != Response.Status.CONFLICT.getStatusCode())
+				throw e;
+		}
 	}
 }

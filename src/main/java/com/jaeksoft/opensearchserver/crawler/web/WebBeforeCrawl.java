@@ -14,33 +14,32 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.crawler;
+package com.jaeksoft.opensearchserver.crawler.web;
 
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 
-public class GenericBeforeCrawl extends AbstractEvent {
+import java.net.URI;
+
+public class WebBeforeCrawl extends WebAbstractEvent {
 
 	@Override
 	public boolean run(final EventContext context) throws Exception {
 
-		final String url = context.currentURI.getUri().toString();
+		final URI uri = context.currentCrawl.getUri();
+		final String url = uri.toString();
 
 		//Do we already have a status for this URL ?
 		final UrlRecord urlRecord = context.indexService.getDocument(url);
 		// Already known, we do not crawl
-		if (urlRecord != null && urlRecord.httpStatus != null && context.crawlUuid.equals(urlRecord.crawlUuid))
+		if (urlRecord != null && urlRecord.httpStatus != null && context.crawlUuid.equals(urlRecord.getCrawlUuid()))
 			return false;
 
-		context.currentSession.setVariable(URLRECORD_BUILDER, UrlRecord.of(context.currentURI.getUri())
-				.crawlUuid(context.crawlUuid)
-				.depth(context.currentURI.getDepth()));
-
 		// If there is exclusions and if any exclusion matched we do not crawl
-		if (context.currentURI.isInExclusion() != null && context.currentURI.isInExclusion())
+		if (context.currentCrawl.isInExclusion() != null && context.currentCrawl.isInExclusion())
 			return false;
 
 		// If there is inclusions and if no inclusion matches we do not crawl
-		if (context.currentURI.isInInclusion() != null && !context.currentURI.isInInclusion())
+		if (context.currentCrawl.isInInclusion() != null && !context.currentCrawl.isInInclusion())
 			return false;
 
 		return true;

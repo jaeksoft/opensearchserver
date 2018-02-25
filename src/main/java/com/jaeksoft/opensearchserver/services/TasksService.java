@@ -55,7 +55,8 @@ public class TasksService extends StoreService<TaskRecord> {
 			if (super.read(ARCHIVE_DIRECTORY, taskRecord.getTaskId()) != null)
 				throw new NotAllowedException("The task has already been archived");
 			super.save(ACTIVE_DIRECTORY, taskRecord);
-			getTasksProcessor(taskRecord).checkIsRunning(taskRecord);
+			if (taskRecord.getStatus() != TaskRecord.Status.PAUSED)
+				getTasksProcessor(taskRecord).checkIsRunning(taskRecord);
 		});
 	}
 

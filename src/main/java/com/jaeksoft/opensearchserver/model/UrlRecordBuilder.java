@@ -31,7 +31,9 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	private final Class<T> builderClass;
 
 	final URI url;
-	final String host;
+
+	String urlStore;
+	String host;
 
 	String title;
 	String titleEn;
@@ -58,16 +60,23 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	Long lastModificationTime;
 	UUID storeUuid;
 	UUID crawlUuid;
-	String taskId;
+	Long taskCreationTime;
+	Integer crawlStatus;
 
-	UrlRecordBuilder(final Class<T> builderClass, final URI url, final String host) {
+	UrlRecordBuilder(final Class<T> builderClass, final URI url) {
 		this.builderClass = builderClass;
 		this.url = url;
-		this.host = host;
+
 	}
 
 	T me() {
 		return builderClass.cast(this);
+	}
+
+	public T hostAndUrlStore(String host) {
+		this.host = host;
+		this.urlStore = url.toString();
+		return me();
 	}
 
 	public T title(String title, final Language language) {
@@ -266,8 +275,13 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 		return me();
 	}
 
-	public T taskId(final String taskId) {
-		this.taskId = taskId;
+	public T taskCreationTime(final Long taskCreationTime) {
+		this.taskCreationTime = taskCreationTime;
+		return me();
+	}
+
+	public T crawlStatus(final Integer crawlStatus) {
+		this.crawlStatus = crawlStatus;
 		return me();
 	}
 

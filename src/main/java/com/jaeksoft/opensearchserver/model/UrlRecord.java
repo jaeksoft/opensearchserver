@@ -36,9 +36,12 @@ import java.util.UUID;
 @Index(schema = "", name = "")
 public class UrlRecord {
 
-	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField, stored = true)
-	@Copy(to = { @Copy.To(order = 0, field = "full"), @Copy.To(order = 0, field = "urlLike") })
+	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)
 	final public String url;
+
+	@IndexField(template = FieldDefinition.Template.StoredField)
+	@Copy(to = { @Copy.To(order = 0, field = "full"), @Copy.To(order = 0, field = "urlLike") })
+	final public String urlStore;
 
 	@IndexField(template = FieldDefinition.Template.StringField)
 	final public String lang;
@@ -55,7 +58,7 @@ public class UrlRecord {
 	@IndexField(template = FieldDefinition.Template.SortedIntDocValuesField)
 	final public Integer backlinks;
 
-	@IndexField(template = FieldDefinition.Template.SortedIntDocValuesField)
+	@IndexField(template = FieldDefinition.Template.IntDocValuesField)
 	final public Integer depth;
 
 	@IndexField(template = FieldDefinition.Template.TextField,
@@ -195,7 +198,7 @@ public class UrlRecord {
 	final public Set<String> links;
 
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField)
-	final public Integer httpStatus;
+	final public String httpStatus;
 
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField)
 	final public String httpContentType;
@@ -209,11 +212,21 @@ public class UrlRecord {
 	@IndexField(template = FieldDefinition.Template.SortedDocValuesField)
 	final public String storeUuid;
 
-	@IndexField(template = FieldDefinition.Template.StringField)
-	final public String crawlUuid;
+	@IndexField(template = FieldDefinition.Template.LongDocValuesField)
+	final public Long crawlUuidMost;
 
-	UrlRecord() {
+	@IndexField(template = FieldDefinition.Template.LongDocValuesField)
+	final public Long crawlUuidLeast;
+
+	@IndexField(template = FieldDefinition.Template.LongDocValuesField)
+	final public Long taskCreationTime;
+
+	@IndexField(template = FieldDefinition.Template.IntDocValuesField)
+	final public Integer crawlStatus;
+
+	public UrlRecord() {
 		url = null;
+		urlStore = null;
 		host = null;
 		subHosts = null;
 		registrySuffix = null;
@@ -241,11 +254,14 @@ public class UrlRecord {
 		httpContentEncoding = null;
 		lastModificationTime = null;
 		storeUuid = null;
-		crawlUuid = null;
+		crawlUuidMost = null;
+		crawlUuidLeast = null;
+		taskCreationTime = null;
+		crawlStatus = null;
 	}
 
 	public String getUrl() {
-		return url;
+		return urlStore;
 	}
 
 	public Long getLastModificationTime() {
@@ -253,7 +269,7 @@ public class UrlRecord {
 	}
 
 	public String getReducedUrl() {
-		return LinkUtils.urlHostPathWrapReduce(url, 70);
+		return LinkUtils.urlHostPathWrapReduce(urlStore, 70);
 	}
 
 	public UUID getStoreUuid() {
@@ -261,12 +277,13 @@ public class UrlRecord {
 	}
 
 	public UUID getCrawlUuid() {
-		return StringUtils.isBlank(crawlUuid) ? null : HashUtils.fromBase64(crawlUuid);
+		return crawlUuidMost == null || crawlUuidLeast == null ? null : new UUID(crawlUuidMost, crawlUuidLeast);
 	}
 
 	UrlRecord(UrlRecordBuilder<?, ?> builder) {
 		this.url = builder.url.toString();
-		this.host = builder.host == null ? builder.url.getHost() : builder.host;
+		this.urlStore = builder.urlStore;
+		this.host = builder.host;
 
 		if (this.host != null) {
 			final InternetDomainName registrySuffix = InternetDomainName.from(this.host).registrySuffix();
@@ -308,20 +325,28 @@ public class UrlRecord {
 		this.depth = builder.depth;
 		this.links = builder.links;
 
-		this.httpStatus = builder.httpStatus;
+		this.httpStatus = builder.httpStatus == null ? null : builder.httpStatus.toString();
 		this.httpContentType = builder.httpContentType;
 		this.httpContentEncoding = builder.httpContentEncoding;
 
 		this.lastModificationTime = builder.lastModificationTime;
 
 		this.storeUuid = builder.storeUuid == null ? null : HashUtils.toBase64(builder.storeUuid);
-		this.crawlUuid = builder.crawlUuid == null ? null : HashUtils.toBase64(builder.crawlUuid);
+		if (builder.crawlUuid == null) {
+			this.crawlUuidMost = null;
+			this.crawlUuidLeast = null;
+		} else {
+			this.crawlUuidMost = builder.crawlUuid.getMostSignificantBits();
+			this.crawlUuidLeast = builder.crawlUuid.getLeastSignificantBits();
+		}
+		this.taskCreationTime = builder.taskCreationTime;
+		this.crawlStatus = builder.crawlStatus;
 	}
 
 	public static class Builder extends UrlRecordBuilder<UrlRecord, Builder> {
 
 		Builder(final URI url) {
-			super(Builder.class, url, url.getHost());
+			super(Builder.class, url);
 		}
 
 		@Override

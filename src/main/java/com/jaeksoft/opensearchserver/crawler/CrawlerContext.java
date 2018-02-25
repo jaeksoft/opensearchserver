@@ -16,16 +16,19 @@
 
 package com.jaeksoft.opensearchserver.crawler;
 
-interface CrawlerContext {
+public interface CrawlerContext {
 
+	// Script variables
 	String SCHEMA_NAME = "schemaName";
-	String INDEX_NAME = "indexUuid";
+	String INDEX_NAME = "indexName";
 	String CRAWL_UUID = "crawlUuid";
+	String TASK_CREATION_TIME = "taskCreationTime";
 	String INDEX_SERVICE_URL = "indexServiceUrl";
 	String STORE_SERVICE_URL = "storeServiceUrl";
+
+	// Attributes
 	String INDEX_SERVICE = "indexService";
 	String WEBCRAWLS_SERVICE = "webCrawlsService";
-	String URLRECORD_BUILDER = "urlRecordBuilder";
 	String INDEX_QUEUE = "indexQueue";
 
 }

@@ -22,8 +22,9 @@ import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.index.ResultDefinition;
-import com.qwazr.search.query.TermQuery;
-import com.qwazr.utils.HashUtils;
+import com.qwazr.search.query.BooleanQuery;
+import com.qwazr.search.query.IntDocValuesExactQuery;
+import com.qwazr.search.query.LongDocValuesExactQuery;
 
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -36,16 +37,26 @@ public class IndexService extends AnnotatedIndexService<UrlRecord> {
 		createUpdateFields();
 	}
 
-	public int fillUnknownUrls(int rows, final UUID crawlUuid, final WebCrawlDefinition.Builder crawlBuilder) {
+	public int fillUnknownUrls(int rows, final UUID crawlUuid, final Long taskCreationTime,
+			final WebCrawlDefinition.Builder crawlBuilder) {
 		final QueryDefinition queryDef = new QueryBuilder().returnedField("*")
-				.query(new TermQuery("crawlUuid", HashUtils.toBase64(crawlUuid)))
+				.query(BooleanQuery.of(false, null)
+						.addClause(BooleanQuery.Occur.filter,
+								new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
+						.addClause(BooleanQuery.Occur.filter,
+								new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
+						.addClause(BooleanQuery.Occur.filter,
+								new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
+						.addClause(BooleanQuery.Occur.filter, new IntDocValuesExactQuery("crawlStatus", 0))
+						.build())
 				.sort("lastModificationTime", QueryDefinition.SortEnum.ascending)
 				.rows(rows)
 				.build();
 		final ResultDefinition.WithObject<UrlRecord> result = searchQuery(queryDef);
 		if (result == null || result.documents == null || result.documents.isEmpty())
 			return 0;
-		result.documents.forEach(doc -> crawlBuilder.addUrl(doc.record.url, doc.record.depth));
+		result.documents.forEach(doc -> crawlBuilder.addUrl(doc.record.urlStore, doc.record.depth));
 		return result.documents.size();
 	}
+
 }

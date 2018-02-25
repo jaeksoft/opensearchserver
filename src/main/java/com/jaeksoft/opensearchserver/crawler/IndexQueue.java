@@ -20,37 +20,63 @@ import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.jaeksoft.opensearchserver.services.IndexService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-class IndexQueue {
+public class IndexQueue {
 
 	private final IndexService indexService;
 
 	private final int bufferSize;
 
-	private final List<UrlRecord> buffer;
+	private final Map<URI, UrlRecord> postBuffer;
 
-	IndexQueue(final IndexService indexService, final int bufferSize) {
+	private final Map<URI, UrlRecord> updateBuffer;
+
+	public IndexQueue(final IndexService indexService, final int bufferSize) {
 		this.indexService = indexService;
 		this.bufferSize = bufferSize;
-		this.buffer = new ArrayList<>(bufferSize);
+		this.postBuffer = new LinkedHashMap<>(bufferSize);
+		this.updateBuffer = new LinkedHashMap<>(bufferSize);
 	}
 
-	void post(UrlRecord urlRecord) throws IOException, InterruptedException {
-		synchronized (buffer) {
-			buffer.add(urlRecord);
-			if (buffer.size() >= bufferSize)
-				flush();
+	public void post(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
+		synchronized (postBuffer) {
+			postBuffer.putIfAbsent(uri, urlRecord);
+			if (postBuffer.size() >= bufferSize)
+				flushPostBuffer();
 		}
 	}
 
-	void flush() throws IOException, InterruptedException {
-		synchronized (buffer) {
-			if (buffer.isEmpty())
+	private void flushPostBuffer() throws IOException, InterruptedException {
+		synchronized (postBuffer) {
+			if (postBuffer.isEmpty())
 				return;
-			indexService.postDocuments(buffer);
-			buffer.clear();
+			indexService.postDocuments(postBuffer.values());
+			postBuffer.clear();
 		}
+	}
+
+	public void update(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
+		synchronized (updateBuffer) {
+			updateBuffer.putIfAbsent(uri, urlRecord);
+			if (updateBuffer.size() >= bufferSize)
+				flushUpdateBuffer();
+		}
+	}
+
+	private void flushUpdateBuffer() throws IOException, InterruptedException {
+		synchronized (updateBuffer) {
+			if (updateBuffer.isEmpty())
+				return;
+			indexService.updateDocumentsValues(updateBuffer.values());
+			updateBuffer.clear();
+		}
+	}
+
+	public void flush() throws IOException, InterruptedException {
+		flushUpdateBuffer();
+		flushPostBuffer();
 	}
 }

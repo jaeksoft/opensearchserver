@@ -17,6 +17,10 @@
 package com.jaeksoft.opensearchserver.crawler;
 
 import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.crawler.web.WebAfterCrawl;
+import com.jaeksoft.opensearchserver.crawler.web.WebAfterSession;
+import com.jaeksoft.opensearchserver.crawler.web.WebBeforeCrawl;
+import com.jaeksoft.opensearchserver.crawler.web.WebBeforeSession;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.common.EventEnum;
@@ -47,7 +51,7 @@ public class CrawlerComponents implements CrawlerContext {
 		CrawlerComponents.localComponents = localComponents;
 	}
 
-	static synchronized IndexService getIndexService(final URL indexServiceUrl, final String schemaName,
+	public static synchronized IndexService getIndexService(final URL indexServiceUrl, final String schemaName,
 			final String indexName) throws IOException {
 		if (indexServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available")
@@ -70,7 +74,7 @@ public class CrawlerComponents implements CrawlerContext {
 		});
 	}
 
-	static synchronized WebCrawlsService getWebCrawlsService(final URL storeServiceUrl, final String schemaName)
+	public static synchronized WebCrawlsService getWebCrawlsService(final URL storeServiceUrl, final String schemaName)
 			throws IOException {
 		if (storeServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available").getWebCrawlsService();
@@ -93,29 +97,33 @@ public class CrawlerComponents implements CrawlerContext {
 	static volatile ExtractorManager extractorManager;
 	static volatile ExtractorServiceInterface extractorService;
 
-	static ExtractorServiceInterface getExtractorService() {
+	public static ExtractorServiceInterface getExtractorService() throws IOException, ClassNotFoundException {
 		if (extractorService != null)
 			return extractorService;
 		synchronized (CrawlerComponents.class) {
-			if (extractorManager == null)
+			if (extractorManager == null) {
 				extractorManager = new ExtractorManager();
+				extractorManager.registerServices();
+			}
 			extractorService = extractorManager.getService();
 			return extractorService;
 		}
 	}
 
 	public static WebCrawlDefinition buildCrawl(final String schema, final String indexName, final UUID crawlUuid,
-			final URL indexServiceUrl, final URL storeServiceUrl, final WebCrawlDefinition.Builder crawlBuilder) {
+			final Long taskCreationTime, final URL indexServiceUrl, final URL storeServiceUrl,
+			final WebCrawlDefinition.Builder crawlBuilder) {
 
 		// Set the event
-		crawlBuilder.script(EventEnum.before_session, ScriptDefinition.of(GenericBeforeSession.class).build()).
-				script(EventEnum.after_session, ScriptDefinition.of(GenericAfterSession.class).build()).
-				script(EventEnum.before_crawl, ScriptDefinition.of(GenericBeforeCrawl.class).build()).
-				script(EventEnum.after_crawl, ScriptDefinition.of(GenericAfterCrawl.class).build());
+		crawlBuilder.script(EventEnum.before_session, ScriptDefinition.of(WebBeforeSession.class).build()).
+				script(EventEnum.after_session, ScriptDefinition.of(WebAfterSession.class).build()).
+				script(EventEnum.before_crawl, ScriptDefinition.of(WebBeforeCrawl.class).build()).
+				script(EventEnum.after_crawl, ScriptDefinition.of(WebAfterCrawl.class).build());
 
 		crawlBuilder.variable(SCHEMA_NAME, schema)
 				.variable(INDEX_NAME, indexName)
-				.variable(CRAWL_UUID, crawlUuid.toString());
+				.variable(CRAWL_UUID, crawlUuid.toString())
+				.variable(TASK_CREATION_TIME, taskCreationTime.toString());
 
 		if (indexServiceUrl != null)
 			crawlBuilder.variable(INDEX_SERVICE_URL, indexServiceUrl.toString());

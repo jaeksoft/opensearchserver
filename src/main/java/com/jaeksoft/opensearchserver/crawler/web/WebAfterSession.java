@@ -14,9 +14,9 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.crawler;
+package com.jaeksoft.opensearchserver.crawler.web;
 
-public class GenericBeforeSession extends AbstractEvent {
+public class WebAfterSession extends WebAbstractEvent {
 
 	@Override
 	public boolean run(final EventContext context) throws Exception {
