@@ -18,45 +18,77 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
+import com.qwazr.search.field.FieldDefinition;
 import com.qwazr.search.index.IndexServiceInterface;
-import com.qwazr.search.index.QueryBuilder;
+import com.qwazr.search.index.IndexStatus;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.BooleanQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.LongDocValuesExactQuery;
+import com.qwazr.search.query.TermQuery;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.UUID;
 
-public class IndexService extends AnnotatedIndexService<UrlRecord> {
+public class IndexService extends UsableService {
+
+	private final AnnotatedIndexService<UrlRecord> service;
 
 	public IndexService(final IndexServiceInterface indexService, final String schemaName, final String indexName)
 			throws URISyntaxException {
-		super(indexService, UrlRecord.class, schemaName, indexName, null);
-		createUpdateFields();
+		service = new AnnotatedIndexService<>(indexService, UrlRecord.class, schemaName, indexName, null);
+		service.createUpdateFields();
 	}
 
 	public int fillUnknownUrls(int rows, final UUID crawlUuid, final Long taskCreationTime,
 			final WebCrawlDefinition.Builder crawlBuilder) {
-		final QueryDefinition queryDef = new QueryBuilder().returnedField("*")
-				.query(BooleanQuery.of(false, null)
-						.addClause(BooleanQuery.Occur.filter,
-								new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
-						.addClause(BooleanQuery.Occur.filter,
-								new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
-						.addClause(BooleanQuery.Occur.filter,
-								new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
-						.addClause(BooleanQuery.Occur.filter, new IntDocValuesExactQuery("crawlStatus", 0))
-						.build())
+		updateLastUse();
+		final QueryDefinition queryDef = QueryDefinition.of(BooleanQuery.of(false, null)
+				.addClause(BooleanQuery.Occur.filter,
+						new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
+				.addClause(BooleanQuery.Occur.filter,
+						new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
+				.addClause(BooleanQuery.Occur.filter, new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
+				.addClause(BooleanQuery.Occur.filter, new IntDocValuesExactQuery("crawlStatus", 0))
+				.build())
+				.returnedField("*")
 				.sort("lastModificationTime", QueryDefinition.SortEnum.ascending)
 				.rows(rows)
 				.build();
-		final ResultDefinition.WithObject<UrlRecord> result = searchQuery(queryDef);
+		final ResultDefinition.WithObject<UrlRecord> result = service.searchQuery(queryDef);
 		if (result == null || result.documents == null || result.documents.isEmpty())
 			return 0;
 		result.documents.forEach(doc -> crawlBuilder.addUrl(doc.record.urlStore, doc.record.depth));
 		return result.documents.size();
 	}
 
+	public boolean exists(String url) {
+		updateLastUse();
+		final QueryDefinition queryDef = QueryDefinition.of(new TermQuery(FieldDefinition.ID_FIELD, url)).build();
+		final ResultDefinition result = service.searchQuery(queryDef);
+		return result != null && result.total_hits != null && result.total_hits > 0;
+	}
+
+	public void postDocuments(final Collection<UrlRecord> values) throws IOException, InterruptedException {
+		updateLastUse();
+		service.postDocuments(values);
+	}
+
+	public void updateDocumentsValues(final Collection<UrlRecord> values) throws IOException, InterruptedException {
+		updateLastUse();
+		service.updateDocumentsValues(values);
+	}
+
+	public UrlRecord getDocument(final String url) throws IOException, ReflectiveOperationException {
+		updateLastUse();
+		return service.getDocument(url);
+	}
+
+	public IndexStatus getIndexStatus() {
+		updateLastUse();
+		return service.getIndexStatus();
+	}
 }

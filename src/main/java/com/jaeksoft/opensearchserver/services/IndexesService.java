@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class IndexesService {
+public class IndexesService extends UsableService {
 
 	private final IndexServiceInterface indexService;
 	private final ConcurrentHashMap<String, IndexService> indexes;
@@ -40,20 +40,24 @@ public class IndexesService {
 	}
 
 	public Set<String> getIndexes() {
+		updateLastUse();
 		final Map<String, UUID> indexMap = indexService.getIndexes(schemaName);
 		return indexMap == null ? null : indexMap.keySet();
 	}
 
 	public void createIndex(final String indexName) {
+		updateLastUse();
 		indexService.createUpdateIndex(schemaName, indexName);
 	}
 
 	public void deleteIndex(final String indexName) {
+		updateLastUse();
 		indexService.deleteIndex(schemaName, indexName);
 		indexes.remove(indexName);
 	}
 
 	public IndexService getIndex(final String indexName) {
+		updateLastUse();
 		return indexes.computeIfAbsent(indexName, in -> {
 			try {
 				return new IndexService(indexService, schemaName, indexName);
@@ -64,6 +68,7 @@ public class IndexesService {
 	}
 
 	public Map<UUID, String> getIndexNameResolver() {
+		updateLastUse();
 		final Map<UUID, String> indexMap = new HashMap<>();
 		indexService.getIndexes(schemaName).forEach((name, uuid) -> indexMap.put(uuid, name));
 		return indexMap;

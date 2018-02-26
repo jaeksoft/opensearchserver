@@ -18,11 +18,9 @@ package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.BaseTest;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
-import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
-import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.utils.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,7 +70,7 @@ public class TasksServiceTest extends BaseTest {
 			throws IOException {
 		final IndexesService indexesService = getIndexesService();
 		indexesService.createIndex(indexName);
-		final AnnotatedIndexService<UrlRecord> indexService = indexesService.getIndex(indexName);
+		final IndexService indexService = indexesService.getIndex(indexName);
 		return WebCrawlTaskRecord.of(WebCrawlRecord.of()
 				.name(taskName)
 				.crawlDefinition(WebCrawlDefinition.of().setEntryUrl(urlCrawl).setMaxDepth(maxDepth).build())

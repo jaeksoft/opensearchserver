@@ -42,6 +42,17 @@ public class WebBeforeCrawl extends WebAbstractEvent {
 		if (context.currentCrawl.isInInclusion() != null && !context.currentCrawl.isInInclusion())
 			return false;
 
+		// Update the link with the status 1 (in progress)
+		final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
+				.crawlStatus(1)
+				.crawlUuid(context.crawlUuid)
+				.taskCreationTime(context.taskCreationTime);
+		if (!context.indexService.exists(url))
+			context.indexQueue.post(uri,
+					linkBuilder.hostAndUrlStore(null).lastModificationTime(System.currentTimeMillis()).build());
+		else
+			context.indexQueue.update(uri, linkBuilder.build());
+
 		return true;
 	}
 }

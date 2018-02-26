@@ -20,12 +20,19 @@ import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.extractor.ParserResult;
+import com.qwazr.server.ServerException;
+import com.qwazr.utils.LoggerUtils;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Set;
 
 public class WebAfterCrawl extends WebAbstractEvent {
+
+	final static Logger LOGGER = LoggerUtils.getLogger(WebAfterCrawl.class);
 
 	@Override
 	protected boolean run(final EventContext context) throws Exception {
@@ -72,7 +79,7 @@ public class WebAfterCrawl extends WebAbstractEvent {
 						.crawlUuid(context.crawlUuid)
 						.taskCreationTime(context.taskCreationTime)
 						.depth(nextDepth);
-				if (context.indexService.getDocument(url) == null)
+				if (!context.indexService.exists(url))
 					context.indexQueue.post(uri,
 							linkBuilder.hostAndUrlStore(null).lastModificationTime(System.currentTimeMillis()).build());
 				else
@@ -94,6 +101,8 @@ public class WebAfterCrawl extends WebAbstractEvent {
 					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang));
 				});
 			}
+		} catch (ServerException e) {
+			LOGGER.log(Level.WARNING, "Parsing failed with " + contentType + " on " + currentUrl, e);
 		}
 
 		context.indexQueue.post(currentUri, urlBuilder.build());
