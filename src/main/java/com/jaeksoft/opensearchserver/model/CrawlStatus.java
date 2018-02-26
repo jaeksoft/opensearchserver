@@ -24,7 +24,7 @@ public enum CrawlStatus {
 	BEFORE_CRAWL(1, "Before crawl", Message.Css.danger),
 	EXCLUSION_MATCH(2, "Matches exclusion", Message.Css.warning),
 	INCLUSION_MISS(3, "Missed inclusion", Message.Css.warning),
-	ROBOTS_TXT_DENY(4, "Denied by Robots.txt", Message.Css.warning),
+	ROBOTS_TXT_DISALLOW(4, "Disallowed by Robots.txt", Message.Css.warning),
 	REDIRECTION(8, "Redirected", Message.Css.info),
 	ERROR(9, "In error", Message.Css.danger),
 	CRAWLED(10, "Crawled", Message.Css.success);

@@ -75,16 +75,21 @@ public class WebAfterCrawl extends WebAbstractEvent {
 				final String url = uri.toString();
 				if (currentUrl.equals(url))
 					continue;
+				if (context.crawlSession.getCrawlDefinition().urls != null &&
+						context.crawlSession.getCrawlDefinition().urls.containsKey(url))
+					continue;
+				if (context.indexService.isAlreadyCrawled(url, context.crawlUuid, context.taskCreationTime))
+					continue;
 				final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
 						.crawlStatus(CrawlStatus.UNKNOWN)
 						.crawlUuid(context.crawlUuid)
 						.taskCreationTime(context.taskCreationTime)
 						.depth(nextDepth);
-				if (!context.indexService.exists(url))
+				if (context.indexService.exists(url))
+					context.indexQueue.update(uri, linkBuilder.build());
+				else
 					context.indexQueue.post(uri,
 							linkBuilder.hostAndUrlStore(null).lastModificationTime(System.currentTimeMillis()).build());
-				else
-					context.indexQueue.update(uri, linkBuilder.build());
 			}
 		}
 

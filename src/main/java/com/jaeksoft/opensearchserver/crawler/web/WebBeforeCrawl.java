@@ -34,11 +34,8 @@ public class WebBeforeCrawl extends WebAbstractEvent {
 				.crawlUuid(context.crawlUuid)
 				.taskCreationTime(context.taskCreationTime);
 
-		//Do we already have a status for this URL ?
-		final UrlRecord urlRecord = context.indexService.getDocument(uri.toString());
-		// Already known, we do not crawl
-		if (urlRecord != null && !CrawlStatus.isUnknown(urlRecord.crawlStatus) &&
-				context.crawlUuid.equals(urlRecord.getCrawlUuid()))
+		//Do we already have a status for this URL for this crawl task ?
+		if (context.indexService.isAlreadyCrawled(uri.toString(), context.crawlUuid, context.taskCreationTime))
 			return false;
 
 		// If there is exclusions and if any exclusion matched we do not crawl
@@ -50,23 +47,23 @@ public class WebBeforeCrawl extends WebAbstractEvent {
 			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.INCLUSION_MISS));
 
 		if (context.currentCrawl.isRobotsTxtDisallow() != null && context.currentCrawl.isRobotsTxtDisallow())
-			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.ROBOTS_TXT_DENY));
+			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.ROBOTS_TXT_DISALLOW));
 
 		if (context.currentCrawl.getError() != null)
 			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.ERROR));
 
 		// Update the link with the status BEFORE_CRAWL
-		post(context, uri, linkBuilder);
+		postOrUpdate(context, uri, linkBuilder);
 		return true;
 	}
 
 	private boolean noCrawl(final EventContext context, final URI uri, final UrlRecord.Builder linkBuilder)
 			throws IOException, InterruptedException {
-		post(context, uri, linkBuilder);
+		postOrUpdate(context, uri, linkBuilder);
 		return false;
 	}
 
-	private void post(final EventContext context, final URI uri, final UrlRecord.Builder linkBuilder)
+	private void postOrUpdate(final EventContext context, final URI uri, final UrlRecord.Builder linkBuilder)
 			throws IOException, InterruptedException {
 		if (context.indexService.exists(uri.toString()))
 			context.indexQueue.update(uri, linkBuilder.build());

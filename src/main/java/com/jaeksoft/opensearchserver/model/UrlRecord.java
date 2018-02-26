@@ -280,6 +280,10 @@ public class UrlRecord {
 		return crawlUuidMost == null || crawlUuidLeast == null ? null : new UUID(crawlUuidMost, crawlUuidLeast);
 	}
 
+	public Long getTaskCreationTime() {
+		return taskCreationTime;
+	}
+
 	UrlRecord(UrlRecordBuilder<?, ?> builder) {
 		this.url = builder.url.toString();
 		this.urlStore = builder.urlStore;

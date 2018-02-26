@@ -66,7 +66,7 @@ public class IndexQueue {
 		synchronized (postBuffer) {
 			synchronized (updateBuffer) {
 				updateBuffer.remove(uri);
-				postBuffer.putIfAbsent(uri, urlRecord);
+				postBuffer.put(uri, urlRecord);
 				if (shouldBeFlushed())
 					flush();
 			}
@@ -76,7 +76,8 @@ public class IndexQueue {
 	public void update(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
 		synchronized (updateBuffer) {
 			synchronized (postBuffer) {
-				updateBuffer.putIfAbsent(uri, urlRecord);
+				postBuffer.remove(uri);
+				updateBuffer.put(uri, urlRecord);
 				if (shouldBeFlushed())
 					flush();
 			}

@@ -55,7 +55,8 @@ public class IndexService extends UsableService {
 				.addClause(BooleanQuery.Occur.filter,
 						new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
 				.addClause(BooleanQuery.Occur.filter, new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
-				.addClause(BooleanQuery.Occur.filter, new IntDocValuesExactQuery("crawlStatus", 0))
+				.addClause(BooleanQuery.Occur.filter,
+						new IntDocValuesExactQuery("crawlStatus", CrawlStatus.UNKNOWN.code))
 				.build())
 				.returnedField("*")
 				.sort("lastModificationTime", QueryDefinition.SortEnum.ascending)
@@ -68,7 +69,15 @@ public class IndexService extends UsableService {
 		return result.documents.size();
 	}
 
-	public boolean exists(String url) {
+	public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final long taskCreationTime)
+			throws IOException, ReflectiveOperationException {
+		updateLastUse();
+		final UrlRecord urlRecord = getDocument(url);
+		return urlRecord != null && !CrawlStatus.isUnknown(urlRecord.crawlStatus) &&
+				crawlUuid.equals(urlRecord.getCrawlUuid()) && urlRecord.getTaskCreationTime() == taskCreationTime;
+	}
+
+	public boolean exists(final String url) {
 		updateLastUse();
 		final QueryDefinition queryDef = QueryDefinition.of(new TermQuery(FieldDefinition.ID_FIELD, url)).build();
 		final ResultDefinition result = service.searchQueryWithMap(queryDef);
