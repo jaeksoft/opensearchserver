@@ -340,7 +340,7 @@ public class UrlRecord {
 			this.crawlUuidLeast = builder.crawlUuid.getLeastSignificantBits();
 		}
 		this.taskCreationTime = builder.taskCreationTime;
-		this.crawlStatus = builder.crawlStatus;
+		this.crawlStatus = builder.crawlStatus == null ? CrawlStatus.UNKNOWN.code : builder.crawlStatus.code;
 	}
 
 	public static class Builder extends UrlRecordBuilder<UrlRecord, Builder> {

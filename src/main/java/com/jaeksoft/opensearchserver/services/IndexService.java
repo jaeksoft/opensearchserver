@@ -15,6 +15,7 @@
  */
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.CrawlStatus;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
@@ -31,6 +32,8 @@ import com.qwazr.search.query.TermQuery;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 public class IndexService extends UsableService {
@@ -68,7 +71,7 @@ public class IndexService extends UsableService {
 	public boolean exists(String url) {
 		updateLastUse();
 		final QueryDefinition queryDef = QueryDefinition.of(new TermQuery(FieldDefinition.ID_FIELD, url)).build();
-		final ResultDefinition result = service.searchQuery(queryDef);
+		final ResultDefinition result = service.searchQueryWithMap(queryDef);
 		return result != null && result.total_hits != null && result.total_hits > 0;
 	}
 
@@ -90,5 +93,17 @@ public class IndexService extends UsableService {
 	public IndexStatus getIndexStatus() {
 		updateLastUse();
 		return service.getIndexStatus();
+	}
+
+	public Map<CrawlStatus, Long> getCrawlStatusCount() {
+		updateLastUse();
+		final Map<CrawlStatus, Long> crawlStatusMap = new LinkedHashMap<>();
+		for (final CrawlStatus crawlStatus : CrawlStatus.values()) {
+			final ResultDefinition result = service.searchQueryWithMap(
+					QueryDefinition.of(new IntDocValuesExactQuery("crawlStatus", crawlStatus.code)).build());
+			if (result != null && result.total_hits != null && result.total_hits > 0)
+				crawlStatusMap.put(crawlStatus, result.total_hits);
+		}
+		return crawlStatusMap;
 	}
 }

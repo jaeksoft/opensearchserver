@@ -16,49 +16,46 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.qwazr.search.index.IndexServiceInterface;
-import com.qwazr.search.index.SchemaSettingsDefinition;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
-public class IndexesService extends UsableService {
+public class IndexesService {
 
 	private final IndexServiceInterface indexService;
-	private final ConcurrentHashMap<String, IndexService> indexes;
-	private final String schemaName;
+	private final ConcurrentHashMap<Pair<String, String>, IndexService> indexes;
 
-	public IndexesService(final IndexServiceInterface indexService, final String schemaName,
-			final SchemaSettingsDefinition schemaSettings) {
-		this.schemaName = schemaName;
+	public IndexesService(final IndexServiceInterface indexService) {
 		this.indexService = indexService;
 		indexes = new ConcurrentHashMap<>();
-		indexService.createUpdateSchema(schemaName, schemaSettings);
 	}
 
-	public Set<String> getIndexes() {
-		updateLastUse();
+	public Set<String> getIndexes(final String schemaName) {
+		indexService.createUpdateSchema(schemaName);
 		final Map<String, UUID> indexMap = indexService.getIndexes(schemaName);
 		return indexMap == null ? null : indexMap.keySet();
 	}
 
-	public void createIndex(final String indexName) {
-		updateLastUse();
+	public void createIndex(final String schemaName, final String indexName) {
+		indexService.createUpdateSchema(schemaName);
 		indexService.createUpdateIndex(schemaName, indexName);
 	}
 
-	public void deleteIndex(final String indexName) {
-		updateLastUse();
+	public void deleteIndex(final String schemaName, final String indexName) {
 		indexService.deleteIndex(schemaName, indexName);
-		indexes.remove(indexName);
+		indexes.remove(Pair.of(schemaName, indexName));
 	}
 
-	public IndexService getIndex(final String indexName) {
-		updateLastUse();
-		return indexes.computeIfAbsent(indexName, in -> {
+	public IndexService getIndex(final String schemaName, final String indexName) {
+		return indexes.computeIfAbsent(Pair.of(schemaName, indexName), in -> {
 			try {
 				return new IndexService(indexService, schemaName, indexName);
 			} catch (URISyntaxException e) {
@@ -67,11 +64,23 @@ public class IndexesService extends UsableService {
 		});
 	}
 
-	public Map<UUID, String> getIndexNameResolver() {
-		updateLastUse();
+	public Map<UUID, String> getIndexNameResolver(final String schemaName) {
 		final Map<UUID, String> indexMap = new HashMap<>();
 		indexService.getIndexes(schemaName).forEach((name, uuid) -> indexMap.put(uuid, name));
 		return indexMap;
+	}
+
+	/**
+	 * Remove expired service (not used since 5 minutes)
+	 */
+	public void removeExpired() {
+		final List<Pair<String, String>> expiredServices = new ArrayList<>();
+		final long refTime = TimeUnit.MINUTES.toMillis(5);
+		indexes.forEach((k, v) -> {
+			if (v.hasExpired(refTime))
+				expiredServices.add(k);
+		});
+		expiredServices.forEach(indexes::remove);
 	}
 
 }

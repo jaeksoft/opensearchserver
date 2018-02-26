@@ -40,13 +40,13 @@ public class IndexesTransaction extends ServletTransaction {
 	public void create() throws IOException, ServletException {
 		final String indexName = request.getParameter("indexName");
 		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(indexName);
+			indexesService.createIndex(getAccountSchema(), indexName);
 		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		request.setAttribute("indexes", indexesService.getIndexes());
+		request.setAttribute("indexes", indexesService.getIndexes(getAccountSchema()));
 		doTemplate(TEMPLATE);
 	}
 

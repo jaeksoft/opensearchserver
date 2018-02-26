@@ -34,8 +34,11 @@
     <div class="card">
         <div class="card-body">
             <ul class="list-group list-group-flush">
-                <li class="list-group-item">Storage size : ${indexSize!?html}</li>
-                <li class="list-group-item">Number of records: ${indexCount!0}</li>
+                <li class="list-group-item list-group-item-primary">Storage size : ${indexSize!?html}</li>
+                <li class="list-group-item list-group-item-secondary">Number of records : ${indexCount!0}</li>
+                <#list crawlStatusMap as status, count>
+                <li class="list-group-item list-group-item-${status.css}">${status} : ${count!0}</li>
+                </#list>
             </ul>
         </div>
         <div class="card-footer">

@@ -56,7 +56,7 @@ public class CrawlerComponents implements CrawlerContext {
 		if (indexServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available")
 					.getIndexesService()
-					.getIndex(indexName);
+					.getIndex(schemaName, indexName);
 		if (localIndexServices == null)
 			localIndexServices = new HashMap<>();
 		final Map<String, IndexService> indexServices =
@@ -86,10 +86,9 @@ public class CrawlerComponents implements CrawlerContext {
 			try {
 				final RemoteService remote = RemoteService.of(storeServiceUrl.toURI()).build();
 				final StoreSingleClient client = new StoreSingleClient(remote);
-				return new WebCrawlsService(client, schemaName);
+				return new WebCrawlsService(client);
 			} catch (URISyntaxException e) {
-				throw new RuntimeException(
-						"Error while creating the WebCrawlsService for " + storeServiceUrl + " / " + schemaName, e);
+				throw new RuntimeException("Error while creating the WebCrawlsService for " + storeServiceUrl, e);
 			}
 		});
 	}

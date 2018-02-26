@@ -75,8 +75,9 @@ public class TaskResult {
 		return taskRecord;
 	}
 
-	public static Builder of(final IndexesService indexesService, final WebCrawlsService webCrawlsService) {
-		return new Builder(indexesService, webCrawlsService);
+	public static Builder of(final IndexesService indexesService, final String accountSchema,
+			final WebCrawlsService webCrawlsService) {
+		return new Builder(indexesService, accountSchema, webCrawlsService);
 	}
 
 	public static class Builder {
@@ -84,11 +85,14 @@ public class TaskResult {
 		private final Map<UUID, String> indexNameResolver;
 		private final Map<String, String> crawlResolver;
 		private final WebCrawlsService webCrawlsService;
+		private final String accountSchema;
 
 		private volatile List<TaskResult> results;
 
-		Builder(final IndexesService indexesService, final WebCrawlsService webCrawlsService) {
-			indexNameResolver = indexesService.getIndexNameResolver();
+		Builder(final IndexesService indexesService, final String accountSchema,
+				final WebCrawlsService webCrawlsService) {
+			this.accountSchema = accountSchema;
+			indexNameResolver = indexesService.getIndexNameResolver(accountSchema);
 			if (webCrawlsService != null) {
 				this.webCrawlsService = webCrawlsService;
 				this.crawlResolver = new HashMap<>();
@@ -115,8 +119,8 @@ public class TaskResult {
 				if (taskRecord instanceof WebCrawlTaskRecord) {
 					if (webCrawlsService != null && crawlResolver != null) {
 						crawlName = crawlResolver.computeIfAbsent(taskRecord.taskId, taskId -> {
-							final WebCrawlRecord webCrawlRecord =
-									ExceptionUtils.bypass(() -> webCrawlsService.read(crawlTask.crawlUuid));
+							final WebCrawlRecord webCrawlRecord = ExceptionUtils.bypass(
+									() -> webCrawlsService.read(accountSchema, crawlTask.crawlUuid));
 							return webCrawlRecord == null ? crawlTask.crawlUuid.toString() : webCrawlRecord.getName();
 						});
 						crawlPath = CrawlerWebServlet.PATH + '/' + crawlTask.crawlUuid.toString();

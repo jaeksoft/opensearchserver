@@ -34,6 +34,10 @@ public class BaseTest {
 		return components;
 	}
 
+	protected String getAccountSchema() {
+		return "test-local";
+	}
+
 	protected WebCrawlsService getWebCrawlsService() throws IOException {
 		return getComponents().getWebCrawlsService();
 	}

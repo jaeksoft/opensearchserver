@@ -41,7 +41,7 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 	WebCrawlTasksTransaction(final CrawlerWebServlet servlet, final UUID webCrawlUuid, final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException {
 		super(servlet.freemarker, request, response);
-		webCrawlRecord = servlet.webCrawlsService.read(webCrawlUuid);
+		webCrawlRecord = servlet.webCrawlsService.read(getAccountSchema(), webCrawlUuid);
 		indexesService = servlet.indexesService;
 		tasksService = servlet.tasksService;
 	}
@@ -52,13 +52,15 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			return;
 		}
 		final String index = request.getParameter("index");
-		final UUID indexUuid = UUID.fromString(indexesService.getIndex(index).getIndexStatus().index_uuid);
+		final String accountSchema = getAccountSchema();
+		final UUID indexUuid =
+				UUID.fromString(indexesService.getIndex(accountSchema, index).getIndexStatus().index_uuid);
 		final WebCrawlTaskRecord record = WebCrawlTaskRecord.of(webCrawlRecord, indexUuid).build();
-		if (tasksService.getActiveTask(record.getTaskId()) != null) {
+		if (tasksService.getActiveTask(accountSchema, record.getTaskId()) != null) {
 			addMessage(Message.Css.warning, "Web crawl already started",
 					"This Web crawl has already been started on " + index);
 		} else {
-			tasksService.saveActiveTask(record);
+			tasksService.saveActiveTask(accountSchema, record);
 			addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
 		}
 		doGet();
@@ -71,14 +73,16 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			return;
 		}
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, null);
-		int totalCount = tasksService.collectActiveTasks(0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
+		final String accountSchema = getAccountSchema();
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountSchema, null);
+		int totalCount =
+				tasksService.collectActiveTasks(accountSchema, 0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
-		request.setAttribute("indexes", indexesService.getIndexes());
+		request.setAttribute("indexes", indexesService.getIndexes(accountSchema));
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

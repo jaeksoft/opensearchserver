@@ -45,7 +45,8 @@ public class WebCrawlListTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+		webCrawlsService.save(getAccountSchema(),
+				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		doGet();
 	}
 
@@ -55,7 +56,7 @@ public class WebCrawlListTransaction extends ServletTransaction {
 		final int rows = getRequestParameter("rows", 25);
 
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount = webCrawlsService.collect(start, rows, webCrawlRecords::add);
+		final int totalCount = webCrawlsService.collect(getAccountSchema(), start, rows, webCrawlRecords::add);
 
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
 		request.setAttribute("totalCount", totalCount);

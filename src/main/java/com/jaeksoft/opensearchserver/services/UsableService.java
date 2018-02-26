@@ -28,4 +28,8 @@ public class UsableService {
 		lastUse = System.currentTimeMillis();
 	}
 
+	public boolean hasExpired(final long refTime) {
+		return lastUse < refTime;
+	}
+
 }

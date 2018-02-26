@@ -23,60 +23,87 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class IndexQueue {
 
 	private final IndexService indexService;
 
-	private final int bufferSize;
+	private final int postBufferSize;
+
+	private final int updateBufferSize;
+
+	private final int secondsFlushPeriod;
+
+	private volatile long nextFlush;
 
 	private final Map<URI, UrlRecord> postBuffer;
 
 	private final Map<URI, UrlRecord> updateBuffer;
 
-	public IndexQueue(final IndexService indexService, final int bufferSize) {
+	public IndexQueue(final IndexService indexService, final int postBufferSize, final int updateBufferSize,
+			final int secondsFlushPeriod) {
 		this.indexService = indexService;
-		this.bufferSize = bufferSize;
-		this.postBuffer = new LinkedHashMap<>(bufferSize);
-		this.updateBuffer = new LinkedHashMap<>(bufferSize);
+		this.postBufferSize = postBufferSize;
+		this.updateBufferSize = updateBufferSize;
+		this.secondsFlushPeriod = secondsFlushPeriod;
+		this.postBuffer = new LinkedHashMap<>(postBufferSize);
+		this.updateBuffer = new LinkedHashMap<>(updateBufferSize);
+		this.nextFlush = computeNextFlush();
+	}
+
+	private long computeNextFlush() {
+		return System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(secondsFlushPeriod);
+	}
+
+	private boolean shouldBeFlushed() {
+		return postBuffer.size() >= postBufferSize || updateBuffer.size() >= updateBufferSize ||
+				System.currentTimeMillis() > nextFlush;
+
 	}
 
 	public void post(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
 		synchronized (postBuffer) {
-			postBuffer.putIfAbsent(uri, urlRecord);
-			if (postBuffer.size() >= bufferSize)
-				flushPostBuffer();
-		}
-	}
-
-	private void flushPostBuffer() throws IOException, InterruptedException {
-		synchronized (postBuffer) {
-			if (postBuffer.isEmpty())
-				return;
-			indexService.postDocuments(postBuffer.values());
-			postBuffer.clear();
+			synchronized (updateBuffer) {
+				updateBuffer.remove(uri);
+				postBuffer.putIfAbsent(uri, urlRecord);
+				if (shouldBeFlushed())
+					flush();
+			}
 		}
 	}
 
 	public void update(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
 		synchronized (updateBuffer) {
-			updateBuffer.putIfAbsent(uri, urlRecord);
-			if (updateBuffer.size() >= bufferSize)
-				flushUpdateBuffer();
+			synchronized (postBuffer) {
+				updateBuffer.putIfAbsent(uri, urlRecord);
+				if (shouldBeFlushed())
+					flush();
+			}
 		}
+	}
+
+	private void flushPostBuffer() throws IOException, InterruptedException {
+		if (postBuffer.isEmpty())
+			return;
+		indexService.postDocuments(postBuffer.values());
+		postBuffer.clear();
 	}
 
 	private void flushUpdateBuffer() throws IOException, InterruptedException {
-		synchronized (updateBuffer) {
-			if (updateBuffer.isEmpty())
-				return;
-			indexService.updateDocumentsValues(updateBuffer.values());
-			updateBuffer.clear();
-		}
+		if (updateBuffer.isEmpty())
+			return;
+		indexService.updateDocumentsValues(updateBuffer.values());
+		updateBuffer.clear();
 	}
 
 	public void flush() throws IOException, InterruptedException {
-		flushUpdateBuffer();
-		flushPostBuffer();
+		synchronized (postBuffer) {
+			synchronized (updateBuffer) {
+				flushUpdateBuffer();
+				flushPostBuffer();
+				nextFlush = computeNextFlush();
+			}
+		}
 	}
 }

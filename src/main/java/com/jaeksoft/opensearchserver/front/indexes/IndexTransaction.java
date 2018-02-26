@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.front.indexes;
 
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.search.index.IndexStatus;
 import com.qwazr.utils.StringUtils;
@@ -45,7 +46,7 @@ public class IndexTransaction extends ServletTransaction {
 		final String indexName = request.getParameter("indexName");
 		if (!StringUtils.isBlank(indexName)) {
 			if (indexName.equals(this.indexName)) {
-				indexesService.deleteIndex(indexName);
+				indexesService.deleteIndex(getAccountSchema(), indexName);
 				addMessage(Message.Css.info, null, "Index \"" + indexName + "\" deleted");
 				response.sendRedirect("/");
 				return;
@@ -58,9 +59,11 @@ public class IndexTransaction extends ServletTransaction {
 	@Override
 	protected void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
-		final IndexStatus status = indexesService.getIndex(indexName).getIndexStatus();
+		final IndexService indexService = indexesService.getIndex(getAccountSchema(), indexName);
+		final IndexStatus status = indexService.getIndexStatus();
 		request.setAttribute("indexSize", status.segments_size);
 		request.setAttribute("indexCount", status.num_docs);
+		request.setAttribute("crawlStatusMap", indexService.getCrawlStatusCount());
 		doTemplate(TEMPLATE_INDEX);
 	}
 

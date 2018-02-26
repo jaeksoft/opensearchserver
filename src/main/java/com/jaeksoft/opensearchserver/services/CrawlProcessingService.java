@@ -26,6 +26,7 @@ import com.qwazr.server.client.ErrorWrapper;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
 
 public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extends CrawlDefinition, S extends CrawlStatus<D>>
 		implements ProcessingService<T, S> {
@@ -65,13 +66,13 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 		}
 	}
 
-	protected abstract D getNewCrawlDefinition(final T taskRecord);
+	protected abstract D getNewCrawlDefinition(final String schema, final T taskRecord) throws MalformedURLException;
 
 	@Override
-	final public void checkIsRunning(final TaskRecord taskRecord) {
+	final public void checkIsRunning(final String schema, final TaskRecord taskRecord) throws MalformedURLException {
 		if (isRunning(taskRecord.getTaskId()))
 			return;
-		final D crawlDefinition = getNewCrawlDefinition(getTaskRecordClass().cast(taskRecord));
+		final D crawlDefinition = getNewCrawlDefinition(schema, getTaskRecordClass().cast(taskRecord));
 		if (crawlDefinition == null) // Nothing to do
 			return;
 		try {

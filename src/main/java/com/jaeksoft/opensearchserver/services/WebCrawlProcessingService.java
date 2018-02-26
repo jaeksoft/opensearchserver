@@ -23,6 +23,9 @@ import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class WebCrawlProcessingService
 		extends CrawlProcessingService<WebCrawlTaskRecord, WebCrawlDefinition, WebCrawlStatus> {
 
@@ -36,17 +39,22 @@ public class WebCrawlProcessingService
 	}
 
 	@Override
-	protected WebCrawlDefinition getNewCrawlDefinition(final WebCrawlTaskRecord taskRecord) {
+	protected WebCrawlDefinition getNewCrawlDefinition(final String schema, final WebCrawlTaskRecord taskRecord)
+			throws MalformedURLException {
 
 		final WebCrawlDefinition.Builder crawlBuilder = WebCrawlDefinition.of(taskRecord.crawlDefinition);
 
-		final String indexName = indexesService.getIndexNameResolver().get(taskRecord.indexUuid);
-		final IndexService indexService = indexesService.getIndex(indexName);
+		final String indexName = indexesService.getIndexNameResolver(schema).get(taskRecord.indexUuid);
+		final IndexService indexService = indexesService.getIndex(schema, indexName);
 
 		final int count =
 				indexService.fillUnknownUrls(100, taskRecord.crawlUuid, taskRecord.creationTime, crawlBuilder);
 		if (count == 0)
 			crawlBuilder.addUrl(taskRecord.crawlDefinition.entryUrl, 0);
+
+		final URL baseUrl = new URL(taskRecord.crawlDefinition.entryUrl);
+		crawlBuilder.addInclusionPattern(baseUrl.toString());
+		crawlBuilder.addInclusionPattern(baseUrl.getProtocol() + "://" + baseUrl.getHost() + "/*");
 
 		if (taskRecord.crawlDefinition.crawlWaitMs == null)
 			crawlBuilder.setCrawlWaitMs(1000);
@@ -55,7 +63,7 @@ public class WebCrawlProcessingService
 		else if (taskRecord.crawlDefinition.crawlWaitMs > 60000)
 			crawlBuilder.setCrawlWaitMs(60000);
 
-		return CrawlerComponents.buildCrawl(Components.DEFAULT_SCHEMA, indexName, taskRecord.crawlUuid,
-				taskRecord.creationTime, null, null, crawlBuilder);
+		return CrawlerComponents.buildCrawl(schema, indexName, taskRecord.crawlUuid, taskRecord.creationTime, null,
+				null, crawlBuilder);
 	}
 }

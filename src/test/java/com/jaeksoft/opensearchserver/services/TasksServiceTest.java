@@ -21,7 +21,9 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.RandomUtils;
+import com.qwazr.utils.concurrent.ThreadUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +34,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class TasksServiceTest extends BaseTest {
+
+	private final static Logger LOGGER = LoggerUtils.getLogger(TasksServiceTest.class);
 
 	private TasksService tasksService;
 
@@ -52,8 +58,8 @@ public class TasksServiceTest extends BaseTest {
 	@Test
 	public void emptyList() throws IOException {
 		List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectActiveTasks(0, 25, records::add), records, 0);
-		checkResult(tasksService.getArchivedTasks(0, 25, records::add), records, 0);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records::add), records, 0);
+		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records::add), records, 0);
 	}
 
 	/**
@@ -69,12 +75,26 @@ public class TasksServiceTest extends BaseTest {
 	WebCrawlTaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth)
 			throws IOException {
 		final IndexesService indexesService = getIndexesService();
-		indexesService.createIndex(indexName);
-		final IndexService indexService = indexesService.getIndex(indexName);
+		indexesService.createIndex(getAccountSchema(), indexName);
+		final IndexService indexService = indexesService.getIndex(getAccountSchema(), indexName);
 		return WebCrawlTaskRecord.of(WebCrawlRecord.of()
 				.name(taskName)
 				.crawlDefinition(WebCrawlDefinition.of().setEntryUrl(urlCrawl).setMaxDepth(maxDepth).build())
 				.build(), UUID.fromString(indexService.getIndexStatus().index_uuid)).build();
+	}
+
+	private void waitForAchivedActiveTask(TaskRecord taskRecord) throws IOException {
+		// Archive Task, wait until the task in not running
+		for (; ; ) {
+			try {
+				tasksService.archiveActiveTask(getAccountSchema(), taskRecord.getTaskId());
+				break;
+			} catch (NotAllowedException e) {
+				// That's OK
+				LOGGER.info("Wait until the task is done");
+				ThreadUtils.sleep(1, TimeUnit.SECONDS);
+			}
+		}
 	}
 
 	@Test
@@ -83,42 +103,44 @@ public class TasksServiceTest extends BaseTest {
 		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 
 		// Save as an active task
-		tasksService.saveActiveTask(taskRecord);
-		Assert.assertEquals(taskRecord, tasksService.getActiveTask(taskRecord.getTaskId()));
+		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
+		Assert.assertEquals(taskRecord, tasksService.getActiveTask(getAccountSchema(), taskRecord.getTaskId()));
 
 		final List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectActiveTasks(0, 25, records::add), records, 1, taskRecord);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records::add), records, 1, taskRecord);
 
 		records.clear();
-		checkResult(tasksService.getArchivedTasks(0, 25, records::add), records, 0);
+		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records::add), records, 0);
 
 		records.clear();
-		checkResult(tasksService.collectActiveTasks(0, 25, taskRecord.crawlUuid, records::add), records, 1, taskRecord);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, taskRecord.crawlUuid, records::add),
+				records, 1, taskRecord);
 
 		records.clear();
-		checkResult(tasksService.collectActiveTasks(0, 25, UUID.randomUUID(), records::add), records, 0);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, UUID.randomUUID(), records::add),
+				records, 0);
 
-		// Archive Task
-		tasksService.archiveActiveTask(taskRecord.getTaskId());
-		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(taskRecord.getTaskId()));
+		waitForAchivedActiveTask(taskRecord);
+
+		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(getAccountSchema(), taskRecord.getTaskId()));
 		records.clear();
-		checkResult(tasksService.collectActiveTasks(0, 25, records::add), records, 0);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records::add), records, 0);
 
 		records.clear();
-		checkResult(tasksService.getArchivedTasks(0, 25, records::add), records, 1, taskRecord);
+		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records::add), records, 1, taskRecord);
 	}
 
 	@Test(expected = NoContentException.class)
 	public void archiveUnkownTask() throws IOException {
-		tasksService.archiveActiveTask(RandomUtils.alphanumeric(8));
+		tasksService.archiveActiveTask(getAccountSchema(), RandomUtils.alphanumeric(8));
 	}
 
 	@Test(expected = NotAllowedException.class)
 	public void saveAlreadyArchived() throws IOException {
 		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
-		tasksService.saveActiveTask(taskRecord);
-		tasksService.archiveActiveTask(taskRecord.getTaskId());
-		tasksService.saveActiveTask(taskRecord);
+		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
+		waitForAchivedActiveTask(taskRecord);
+		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
 	}
 
 }

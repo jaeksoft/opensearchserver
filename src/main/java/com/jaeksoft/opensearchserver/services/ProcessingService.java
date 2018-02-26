@@ -19,6 +19,7 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.ws.rs.NotSupportedException;
+import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,7 +42,7 @@ public interface ProcessingService<T extends TaskRecord, S> {
 	 *
 	 * @param taskRecord
 	 */
-	default void checkIsRunning(final TaskRecord taskRecord) {
+	default void checkIsRunning(final String schema, final TaskRecord taskRecord) throws MalformedURLException {
 		throw notSupportedException(taskRecord.getTaskId());
 	}
 

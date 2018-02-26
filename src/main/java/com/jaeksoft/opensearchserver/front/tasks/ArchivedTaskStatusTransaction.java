@@ -35,7 +35,7 @@ public class ArchivedTaskStatusTransaction extends ServletTransaction {
 			final HttpServletResponse response) throws IOException {
 		super(servlet.freemarker, request, response);
 		tasksService = servlet.tasksService;
-		taskRecord = tasksService.getActiveTask(taskId);
+		taskRecord = tasksService.getActiveTask(getAccountSchema(), taskId);
 	}
 
 	@Override

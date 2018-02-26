@@ -61,7 +61,7 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	UUID storeUuid;
 	UUID crawlUuid;
 	Long taskCreationTime;
-	Integer crawlStatus;
+	CrawlStatus crawlStatus;
 
 	UrlRecordBuilder(final Class<T> builderClass, final URI url) {
 		this.builderClass = builderClass;
@@ -280,7 +280,7 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 		return me();
 	}
 
-	public T crawlStatus(final Integer crawlStatus) {
+	public T crawlStatus(final CrawlStatus crawlStatus) {
 		this.crawlStatus = crawlStatus;
 		return me();
 	}

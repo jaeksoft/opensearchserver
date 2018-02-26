@@ -43,14 +43,11 @@ public abstract class StoreService<T> {
 	private final static String JSON_GZ_SUFFIX = ".json.gz";
 
 	private final StoreServiceInterface storeService;
-	private final String storeSchema;
 	private final String directory;
 	private final Class<T> recordClass;
 
-	StoreService(final StoreServiceInterface storeService, final String storeSchema, final String directory,
-			final Class<T> recordClass) {
+	StoreService(final StoreServiceInterface storeService, final String directory, final Class<T> recordClass) {
 		this.storeService = storeService;
-		this.storeSchema = storeSchema;
 		this.directory = directory;
 		this.recordClass = recordClass;
 	}
@@ -71,7 +68,7 @@ public abstract class StoreService<T> {
 	 * @param record the record to save
 	 * @throws IOException if any I/O error occured
 	 */
-	protected void save(final String subDirectory, final T record) throws IOException {
+	protected void save(final String storeSchema, final String subDirectory, final T record) throws IOException {
 		final String storeName = getStoreName(record);
 		final Path tmpJsonCrawlFile = Files.createTempFile(storeName, JSON_GZ_SUFFIX);
 		try {
@@ -97,7 +94,7 @@ public abstract class StoreService<T> {
 	 * @return the record or null if there is any
 	 * @throws IOException if any I/O error occured
 	 */
-	protected T read(final String subDirectory, final String storeName) throws IOException {
+	protected T read(final String storeSchema, final String subDirectory, final String storeName) throws IOException {
 		return ErrorWrapper.bypass(() -> {
 			try (final InputStream fileInput = storeService.getFile(storeSchema,
 					getRecordPath(subDirectory, storeName))) {
@@ -118,7 +115,7 @@ public abstract class StoreService<T> {
 	 * @param filter an optional filter
 	 * @return the total number of records found, and the paginated records as a list
 	 */
-	protected int collect(final String subDirectory, Integer start, Integer rows,
+	protected int collect(final String storeSchema, final String subDirectory, Integer start, Integer rows,
 			final Function<String, Boolean> filter, final Consumer<T> recordsConsumer) throws IOException {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
@@ -142,7 +139,7 @@ public abstract class StoreService<T> {
 					if (filter != null && !filter.apply(baseName))
 						continue;
 					if (recordsConsumer != null)
-						recordsConsumer.accept(read(subDirectory, baseName));
+						recordsConsumer.accept(read(storeSchema, subDirectory, baseName));
 					rows--;
 					count++;
 				}
@@ -160,7 +157,7 @@ public abstract class StoreService<T> {
 	 *
 	 * @param storeName the ID of the record
 	 */
-	protected void remove(final String subDirectory, final String storeName) {
+	protected void remove(final String storeSchema, final String subDirectory, final String storeName) {
 		storeService.deleteFile(storeSchema, getRecordPath(subDirectory, storeName));
 	}
 

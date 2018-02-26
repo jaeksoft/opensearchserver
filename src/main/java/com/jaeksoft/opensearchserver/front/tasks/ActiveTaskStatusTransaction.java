@@ -39,7 +39,7 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 	}
 
 	private TaskRecord checkTaskRecord() throws IOException {
-		final TaskRecord taskRecord = tasksService.getActiveTask(taskId);
+		final TaskRecord taskRecord = tasksService.getActiveTask(getAccountSchema(), taskId);
 		if (taskRecord != null)
 			return taskRecord;
 		response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -47,12 +47,12 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 	}
 
 	public void pause() throws IOException, ServletException {
-		tasksService.pause(taskId);
+		tasksService.pause(getAccountSchema(), taskId);
 		doGet();
 	}
 
 	public void start() throws IOException, ServletException {
-		tasksService.start(taskId);
+		tasksService.start(getAccountSchema(), taskId);
 		doGet();
 	}
 

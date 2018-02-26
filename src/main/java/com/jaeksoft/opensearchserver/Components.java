@@ -51,8 +51,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Components implements Closeable {
 
-	public final static String DEFAULT_SCHEMA = System.getProperty("OSS_SCHEMA", "opensearchserver");
-
 	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
 
 	private final Path dataDirectory;
@@ -86,10 +84,6 @@ public class Components implements Closeable {
 		this.closing = new ArrayList<>();
 		this.dataDirectory = dataDirectory;
 		CrawlerComponents.setLocalComponents(this);
-	}
-
-	private synchronized String getAccountSchema() {
-		return "local";
 	}
 
 	private synchronized ExecutorService getExecutorService() {
@@ -131,7 +125,7 @@ public class Components implements Closeable {
 
 	public synchronized IndexesService getIndexesService() throws IOException {
 		if (indexesService == null)
-			indexesService = new IndexesService(getIndexService(), DEFAULT_SCHEMA, getSchemaDefinition(DEFAULT_SCHEMA));
+			indexesService = new IndexesService(getIndexService());
 		return indexesService;
 	}
 
@@ -140,7 +134,7 @@ public class Components implements Closeable {
 			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
 			if (!Files.exists(webCrawlsDirectory))
 				Files.createDirectory(webCrawlsDirectory);
-			webCrawlsService = new WebCrawlsService(getStoreService(), getAccountSchema());
+			webCrawlsService = new WebCrawlsService(getStoreService());
 		}
 		return webCrawlsService;
 	}
@@ -160,7 +154,7 @@ public class Components implements Closeable {
 
 	public synchronized TasksService getTasksService() throws IOException {
 		if (tasksService == null)
-			tasksService = new TasksService(getStoreService(), getAccountSchema(), getProcessors());
+			tasksService = new TasksService(getStoreService(), getProcessors());
 		return tasksService;
 	}
 
@@ -233,7 +227,8 @@ public class Components implements Closeable {
 
 		// Let's wait for all threads to be done
 		if (executorService != null) {
-			ExceptionUtils.bypass(() -> executorService.awaitTermination(5, TimeUnit.MINUTES));
+			ExceptionUtils.bypass(() -> executorService.awaitTermination(1, TimeUnit.MINUTES));
+			executorService.shutdownNow();
 			executorService = null;
 		}
 

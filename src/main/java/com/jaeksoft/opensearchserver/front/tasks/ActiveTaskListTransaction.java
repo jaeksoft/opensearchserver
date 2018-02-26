@@ -41,14 +41,15 @@ public class ActiveTaskListTransaction extends ServletTransaction {
 		indexesService = servlet.indexesService;
 		webCrawlsService = servlet.webCrawlsService;
 	}
-	
+
 	@Override
 	protected void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
+		final String accountSchema = getAccountSchema();
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, webCrawlsService);
-		int totalCount = tasksService.collectActiveTasks(start, rows, resultBuilder::add);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountSchema, webCrawlsService);
+		int totalCount = tasksService.collectActiveTasks(accountSchema, start, rows, resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
 		request.setAttribute("tasks", tasks);

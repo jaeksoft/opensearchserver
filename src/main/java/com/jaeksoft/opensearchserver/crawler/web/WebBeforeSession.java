@@ -41,7 +41,7 @@ public class WebBeforeSession extends WebAbstractEvent {
 		final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUrl, schemaName, indexName);
 
 		context.crawlSession.setAttribute(INDEX_SERVICE, indexService, IndexService.class);
-		context.crawlSession.setAttribute(INDEX_QUEUE, new IndexQueue(indexService, 100), IndexQueue.class);
+		context.crawlSession.setAttribute(INDEX_QUEUE, new IndexQueue(indexService, 20, 100, 60), IndexQueue.class);
 		context.crawlSession.setAttribute(WEBCRAWLS_SERVICE,
 				CrawlerComponents.getWebCrawlsService(storeServiceUrl, schemaName), WebCrawlsService.class);
 		context.crawlSession.setAttribute(CRAWL_UUID, UUID.fromString(crawlUuid), UUID.class);

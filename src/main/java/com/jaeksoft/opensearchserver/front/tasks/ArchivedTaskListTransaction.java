@@ -18,7 +18,6 @@ package com.jaeksoft.opensearchserver.front.tasks;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,14 +31,12 @@ public class ArchivedTaskListTransaction extends ServletTransaction {
 
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
-	private final WebCrawlsService webCrawlsService;
 
 	ArchivedTaskListTransaction(final TasksServlet servlet, final HttpServletRequest request,
 			final HttpServletResponse response) {
 		super(servlet.freemarker, request, response);
 		tasksService = servlet.tasksService;
 		indexesService = servlet.indexesService;
-		webCrawlsService = servlet.webCrawlsService;
 	}
 
 	@Override
@@ -47,8 +44,10 @@ public class ArchivedTaskListTransaction extends ServletTransaction {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, null);
-		int totalCount = tasksService.collectActiveTasks(start, rows, resultBuilder::add);
+		final String accountSchema = getAccountSchema();
+
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountSchema, null);
+		int totalCount = tasksService.collectActiveTasks(accountSchema, start, rows, resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
 		request.setAttribute("tasks", tasks);

@@ -52,6 +52,11 @@ public abstract class ServletTransaction {
 		this.session = request.getSession();
 	}
 
+	//TODO Implements account schema thru authentication
+	protected String getAccountSchema() {
+		return "local";
+	}
+
 	/**
 	 * @return the message list
 	 */

@@ -27,8 +27,8 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 
 	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
 
-	public WebCrawlsService(final StoreServiceInterface storeService, final String storeSchema) {
-		super(storeService, storeSchema, WEB_CRAWLS_DIRECTORY, WebCrawlRecord.class);
+	public WebCrawlsService(final StoreServiceInterface storeService) {
+		super(storeService, WEB_CRAWLS_DIRECTORY, WebCrawlRecord.class);
 	}
 
 	@Override
@@ -36,21 +36,21 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 		return record.getUuid().toString();
 	}
 
-	public void save(final WebCrawlRecord crawlRecord) throws IOException {
-		super.save(null, crawlRecord);
+	public void save(final String storeSchema, final WebCrawlRecord crawlRecord) throws IOException {
+		super.save(storeSchema, null, crawlRecord);
 	}
 
-	public WebCrawlRecord read(final UUID webCrawlUuid) throws IOException {
-		return super.read(null, webCrawlUuid.toString());
-	}
-	
-	public int collect(final int start, final int rows, final Consumer<WebCrawlRecord> recordConsumer)
-			throws IOException {
-		return super.collect(null, start, rows, null, recordConsumer);
+	public WebCrawlRecord read(final String storeSchema, final UUID webCrawlUuid) throws IOException {
+		return super.read(storeSchema, null, webCrawlUuid.toString());
 	}
 
-	public void remove(UUID webCrawlUuid) {
-		super.remove(null, webCrawlUuid.toString());
+	public int collect(final String storeSchema, final int start, final int rows,
+			final Consumer<WebCrawlRecord> recordConsumer) throws IOException {
+		return super.collect(storeSchema, null, start, rows, null, recordConsumer);
+	}
+
+	public void remove(final String storeSchema, UUID webCrawlUuid) {
+		super.remove(storeSchema, null, webCrawlUuid.toString());
 	}
 
 }
