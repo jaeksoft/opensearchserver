@@ -18,19 +18,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Active Tasks - OpenSearchServer</title>
-    <#include '../includes/head.ftl'>
+    <#include '../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
+    <#include '../../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/tasks">Tasks</a></li>
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}/tasks">Tasks</a></li>
             <li class="breadcrumb-item active">${task.taskId}</li>
         </ol>
     </nav>
- <#include '../includes/messages.ftl'>
+ <#include '../../includes/messages.ftl'>
 </div>
 <div class="container">
     <div class="card">
@@ -73,6 +75,6 @@
         </div>
     </div>
 </div>
-<#include '../includes/foot.ftl'>
+<#include '../../includes/foot.ftl'>
 </body>
 </html>

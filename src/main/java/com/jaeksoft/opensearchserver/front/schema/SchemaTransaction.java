@@ -13,38 +13,37 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.tasks;
 
+package com.jaeksoft.opensearchserver.front.schema;
+
+import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.model.TaskRecord;
-import com.jaeksoft.opensearchserver.services.TasksService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotAllowedException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
-public class ArchivedTaskStatusTransaction extends ServletTransaction {
+public class SchemaTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "tasks/achived_status.ftl";
+	private final static String TEMPLATE = "schemas/schema.ftl";
 
-	private final TasksService tasksService;
-	private final TaskRecord taskRecord;
+	private final String schemaName;
 
-	ArchivedTaskStatusTransaction(final TasksServlet servlet, final String taskId, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException {
-		super(servlet.freemarker, request, response);
-		tasksService = servlet.tasksService;
-		taskRecord = tasksService.getActiveTask(getAccountSchema(), taskId);
+	public SchemaTransaction(final Components components, final String schemaName, final HttpServletRequest request,
+			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+		super(components, request, response);
+		this.schemaName = schemaName;
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		if (taskRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-		request.setAttribute("task", taskRecord);
-		doTemplate(TEMPLATE_INDEX);
+		if (!isUserAccount(schemaName))
+			throw new NotAllowedException("Not allowed");
+		request.setAttribute("schema", schemaName);
+		doTemplate(TEMPLATE);
 	}
+
 }

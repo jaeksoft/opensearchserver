@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.tasks;
+package com.jaeksoft.opensearchserver.front.schema.tasks;
 
+import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
@@ -24,34 +25,38 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class ActiveTaskListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "tasks/active_list.ftl";
+	private final static String TEMPLATE_INDEX = "schemas/tasks/active_list.ftl";
 
+	private final String schemaName;
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
 	private final WebCrawlsService webCrawlsService;
 
-	ActiveTaskListTransaction(final TasksServlet servlet, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(servlet.freemarker, request, response);
-		tasksService = servlet.tasksService;
-		indexesService = servlet.indexesService;
-		webCrawlsService = servlet.webCrawlsService;
+	public ActiveTaskListTransaction(final Components components, final String schemaName,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, request, response);
+		this.schemaName = schemaName;
+		tasksService = components.getTasksService();
+		indexesService = components.getIndexesService();
+		webCrawlsService = components.getWebCrawlsService();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
-		final String accountSchema = getAccountSchema();
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountSchema, webCrawlsService);
-		int totalCount = tasksService.collectActiveTasks(accountSchema, start, rows, resultBuilder::add);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, schemaName, webCrawlsService);
+		int totalCount = tasksService.collectActiveTasks(schemaName, start, rows, resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
+		request.setAttribute("schema", schemaName);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);

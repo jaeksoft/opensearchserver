@@ -20,15 +20,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public abstract class BaseServlet extends HttpServlet {
 
 	protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException;
+			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException;
 
 	private void doTransaction(final HttpServletRequest request, final HttpServletResponse response,
 			final DoMethod doMethod) throws IOException, ServletException {
-		final ServletTransaction transaction = getServletTransaction(request, response);
+		final ServletTransaction transaction;
+		try {
+			transaction = getServletTransaction(request, response);
+		} catch (URISyntaxException | NoSuchMethodException e) {
+			throw new ServletException(e);
+		}
 		if (transaction != null)
 			doMethod.apply(transaction);
 		else

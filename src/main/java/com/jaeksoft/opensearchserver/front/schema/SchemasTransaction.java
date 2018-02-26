@@ -14,40 +14,33 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front.indexes;
+package com.jaeksoft.opensearchserver.front.schema;
 
+import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Collection;
 
-public class IndexesTransaction extends ServletTransaction {
+public class SchemasTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "indexes.ftl";
+	private final static String TEMPLATE = "schemas/schemas.ftl";
 
-	private final IndexesService indexesService;
+	private final Collection<String> schemas;
 
-	IndexesTransaction(final IndexServlet indexServlet, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(indexServlet.freemarker, request, response);
-		this.indexesService = indexServlet.indexesService;
-	}
-
-	public void create() throws IOException, ServletException {
-		final String indexName = request.getParameter("indexName");
-		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(getAccountSchema(), indexName);
-		doGet();
+	public SchemasTransaction(final Components components, final HttpServletRequest request,
+			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+		super(components, request, response);
+		schemas = getAccountIds();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		request.setAttribute("indexes", indexesService.getIndexes(getAccountSchema()));
+		request.setAttribute("schemas", schemas);
 		doTemplate(TEMPLATE);
 	}
-
 }

@@ -52,7 +52,7 @@ public class CrawlerComponents implements CrawlerContext {
 	}
 
 	public static synchronized IndexService getIndexService(final URL indexServiceUrl, final String schemaName,
-			final String indexName) throws IOException {
+			final String indexName) throws IOException, URISyntaxException {
 		if (indexServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available")
 					.getIndexesService()
@@ -75,7 +75,7 @@ public class CrawlerComponents implements CrawlerContext {
 	}
 
 	public static synchronized WebCrawlsService getWebCrawlsService(final URL storeServiceUrl, final String schemaName)
-			throws IOException {
+			throws IOException, URISyntaxException {
 		if (storeServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available").getWebCrawlsService();
 		if (localWebCrawlsServices == null)

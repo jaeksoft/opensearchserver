@@ -31,6 +31,7 @@ import org.junit.Test;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,7 +45,7 @@ public class TasksServiceTest extends BaseTest {
 	private TasksService tasksService;
 
 	@Before
-	public void setup() throws IOException {
+	public void setup() throws IOException, URISyntaxException {
 		tasksService = getTasksService();
 	}
 
@@ -73,7 +74,7 @@ public class TasksServiceTest extends BaseTest {
 	 * @throws IOException
 	 */
 	WebCrawlTaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth)
-			throws IOException {
+			throws IOException, URISyntaxException {
 		final IndexesService indexesService = getIndexesService();
 		indexesService.createIndex(getAccountSchema(), indexName);
 		final IndexService indexService = indexesService.getIndex(getAccountSchema(), indexName);
@@ -98,7 +99,7 @@ public class TasksServiceTest extends BaseTest {
 	}
 
 	@Test
-	public void createTaskAndArchive() throws IOException {
+	public void createTaskAndArchive() throws IOException, URISyntaxException {
 
 		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 
@@ -136,7 +137,7 @@ public class TasksServiceTest extends BaseTest {
 	}
 
 	@Test(expected = NotAllowedException.class)
-	public void saveAlreadyArchived() throws IOException {
+	public void saveAlreadyArchived() throws IOException, URISyntaxException {
 		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
 		waitForAchivedActiveTask(taskRecord);

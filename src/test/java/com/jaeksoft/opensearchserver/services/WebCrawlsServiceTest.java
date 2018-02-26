@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class WebCrawlsServiceTest extends BaseTest {
 	private WebCrawlsService webCrawlsService;
 
 	@Before
-	public void setup() throws IOException {
+	public void setup() throws IOException, URISyntaxException {
 		webCrawlsService = getWebCrawlsService();
 	}
 

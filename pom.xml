@@ -150,6 +150,11 @@
         </dependency>
         <dependency>
             <groupId>com.qwazr</groupId>
+            <artifactId>qwazr-database</artifactId>
+            <version>${qwazr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qwazr</groupId>
             <artifactId>qwazr-store</artifactId>
             <version>${qwazr.version}</version>
         </dependency>

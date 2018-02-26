@@ -18,19 +18,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Index - OpenSearchServer</title>
-    <#include 'includes/head.ftl'>
+    <#include '../../includes/head.ftl'>
 </head>
 <body>
-    <#include 'includes/nav.ftl'>
+    <#include '../../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/indexes">Indexes</a></li>
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}/indexes">Indexes</a></li>
             <li class="breadcrumb-item active" aria-current="page">${indexName!?html}</li>
         </ol>
     </nav>
- <#include 'includes/messages.ftl'>
+ <#include '../../includes/messages.ftl'>
     <div class="card">
         <div class="card-body">
             <ul class="list-group list-group-flush">
@@ -54,6 +56,6 @@
         </div>
     </div>
 </div>
-    <#include 'includes/foot.ftl'>
+    <#include '../../includes/foot.ftl'>
 </body>
 </html>

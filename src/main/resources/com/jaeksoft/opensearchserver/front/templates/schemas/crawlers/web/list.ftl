@@ -18,19 +18,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Web crawlers - OpenSearchServer</title>
-    <#include '../includes/head.ftl'>
+    <#include '../../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
+    <#include '../../../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
             <li class="breadcrumb-item">Crawler</li>
             <li class="breadcrumb-item active">Web</li>
         </ol>
     </nav>
- <#include '../includes/messages.ftl'>
+ <#include '../../../includes/messages.ftl'>
 </div>
 <#if webCrawlRecords?has_content>
     <div class="container">
@@ -50,9 +52,9 @@
                <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
                <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
                <td align="right">
-                   <a href="/crawlers/web/${webCrawlRecord.uuid!}"
+                   <a href="/schemas/${schema?url}/crawlers/web/${webCrawlRecord.uuid!}"
                       class=" btn btn-sm btn-secondary">Edit</a>
-                   <a href="/crawlers/web/${webCrawlRecord.uuid!}/tasks"
+                   <a href="/schemas/${schema?url}/crawlers/web/${webCrawlRecord.uuid!}/tasks"
                       class=" btn btn-sm btn-info">Tasks</a>
                </td>
            </tr>
@@ -82,6 +84,6 @@
         </div>
     </form>
 </div>
-<#include '../includes/foot.ftl'>
+<#include '../../../includes/foot.ftl'>
 </body>
 </html>

@@ -16,35 +16,36 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.qwazr.library.freemarker.FreeMarkerTool;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 @WebServlet("")
 public class HomeServlet extends BaseServlet {
 
-	private final FreeMarkerTool freemarker;
+	private final Components components;
 
 	private final static String TEMPLATE = "home.ftl";
 
 	public HomeServlet(final Components components) {
-		this.freemarker = components.getFreemarkerTool();
+		this.components = components;
 	}
 
 	@Override
 	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) {
+			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
 		return new Transaction(request, response);
 	}
 
 	class Transaction extends ServletTransaction {
 
-		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
-			super(freemarker, request, response);
+		Transaction(final HttpServletRequest request, final HttpServletResponse response)
+				throws NoSuchMethodException, IOException, URISyntaxException {
+			super(components, request, response);
 		}
 
 		@Override

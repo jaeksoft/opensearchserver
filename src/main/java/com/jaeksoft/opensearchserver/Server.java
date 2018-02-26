@@ -16,13 +16,7 @@
 package com.jaeksoft.opensearchserver;
 
 import com.jaeksoft.opensearchserver.front.HomeServlet;
-import com.jaeksoft.opensearchserver.front.indexes.IndexServlet;
-import com.jaeksoft.opensearchserver.front.tasks.TasksServlet;
-import com.jaeksoft.opensearchserver.front.webcrawl.CrawlerWebServlet;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.TasksService;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
-import com.qwazr.library.freemarker.FreeMarkerTool;
+import com.jaeksoft.opensearchserver.front.SchemaServlet;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
@@ -44,13 +38,9 @@ public class Server extends Components {
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
 				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
-				.registerJavaServlet(IndexServlet.class, () -> ExceptionUtils.bypass(() -> new IndexServlet(this)))
-				.registerJavaServlet(CrawlerWebServlet.class,
-						() -> ExceptionUtils.bypass(() -> new CrawlerWebServlet(this)))
-				.registerJavaServlet(TasksServlet.class, () -> ExceptionUtils.bypass(() -> new TasksServlet(this)));
-
+				.registerJavaServlet(SchemaServlet.class, () -> new SchemaServlet(this));
+		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService));
 		webAppBuilder.build();
-
 		server = serverBuilder.build();
 	}
 

@@ -15,6 +15,9 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
+import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.model.UserRecord;
+import com.jaeksoft.opensearchserver.services.UsersService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.LoggerUtils;
@@ -28,7 +31,11 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -39,22 +46,35 @@ public abstract class ServletTransaction {
 
 	private final static Logger LOGGER = LoggerUtils.getLogger(ServletTransaction.class);
 
+	private final UsersService usersService;
 	private final FreeMarkerTool freemarker;
 	protected final HttpServletRequest request;
 	protected final HttpServletResponse response;
 	protected final HttpSession session;
 
-	protected ServletTransaction(final FreeMarkerTool freemarker, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		this.freemarker = freemarker;
+	protected ServletTransaction(final Components components, final HttpServletRequest request,
+			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+		this.usersService = components.getUsersService();
+		this.freemarker = components.getFreemarkerTool();
 		this.request = request;
 		this.response = response;
 		this.session = request.getSession();
 	}
 
-	//TODO Implements account schema thru authentication
-	protected String getAccountSchema() {
-		return "local";
+	private final Collection<String> LOCAL = Arrays.asList("local");
+
+	protected Collection<String> getAccountIds() {
+		if (usersService.getUserCount() == 0)
+			return LOCAL;
+		final UserRecord userRecord = (UserRecord) request.getUserPrincipal();
+		return userRecord == null ? Collections.emptyList() : userRecord.getAccountIds();
+	}
+
+	protected boolean isUserAccount(final String schemaName) {
+		final Collection<String> accounts = getAccountIds();
+		if (accounts == null)
+			return false;
+		return accounts.contains(schemaName);
 	}
 
 	/**

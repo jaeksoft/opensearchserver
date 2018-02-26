@@ -12,20 +12,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-            <li class="nav-item<#if request.servletPath=='/indexes'> active</#if>">
-                <a class="nav-link" href="/indexes">Indexes
-                    <#if request.servletPath=='/'><span class="sr-only">(current)</span></#if></a>
-            </li>
-            <li class="nav-item<#if request.servletPath=='/crawlers/web'> active</#if> dropdown">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-                   aria-expanded="false">Crawlers</a>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="/crawlers/web">Web</a>
-                </div>
-            </li>
-            <li class="nav-item<#if request.servletPath=='/tasks'> active</#if>">
-                <a class="nav-link" href="/tasks">Tasks
-                    <#if request.servletPath=='/tasks'><span class="sr-only">(current)</span></#if></a>
+            <li class="nav-item<#if request.servletPath=='/schemas'> active</#if>">
+                <a class="nav-link" href="/schemas">Schemas
+                    <#if request.servletPath=='/schemas'><span class="sr-only">(current)</span></#if></a>
             </li>
         </ul>
     </div>

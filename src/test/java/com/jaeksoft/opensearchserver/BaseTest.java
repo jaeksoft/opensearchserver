@@ -22,15 +22,21 @@ import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import org.junit.After;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class BaseTest {
 
 	private Components components;
 
 	private synchronized Components getComponents() throws IOException {
-		if (components == null)
-			components = new Components(Files.createTempDirectory("BaseTest"));
+		if (components == null) {
+			final Path dataDirectory = Files.createTempDirectory("BaseTest");
+			Files.copy(Paths.get("config.properties"), dataDirectory.resolve("config.properties"));
+			components = new Components(dataDirectory);
+		}
 		return components;
 	}
 
@@ -38,15 +44,15 @@ public class BaseTest {
 		return "test-local";
 	}
 
-	protected WebCrawlsService getWebCrawlsService() throws IOException {
+	protected WebCrawlsService getWebCrawlsService() throws IOException, URISyntaxException {
 		return getComponents().getWebCrawlsService();
 	}
 
-	protected TasksService getTasksService() throws IOException {
+	protected TasksService getTasksService() throws IOException, URISyntaxException {
 		return getComponents().getTasksService();
 	}
 
-	protected IndexesService getIndexesService() throws IOException {
+	protected IndexesService getIndexesService() throws IOException, URISyntaxException {
 		return getComponents().getIndexesService();
 	}
 

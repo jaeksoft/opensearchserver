@@ -18,18 +18,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Web Crawl tasks - OpenSearchServer</title>
-    <#include '../includes/head.ftl'>
+    <#include '../../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
+    <#include '../../../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
             <li class="breadcrumb-item">Crawlers</li>
-            <li class="breadcrumb-item"><a href="/crawlers/web">Web</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}/crawlers/web">Web</a></li>
             <li class="breadcrumb-item">
-                <a href="/crawlers/web/${webCrawlRecord.uuid?url}">
+                <a href="/schemas/${schema?url}/crawlers/web/${webCrawlRecord.uuid?url}">
                 ${webCrawlRecord.name!webCrawlRecord.uuid!?html}</a>
             </li>
             <li class=" breadcrumb-item active" aria-current="page">
@@ -37,13 +39,13 @@
             </li>
         </ol>
     </nav>
- <#include '../includes/messages.ftl'>
+ <#include '../../../includes/messages.ftl'>
     <#if tasks?has_content>
      <div class="card">
          <div class="card-body">
              <h5 class="card-title">Active tasks</h5>
              <#assign show_crawl = false>
-             <#include '../tasks/includes/task_list.ftl'>
+             <#include '../../tasks/includes/task_list.ftl'>
          </div>
      </div>
     <br/>
@@ -108,6 +110,6 @@
     <br/>
     -->
 </div>
-<#include '../includes/foot.ftl'>
+<#include '../../../includes/foot.ftl'>
 </body>
 </html>

@@ -14,10 +14,8 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front.tasks;
+package com.jaeksoft.opensearchserver.front.schema.tasks;
 
-import com.jaeksoft.opensearchserver.front.indexes.IndexServlet;
-import com.jaeksoft.opensearchserver.front.webcrawl.CrawlerWebServlet;
 import com.jaeksoft.opensearchserver.model.CrawlTaskRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
@@ -102,7 +100,7 @@ public class TaskResult {
 			}
 		}
 
-		public void add(TaskRecord taskRecord) {
+		public void add(final TaskRecord taskRecord) {
 			if (results == null)
 				results = new ArrayList<>();
 			String indexName = null;
@@ -115,7 +113,7 @@ public class TaskResult {
 				if (indexName == null)
 					indexName = crawlTask.indexUuid.toString();
 				else
-					indexPath = IndexServlet.PATH + '/' + LinkUtils.urlEncode(indexName);
+					indexPath = "/schemas/" + accountSchema + "/indexes/" + LinkUtils.urlEncode(indexName);
 				if (taskRecord instanceof WebCrawlTaskRecord) {
 					if (webCrawlsService != null && crawlResolver != null) {
 						crawlName = crawlResolver.computeIfAbsent(taskRecord.taskId, taskId -> {
@@ -123,7 +121,7 @@ public class TaskResult {
 									() -> webCrawlsService.read(accountSchema, crawlTask.crawlUuid));
 							return webCrawlRecord == null ? crawlTask.crawlUuid.toString() : webCrawlRecord.getName();
 						});
-						crawlPath = CrawlerWebServlet.PATH + '/' + crawlTask.crawlUuid.toString();
+						crawlPath = "/schemas/" + accountSchema + "/crawlers/web/" + crawlTask.crawlUuid.toString();
 					}
 				}
 			}

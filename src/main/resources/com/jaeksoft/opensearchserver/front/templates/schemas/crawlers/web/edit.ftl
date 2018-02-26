@@ -18,22 +18,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Web Crawler - OpenSearchServer</title>
-    <#include '../includes/head.ftl'>
+    <#include '../../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
+    <#include '../../../includes/nav.ftl'>
 <br/>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
             <li class="breadcrumb-item">Crawlers</li>
-            <li class="breadcrumb-item"><a href="/crawlers/web">Web</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}/crawlers/web">Web</a></li>
             <li class="breadcrumb-item active" aria-current="page">
             ${webCrawlRecord.name!webCrawlRecord.uuid!?html}
             </li>
         </ol>
     </nav>
- <#include '../includes/messages.ftl'>
+ <#include '../../../includes/messages.ftl'>
 
 <#-- WEB CRAWL EDITION -->
     <div class="card">
@@ -83,6 +85,6 @@
         </div>
     </div>
 </div>
-<#include '../includes/foot.ftl'>
+<#include '../../../includes/foot.ftl'>
 </body>
 </html>

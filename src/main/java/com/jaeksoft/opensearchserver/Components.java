@@ -17,22 +17,31 @@ package com.jaeksoft.opensearchserver;
 
 import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.ProcessingService;
 import com.jaeksoft.opensearchserver.services.TasksService;
+import com.jaeksoft.opensearchserver.services.UsersService;
 import com.jaeksoft.opensearchserver.services.WebCrawlProcessingService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
+import com.qwazr.crawler.web.WebCrawlerSingleClient;
+import com.qwazr.database.TableManager;
+import com.qwazr.database.TableServiceInterface;
+import com.qwazr.database.TableSingleClient;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.scheduler.SchedulerManager;
 import com.qwazr.scheduler.SchedulerServiceInterface;
 import com.qwazr.scripts.ScriptManager;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
+import com.qwazr.search.index.IndexSingleClient;
 import com.qwazr.search.index.SchemaSettingsDefinition;
+import com.qwazr.server.RemoteService;
 import com.qwazr.store.StoreManager;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.store.StoreSingleClient;
 import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.IOUtils;
 import com.qwazr.utils.ObjectMappers;
@@ -40,6 +49,7 @@ import org.quartz.SchedulerException;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,6 +68,8 @@ public class Components implements Closeable {
 	private final List<Closeable> closing;
 
 	private volatile ExecutorService executorService;
+
+	private volatile ConfigService configService;
 
 	private volatile FreeMarkerTool freemarkerTool;
 
@@ -80,6 +92,10 @@ public class Components implements Closeable {
 	private volatile StoreManager storeManager;
 	private volatile StoreServiceInterface storeService;
 
+	private volatile TableManager tableManager;
+	private volatile TableServiceInterface tableService;
+	private volatile UsersService usersService;
+
 	Components(final Path dataDirectory) {
 		this.closing = new ArrayList<>();
 		this.dataDirectory = dataDirectory;
@@ -92,15 +108,10 @@ public class Components implements Closeable {
 		return executorService;
 	}
 
-	private synchronized IndexManager getIndexManager() throws IOException {
-		if (indexManager == null) {
-			final Path indexesDirectory = dataDirectory.resolve(IndexServiceInterface.PATH);
-			if (!Files.exists(indexesDirectory))
-				Files.createDirectory(indexesDirectory);
-			indexManager = new IndexManager(indexesDirectory, getExecutorService());
-			closing.add(indexManager);
-		}
-		return indexManager;
+	private synchronized ConfigService getConfigService() throws IOException, URISyntaxException {
+		if (configService == null)
+			configService = new ConfigService(this.dataDirectory.resolve("config.properties"));
+		return configService;
 	}
 
 	public synchronized FreeMarkerTool getFreemarkerTool() {
@@ -117,19 +128,34 @@ public class Components implements Closeable {
 		return freemarkerTool;
 	}
 
-	private synchronized IndexServiceInterface getIndexService() throws IOException {
-		if (indexService == null)
-			indexService = getIndexManager().getService();
+	private synchronized IndexManager getIndexManager() throws IOException {
+		if (indexManager == null) {
+			final Path indexesDirectory = dataDirectory.resolve(IndexServiceInterface.PATH);
+			if (!Files.exists(indexesDirectory))
+				Files.createDirectory(indexesDirectory);
+			indexManager = new IndexManager(indexesDirectory, getExecutorService());
+			closing.add(indexManager);
+		}
+		return indexManager;
+	}
+
+	private synchronized IndexServiceInterface getIndexService() throws IOException, URISyntaxException {
+		if (indexService == null) {
+			if (getConfigService().getIndexServiceUri() != null)
+				indexService = new IndexSingleClient(RemoteService.of(getConfigService().getIndexServiceUri()).build());
+			else
+				indexService = getIndexManager().getService();
+		}
 		return indexService;
 	}
 
-	public synchronized IndexesService getIndexesService() throws IOException {
+	public synchronized IndexesService getIndexesService() throws IOException, URISyntaxException {
 		if (indexesService == null)
 			indexesService = new IndexesService(getIndexService());
 		return indexesService;
 	}
 
-	public synchronized WebCrawlsService getWebCrawlsService() throws IOException {
+	public synchronized WebCrawlsService getWebCrawlsService() throws IOException, URISyntaxException {
 		if (webCrawlsService == null) {
 			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
 			if (!Files.exists(webCrawlsDirectory))
@@ -139,20 +165,22 @@ public class Components implements Closeable {
 		return webCrawlsService;
 	}
 
-	private synchronized WebCrawlProcessingService getWebCrawlProcessingService() throws IOException {
+	private synchronized WebCrawlProcessingService getWebCrawlProcessingService()
+			throws IOException, URISyntaxException {
 		if (webCrawlProcessingService == null)
 			webCrawlProcessingService = new WebCrawlProcessingService(getWebCrawlerService(), getIndexesService());
 		return webCrawlProcessingService;
 
 	}
 
-	private synchronized Map<Class<? extends TaskRecord>, ProcessingService> getProcessors() throws IOException {
+	private synchronized Map<Class<? extends TaskRecord>, ProcessingService> getProcessors()
+			throws IOException, URISyntaxException {
 		if (tasksProcessors == null)
 			tasksProcessors = ProcessingService.of().register(getWebCrawlProcessingService()).build();
 		return tasksProcessors;
 	}
 
-	public synchronized TasksService getTasksService() throws IOException {
+	public synchronized TasksService getTasksService() throws IOException, URISyntaxException {
 		if (tasksService == null)
 			tasksService = new TasksService(getStoreService(), getProcessors());
 		return tasksService;
@@ -178,9 +206,14 @@ public class Components implements Closeable {
 		return webCrawlerManager;
 	}
 
-	synchronized WebCrawlerServiceInterface getWebCrawlerService() {
-		if (webCrawlerService == null)
-			webCrawlerService = getWebCrawlerManager().getService();
+	synchronized WebCrawlerServiceInterface getWebCrawlerService() throws IOException, URISyntaxException {
+		if (webCrawlerService == null) {
+			if (getConfigService().getWebCrawlerServiceUri() != null)
+				webCrawlerService = new WebCrawlerSingleClient(
+						RemoteService.of(getConfigService().getWebCrawlerServiceUri()).build());
+			else
+				webCrawlerService = getWebCrawlerManager().getService();
+		}
 		return webCrawlerService;
 	}
 
@@ -207,10 +240,36 @@ public class Components implements Closeable {
 		return storeManager;
 	}
 
-	synchronized StoreServiceInterface getStoreService() throws IOException {
-		if (storeService == null)
-			storeService = getStoreManager().getService();
+	synchronized StoreServiceInterface getStoreService() throws IOException, URISyntaxException {
+		if (storeService == null) {
+			if (getConfigService().getStoreServiceUri() != null)
+				storeService = new StoreSingleClient(RemoteService.of(getConfigService().getStoreServiceUri()).build());
+			else
+				storeService = getStoreManager().getService();
+		}
 		return storeService;
+	}
+
+	private synchronized TableManager getTableManager() throws IOException {
+		if (tableManager == null)
+			tableManager = new TableManager(getExecutorService(), TableManager.checkTablesDirectory(dataDirectory));
+		return tableManager;
+	}
+
+	private synchronized TableServiceInterface getTableService() throws IOException, URISyntaxException {
+		if (tableService == null) {
+			if (getConfigService().getTableServiceUrl() != null)
+				tableService = new TableSingleClient(RemoteService.of(getConfigService().getTableServiceUrl()).build());
+			else
+				tableService = getTableManager().getService();
+		}
+		return tableService;
+	}
+
+	public synchronized UsersService getUsersService() throws IOException, NoSuchMethodException, URISyntaxException {
+		if (usersService == null)
+			usersService = new UsersService(getConfigService(), getTableService());
+		return usersService;
 	}
 
 	@Override

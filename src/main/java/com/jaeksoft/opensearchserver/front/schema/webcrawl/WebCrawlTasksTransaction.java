@@ -13,11 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.webcrawl;
+package com.jaeksoft.opensearchserver.front.schema.webcrawl;
 
+import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.front.tasks.TaskResult;
+import com.jaeksoft.opensearchserver.front.schema.tasks.TaskResult;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
@@ -27,23 +28,27 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.UUID;
 
 public class WebCrawlTasksTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "web_crawl/tasks.ftl";
+	private final static String TEMPLATE_INDEX = "schemas/crawlers/web/tasks.ftl";
 
+	private final String schemaName;
 	private final WebCrawlRecord webCrawlRecord;
 	private final IndexesService indexesService;
 	private final TasksService tasksService;
 
-	WebCrawlTasksTransaction(final CrawlerWebServlet servlet, final UUID webCrawlUuid, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException {
-		super(servlet.freemarker, request, response);
-		webCrawlRecord = servlet.webCrawlsService.read(getAccountSchema(), webCrawlUuid);
-		indexesService = servlet.indexesService;
-		tasksService = servlet.tasksService;
+	public WebCrawlTasksTransaction(final Components components, final String schemaName, final UUID webCrawlUuid,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, request, response);
+		this.schemaName = schemaName;
+		webCrawlRecord = components.getWebCrawlsService().read(schemaName, webCrawlUuid);
+		indexesService = components.getIndexesService();
+		tasksService = components.getTasksService();
 	}
 
 	public void crawl() throws IOException, ServletException {
@@ -52,15 +57,13 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			return;
 		}
 		final String index = request.getParameter("index");
-		final String accountSchema = getAccountSchema();
-		final UUID indexUuid =
-				UUID.fromString(indexesService.getIndex(accountSchema, index).getIndexStatus().index_uuid);
+		final UUID indexUuid = UUID.fromString(indexesService.getIndex(schemaName, index).getIndexStatus().index_uuid);
 		final WebCrawlTaskRecord record = WebCrawlTaskRecord.of(webCrawlRecord, indexUuid).build();
-		if (tasksService.getActiveTask(accountSchema, record.getTaskId()) != null) {
+		if (tasksService.getActiveTask(schemaName, record.getTaskId()) != null) {
 			addMessage(Message.Css.warning, "Web crawl already started",
 					"This Web crawl has already been started on " + index);
 		} else {
-			tasksService.saveActiveTask(accountSchema, record);
+			tasksService.saveActiveTask(schemaName, record);
 			addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
 		}
 		doGet();
@@ -73,16 +76,16 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			return;
 		}
 
-		final String accountSchema = getAccountSchema();
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountSchema, null);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, schemaName, null);
 		int totalCount =
-				tasksService.collectActiveTasks(accountSchema, 0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
+				tasksService.collectActiveTasks(schemaName, 0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
+		request.setAttribute("schema", schemaName);
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
-		request.setAttribute("indexes", indexesService.getIndexes(accountSchema));
+		request.setAttribute("indexes", indexesService.getIndexes(schemaName));
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

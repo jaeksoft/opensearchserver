@@ -17,22 +17,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>OpenSearchServer</title>
-    <#include 'includes/head.ftl'>
+    <title>Active Tasks - OpenSearchServer</title>
+    <#include '../../includes/head.ftl'>
 </head>
 <body>
-    <#include 'includes/nav.ftl'>
+    <#include '../../includes/nav.ftl'>
 <br/>
 <div class="container">
-<#include 'includes/messages.ftl'>
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
+            <li class="breadcrumb-item active">Tasks</li>
+        </ol>
+    </nav>
+ <#include '../../includes/messages.ftl'>
 </div>
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Welcome to OpenSearchServer</h4>
+            <h5 class="card-title">Active tasks</h5>
+                <#assign show_crawl = true>
+        <#include 'includes/task_list.ftl'>
         </div>
     </div>
 </div>
-<#include 'includes/foot.ftl'>
+<#include '../../includes/foot.ftl'>
 </body>
 </html>

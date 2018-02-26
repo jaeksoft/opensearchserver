@@ -9,6 +9,7 @@
 /indexes
 /logs
 /store
+/table
 /tmp
 /server
 opensearchserver.iml

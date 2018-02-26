@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.webcrawl;
+package com.jaeksoft.opensearchserver.front.schema.webcrawl;
 
+import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
@@ -25,20 +26,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class WebCrawlEditTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "web_crawl/edit.ftl";
+	private final static String TEMPLATE_INDEX = "schemas/crawlers/web/edit.ftl";
 
+	private final String schemaName;
 	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
 
-	WebCrawlEditTransaction(final CrawlerWebServlet servlet, final UUID webCrawlUuid, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException {
-		super(servlet.freemarker, request, response);
-		this.webCrawlsService = servlet.webCrawlsService;
-		webCrawlRecord = webCrawlsService.read(getAccountSchema(), webCrawlUuid);
+	public WebCrawlEditTransaction(final Components components, final String schemaName, final UUID webCrawlUuid,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, request, response);
+		this.schemaName = schemaName;
+		this.webCrawlsService = components.getWebCrawlsService();
+		webCrawlRecord = webCrawlsService.read(schemaName, webCrawlUuid);
 	}
 
 	public void delete() throws IOException, ServletException {
@@ -48,9 +53,9 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 		}
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
-			webCrawlsService.remove(getAccountSchema(), webCrawlRecord.getUuid());
+			webCrawlsService.remove(schemaName, webCrawlRecord.getUuid());
 			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-			response.sendRedirect(CrawlerWebServlet.PATH);
+			response.sendRedirect("/schemas/" + schemaName + "/crawlers/web");
 			return;
 		} else
 			addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
@@ -67,9 +72,9 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(getAccountSchema(),
+		webCrawlsService.save(schemaName,
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		response.sendRedirect(CrawlerWebServlet.PATH + '/' + webCrawlRecord.getUuid());
+		response.sendRedirect("/schemas/" + schemaName + "/crawlers/web/" + webCrawlRecord.getUuid());
 	}
 
 	@Override
@@ -78,6 +83,7 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
+		request.setAttribute("schema", schemaName);
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		doTemplate(TEMPLATE_INDEX);
 	}

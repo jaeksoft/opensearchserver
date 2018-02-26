@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.tasks;
+package com.jaeksoft.opensearchserver.front.schema.tasks;
 
+import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.TasksService;
@@ -23,23 +24,27 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class ActiveTaskStatusTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "tasks/active_status.ftl";
+	private final static String TEMPLATE_INDEX = "schemas/tasks/active_status.ftl";
 
+	private final String schemaName;
 	private final TasksService tasksService;
 	private final String taskId;
 
-	ActiveTaskStatusTransaction(final TasksServlet servlet, final String taskId, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(servlet.freemarker, request, response);
-		tasksService = servlet.tasksService;
+	public ActiveTaskStatusTransaction(final Components components, final String schemaName, final String taskId,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, request, response);
+		this.schemaName = schemaName;
+		this.tasksService = components.getTasksService();
 		this.taskId = taskId;
 	}
 
 	private TaskRecord checkTaskRecord() throws IOException {
-		final TaskRecord taskRecord = tasksService.getActiveTask(getAccountSchema(), taskId);
+		final TaskRecord taskRecord = tasksService.getActiveTask(schemaName, taskId);
 		if (taskRecord != null)
 			return taskRecord;
 		response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -47,12 +52,12 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 	}
 
 	public void pause() throws IOException, ServletException {
-		tasksService.pause(getAccountSchema(), taskId);
+		tasksService.pause(schemaName, taskId);
 		doGet();
 	}
 
 	public void start() throws IOException, ServletException {
-		tasksService.start(getAccountSchema(), taskId);
+		tasksService.start(schemaName, taskId);
 		doGet();
 	}
 
@@ -61,6 +66,7 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 		final TaskRecord taskRecord = checkTaskRecord();
 		if (taskRecord == null)
 			return;
+		request.setAttribute("schema", schemaName);
 		request.setAttribute("task", taskRecord);
 		doTemplate(TEMPLATE_INDEX);
 	}

@@ -18,15 +18,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Indexes - OpenSearchServer</title>
-    <#include 'includes/head.ftl'>
+    <#include '../../includes/head.ftl'>
 </head>
 <body>
-    <#include 'includes/nav.ftl'>
+    <#include '../../includes/nav.ftl'>
 <br/>
 <div class="container">
-<#include 'includes/messages.ftl'>
+<#include '../../includes/messages.ftl'>
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
+            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Indexes</li>
         </ol>
     </nav>
@@ -45,7 +47,7 @@
         <tr>
             <th>${index!?html}</th>
             <td align="right">
-                <a href="/indexes/${index!?html}" class=" btn btn-sm btn-info">Edit</a>
+                <a href="/schemas/${schema?url}/indexes/${index!?html}" class=" btn btn-sm btn-info">Edit</a>
             </td>
         </tr>
         </#list>
@@ -67,6 +69,6 @@
         </div>
     </form>
 </div>
-    <#include 'includes/foot.ftl'>
+    <#include '../../includes/foot.ftl'>
 </body>
 </html>
