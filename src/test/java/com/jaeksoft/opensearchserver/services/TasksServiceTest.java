@@ -93,7 +93,7 @@ public class TasksServiceTest extends BaseTest {
 			} catch (NotAllowedException e) {
 				// That's OK
 				LOGGER.info("Wait until the task is done");
-				ThreadUtils.sleep(1, TimeUnit.SECONDS);
+				ThreadUtils.sleep(5, TimeUnit.SECONDS);
 			}
 		}
 	}

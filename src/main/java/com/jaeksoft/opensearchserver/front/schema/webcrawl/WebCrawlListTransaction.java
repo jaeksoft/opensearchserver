@@ -31,16 +31,16 @@ import java.util.List;
 
 public class WebCrawlListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/crawlers/web/list.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/list.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final WebCrawlsService webCrawlsService;
 
-	public WebCrawlListTransaction(final Components components, final String schemaName,
+	public WebCrawlListTransaction(final Components components, final String accountId,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 		webCrawlsService = components.getWebCrawlsService();
 	}
 
@@ -50,7 +50,7 @@ public class WebCrawlListTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(schemaName,
+		webCrawlsService.save(accountId,
 				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		doGet();
 	}
@@ -61,9 +61,9 @@ public class WebCrawlListTransaction extends ServletTransaction {
 		final int rows = getRequestParameter("rows", 25);
 
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount = webCrawlsService.collect(schemaName, start, rows, webCrawlRecords::add);
+		final int totalCount = webCrawlsService.collect(accountId, start, rows, webCrawlRecords::add);
 
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
 		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);

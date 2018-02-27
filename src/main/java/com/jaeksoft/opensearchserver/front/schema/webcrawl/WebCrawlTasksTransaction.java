@@ -34,19 +34,19 @@ import java.util.UUID;
 
 public class WebCrawlTasksTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/crawlers/web/tasks.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/tasks.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final WebCrawlRecord webCrawlRecord;
 	private final IndexesService indexesService;
 	private final TasksService tasksService;
 
-	public WebCrawlTasksTransaction(final Components components, final String schemaName, final UUID webCrawlUuid,
+	public WebCrawlTasksTransaction(final Components components, final String accountId, final UUID webCrawlUuid,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
-		webCrawlRecord = components.getWebCrawlsService().read(schemaName, webCrawlUuid);
+		this.accountId = accountId;
+		webCrawlRecord = components.getWebCrawlsService().read(accountId, webCrawlUuid);
 		indexesService = components.getIndexesService();
 		tasksService = components.getTasksService();
 	}
@@ -57,13 +57,13 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			return;
 		}
 		final String index = request.getParameter("index");
-		final UUID indexUuid = UUID.fromString(indexesService.getIndex(schemaName, index).getIndexStatus().index_uuid);
+		final UUID indexUuid = UUID.fromString(indexesService.getIndex(accountId, index).getIndexStatus().index_uuid);
 		final WebCrawlTaskRecord record = WebCrawlTaskRecord.of(webCrawlRecord, indexUuid).build();
-		if (tasksService.getActiveTask(schemaName, record.getTaskId()) != null) {
+		if (tasksService.getActiveTask(accountId, record.getTaskId()) != null) {
 			addMessage(Message.Css.warning, "Web crawl already started",
 					"This Web crawl has already been started on " + index);
 		} else {
-			tasksService.saveActiveTask(schemaName, record);
+			tasksService.saveActiveTask(accountId, record);
 			addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
 		}
 		doGet();
@@ -76,16 +76,16 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 			return;
 		}
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, schemaName, null);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountId, null);
 		int totalCount =
-				tasksService.collectActiveTasks(schemaName, 0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
+				tasksService.collectActiveTasks(accountId, 0, 1000, webCrawlRecord.getUuid(), resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
-		request.setAttribute("indexes", indexesService.getIndexes(schemaName));
+		request.setAttribute("indexes", indexesService.getIndexes(accountId));
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

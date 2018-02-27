@@ -31,19 +31,19 @@ import java.util.UUID;
 
 public class WebCrawlEditTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/crawlers/web/edit.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/edit.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
 
-	public WebCrawlEditTransaction(final Components components, final String schemaName, final UUID webCrawlUuid,
+	public WebCrawlEditTransaction(final Components components, final String accountId, final UUID webCrawlUuid,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 		this.webCrawlsService = components.getWebCrawlsService();
-		webCrawlRecord = webCrawlsService.read(schemaName, webCrawlUuid);
+		webCrawlRecord = webCrawlsService.read(accountId, webCrawlUuid);
 	}
 
 	public void delete() throws IOException, ServletException {
@@ -53,9 +53,9 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 		}
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
-			webCrawlsService.remove(schemaName, webCrawlRecord.getUuid());
+			webCrawlsService.remove(accountId, webCrawlRecord.getUuid());
 			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-			response.sendRedirect("/schemas/" + schemaName + "/crawlers/web");
+			response.sendRedirect("/accounts/" + accountId + "/crawlers/web");
 			return;
 		} else
 			addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
@@ -72,9 +72,9 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(schemaName,
+		webCrawlsService.save(accountId,
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		response.sendRedirect("/schemas/" + schemaName + "/crawlers/web/" + webCrawlRecord.getUuid());
+		response.sendRedirect("/accounts/" + accountId + "/crawlers/web/" + webCrawlRecord.getUuid());
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		doTemplate(TEMPLATE_INDEX);
 	}

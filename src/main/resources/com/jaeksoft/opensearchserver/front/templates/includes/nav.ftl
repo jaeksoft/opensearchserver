@@ -12,9 +12,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-            <li class="nav-item<#if request.servletPath=='/schemas'> active</#if>">
-                <a class="nav-link" href="/schemas">Schemas
-                    <#if request.servletPath=='/schemas'><span class="sr-only">(current)</span></#if></a>
+            <li class="nav-item<#if request.servletPath=='/accounts'> active</#if>">
+                <a class="nav-link" href="/accounts">Accounts
+                    <#if request.servletPath=='/accounts'><span class="sr-only">(current)</span></#if></a>
             </li>
         </ul>
     </div>

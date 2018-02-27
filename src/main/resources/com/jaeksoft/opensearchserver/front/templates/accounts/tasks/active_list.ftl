@@ -17,42 +17,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Schemas - OpenSearchServer</title>
-    <#include '../includes/head.ftl'>
+    <title>Active Tasks - OpenSearchServer</title>
+    <#include '../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
+    <#include '../../includes/nav.ftl'>
 <br/>
 <div class="container">
-<#include '../includes/messages.ftl'>
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">Schemas</li>
+            <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}">${accountId?html}</a></li>
+            <li class="breadcrumb-item active">Tasks</li>
         </ol>
     </nav>
+ <#include '../../includes/messages.ftl'>
 </div>
-<#if schemas?has_content>
-    <div class="container">
-        <table class="table table-hover">
-            <thead class="thead-dark">
-            <tr>
-                <th>Schema</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-        <#list schemas as schema>
-        <tr>
-            <th>${schema?html}</th>
-            <td align="right">
-                <a href="/schemas/${schema?url}" class=" btn btn-sm btn-info">View</a>
-            </td>
-        </tr>
-        </#list>
-            </tbody>
-        </table>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Active tasks</h5>
+                <#assign show_crawl = true>
+        <#include 'includes/task_list.ftl'>
+        </div>
     </div>
-</#if>
-<#include '../includes/foot.ftl'>
+</div>
+<#include '../../includes/foot.ftl'>
 </body>
 </html>

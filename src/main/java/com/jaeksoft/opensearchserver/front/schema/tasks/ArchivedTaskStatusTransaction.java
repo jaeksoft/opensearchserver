@@ -28,19 +28,19 @@ import java.net.URISyntaxException;
 
 public class ArchivedTaskStatusTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/tasks/achived_status.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/tasks/achived_status.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final TasksService tasksService;
 	private final TaskRecord taskRecord;
 
-	public ArchivedTaskStatusTransaction(final Components components, final String schemaName, final String taskId,
+	public ArchivedTaskStatusTransaction(final Components components, final String accountId, final String taskId,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 		tasksService = components.getTasksService();
-		taskRecord = tasksService.getActiveTask(schemaName, taskId);
+		taskRecord = tasksService.getActiveTask(accountId, taskId);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class ArchivedTaskStatusTransaction extends ServletTransaction {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("task", taskRecord);
 		doTemplate(TEMPLATE_INDEX);
 	}

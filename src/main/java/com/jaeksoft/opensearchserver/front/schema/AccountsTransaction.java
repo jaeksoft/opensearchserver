@@ -22,28 +22,25 @@ import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.NotAllowedException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
-public class SchemaTransaction extends ServletTransaction {
+public class AccountsTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "schemas/schema.ftl";
+	private final static String TEMPLATE = "accounts/account.ftl";
 
-	private final String schemaName;
+	private final Collection<String> accounts;
 
-	public SchemaTransaction(final Components components, final String schemaName, final HttpServletRequest request,
+	public AccountsTransaction(final Components components, final HttpServletRequest request,
 			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		accounts = getAccountIds();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		if (!isUserAccount(schemaName))
-			throw new NotAllowedException("Not allowed");
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accounts", accounts);
 		doTemplate(TEMPLATE);
 	}
-
 }

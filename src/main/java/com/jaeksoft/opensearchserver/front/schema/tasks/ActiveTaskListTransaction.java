@@ -30,18 +30,18 @@ import java.util.List;
 
 public class ActiveTaskListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/tasks/active_list.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/tasks/active_list.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
 	private final WebCrawlsService webCrawlsService;
 
-	public ActiveTaskListTransaction(final Components components, final String schemaName,
+	public ActiveTaskListTransaction(final Components components, final String accountId,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 		tasksService = components.getTasksService();
 		indexesService = components.getIndexesService();
 		webCrawlsService = components.getWebCrawlsService();
@@ -52,11 +52,11 @@ public class ActiveTaskListTransaction extends ServletTransaction {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, schemaName, webCrawlsService);
-		int totalCount = tasksService.collectActiveTasks(schemaName, start, rows, resultBuilder::add);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountId, webCrawlsService);
+		int totalCount = tasksService.collectActiveTasks(accountId, start, rows, resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);

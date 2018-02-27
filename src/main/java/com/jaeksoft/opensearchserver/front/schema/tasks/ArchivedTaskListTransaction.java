@@ -29,17 +29,17 @@ import java.util.List;
 
 public class ArchivedTaskListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/tasks/archived.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/tasks/archived.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
 
-	public ArchivedTaskListTransaction(final Components components, final String schemaName,
+	public ArchivedTaskListTransaction(final Components components, final String accountId,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 		tasksService = components.getTasksService();
 		indexesService = components.getIndexesService();
 	}
@@ -49,11 +49,11 @@ public class ArchivedTaskListTransaction extends ServletTransaction {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, schemaName, null);
-		int totalCount = tasksService.collectActiveTasks(schemaName, start, rows, resultBuilder::add);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountId, null);
+		int totalCount = tasksService.collectActiveTasks(accountId, start, rows, resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);

@@ -28,23 +28,23 @@ import java.net.URISyntaxException;
 
 public class ActiveTaskStatusTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "schemas/tasks/active_status.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/tasks/active_status.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final TasksService tasksService;
 	private final String taskId;
 
-	public ActiveTaskStatusTransaction(final Components components, final String schemaName, final String taskId,
+	public ActiveTaskStatusTransaction(final Components components, final String accountId, final String taskId,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 		this.tasksService = components.getTasksService();
 		this.taskId = taskId;
 	}
 
 	private TaskRecord checkTaskRecord() throws IOException {
-		final TaskRecord taskRecord = tasksService.getActiveTask(schemaName, taskId);
+		final TaskRecord taskRecord = tasksService.getActiveTask(accountId, taskId);
 		if (taskRecord != null)
 			return taskRecord;
 		response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -52,12 +52,12 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 	}
 
 	public void pause() throws IOException, ServletException {
-		tasksService.pause(schemaName, taskId);
+		tasksService.pause(accountId, taskId);
 		doGet();
 	}
 
 	public void start() throws IOException, ServletException {
-		tasksService.start(schemaName, taskId);
+		tasksService.start(accountId, taskId);
 		doGet();
 	}
 
@@ -66,7 +66,7 @@ public class ActiveTaskStatusTransaction extends ServletTransaction {
 		final TaskRecord taskRecord = checkTaskRecord();
 		if (taskRecord == null)
 			return;
-		request.setAttribute("schema", schemaName);
+		request.setAttribute("accountId", accountId);
 		request.setAttribute("task", taskRecord);
 		doTemplate(TEMPLATE_INDEX);
 	}

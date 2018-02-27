@@ -27,7 +27,7 @@
                 <td>${task.record.status!'Unknown'?capitalize}</td>
                 <td><#if task.record.statusTime??>${task.record.statusTime?number_to_datetime}</#if></td>
                 <td align="right">
-                    <a href="/schemas/${schema?url}/tasks/${task.record.taskId?html}"
+                    <a href="/accounts/${accountId?url}/tasks/${task.record.taskId?html}"
                        class=" btn btn-sm btn-info">Info</a>
                 </td>
             </tr>

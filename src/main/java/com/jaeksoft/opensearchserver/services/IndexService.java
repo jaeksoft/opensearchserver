@@ -40,9 +40,9 @@ public class IndexService extends UsableService {
 
 	private final AnnotatedIndexService<UrlRecord> service;
 
-	public IndexService(final IndexServiceInterface indexService, final String schemaName, final String indexName)
+	public IndexService(final IndexServiceInterface indexService, final String accountId, final String indexName)
 			throws URISyntaxException {
-		service = new AnnotatedIndexService<>(indexService, UrlRecord.class, schemaName, indexName, null);
+		service = new AnnotatedIndexService<>(indexService, UrlRecord.class, accountId, indexName, null);
 		service.createUpdateFields();
 	}
 

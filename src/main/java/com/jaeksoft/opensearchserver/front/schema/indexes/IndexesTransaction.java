@@ -29,29 +29,29 @@ import java.net.URISyntaxException;
 
 public class IndexesTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "schemas/indexes/indexes.ftl";
+	private final static String TEMPLATE = "accounts/indexes/indexes.ftl";
 
-	private final String schemaName;
+	private final String accountId;
 	private final IndexesService indexesService;
 
-	public IndexesTransaction(final Components components, final String schemaName, final HttpServletRequest request,
+	public IndexesTransaction(final Components components, final String accountId, final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
 		super(components, request, response);
 		this.indexesService = components.getIndexesService();
-		this.schemaName = schemaName;
+		this.accountId = accountId;
 	}
 
 	public void create() throws IOException, ServletException {
 		final String indexName = request.getParameter("indexName");
 		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(schemaName, indexName);
+			indexesService.createIndex(accountId, indexName);
 		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		request.setAttribute("schema", schemaName);
-		request.setAttribute("indexes", indexesService.getIndexes(schemaName));
+		request.setAttribute("accountId", accountId);
+		request.setAttribute("indexes", indexesService.getIndexes(accountId));
 		doTemplate(TEMPLATE);
 	}
 

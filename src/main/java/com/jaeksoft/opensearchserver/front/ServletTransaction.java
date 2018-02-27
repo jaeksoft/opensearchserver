@@ -70,11 +70,11 @@ public abstract class ServletTransaction {
 		return userRecord == null ? Collections.emptyList() : userRecord.getAccountIds();
 	}
 
-	protected boolean isUserAccount(final String schemaName) {
+	protected boolean isUserAccount(final String accountId) {
 		final Collection<String> accounts = getAccountIds();
 		if (accounts == null)
 			return false;
-		return accounts.contains(schemaName);
+		return accounts.contains(accountId);
 	}
 
 	/**

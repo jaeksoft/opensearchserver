@@ -51,30 +51,30 @@ public class CrawlerComponents implements CrawlerContext {
 		CrawlerComponents.localComponents = localComponents;
 	}
 
-	public static synchronized IndexService getIndexService(final URL indexServiceUrl, final String schemaName,
+	public static synchronized IndexService getIndexService(final URL indexServiceUrl, final String accountId,
 			final String indexName) throws IOException, URISyntaxException {
 		if (indexServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available")
 					.getIndexesService()
-					.getIndex(schemaName, indexName);
+					.getIndex(accountId, indexName);
 		if (localIndexServices == null)
 			localIndexServices = new HashMap<>();
 		final Map<String, IndexService> indexServices =
 				localIndexServices.computeIfAbsent(indexServiceUrl, r -> new HashMap<>());
-		return indexServices.computeIfAbsent(schemaName, s -> {
+		return indexServices.computeIfAbsent(accountId, s -> {
 			try {
 				final RemoteService remote = RemoteService.of(indexServiceUrl.toURI()).build();
 				final IndexSingleClient client = new IndexSingleClient(remote);
-				return new IndexService(client, schemaName, indexName);
+				return new IndexService(client, accountId, indexName);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(
-						"Error while creating the IndexService for " + indexServiceUrl + " / " + schemaName + " / " +
+						"Error while creating the IndexService for " + indexServiceUrl + " / " + accountId + " / " +
 								indexName, e);
 			}
 		});
 	}
 
-	public static synchronized WebCrawlsService getWebCrawlsService(final URL storeServiceUrl, final String schemaName)
+	public static synchronized WebCrawlsService getWebCrawlsService(final URL storeServiceUrl, final String accountId)
 			throws IOException, URISyntaxException {
 		if (storeServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available").getWebCrawlsService();
@@ -82,7 +82,7 @@ public class CrawlerComponents implements CrawlerContext {
 			localWebCrawlsServices = new HashMap<>();
 		final Map<String, WebCrawlsService> webCrawlsServices =
 				localWebCrawlsServices.computeIfAbsent(storeServiceUrl, r -> new HashMap<>());
-		return webCrawlsServices.computeIfAbsent(schemaName, s -> {
+		return webCrawlsServices.computeIfAbsent(accountId, s -> {
 			try {
 				final RemoteService remote = RemoteService.of(storeServiceUrl.toURI()).build();
 				final StoreSingleClient client = new StoreSingleClient(remote);
@@ -109,7 +109,7 @@ public class CrawlerComponents implements CrawlerContext {
 		}
 	}
 
-	public static WebCrawlDefinition buildCrawl(final String schema, final String indexName, final UUID crawlUuid,
+	public static WebCrawlDefinition buildCrawl(final String accountId, final String indexName, final UUID crawlUuid,
 			final Long taskCreationTime, final URL indexServiceUrl, final URL storeServiceUrl,
 			final WebCrawlDefinition.Builder crawlBuilder) {
 
@@ -119,7 +119,7 @@ public class CrawlerComponents implements CrawlerContext {
 				script(EventEnum.before_crawl, ScriptDefinition.of(WebBeforeCrawl.class).build()).
 				script(EventEnum.after_crawl, ScriptDefinition.of(WebAfterCrawl.class).build());
 
-		crawlBuilder.variable(SCHEMA_NAME, schema)
+		crawlBuilder.variable(ACCOUNT_ID, accountId)
 				.variable(INDEX_NAME, indexName)
 				.variable(CRAWL_UUID, crawlUuid.toString())
 				.variable(TASK_CREATION_TIME, taskCreationTime.toString());

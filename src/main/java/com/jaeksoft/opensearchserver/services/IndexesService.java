@@ -38,35 +38,35 @@ public class IndexesService {
 		indexes = new ConcurrentHashMap<>();
 	}
 
-	public Set<String> getIndexes(final String schemaName) {
-		indexService.createUpdateSchema(schemaName);
-		final Map<String, UUID> indexMap = indexService.getIndexes(schemaName);
+	public Set<String> getIndexes(final String accountId) {
+		indexService.createUpdateSchema(accountId);
+		final Map<String, UUID> indexMap = indexService.getIndexes(accountId);
 		return indexMap == null ? null : indexMap.keySet();
 	}
 
-	public void createIndex(final String schemaName, final String indexName) {
-		indexService.createUpdateSchema(schemaName);
-		indexService.createUpdateIndex(schemaName, indexName);
+	public void createIndex(final String accountId, final String indexName) {
+		indexService.createUpdateSchema(accountId);
+		indexService.createUpdateIndex(accountId, indexName);
 	}
 
-	public void deleteIndex(final String schemaName, final String indexName) {
-		indexService.deleteIndex(schemaName, indexName);
-		indexes.remove(Pair.of(schemaName, indexName));
+	public void deleteIndex(final String accountId, final String indexName) {
+		indexService.deleteIndex(accountId, indexName);
+		indexes.remove(Pair.of(accountId, indexName));
 	}
 
-	public IndexService getIndex(final String schemaName, final String indexName) {
-		return indexes.computeIfAbsent(Pair.of(schemaName, indexName), in -> {
+	public IndexService getIndex(final String accountId, final String indexName) {
+		return indexes.computeIfAbsent(Pair.of(accountId, indexName), in -> {
 			try {
-				return new IndexService(indexService, schemaName, indexName);
+				return new IndexService(indexService, accountId, indexName);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
 		});
 	}
 
-	public Map<UUID, String> getIndexNameResolver(final String schemaName) {
+	public Map<UUID, String> getIndexNameResolver(final String accountId) {
 		final Map<UUID, String> indexMap = new HashMap<>();
-		indexService.getIndexes(schemaName).forEach((name, uuid) -> indexMap.put(uuid, name));
+		indexService.getIndexes(accountId).forEach((name, uuid) -> indexMap.put(uuid, name));
 		return indexMap;
 	}
 

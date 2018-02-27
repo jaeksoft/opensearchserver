@@ -26,9 +26,9 @@
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
-            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
-            <li class="breadcrumb-item"><a href="/schemas/${schema?url}/tasks">Tasks</a></li>
+            <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}">${accountId?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}/tasks">Tasks</a></li>
             <li class="breadcrumb-item active">${task.taskId}</li>
         </ol>
     </nav>

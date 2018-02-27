@@ -33,17 +33,17 @@ public class WebBeforeSession extends WebAbstractEvent {
 
 		final URL indexServiceUrl = toUrl(context.crawlSession.getVariable(INDEX_SERVICE_URL, String.class));
 		final URL storeServiceUrl = toUrl(context.crawlSession.getVariable(STORE_SERVICE_URL, String.class));
-		final String schemaName = context.crawlSession.getVariable(SCHEMA_NAME, String.class);
+		final String accountId = context.crawlSession.getVariable(ACCOUNT_ID, String.class);
 		final String indexName = context.crawlSession.getVariable(INDEX_NAME, String.class);
 		final String crawlUuid = context.crawlSession.getVariable(CRAWL_UUID, String.class);
 		final String taskCreationTime = context.crawlSession.getVariable(TASK_CREATION_TIME, String.class);
 
-		final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUrl, schemaName, indexName);
+		final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUrl, accountId, indexName);
 
 		context.crawlSession.setAttribute(INDEX_SERVICE, indexService, IndexService.class);
 		context.crawlSession.setAttribute(INDEX_QUEUE, new IndexQueue(indexService, 20, 100, 60), IndexQueue.class);
 		context.crawlSession.setAttribute(WEBCRAWLS_SERVICE,
-				CrawlerComponents.getWebCrawlsService(storeServiceUrl, schemaName), WebCrawlsService.class);
+				CrawlerComponents.getWebCrawlsService(storeServiceUrl, accountId), WebCrawlsService.class);
 		context.crawlSession.setAttribute(CRAWL_UUID, UUID.fromString(crawlUuid), UUID.class);
 		context.crawlSession.setAttribute(TASK_CREATION_TIME, Long.valueOf(taskCreationTime), Long.class);
 

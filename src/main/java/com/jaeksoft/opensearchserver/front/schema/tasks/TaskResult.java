@@ -73,9 +73,9 @@ public class TaskResult {
 		return taskRecord;
 	}
 
-	public static Builder of(final IndexesService indexesService, final String accountSchema,
+	public static Builder of(final IndexesService indexesService, final String accountId,
 			final WebCrawlsService webCrawlsService) {
-		return new Builder(indexesService, accountSchema, webCrawlsService);
+		return new Builder(indexesService, accountId, webCrawlsService);
 	}
 
 	public static class Builder {
@@ -83,14 +83,13 @@ public class TaskResult {
 		private final Map<UUID, String> indexNameResolver;
 		private final Map<String, String> crawlResolver;
 		private final WebCrawlsService webCrawlsService;
-		private final String accountSchema;
+		private final String accountId;
 
 		private volatile List<TaskResult> results;
 
-		Builder(final IndexesService indexesService, final String accountSchema,
-				final WebCrawlsService webCrawlsService) {
-			this.accountSchema = accountSchema;
-			indexNameResolver = indexesService.getIndexNameResolver(accountSchema);
+		Builder(final IndexesService indexesService, final String accountId, final WebCrawlsService webCrawlsService) {
+			this.accountId = accountId;
+			indexNameResolver = indexesService.getIndexNameResolver(accountId);
 			if (webCrawlsService != null) {
 				this.webCrawlsService = webCrawlsService;
 				this.crawlResolver = new HashMap<>();
@@ -113,15 +112,17 @@ public class TaskResult {
 				if (indexName == null)
 					indexName = crawlTask.indexUuid.toString();
 				else
-					indexPath = "/schemas/" + accountSchema + "/indexes/" + LinkUtils.urlEncode(indexName);
+					indexPath = "/accounts/" + LinkUtils.urlEncode(accountId) + "/indexes/" +
+							LinkUtils.urlEncode(indexName);
 				if (taskRecord instanceof WebCrawlTaskRecord) {
 					if (webCrawlsService != null && crawlResolver != null) {
 						crawlName = crawlResolver.computeIfAbsent(taskRecord.taskId, taskId -> {
-							final WebCrawlRecord webCrawlRecord = ExceptionUtils.bypass(
-									() -> webCrawlsService.read(accountSchema, crawlTask.crawlUuid));
+							final WebCrawlRecord webCrawlRecord =
+									ExceptionUtils.bypass(() -> webCrawlsService.read(accountId, crawlTask.crawlUuid));
 							return webCrawlRecord == null ? crawlTask.crawlUuid.toString() : webCrawlRecord.getName();
 						});
-						crawlPath = "/schemas/" + accountSchema + "/crawlers/web/" + crawlTask.crawlUuid.toString();
+						crawlPath = "/accounts/" + LinkUtils.urlEncode(accountId) + "/crawlers/web/" +
+								crawlTask.crawlUuid.toString();
 					}
 				}
 			}

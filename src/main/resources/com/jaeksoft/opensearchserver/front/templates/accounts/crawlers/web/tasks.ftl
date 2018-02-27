@@ -26,12 +26,12 @@
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/schemas">Schemas</a></li>
-            <li class="breadcrumb-item"><a href="/schemas/${schema?url}">${schema?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/">Accounts</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}">${accountId?html}</a></li>
             <li class="breadcrumb-item">Crawlers</li>
-            <li class="breadcrumb-item"><a href="/schemas/${schema?url}/crawlers/web">Web</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}/crawlers/web">Web</a></li>
             <li class="breadcrumb-item">
-                <a href="/schemas/${schema?url}/crawlers/web/${webCrawlRecord.uuid?url}">
+                <a href="/accounts/${accountId?url}/crawlers/web/${webCrawlRecord.uuid?url}">
                 ${webCrawlRecord.name!webCrawlRecord.uuid!?html}</a>
             </li>
             <li class=" breadcrumb-item active" aria-current="page">

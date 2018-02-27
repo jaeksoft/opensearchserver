@@ -19,7 +19,7 @@ package com.jaeksoft.opensearchserver.crawler;
 public interface CrawlerContext {
 
 	// Script variables
-	String SCHEMA_NAME = "schemaName";
+	String ACCOUNT_ID = "accountId";
 	String INDEX_NAME = "indexName";
 	String CRAWL_UUID = "crawlUuid";
 	String TASK_CREATION_TIME = "taskCreationTime";
