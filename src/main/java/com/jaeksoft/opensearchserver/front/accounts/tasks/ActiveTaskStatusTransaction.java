@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.schema.tasks;
+package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
@@ -26,29 +26,46 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class ArchivedTaskStatusTransaction extends ServletTransaction {
+public class ActiveTaskStatusTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/tasks/achived_status.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/tasks/active_status.ftl";
 
 	private final String accountId;
 	private final TasksService tasksService;
-	private final TaskRecord taskRecord;
+	private final String taskId;
 
-	public ArchivedTaskStatusTransaction(final Components components, final String accountId, final String taskId,
+	public ActiveTaskStatusTransaction(final Components components, final String accountId, final String taskId,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, request, response);
+			throws IOException, URISyntaxException {
+		super(components, request, response, true);
 		this.accountId = accountId;
-		tasksService = components.getTasksService();
-		taskRecord = tasksService.getActiveTask(accountId, taskId);
+		this.tasksService = components.getTasksService();
+		this.taskId = taskId;
+	}
+
+	private TaskRecord checkTaskRecord() throws IOException {
+		final TaskRecord taskRecord = tasksService.getActiveTask(accountId, taskId);
+		if (taskRecord != null)
+			return taskRecord;
+		response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		return null;
+	}
+
+	public void pause() throws IOException, ServletException {
+		tasksService.pause(accountId, taskId);
+		doGet();
+	}
+
+	public void start() throws IOException, ServletException {
+		tasksService.start(accountId, taskId);
+		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		if (taskRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		final TaskRecord taskRecord = checkTaskRecord();
+		if (taskRecord == null)
 			return;
-		}
 		request.setAttribute("accountId", accountId);
 		request.setAttribute("task", taskRecord);
 		doTemplate(TEMPLATE_INDEX);

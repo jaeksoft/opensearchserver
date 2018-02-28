@@ -22,7 +22,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 @WebServlet("")
 public class HomeServlet extends BaseServlet {
@@ -37,15 +36,14 @@ public class HomeServlet extends BaseServlet {
 
 	@Override
 	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletResponse response) {
 		return new Transaction(request, response);
 	}
 
 	class Transaction extends ServletTransaction {
 
-		Transaction(final HttpServletRequest request, final HttpServletResponse response)
-				throws NoSuchMethodException, IOException, URISyntaxException {
-			super(components, request, response);
+		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
+			super(components, request, response, false);
 		}
 
 		@Override

@@ -14,44 +14,35 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front.schema.indexes;
+package com.jaeksoft.opensearchserver.front.accounts;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotAllowedException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
-public class IndexesTransaction extends ServletTransaction {
+public class AccountTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "accounts/indexes/indexes.ftl";
+	private final static String TEMPLATE = "accounts/account.ftl";
 
 	private final String accountId;
-	private final IndexesService indexesService;
 
-	public IndexesTransaction(final Components components, final String accountId, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, request, response);
-		this.indexesService = components.getIndexesService();
+	AccountTransaction(final Components components, final String accountId, final HttpServletRequest request,
+			final HttpServletResponse response) {
+		super(components, request, response, true);
+		requireLoggedUser();
 		this.accountId = accountId;
-	}
-
-	public void create() throws IOException, ServletException {
-		final String indexName = request.getParameter("indexName");
-		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(accountId, indexName);
-		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
+		if (!isUserAccount(accountId))
+			throw new NotAllowedException("Not allowed");
 		request.setAttribute("accountId", accountId);
-		request.setAttribute("indexes", indexesService.getIndexes(accountId));
 		doTemplate(TEMPLATE);
 	}
 

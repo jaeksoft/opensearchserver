@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Schema - OpenSearchServer</title>
+    <title>Account - OpenSearchServer</title>
     <#include '../includes/head.ftl'>
 </head>
 <body>

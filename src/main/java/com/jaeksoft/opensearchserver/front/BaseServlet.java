@@ -19,6 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.RedirectionException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -34,6 +35,9 @@ public abstract class BaseServlet extends HttpServlet {
 			transaction = getServletTransaction(request, response);
 		} catch (URISyntaxException | NoSuchMethodException e) {
 			throw new ServletException(e);
+		} catch (RedirectionException e) {
+			response.sendRedirect(e.getLocation().toString());
+			return;
 		}
 		if (transaction != null)
 			doMethod.apply(transaction);

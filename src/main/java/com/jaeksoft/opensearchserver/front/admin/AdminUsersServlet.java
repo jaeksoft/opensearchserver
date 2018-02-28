@@ -14,33 +14,37 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front.schema;
+package com.jaeksoft.opensearchserver.front.admin;
 
 import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.front.BaseServlet;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.qwazr.utils.StringUtils;
 
-import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collection;
 
-public class AccountsTransaction extends ServletTransaction {
+@WebServlet("/admin/users/*")
+public class AdminUsersServlet extends BaseServlet {
 
-	private final static String TEMPLATE = "accounts/account.ftl";
+	final Components components;
 
-	private final Collection<String> accounts;
-
-	public AccountsTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
-		super(components, request, response);
-		accounts = getAccountIds();
+	public AdminUsersServlet(final Components components) {
+		this.components = components;
 	}
 
 	@Override
-	protected void doGet() throws IOException, ServletException {
-		request.setAttribute("accounts", accounts);
-		doTemplate(TEMPLATE);
+	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
+		if (pathParts == null || pathParts.length == 0)
+			return new AdminUsersTransaction(components, request, response);
+		final String userId = pathParts[0];
+		if (pathParts.length == 1)
+			return new AdminUserTransaction(components, userId, request, response);
+		return null;
 	}
 }

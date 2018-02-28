@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.schema.webcrawl;
+package com.jaeksoft.opensearchserver.front.accounts.webcrawl;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.front.schema.tasks.TaskResult;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskResult;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
@@ -43,8 +43,8 @@ public class WebCrawlTasksTransaction extends ServletTransaction {
 
 	public WebCrawlTasksTransaction(final Components components, final String accountId, final UUID webCrawlUuid,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, request, response);
+			throws IOException, URISyntaxException {
+		super(components, request, response, true);
 		this.accountId = accountId;
 		webCrawlRecord = components.getWebCrawlsService().read(accountId, webCrawlUuid);
 		indexesService = components.getIndexesService();

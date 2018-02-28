@@ -14,20 +14,20 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front;
+package com.jaeksoft.opensearchserver.front.accounts;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.jaeksoft.opensearchserver.front.schema.AccountTransaction;
-import com.jaeksoft.opensearchserver.front.schema.AccountsTransaction;
-import com.jaeksoft.opensearchserver.front.schema.indexes.IndexTransaction;
-import com.jaeksoft.opensearchserver.front.schema.indexes.IndexesTransaction;
-import com.jaeksoft.opensearchserver.front.schema.tasks.ActiveTaskListTransaction;
-import com.jaeksoft.opensearchserver.front.schema.tasks.ActiveTaskStatusTransaction;
-import com.jaeksoft.opensearchserver.front.schema.tasks.ArchivedTaskListTransaction;
-import com.jaeksoft.opensearchserver.front.schema.tasks.ArchivedTaskStatusTransaction;
-import com.jaeksoft.opensearchserver.front.schema.webcrawl.WebCrawlEditTransaction;
-import com.jaeksoft.opensearchserver.front.schema.webcrawl.WebCrawlListTransaction;
-import com.jaeksoft.opensearchserver.front.schema.webcrawl.WebCrawlTasksTransaction;
+import com.jaeksoft.opensearchserver.front.BaseServlet;
+import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexesTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.ActiveTaskListTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.ActiveTaskStatusTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.ArchivedTaskListTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.ArchivedTaskStatusTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlEditTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlListTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlTasksTransaction;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.annotation.WebServlet;

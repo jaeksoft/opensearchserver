@@ -13,61 +13,53 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.schema.tasks;
+package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
+import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
-public class ActiveTaskStatusTransaction extends ServletTransaction {
+public class ActiveTaskListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/tasks/active_status.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/tasks/active_list.ftl";
 
 	private final String accountId;
 	private final TasksService tasksService;
-	private final String taskId;
+	private final IndexesService indexesService;
+	private final WebCrawlsService webCrawlsService;
 
-	public ActiveTaskStatusTransaction(final Components components, final String accountId, final String taskId,
+	public ActiveTaskListTransaction(final Components components, final String accountId,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, request, response);
+			throws IOException, URISyntaxException {
+		super(components, request, response, true);
 		this.accountId = accountId;
-		this.tasksService = components.getTasksService();
-		this.taskId = taskId;
-	}
-
-	private TaskRecord checkTaskRecord() throws IOException {
-		final TaskRecord taskRecord = tasksService.getActiveTask(accountId, taskId);
-		if (taskRecord != null)
-			return taskRecord;
-		response.sendError(HttpServletResponse.SC_NOT_FOUND);
-		return null;
-	}
-
-	public void pause() throws IOException, ServletException {
-		tasksService.pause(accountId, taskId);
-		doGet();
-	}
-
-	public void start() throws IOException, ServletException {
-		tasksService.start(accountId, taskId);
-		doGet();
+		tasksService = components.getTasksService();
+		indexesService = components.getIndexesService();
+		webCrawlsService = components.getWebCrawlsService();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final TaskRecord taskRecord = checkTaskRecord();
-		if (taskRecord == null)
-			return;
+		final int start = getRequestParameter("start", 0);
+		final int rows = getRequestParameter("rows", 25);
+
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountId, webCrawlsService);
+		int totalCount = tasksService.collectActiveTasks(accountId, start, rows, resultBuilder::add);
+		final List<TaskResult> tasks = resultBuilder.build();
+
 		request.setAttribute("accountId", accountId);
-		request.setAttribute("task", taskRecord);
+		request.setAttribute("tasks", tasks);
+		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);
 	}
+
 }

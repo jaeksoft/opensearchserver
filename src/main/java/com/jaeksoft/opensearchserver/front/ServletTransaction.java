@@ -17,7 +17,6 @@ package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.model.UserRecord;
-import com.jaeksoft.opensearchserver.services.UsersService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.LoggerUtils;
@@ -28,12 +27,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.RedirectionException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -46,26 +46,36 @@ public abstract class ServletTransaction {
 
 	private final static Logger LOGGER = LoggerUtils.getLogger(ServletTransaction.class);
 
-	private final UsersService usersService;
 	private final FreeMarkerTool freemarker;
 	protected final HttpServletRequest request;
 	protected final HttpServletResponse response;
 	protected final HttpSession session;
 
 	protected ServletTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
-		this.usersService = components.getUsersService();
+			final HttpServletResponse response, boolean requireLoggedUser) {
 		this.freemarker = components.getFreemarkerTool();
 		this.request = request;
 		this.response = response;
 		this.session = request.getSession();
+		if (requireLoggedUser)
+			requireLoggedUser();
 	}
 
-	private final Collection<String> LOCAL = Arrays.asList("local");
+	protected void requireLoggedUser() {
+		if (request.getUserPrincipal() != null)
+			return;
+		final StringBuffer requestUrlBuilder = request.getRequestURL();
+		final String queryString = request.getQueryString();
+		if (!StringUtils.isBlank(queryString)) {
+			requestUrlBuilder.append('?');
+			requestUrlBuilder.append(queryString);
+		}
+		final String requestUrl = requestUrlBuilder.toString();
+		addMessage(Message.Css.warning, "Please sign in to be able to see this content", requestUrl);
+		throw new RedirectionException(requestUrl, Response.Status.TEMPORARY_REDIRECT, URI.create("/signin"));
+	}
 
 	protected Collection<String> getAccountIds() {
-		if (usersService.getUserCount() == 0)
-			return LOCAL;
 		final UserRecord userRecord = (UserRecord) request.getUserPrincipal();
 		return userRecord == null ? Collections.emptyList() : userRecord.getAccountIds();
 	}

@@ -13,10 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.jaeksoft.opensearchserver.front.schema.webcrawl;
+package com.jaeksoft.opensearchserver.front.accounts.webcrawl;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
@@ -27,64 +26,46 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
-public class WebCrawlEditTransaction extends ServletTransaction {
+public class WebCrawlListTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/edit.ftl";
+	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/list.ftl";
 
 	private final String accountId;
 	private final WebCrawlsService webCrawlsService;
-	private final WebCrawlRecord webCrawlRecord;
 
-	public WebCrawlEditTransaction(final Components components, final String accountId, final UUID webCrawlUuid,
+	public WebCrawlListTransaction(final Components components, final String accountId,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, request, response);
+			throws IOException, URISyntaxException {
+		super(components, request, response, true);
 		this.accountId = accountId;
-		this.webCrawlsService = components.getWebCrawlsService();
-		webCrawlRecord = webCrawlsService.read(accountId, webCrawlUuid);
+		webCrawlsService = components.getWebCrawlsService();
 	}
 
-	public void delete() throws IOException, ServletException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-		final String crawlName = request.getParameter("crawlName");
-		if (webCrawlRecord.name.equals(crawlName)) {
-			webCrawlsService.remove(accountId, webCrawlRecord.getUuid());
-			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-			response.sendRedirect("/accounts/" + accountId + "/crawlers/web");
-			return;
-		} else
-			addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
-		doGet();
-	}
-
-	public void save() throws IOException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
+	public void create() throws IOException, ServletException {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
 		webCrawlsService.save(accountId,
-				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		response.sendRedirect("/accounts/" + accountId + "/crawlers/web/" + webCrawlRecord.getUuid());
+				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
+		final int start = getRequestParameter("start", 0);
+		final int rows = getRequestParameter("rows", 25);
+
+		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
+		final int totalCount = webCrawlsService.collect(accountId, start, rows, webCrawlRecords::add);
+
 		request.setAttribute("accountId", accountId);
-		request.setAttribute("webCrawlRecord", webCrawlRecord);
+		request.setAttribute("webCrawlRecords", webCrawlRecords);
+		request.setAttribute("totalCount", totalCount);
 		doTemplate(TEMPLATE_INDEX);
 	}
 }

@@ -35,7 +35,7 @@ public class ConfigService {
 	private final static String STORE_SERVICE_URI = "storeServiceUri";
 	private final static String INDEX_SERVICE_URI = "indexServiceUri";
 	private final static String TABLE_SERVICE_URI = "tableServiceUri";
-	private final static String WEBCRAWLER_SERVICE_URI = "webCrawlerServiceUri";
+	private final static String CRAWLER_SERVICE_URI = "crawlerServiceUri";
 
 	final Properties properties;
 	final String serverName;
@@ -43,7 +43,7 @@ public class ConfigService {
 	final URI storeServiceUri;
 	final URI indexServiceUri;
 	final URI tableServiceUri;
-	final URI webCrawlerServiceUri;
+	final URI crawlerServiceUri;
 
 	public ConfigService(final Path configPropertiesPath) throws IOException, URISyntaxException {
 		properties = new Properties();
@@ -55,7 +55,7 @@ public class ConfigService {
 		storeServiceUri = getUriProperty(STORE_SERVICE_URI);
 		indexServiceUri = getUriProperty(INDEX_SERVICE_URI);
 		tableServiceUri = getUriProperty(TABLE_SERVICE_URI);
-		webCrawlerServiceUri = getUriProperty(WEBCRAWLER_SERVICE_URI);
+		crawlerServiceUri = getUriProperty(CRAWLER_SERVICE_URI);
 	}
 
 	private String getRequiredProperty(String key) {
@@ -87,8 +87,8 @@ public class ConfigService {
 		return tableServiceUri;
 	}
 
-	public URI getWebCrawlerServiceUri() {
-		return webCrawlerServiceUri;
+	public URI getCrawlerServiceUri() {
+		return crawlerServiceUri;
 	}
 
 }

@@ -31,21 +31,16 @@ import com.qwazr.database.TableManager;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.TableSingleClient;
 import com.qwazr.library.freemarker.FreeMarkerTool;
-import com.qwazr.scheduler.SchedulerManager;
-import com.qwazr.scheduler.SchedulerServiceInterface;
 import com.qwazr.scripts.ScriptManager;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
-import com.qwazr.search.index.SchemaSettingsDefinition;
 import com.qwazr.server.RemoteService;
 import com.qwazr.store.StoreManager;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.store.StoreSingleClient;
 import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.IOUtils;
-import com.qwazr.utils.ObjectMappers;
-import org.quartz.SchedulerException;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -61,8 +56,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Components implements Closeable {
 
-	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
-
 	private final Path dataDirectory;
 
 	private final List<Closeable> closing;
@@ -74,8 +67,6 @@ public class Components implements Closeable {
 	private volatile FreeMarkerTool freemarkerTool;
 
 	private volatile ScriptManager scriptManager;
-	private volatile SchedulerManager schedulerManager;
-	private volatile SchedulerServiceInterface schedulerServiceInterface;
 
 	private volatile IndexManager indexManager;
 	private volatile IndexServiceInterface indexService;
@@ -110,7 +101,8 @@ public class Components implements Closeable {
 
 	private synchronized ConfigService getConfigService() throws IOException, URISyntaxException {
 		if (configService == null)
-			configService = new ConfigService(this.dataDirectory.resolve("config.properties"));
+			configService = new ConfigService(
+					this.dataDirectory.resolve(System.getProperty("com.opensearchserver.config", "config.properties")));
 		return configService;
 	}
 
@@ -156,12 +148,8 @@ public class Components implements Closeable {
 	}
 
 	public synchronized WebCrawlsService getWebCrawlsService() throws IOException, URISyntaxException {
-		if (webCrawlsService == null) {
-			final Path webCrawlsDirectory = dataDirectory.resolve(WEB_CRAWLS_DIRECTORY);
-			if (!Files.exists(webCrawlsDirectory))
-				Files.createDirectory(webCrawlsDirectory);
+		if (webCrawlsService == null)
 			webCrawlsService = new WebCrawlsService(getStoreService());
-		}
 		return webCrawlsService;
 	}
 
@@ -192,14 +180,6 @@ public class Components implements Closeable {
 		return scriptManager;
 	}
 
-	private synchronized SchedulerManager getSchedulerManager() throws IOException, SchedulerException {
-		if (schedulerManager == null) {
-			schedulerManager = new SchedulerManager(getExecutorService(), null, getScriptManager(), 50, null);
-			closing.add(schedulerManager);
-		}
-		return schedulerManager;
-	}
-
 	private synchronized WebCrawlerManager getWebCrawlerManager() {
 		if (webCrawlerManager == null)
 			webCrawlerManager = new WebCrawlerManager("localhost", getScriptManager(), getExecutorService());
@@ -208,26 +188,13 @@ public class Components implements Closeable {
 
 	synchronized WebCrawlerServiceInterface getWebCrawlerService() throws IOException, URISyntaxException {
 		if (webCrawlerService == null) {
-			if (getConfigService().getWebCrawlerServiceUri() != null)
-				webCrawlerService = new WebCrawlerSingleClient(
-						RemoteService.of(getConfigService().getWebCrawlerServiceUri()).build());
+			if (getConfigService().getCrawlerServiceUri() != null)
+				webCrawlerService =
+						new WebCrawlerSingleClient(RemoteService.of(getConfigService().getCrawlerServiceUri()).build());
 			else
 				webCrawlerService = getWebCrawlerManager().getService();
 		}
 		return webCrawlerService;
-	}
-
-	synchronized SchedulerServiceInterface getSchedulerService() throws IOException, SchedulerException {
-		if (schedulerServiceInterface == null)
-			schedulerServiceInterface = getSchedulerManager().getService();
-		return schedulerServiceInterface;
-	}
-
-	synchronized SchemaSettingsDefinition getSchemaDefinition(final String schemaName) throws IOException {
-		final Path schemaConfig = dataDirectory.resolve(schemaName + ".json");
-		return Files.exists(schemaConfig) ?
-				ObjectMappers.JSON.readValue(schemaConfig.toFile(), SchemaSettingsDefinition.class) :
-				null;
 	}
 
 	private synchronized StoreManager getStoreManager() throws IOException {
@@ -235,7 +202,7 @@ public class Components implements Closeable {
 			final Path storeDirectory = dataDirectory.resolve(StoreServiceInterface.SERVICE_NAME);
 			if (!Files.exists(storeDirectory))
 				Files.createDirectory(storeDirectory);
-			storeManager = new StoreManager(null, getExecutorService(), getScriptManager(), storeDirectory);
+			storeManager = new StoreManager(getExecutorService(), getScriptManager(), storeDirectory);
 		}
 		return storeManager;
 	}
@@ -293,8 +260,6 @@ public class Components implements Closeable {
 
 		// Set the singletons back to null
 		scriptManager = null;
-		schedulerManager = null;
-		schedulerServiceInterface = null;
 
 		indexManager = null;
 		indexService = null;

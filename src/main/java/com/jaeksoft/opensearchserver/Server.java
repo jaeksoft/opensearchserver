@@ -15,8 +15,11 @@
  */
 package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.front.AccountsServlet;
 import com.jaeksoft.opensearchserver.front.HomeServlet;
+import com.jaeksoft.opensearchserver.front.LogoutServlet;
+import com.jaeksoft.opensearchserver.front.SigninServlet;
+import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
+import com.jaeksoft.opensearchserver.front.admin.AdminUsersServlet;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
@@ -38,7 +41,10 @@ public class Server extends Components {
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
 				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
-				.registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this));
+				.registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
+				.registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
+				.registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this))
+				.registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this));
 		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService));
 		webAppBuilder.build();
 		server = serverBuilder.build();

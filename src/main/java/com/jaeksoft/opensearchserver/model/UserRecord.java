@@ -54,7 +54,7 @@ public class UserRecord implements Principal {
 	@TableColumn(name = "password", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
 	private final String password;
 
-	@TableColumn(name = "accountId", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
+	@TableColumn(name = "accountIds", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
 	private final Set<String> accountIds;
 
 	public static final String[] COLUMNS =
@@ -123,6 +123,12 @@ public class UserRecord implements Principal {
 
 	public Set<String> getAccountIds() {
 		return accountIds;
+	}
+
+	public boolean hasAccount(final String accountId) {
+		if (accountIds == null)
+			return false;
+		return accountIds.contains(accountId);
 	}
 
 	public Integer getStatus() {
@@ -200,8 +206,27 @@ public class UserRecord implements Principal {
 			return this;
 		}
 
+		public Builder addAccount(String accountId) {
+			if (StringUtils.isBlank(accountId))
+				return this;
+			if (accountIds == null)
+				accountIds = new LinkedHashSet<>();
+			accountIds.add(accountId);
+			return this;
+		}
+
+		public Builder removeAccount(String accountId) {
+			if (StringUtils.isBlank(accountId))
+				return this;
+			if (accountIds == null)
+				return this;
+			accountIds.remove(accountId);
+			return this;
+		}
+
 		public UserRecord build() {
 			return new UserRecord(this);
 		}
+
 	}
 }

@@ -1,4 +1,5 @@
 <#if messages?has_content>
+<br/>
     <#list messages as message>
     <div class="alert alert-${message.css} alert-dismissible fade show" role="alert">
         <#if message.title?has_content><h4 class="alert-heading">${message.title!?html}</h4></#if>

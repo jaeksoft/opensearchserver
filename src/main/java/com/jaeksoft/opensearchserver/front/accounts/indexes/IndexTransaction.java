@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front.schema.indexes;
+package com.jaeksoft.opensearchserver.front.accounts.indexes;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
@@ -40,8 +40,8 @@ public class IndexTransaction extends ServletTransaction {
 
 	public IndexTransaction(final Components components, final String accountId, final String indexName,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, request, response);
+			throws IOException, URISyntaxException {
+		super(components, request, response, true);
 		this.indexesService = components.getIndexesService();
 		this.accountId = accountId;
 		this.indexName = indexName;

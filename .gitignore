@@ -12,5 +12,6 @@
 /table
 /tmp
 /server
+config.oss2.properties
 opensearchserver.iml
 dependency-reduced-pom.xml

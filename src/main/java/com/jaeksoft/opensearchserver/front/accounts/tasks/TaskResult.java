@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.front.schema.tasks;
+package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.model.CrawlTaskRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
