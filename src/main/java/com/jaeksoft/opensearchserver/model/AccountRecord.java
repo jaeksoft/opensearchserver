@@ -48,7 +48,7 @@ public class AccountRecord {
 	@TableColumn(name = "recordNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
 	private final Long recordNumberLimit;
 
-	@TableColumn(name = "indexNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
+	@TableColumn(name = "storageLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
 	private final Long storageLimit;
 
 	@TableColumn(name = "crawlNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)

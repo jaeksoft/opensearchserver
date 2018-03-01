@@ -148,4 +148,17 @@ public class AccountsService {
 		return true;
 	}
 
+	public boolean updateName(final UUID accountId, final String name) {
+		final String validName = checkValidName(name);
+		final AccountRecord alreadyExistingAccount = getAccountByName(validName);
+		if (alreadyExistingAccount != null && !accountId.equals(alreadyExistingAccount.getId()))
+			throw new NotAcceptableException("This name is already taken");
+		final AccountRecord oldAccount = getExistingAccount(accountId);
+		if (Objects.equals(oldAccount.getName(), validName))
+			return false;
+		final AccountRecord newAccount = AccountRecord.of(oldAccount).name(validName).build();
+		accounts.upsertRow(newAccount.id, newAccount);
+		return true;
+	}
+
 }

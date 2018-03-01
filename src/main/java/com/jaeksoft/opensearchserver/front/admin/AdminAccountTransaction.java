@@ -22,12 +22,10 @@ import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.PermissionLevel;
-import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.UsersService;
-import com.qwazr.database.annotations.TableRequestResultRecords;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,89 +34,73 @@ import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.UUID;
 
-public class AdminUserTransaction extends ServletTransaction {
+public class AdminAccountTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "admin/user.ftl";
+	private final static String TEMPLATE = "admin/account.ftl";
 
 	private final UsersService usersService;
 	private final AccountsService accountsService;
 	private final PermissionsService permissionsService;
 
-	private final UUID userId;
+	private final UUID accountId;
 
-	AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
+	AdminAccountTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
 			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
 		super(components, request, response, false);
 		this.usersService = components.getUsersService();
 		this.accountsService = components.getAccountsService();
 		this.permissionsService = components.getPermissionsService();
-		this.userId = userId;
+		this.accountId = accountId;
 	}
 
-	public void updatePassword() throws IOException, ServletException {
-		final String password1 = request.getParameter("password1");
-		final String password2 = request.getParameter("password2");
-		usersService.resetPassword(userId, password1);
-		if (!password1.equals(password2))
-			throw new NotAcceptableException("The passwords do not match");
-		addMessage(Message.Css.success, "Password updated!", null);
-		doGet();
-	}
-
-	private AccountRecord getExistingAccountByName() {
-		final String accountName = request.getParameter("accountName");
-		final AccountRecord accountRecord = accountsService.getAccountByName(accountName);
-		if (accountRecord == null)
-			throw new NotAcceptableException("Account not found: " + accountName);
-		return accountRecord;
+	private UserRecord getExistingRecordByEmail() {
+		final String userEmail = request.getParameter("userEmail");
+		final UserRecord userRecord = usersService.getUserByEmail(userEmail);
+		if (userEmail == null)
+			throw new NotAcceptableException("User not found: " + userEmail);
+		return userRecord;
 	}
 
 	public void setPermission() throws IOException, ServletException {
-		final AccountRecord accountRecord = getExistingAccountByName();
+		final UserRecord userRecord = getExistingRecordByEmail();
 		final String levelName = request.getParameter("level");
 		final PermissionLevel level = PermissionLevel.resolve(levelName);
 		if (level == null)
 			throw new NotAcceptableException("Unknown level: " + levelName);
-		if (permissionsService.setPermission(userId, accountRecord.getId(), level))
+		if (permissionsService.setPermission(userRecord.getId(), accountId, level))
 			addMessage(Message.Css.success, "Permission added", null);
 		doGet();
 	}
 
-	private AccountRecord getExistingAccountById() {
-		final String accountId = request.getParameter("accountId");
-		final AccountRecord accountRecord = accountsService.getAccountById(UUID.fromString(accountId));
-		if (accountRecord == null)
-			throw new NotAcceptableException("Account not found: " + accountId);
-		return accountRecord;
-	}
-
 	public void removePermission() throws IOException, ServletException {
-		final AccountRecord accountRecord = getExistingAccountById();
-		if (permissionsService.removePermission(userId, accountRecord.getId()))
+		final UserRecord userRecord = getExistingRecordByEmail();
+		if (permissionsService.removePermission(userRecord.getId(), accountId))
 			addMessage(Message.Css.success, "Permission removed", null);
 		doGet();
 	}
 
 	public void updateStatus() throws IOException, ServletException {
 		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
-		if (usersService.updateStatus(userId, status))
+		if (accountsService.updateStatus(accountId, status))
 			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
+		doGet();
+	}
+
+	public void updateName() throws IOException, ServletException {
+		final String accountName = request.getParameter("accountName");
+		if (accountsService.updateName(accountId, accountName))
+			addMessage(Message.Css.success, "Name updated", "Name set to " + accountName);
 		doGet();
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final UserRecord userRecord = usersService.getUserById(userId);
-		if (userRecord == null)
-			throw new NotFoundException("User not found");
-		final TableRequestResultRecords<PermissionRecord> permissions =
-				permissionsService.getPermissionsByUser(userRecord.getId(), 0, 1000);
-		final Map<AccountRecord, PermissionRecord> accounts = accountsService.getAccountsByIds(permissions);
-		request.setAttribute("accounts", accounts);
-		request.setAttribute("userRecord", userRecord);
+		final AccountRecord accountRecord = accountsService.getAccountById(accountId);
+		if (accountId == null)
+			throw new NotFoundException("Account not found");
+		request.setAttribute("accountRecord", accountRecord);
 		doTemplate(TEMPLATE);
 	}
 

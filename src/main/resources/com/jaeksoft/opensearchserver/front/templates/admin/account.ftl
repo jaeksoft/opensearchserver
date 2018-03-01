@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User - OpenSearchServer</title>
+    <title>Account - OpenSearchServer</title>
     <#include '../includes/head.ftl'>
 </head>
 <body>
@@ -27,27 +27,27 @@
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
-            <li class="breadcrumb-item"><a href="/admin/users">Users</a></li>
-            <li class="breadcrumb-item active" aria-current="page">${userRecord.email!?html}</li>
+            <li class="breadcrumb-item"><a href="/admin/accounts">Accounts</a></li>
+            <li class="breadcrumb-item active" aria-current="page">${accountRecord.name!?html}</li>
         </ol>
     </nav>
  <#include '../includes/messages.ftl'>
     <br/>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">User Record</h5>
+            <h5 class="card-title">Account Record</h5>
             <table class="table">
                 <tr>
                     <th>ID</th>
-                    <td>${userRecord.id?html}</td>
+                    <td>${accountRecord.id?html}</td>
                 </tr>
                 <tr>
-                    <th>Email</th>
-                    <td>${userRecord.email?html}</td>
+                    <th>Name</th>
+                    <td>${accountRecord.name?html}</td>
                 </tr>
                 <tr>
                     <th>Creation time</th>
-                    <td>${userRecord.creationTime?number_to_datetime}</td>
+                    <td>${accountRecord.creationTime?number_to_datetime}</td>
                 </tr>
             </table>
         </div>
@@ -55,8 +55,8 @@
     <br/>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Update status</h5>
-            <p class="card-text">Current status: ${userRecord.status!'DISABLED'}</p>
+            <h5 class="card-title">Account status</h5>
+            <p class="card-text">Current status: ${accountRecord.status!'DISABLED'}</p>
             <form method="post">
                 <input type="hidden" name="action" value="updateStatus">
                 <div class="btn-group" role="group" aria-label="USer status">
@@ -69,28 +69,22 @@
     <br/>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Account list</h5>
-                <#if accounts?has_content>
+            <h5 class="card-title">Users</h5>
+                <#if accountRecord.accountIds?has_content>
                     <form method="post">
+                        <input type="hidden" name="action" value="removeAccount">
                         <table class="table">
                             <tr>
                                 <th>Account ID</th>
-                                <th>Account Name</th>
-                                <th>Permission</th>
-                                <th></th>
+                                <th>Action</th>
                             </tr>
-                            <#list accounts as account,permission>
+                            <#list userRecord.accountIds as accountId>
                             <tr>
-                                <td>${account.id?html}</td>
-                                <td>${account.name?html}</td>
-                                <td>${permission.level?html}</td>
+                                <td>${accountId?html}</td>
                                 <td>
-                                    <form method="post">
-                                        <input type="hidden" name="accountId" value="${account.id?html}">
-                                        <button class="btn btn-sm btn-danger" type="submit" name="action"
-                                                value="removePermission">Remove
-                                        </button>
-                                    </form>
+                                    <button class="btn btn-sm btn-danger" type="submit" name="account"
+                                            value="${accountId?html}">Remove
+                                    </button>
                                 </td>
                             </tr>
                             </#list>
@@ -101,16 +95,10 @@
         <div class="card-footer">
             <form method="post">
                 <div class="input-group">
-                    <input type="text" name="accountName" class="form-control" placeholder="Account name"
-                           aria-label="Account name">
+                    <input type="text" name="account" class="form-control" placeholder="Account ID"
+                           aria-label="Account ID">
                     <div class="input-group-append">
-                        <select class="custom-select" name="level">
-                            <option value="owner" selected>Owner</option>
-                            <option value="admin">Admin</option>
-                            <option value="write">Write</option>
-                            <option value="read">Read</option>
-                        </select>
-                        <button class="btn btn-info" name="action" value="setPermission" type="submit">Add</button>
+                        <button class="btn btn-info" name="action" value="addAccount" type="submit">Add</button>
                     </div>
                 </div>
             </form>
@@ -119,21 +107,16 @@
     <br/>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Update password</h5>
+            <h5 class="card-title">Account name</h5>
             <form class="form-group row" method="post">
-                <div class="form-group col-md-5">
-                    <label for="inputPassword1" class="sr-only">Password</label>
-                    <input name="password1" type="password" id="inputPassword1" class="form-control"
-                           placeholder="Password" required autofocus>
-                </div>
-                <div class="form-group col-md-5">
-                    <label for="inputPassword2" class="sr-only">Password confirmation</label>
-                    <input name="password2" type="password" id="inputPassword2" class="form-control"
-                           placeholder="Confirm password" required>
+                <div class="form-group col-md-10">
+                    <label for="inputName" class="sr-only">Name</label>
+                    <input name="accountName" type="text" id="inputName" class="form-control"
+                           placeholder="Account name" required autofocus value="${accountRecord.name?html}">
                 </div>
                 <div class="form-group col-md-2">
-                    <button class="btn btn-primary btn-block" type="submit" name="action" value="updatePassword">
-                        Update Password
+                    <button class="btn btn-primary btn-block" type="submit" name="action" value="updateName">
+                        Update Name
                     </button>
                 </div>
             </form>
