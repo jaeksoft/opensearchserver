@@ -19,7 +19,6 @@ package com.jaeksoft.opensearchserver.front.admin;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.services.UsersService;
-import com.qwazr.utils.LinkUtils;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -27,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 public class AdminUsersTransaction extends ServletTransaction {
 
@@ -43,8 +43,8 @@ public class AdminUsersTransaction extends ServletTransaction {
 	public void create() throws IOException, ServletException {
 		final String userEmail = request.getParameter("userEmail");
 		if (!StringUtils.isBlank(userEmail)) {
-			final String userId = usersService.createUser(userEmail);
-			response.sendRedirect("/admin/users/" + LinkUtils.urlEncode(userId));
+			final UUID userId = usersService.createUser(userEmail);
+			response.sendRedirect("/admin/users/" + userId);
 			return;
 		}
 		doGet();

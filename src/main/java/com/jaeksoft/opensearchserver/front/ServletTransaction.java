@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -50,6 +48,7 @@ public abstract class ServletTransaction {
 	protected final HttpServletRequest request;
 	protected final HttpServletResponse response;
 	protected final HttpSession session;
+	protected final UserRecord userRecord;
 
 	protected ServletTransaction(final Components components, final HttpServletRequest request,
 			final HttpServletResponse response, boolean requireLoggedUser) {
@@ -57,12 +56,13 @@ public abstract class ServletTransaction {
 		this.request = request;
 		this.response = response;
 		this.session = request.getSession();
+		this.userRecord = (UserRecord) request.getUserPrincipal();
 		if (requireLoggedUser)
 			requireLoggedUser();
 	}
 
-	protected void requireLoggedUser() {
-		if (request.getUserPrincipal() != null)
+	private void requireLoggedUser() {
+		if (userRecord != null)
 			return;
 		final StringBuffer requestUrlBuilder = request.getRequestURL();
 		final String queryString = request.getQueryString();
@@ -73,18 +73,6 @@ public abstract class ServletTransaction {
 		final String requestUrl = requestUrlBuilder.toString();
 		addMessage(Message.Css.warning, "Please sign in to be able to see this content", requestUrl);
 		throw new RedirectionException(requestUrl, Response.Status.TEMPORARY_REDIRECT, URI.create("/signin"));
-	}
-
-	protected Collection<String> getAccountIds() {
-		final UserRecord userRecord = (UserRecord) request.getUserPrincipal();
-		return userRecord == null ? Collections.emptyList() : userRecord.getAccountIds();
-	}
-
-	protected boolean isUserAccount(final String accountId) {
-		final Collection<String> accounts = getAccountIds();
-		if (accounts == null)
-			return false;
-		return accounts.contains(accountId);
 	}
 
 	/**

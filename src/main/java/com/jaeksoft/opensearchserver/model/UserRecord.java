@@ -20,7 +20,6 @@ import com.qwazr.database.annotations.Table;
 import com.qwazr.database.annotations.TableColumn;
 import com.qwazr.database.model.ColumnDefinition;
 import com.qwazr.database.model.TableDefinition;
-import com.qwazr.utils.CollectionsUtils;
 import com.qwazr.utils.HashUtils;
 import com.qwazr.utils.StringUtils;
 import org.apache.commons.codec.digest.HmacAlgorithms;
@@ -28,10 +27,7 @@ import org.apache.commons.codec.digest.HmacUtils;
 
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -40,7 +36,9 @@ import java.util.UUID;
 public class UserRecord implements Principal {
 
 	@TableColumn(name = TableDefinition.ID_COLUMN_NAME)
-	private final String id;
+	public final String id;
+
+	private volatile UUID uuid;
 
 	@TableColumn(name = "status", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
 	private final Integer status;
@@ -54,18 +52,22 @@ public class UserRecord implements Principal {
 	@TableColumn(name = "password", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
 	private final String password;
 
-	@TableColumn(name = "accountIds", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
-	private final Set<String> accountIds;
-
 	public static final String[] COLUMNS =
-			new String[] { TableDefinition.ID_COLUMN_NAME, "status", "email", "password", "accountIds" };
+			new String[] { TableDefinition.ID_COLUMN_NAME, "status", "name", "email", "password" };
 
 	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
 
 	public UserRecord() {
 		id = email = name = password = null;
-		accountIds = null;
 		status = 0;
+	}
+
+	private UserRecord(final Builder builder) {
+		id = builder.uuid == null ? null : builder.uuid.toString();
+		status = builder.status == null ? null : builder.status.value;
+		name = builder.name;
+		email = builder.email;
+		password = builder.password;
 	}
 
 	@Override
@@ -76,27 +78,7 @@ public class UserRecord implements Principal {
 			return true;
 		final UserRecord u = (UserRecord) o;
 		return Objects.equals(id, u.id) && Objects.equals(email, u.email) && Objects.equals(name, u.name) &&
-				Objects.equals(password, u.password) && Objects.equals(status, u.status) &&
-				CollectionsUtils.unorderedEquals(accountIds, u.accountIds);
-	}
-
-	private UserRecord(final Builder builder) {
-		id = builder.id;
-		status = builder.status;
-		name = builder.name;
-		email = builder.email;
-		password = builder.password;
-		accountIds = builder.accountIds == null ?
-				null :
-				Collections.unmodifiableSet(new LinkedHashSet<>(builder.accountIds));
-	}
-
-	public boolean isActivated() {
-		return status != null && status == 1;
-	}
-
-	public boolean isNoPassword() {
-		return StringUtils.isEmpty(password);
+				Objects.equals(password, u.password) && Objects.equals(status, u.status);
 	}
 
 	public boolean matchPassword(final String appSalt, final String clearPassword) {
@@ -104,8 +86,10 @@ public class UserRecord implements Principal {
 				password.equals(digestPassword(appSalt, id, clearPassword));
 	}
 
-	public String getId() {
-		return id;
+	public synchronized UUID getId() {
+		if (uuid != null)
+			return uuid;
+		return uuid = id == null ? null : UUID.fromString(id);
 	}
 
 	public Long getCreationTime() {
@@ -121,18 +105,8 @@ public class UserRecord implements Principal {
 		return name;
 	}
 
-	public Set<String> getAccountIds() {
-		return accountIds;
-	}
-
-	public boolean hasAccount(final String accountId) {
-		if (accountIds == null)
-			return false;
-		return accountIds.contains(accountId);
-	}
-
-	public Integer getStatus() {
-		return status;
+	public ActiveStatus getStatus() {
+		return ActiveStatus.resolve(status);
 	}
 
 	private static String digestPassword(final String appSalt, String id, String clearPassword) {
@@ -149,9 +123,9 @@ public class UserRecord implements Principal {
 
 	public static class Builder {
 
-		private String id;
+		private UUID uuid;
 
-		private Integer status;
+		private ActiveStatus status;
 
 		private String name;
 
@@ -159,18 +133,15 @@ public class UserRecord implements Principal {
 
 		private String password;
 
-		private Set<String> accountIds;
-
 		private Builder() {
-			id = HashUtils.newTimeBasedUUID().toString();
+			uuid = HashUtils.newTimeBasedUUID();
 		}
 
 		private Builder(final UserRecord user) {
-			id = user.id;
-			status = user.status;
+			uuid = user.getId();
+			status = user.getStatus();
 			email = user.email;
 			password = user.password;
-			accountIds = user.accountIds == null ? null : new LinkedHashSet<>(user.accountIds);
 		}
 
 		public Builder email(final String email) {
@@ -183,44 +154,13 @@ public class UserRecord implements Principal {
 			return this;
 		}
 
-		public Builder status(final Integer status) {
+		public Builder status(final ActiveStatus status) {
 			this.status = status;
 			return this;
 		}
 
 		public Builder password(final String appSalt, final String clearPassword) {
-			this.password = digestPassword(appSalt, id, clearPassword);
-			return this;
-		}
-
-		public Builder accountIds(final Collection<String> accountIds) {
-			if (accountIds == null || accountIds.isEmpty()) {
-				this.accountIds = null;
-				return this;
-			}
-			if (this.accountIds == null)
-				this.accountIds = new LinkedHashSet<>();
-			else
-				this.accountIds.clear();
-			this.accountIds.addAll(accountIds);
-			return this;
-		}
-
-		public Builder addAccount(String accountId) {
-			if (StringUtils.isBlank(accountId))
-				return this;
-			if (accountIds == null)
-				accountIds = new LinkedHashSet<>();
-			accountIds.add(accountId);
-			return this;
-		}
-
-		public Builder removeAccount(String accountId) {
-			if (StringUtils.isBlank(accountId))
-				return this;
-			if (accountIds == null)
-				return this;
-			accountIds.remove(accountId);
+			this.password = digestPassword(appSalt, uuid.toString(), clearPassword);
 			return this;
 		}
 

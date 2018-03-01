@@ -54,7 +54,7 @@ public class AccountsServlet extends BaseServlet {
 			return new AccountsTransaction(components, request, response);
 		final String accountId = pathParts[0];
 		if (pathParts.length == 1)
-			return new AccountTransaction(components, accountId, request, response);
+			return new AccountTransaction(components, UUID.fromString(accountId), request, response);
 		final String cmd = pathParts[1];
 		switch (cmd) {
 		case "indexes":
@@ -70,7 +70,7 @@ public class AccountsServlet extends BaseServlet {
 
 	private ServletTransaction doIndexes(final String accountId, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			throws IOException, URISyntaxException {
 		if (pathParts.length == 2)
 			return new IndexesTransaction(components, accountId, request, response);
 		if (pathParts.length == 3) {
@@ -102,7 +102,7 @@ public class AccountsServlet extends BaseServlet {
 		final UUID webCrawlUuid = UUID.fromString(pathParts[3]);
 		if (pathParts.length == 4)
 			return new WebCrawlEditTransaction(components, accountId, webCrawlUuid, request, response);
-		if (pathParts.length == 5 && "tasks".equals(pathParts[4]))
+		if (pathParts.length == 5 && "tasks" .equals(pathParts[4]))
 			return new WebCrawlTasksTransaction(components, accountId, webCrawlUuid, request, response);
 		return null;
 	}
@@ -113,7 +113,7 @@ public class AccountsServlet extends BaseServlet {
 		if (pathParts.length == 2)
 			return new ActiveTaskListTransaction(components, accountId, request, response);
 		final String taskName = pathParts[2];
-		if ("archives".equals(taskName))
+		if ("archives" .equals(taskName))
 			return doArchivesTasks(accountId, pathParts, request, response);
 		if (pathParts.length == 3)
 			return new ActiveTaskStatusTransaction(components, accountId, taskName, request, response);

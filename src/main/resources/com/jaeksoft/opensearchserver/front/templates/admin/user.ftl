@@ -56,12 +56,12 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Update status</h5>
-            <p class="card-text">Current status: ${userRecord.status!0}</p>
+            <p class="card-text">Current status: ${userRecord.status!'DISABLED'}</p>
             <form method="post">
                 <input type="hidden" name="action" value="updateStatus">
                 <div class="btn-group" role="group" aria-label="USer status">
-                    <button type="submit" name="status" value="0" class="btn btn-danger">Disabled (0)</button>
-                    <button type="submit" name="status" value="1" class="btn btn-success">Enabled (1)</button>
+                    <button type="submit" name="status" value="disabled" class="btn btn-danger">Disabled</button>
+                    <button type="submit" name="status" value="enabled" class="btn btn-success">Enabled</button>
                 </div>
             </form>
         </div>

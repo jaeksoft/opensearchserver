@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 @WebServlet("/admin/users/*")
 public class AdminUsersServlet extends BaseServlet {
@@ -44,7 +45,7 @@ public class AdminUsersServlet extends BaseServlet {
 			return new AdminUsersTransaction(components, request, response);
 		final String userId = pathParts[0];
 		if (pathParts.length == 1)
-			return new AdminUserTransaction(components, userId, request, response);
+			return new AdminUserTransaction(components, UUID.fromString(userId), request, response);
 		return null;
 	}
 }

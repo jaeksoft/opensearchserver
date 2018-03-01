@@ -17,8 +17,10 @@ package com.jaeksoft.opensearchserver;
 
 import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.ProcessingService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.UsersService;
@@ -30,6 +32,7 @@ import com.qwazr.crawler.web.WebCrawlerSingleClient;
 import com.qwazr.database.TableManager;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.TableSingleClient;
+import com.qwazr.database.store.Tables;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.scripts.ScriptManager;
 import com.qwazr.search.index.IndexManager;
@@ -86,6 +89,8 @@ public class Components implements Closeable {
 	private volatile TableManager tableManager;
 	private volatile TableServiceInterface tableService;
 	private volatile UsersService usersService;
+	private volatile AccountsService accountsService;
+	private volatile PermissionsService permissionsService;
 
 	Components(final Path dataDirectory) {
 		this.closing = new ArrayList<>();
@@ -218,8 +223,10 @@ public class Components implements Closeable {
 	}
 
 	private synchronized TableManager getTableManager() throws IOException {
-		if (tableManager == null)
+		if (tableManager == null) {
 			tableManager = new TableManager(getExecutorService(), TableManager.checkTablesDirectory(dataDirectory));
+			Runtime.getRuntime().addShutdownHook(new Thread(Tables::closeAll));
+		}
 		return tableManager;
 	}
 
@@ -237,6 +244,20 @@ public class Components implements Closeable {
 		if (usersService == null)
 			usersService = new UsersService(getConfigService(), getTableService());
 		return usersService;
+	}
+
+	public synchronized PermissionsService getPermissionsService()
+			throws IOException, NoSuchMethodException, URISyntaxException {
+		if (permissionsService == null)
+			permissionsService = new PermissionsService(getTableService());
+		return permissionsService;
+	}
+
+	public synchronized AccountsService getAccountsService()
+			throws IOException, NoSuchMethodException, URISyntaxException {
+		if (accountsService == null)
+			accountsService = new AccountsService(getTableService());
+		return accountsService;
 	}
 
 	@Override
@@ -276,4 +297,5 @@ public class Components implements Closeable {
 		storeManager = null;
 		storeService = null;
 	}
+
 }

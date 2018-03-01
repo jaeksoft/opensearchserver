@@ -19,7 +19,12 @@ package com.jaeksoft.opensearchserver.front.admin;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
+import com.jaeksoft.opensearchserver.model.ActiveStatus;
+import com.jaeksoft.opensearchserver.model.PermissionLevel;
 import com.jaeksoft.opensearchserver.model.UserRecord;
+import com.jaeksoft.opensearchserver.services.AccountsService;
+import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.UsersService;
 
 import javax.servlet.ServletException;
@@ -29,19 +34,24 @@ import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 public class AdminUserTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE = "admin/user.ftl";
 
 	private final UsersService usersService;
+	private final AccountsService accountsService;
+	private final PermissionsService permissionsService;
 
-	private final String userId;
+	private final UUID userId;
 
-	public AdminUserTransaction(final Components components, final String userId, final HttpServletRequest request,
+	public AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
 			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
 		super(components, request, response, false);
 		this.usersService = components.getUsersService();
+		this.accountsService = components.getAccountsService();
+		this.permissionsService = components.getPermissionsService();
 		this.userId = userId;
 	}
 
@@ -55,22 +65,34 @@ public class AdminUserTransaction extends ServletTransaction {
 		doGet();
 	}
 
-	public void addAccount() throws IOException, ServletException {
-		final String account = request.getParameter("account");
-		if (usersService.addAccount(userId, account))
-			addMessage(Message.Css.success, "Account added", account);
+	private AccountRecord getExistingRecordByName() {
+		final String accountName = request.getParameter("account");
+		final AccountRecord accountRecord = accountsService.getAccountByName(accountName);
+		if (accountRecord == null)
+			throw new NotAcceptableException("Account not found: " + accountName);
+		return accountRecord;
+	}
+
+	public void setPermission() throws IOException, ServletException {
+		final AccountRecord accountRecord = getExistingRecordByName();
+		final String levelName = request.getParameter("level");
+		final PermissionLevel level = PermissionLevel.resolve(levelName);
+		if (level == null)
+			throw new NotAcceptableException("Unknown level: " + levelName);
+		if (permissionsService.setPermission(userId, accountRecord.getId(), level))
+			addMessage(Message.Css.success, "Permission added", null);
 		doGet();
 	}
 
-	public void removeAccount() throws IOException, ServletException {
-		final String account = request.getParameter("account");
-		if (usersService.removeAccount(userId, account))
-			addMessage(Message.Css.success, "Account removed", account);
+	public void removePermission() throws IOException, ServletException {
+		final AccountRecord accountRecord = getExistingRecordByName();
+		if (permissionsService.removePermission(userId, accountRecord.getId()))
+			addMessage(Message.Css.success, "Permission removed", null);
 		doGet();
 	}
 
 	public void updateStatus() throws IOException, ServletException {
-		final int status = getRequestParameter("status", 0);
+		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
 		if (usersService.updateStatus(userId, status))
 			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
 		doGet();

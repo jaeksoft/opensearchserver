@@ -16,13 +16,13 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
-import com.qwazr.utils.HashUtils;
 import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.StringUtils;
 import com.qwazr.utils.concurrent.ThreadUtils;
@@ -38,7 +38,9 @@ import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,7 +51,7 @@ public class UsersService implements IdentityManager {
 
 	private final ConfigService configService;
 
-	private AnnotatedTableService<UserRecord> users;
+	private final AnnotatedTableService<UserRecord> users;
 
 	public UsersService(final ConfigService configService, final TableServiceInterface tableServiceInterface)
 			throws NoSuchMethodException, URISyntaxException {
@@ -84,7 +86,8 @@ public class UsersService implements IdentityManager {
 		if (email == null || clearPassword == null)
 			return null;
 		final UserRecord user = getUserByEmail(email);
-		if (user != null && user.isActivated() && user.matchPassword(configService.getApplicationSalt(), clearPassword))
+		if (user != null && user.getStatus() == ActiveStatus.ENABLED &&
+				user.matchPassword(configService.getApplicationSalt(), clearPassword))
 			return user;
 		ThreadUtils.sleep(2, TimeUnit.SECONDS);
 		throw new NotAuthorizedException("Authentication failure");
@@ -119,9 +122,9 @@ public class UsersService implements IdentityManager {
 		return null;
 	}
 
-	public UserRecord getUserById(final String id) {
+	public UserRecord getUserById(final UUID id) {
 		try {
-			return users.getRow(id, UserRecord.COLUMNS_SET);
+			return users.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), UserRecord.COLUMNS_SET);
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new InternalServerErrorException("Cannot get user by id", e);
 		}
@@ -147,13 +150,13 @@ public class UsersService implements IdentityManager {
 		}
 	}
 
-	public synchronized String createUser(final String userEmail) {
-		final UserRecord userRecord = getUserByEmail(userEmail);
-		if (userRecord != null)
-			return userRecord.getId();
-		final String userId = HashUtils.newTimeBasedUUID().toString();
-		users.upsertRow(userId, UserRecord.of().email(userEmail).build());
-		return userId;
+	public synchronized UUID createUser(final String userEmail) {
+		final UserRecord existingUser = getUserByEmail(userEmail);
+		if (existingUser != null)
+			return existingUser.getId();
+		final UserRecord newUser = UserRecord.of().email(userEmail).build();
+		users.upsertRow(newUser.id, newUser);
+		return newUser.getId();
 	}
 
 	public final static String PASSWORD_STRENGTH_MESSAGE =
@@ -165,42 +168,27 @@ public class UsersService implements IdentityManager {
 				StringUtils.anyDigit(password));
 	}
 
-	private UserRecord getExistingUser(String userId) {
+	private UserRecord getExistingUser(final UUID userId) {
 		final UserRecord user = getUserById(userId);
 		if (user == null)
 			throw new NotFoundException("User not found: " + userId);
 		return user;
 	}
 
-	public void resetPassword(final String userId, final String newPassword) {
-		final UserRecord user = getExistingUser(userId);
+	public void resetPassword(final UUID userId, final String newPassword) {
+		final UserRecord oldUser = getExistingUser(userId);
 		if (!checkPasswordStrength(newPassword))
 			throw new NotAcceptableException(PASSWORD_STRENGTH_MESSAGE);
-		final UserRecord userRecord = UserRecord.of(user).password(configService.applicationSalt, newPassword).build();
-		users.upsertRow(userId, userRecord);
+		final UserRecord newUser = UserRecord.of(oldUser).password(configService.applicationSalt, newPassword).build();
+		users.upsertRow(newUser.id, newUser);
 	}
 
-	public boolean updateStatus(final String userId, final int status) {
-		final UserRecord user = getExistingUser(userId);
-		if (user.getStatus() != null && user.getStatus() == status)
+	public boolean updateStatus(final UUID userId, final ActiveStatus status) {
+		final UserRecord oldUser = getExistingUser(userId);
+		if (oldUser.getStatus() != null && oldUser.getStatus() == status)
 			return false;
-		users.upsertRow(userId, UserRecord.of(user).status(status).build());
-		return true;
-	}
-
-	public boolean addAccount(final String userId, final String accountId) {
-		final UserRecord user = getExistingUser(userId);
-		if (user.hasAccount(accountId))
-			return false;
-		users.upsertRow(userId, UserRecord.of(user).addAccount(accountId).build());
-		return true;
-	}
-
-	public boolean removeAccount(final String userId, final String accountId) {
-		final UserRecord user = getExistingUser(userId);
-		if (!user.hasAccount(accountId))
-			return false;
-		users.upsertRow(userId, UserRecord.of(user).removeAccount(accountId).build());
+		final UserRecord newUser = UserRecord.of(oldUser).status(status).build();
+		users.upsertRow(newUser.id, newUser);
 		return true;
 	}
 
