@@ -41,7 +41,7 @@
             </tr>
             </thead>
             <tbody>
-        <#list accounts as account>
+        <#list accounts as accountId>
         <tr>
             <th>${accountId?html}</th>
             <td align="right">

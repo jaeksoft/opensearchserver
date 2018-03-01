@@ -69,6 +69,44 @@
     <br/>
     <div class="card">
         <div class="card-body">
+            <h5 class="card-title">Account list</h5>
+                <#if userRecord.accountIds?has_content>
+                    <form method="post">
+                        <input type="hidden" name="action" value="removeAccount">
+                        <table class="table">
+                            <tr>
+                                <th>Account ID</th>
+                                <th>Action</th>
+                            </tr>
+                            <#list userRecord.accountIds as accountId>
+                            <tr>
+                                <td>${accountId?html}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" type="submit" name="account"
+                                            value="${accountId?html}">Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            </#list>
+                        </table>
+                    </form>
+                </#if>
+        </div>
+        <div class="card-footer">
+            <form method="post">
+                <div class="input-group">
+                    <input type="text" name="account" class="form-control" placeholder="Account ID"
+                           aria-label="Account ID">
+                    <div class="input-group-append">
+                        <button class="btn btn-info" name="action" value="addAccount" type="submit">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <br/>
+    <div class="card">
+        <div class="card-body">
             <h5 class="card-title">Update password</h5>
             <form class="form-group row" method="post">
                 <div class="form-group col-md-5">
