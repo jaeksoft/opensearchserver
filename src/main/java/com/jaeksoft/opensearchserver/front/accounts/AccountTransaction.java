@@ -18,6 +18,8 @@ package com.jaeksoft.opensearchserver.front.accounts;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
+import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
 
 import javax.servlet.ServletException;
@@ -32,6 +34,7 @@ public class AccountTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE = "accounts/account.ftl";
 
+	private final AccountsService accountsService;
 	private final PermissionsService permissions;
 	private final UUID accountId;
 
@@ -39,6 +42,7 @@ public class AccountTransaction extends ServletTransaction {
 			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
 		super(components, request, response, true);
 		this.accountId = accountId;
+		this.accountsService = components.getAccountsService();
 		this.permissions = components.getPermissionsService();
 	}
 
@@ -46,7 +50,8 @@ public class AccountTransaction extends ServletTransaction {
 	protected void doGet() throws IOException, ServletException {
 		if (permissions.getPermission(userRecord.getId(), accountId) == null)
 			throw new NotAllowedException("Not allowed");
-		request.setAttribute("accountId", accountId);
+		final AccountRecord accountRecord = accountsService.getExistingAccount(accountId);
+		request.setAttribute("account", accountRecord);
 		doTemplate(TEMPLATE);
 	}
 

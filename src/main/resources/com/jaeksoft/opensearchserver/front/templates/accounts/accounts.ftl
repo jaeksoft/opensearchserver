@@ -36,16 +36,20 @@
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
-                <th>Account</th>
+                <th>Account ID</th>
+                <th>Account Name</th>
+                <th>Permission</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-        <#list accounts as accountId>
+        <#list accounts as account,permission>
         <tr>
-            <th>${accountId?html}</th>
+            <td>${account.id?html}</td>
+            <td>${account.name?html}</td>
+            <td>${permission.level?html}</td>
             <td align="right">
-                <a href="/accounts/${accountId?url}" class=" btn btn-sm btn-info">View</a>
+                <a href="/accounts/${account.id?url}" class=" btn btn-sm btn-info">View</a>
             </td>
         </tr>
         </#list>

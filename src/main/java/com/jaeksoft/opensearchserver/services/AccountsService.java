@@ -132,7 +132,7 @@ public class AccountsService {
 		return newAccount.getId();
 	}
 
-	private AccountRecord getExistingAccount(final UUID accountId) {
+	public AccountRecord getExistingAccount(final UUID accountId) {
 		final AccountRecord account = getAccountById(accountId);
 		if (account == null)
 			throw new NotFoundException("Account not found: " + accountId);

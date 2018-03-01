@@ -58,7 +58,7 @@ public class PermissionRecord {
 	}
 
 	private PermissionRecord(final Builder builder) {
-		id = builder.userUuid + "|" + builder.accountUuid;
+		id = builder.userUuid + "_" + builder.accountUuid;
 		level = builder.level == null ? null : builder.level.value;
 		userId = Objects.requireNonNull(builder.userUuid, "The userID is null").toString();
 		accountId = Objects.requireNonNull(builder.accountUuid, "The accountID is null").toString();

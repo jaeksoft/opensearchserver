@@ -29,7 +29,7 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Account ${accountId?html}</h4>
+            <h4 class="card-title">Account : ${account.name?html}</h4>
             <h6 class="card-subtitle mb-2 text-muted">Discover below the main sections</h6>
         </div>
     </div>
@@ -40,7 +40,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Indexes</h5>
                     <p class="card-text">Manage your indexes here.</p>
-                    <a href="/accounts/${accountId?url}/indexes" class="btn btn-primary">Indexes</a>
+                    <a href="/accounts/${account.id?url}/indexes" class="btn btn-primary">Indexes</a>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Web crawls</h5>
                     <p class="card-text">Manage your Web crawls here.</p>
-                    <a href="/accounts/${accountId?url}/crawlers/web" class="btn btn-primary">Web crawls</a>
+                    <a href="/accounts/${account.id?url}/crawlers/web" class="btn btn-primary">Web crawls</a>
                 </div>
             </div>
         </div>
@@ -58,7 +58,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Tasks</h5>
                     <p class="card-text">Manage your running tasks here.</p>
-                    <a href="/accounts/${accountId?url}/tasks" class="btn btn-primary">Tasks</a>
+                    <a href="/accounts/${account.id?url}/tasks" class="btn btn-primary">Tasks</a>
                 </div>
             </div>
         </div>
