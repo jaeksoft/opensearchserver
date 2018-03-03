@@ -86,14 +86,34 @@ public class AdminAccountTransaction extends ServletTransaction {
 
 	public void updateStatus() {
 		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
-		if (accountsService.updateStatus(accountId, status))
+		if (accountsService.update(accountId, builder -> builder.status(status)))
 			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
+		else
+			addMessage(Message.Css.warning, "Nothing to update", null);
 	}
 
 	public void updateName() {
 		final String accountName = request.getParameter("accountName");
-		if (accountsService.updateName(accountId, accountName))
+		if (accountsService.update(accountId, builder -> builder.name(accountName)))
 			addMessage(Message.Css.success, "Name updated", "Name set to " + accountName);
+		else
+			addMessage(Message.Css.warning, "Nothing to update", null);
+	}
+
+	public void setLimits() {
+		final int crawlNumberLimit = getRequestParameter("crawlNumberLimit", 0);
+		final int tasksNumberLimit = getRequestParameter("tasksNumberLimit", 0);
+		final int indexNumberLimit = getRequestParameter("indexNumberLimit", 0);
+		final int recordNumberLimit = getRequestParameter("recordNumberLimit", 0);
+		final int storageLimit = getRequestParameter("storageLimit", 0) * 1024 * 1024;
+		if (accountsService.update(accountId, b -> b.crawlNumberLimit(crawlNumberLimit)
+				.tasksNumberLimit(tasksNumberLimit)
+				.indexNumberLimit(indexNumberLimit)
+				.recordNumberLimit(recordNumberLimit)
+				.storageLimit(storageLimit)))
+			addMessage(Message.Css.success, "Limits updated", null);
+		else
+			addMessage(Message.Css.warning, "Nothing to update", null);
 	}
 
 	@Override

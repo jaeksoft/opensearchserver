@@ -21,7 +21,10 @@ import com.qwazr.database.annotations.TableColumn;
 import com.qwazr.database.model.ColumnDefinition;
 import com.qwazr.database.model.TableDefinition;
 import com.qwazr.utils.HashUtils;
+import com.qwazr.utils.StringUtils;
+import org.apache.commons.lang3.CharUtils;
 
+import javax.ws.rs.NotAcceptableException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -54,20 +57,24 @@ public class AccountRecord {
 	@TableColumn(name = "crawlNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
 	private final Integer crawlNumberLimit;
 
+	@TableColumn(name = "tasksNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
+	private final Integer tasksNumberLimit;
+
 	public static final String[] COLUMNS = new String[] { TableDefinition.ID_COLUMN_NAME,
 			"status",
 			"name",
 			"indexNumberLimit",
 			"recordNumberLimit",
 			"storageLimit",
-			"crawlNumberLimit" };
+			"crawlNumberLimit",
+			"tasksNumberLimit" };
 
 	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
 
 	public AccountRecord() {
 		id = name = null;
 		status = null;
-		indexNumberLimit = crawlNumberLimit = null;
+		indexNumberLimit = crawlNumberLimit = tasksNumberLimit = null;
 		storageLimit = recordNumberLimit = null;
 	}
 
@@ -77,9 +84,10 @@ public class AccountRecord {
 		name = builder.name;
 		indexNumberLimit = builder.indexNumberLimit;
 		crawlNumberLimit = builder.crawlNumberLimit;
+		tasksNumberLimit = builder.tasksNumberLimit;
 		storageLimit = builder.storageLimit;
 		recordNumberLimit = builder.recordNumberLimit;
-	}
+		}
 
 	@Override
 	public boolean equals(final Object o) {
@@ -91,6 +99,7 @@ public class AccountRecord {
 		return Objects.equals(id, r.id) && Objects.equals(status, r.status) && Objects.equals(name, r.name) &&
 				Objects.equals(indexNumberLimit, r.indexNumberLimit) &&
 				Objects.equals(recordNumberLimit, r.recordNumberLimit) &&
+				Objects.equals(tasksNumberLimit, r.tasksNumberLimit) &&
 				Objects.equals(crawlNumberLimit, r.crawlNumberLimit) && Objects.equals(storageLimit, r.storageLimit);
 	}
 
@@ -124,8 +133,16 @@ public class AccountRecord {
 		return storageLimit == null ? 0 : storageLimit;
 	}
 
+	public int getStorageLimitMb() {
+		return (int) (getStorageLimit() / 1024);
+	}
+
 	public int getCrawlNumberLimit() {
 		return crawlNumberLimit == null ? 0 : crawlNumberLimit;
+	}
+
+	public int getTasksNumberLimit() {
+		return tasksNumberLimit == null ? 0 : tasksNumberLimit;
 	}
 
 	public static Builder of(final AccountRecord account) {
@@ -152,6 +169,8 @@ public class AccountRecord {
 
 		private int crawlNumberLimit;
 
+		private int tasksNumberLimit;
+
 		private Builder() {
 			uuid = HashUtils.newTimeBasedUUID();
 		}
@@ -164,10 +183,11 @@ public class AccountRecord {
 			recordNumberLimit = account.getRecordNumberLimit();
 			storageLimit = account.getStorageLimit();
 			crawlNumberLimit = account.getCrawlNumberLimit();
+			tasksNumberLimit = account.getTasksNumberLimit();
 		}
 
 		public Builder name(final String name) {
-			this.name = name;
+			this.name = checkValidName(name);
 			return this;
 		}
 
@@ -196,9 +216,29 @@ public class AccountRecord {
 			return this;
 		}
 
+		public Builder tasksNumberLimit(final int tasksNumberLimit) {
+			this.tasksNumberLimit = tasksNumberLimit;
+			return this;
+		}
+
 		public AccountRecord build() {
 			return new AccountRecord(this);
 		}
 
+	}
+
+	public static String checkValidName(String name) {
+		if (StringUtils.isBlank(name))
+			throw new NotAcceptableException("The name cannot be empty.");
+		name = name.trim().toLowerCase();
+		if (name.contains("--"))
+			throw new NotAcceptableException("The name slhould only contains single hyphens.");
+		if (name.length() < 3)
+			throw new NotAcceptableException("The name should contains at least 3 characters.");
+		if (name.startsWith("-") || name.endsWith("-"))
+			throw new NotAcceptableException("The name cannot start or end with an hyphen.");
+		if (!name.chars().allMatch(value -> CharUtils.isAsciiAlphanumeric((char) value) || '-' == value))
+			throw new NotAcceptableException("The name should contains only alpha numeric characters.");
+		return name;
 	}
 }

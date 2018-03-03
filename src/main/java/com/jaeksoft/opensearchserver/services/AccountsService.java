@@ -26,7 +26,6 @@ import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
 import com.qwazr.utils.StringUtils;
 import com.qwazr.utils.concurrent.ConsumerEx;
-import org.apache.commons.lang3.CharUtils;
 
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAcceptableException;
@@ -42,6 +41,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class AccountsService {
 
@@ -108,23 +108,8 @@ public class AccountsService {
 		}
 	}
 
-	public static String checkValidName(String name) {
-		if (StringUtils.isBlank(name))
-			throw new NotAcceptableException("The name cannot be empty.");
-		name = name.trim().toLowerCase();
-		if (name.contains("--"))
-			throw new NotAcceptableException("The name slhould only contains single hyphens.");
-		if (name.length() < 3)
-			throw new NotAcceptableException("The name should contains at least 3 characters.");
-		if (name.startsWith("-") || name.endsWith("-"))
-			throw new NotAcceptableException("The name cannot start or end with an hyphen.");
-		if (!name.chars().allMatch(value -> CharUtils.isAsciiAlphanumeric((char) value) || '-' == value))
-			throw new NotAcceptableException("The name should contains only alpha numeric characters.");
-		return name;
-	}
-
 	public synchronized UUID createAccount(final String name) {
-		final String validName = checkValidName(name);
+		final String validName = AccountRecord.checkValidName(name);
 		final AccountRecord existingAcount = getAccountByName(validName);
 		if (existingAcount != null)
 			throw new NotAcceptableException("This name is already taken");
@@ -140,24 +125,25 @@ public class AccountsService {
 		return account;
 	}
 
-	public boolean updateStatus(final UUID accountId, final ActiveStatus status) {
+	/**
+	 * Update an AccountRecord.
+	 *
+	 * @param accountId
+	 * @param builderConsumer
+	 * @return
+	 */
+	public boolean update(final UUID accountId, final Consumer<AccountRecord.Builder> builderConsumer) {
 		final AccountRecord oldAccount = getExistingAccount(accountId);
-		if (oldAccount.getStatus() != null && oldAccount.getStatus() == status)
+		final AccountRecord.Builder builder = AccountRecord.of(oldAccount);
+		builderConsumer.accept(builder);
+		final AccountRecord newAccount = builder.build();
+		if (!Objects.equals(oldAccount.getName(), newAccount.getName())) {
+			final AccountRecord alreadyExistingAccount = getAccountByName(newAccount.getName());
+			if (alreadyExistingAccount != null && !accountId.equals(alreadyExistingAccount.getId()))
+				throw new NotAcceptableException("This name is already taken");
+		}
+		if (newAccount.equals(oldAccount))
 			return false;
-		final AccountRecord newAccount = AccountRecord.of(oldAccount).status(status).build();
-		accounts.upsertRow(newAccount.id, newAccount);
-		return true;
-	}
-
-	public boolean updateName(final UUID accountId, final String name) {
-		final String validName = checkValidName(name);
-		final AccountRecord alreadyExistingAccount = getAccountByName(validName);
-		if (alreadyExistingAccount != null && !accountId.equals(alreadyExistingAccount.getId()))
-			throw new NotAcceptableException("This name is already taken");
-		final AccountRecord oldAccount = getExistingAccount(accountId);
-		if (Objects.equals(oldAccount.getName(), validName))
-			return false;
-		final AccountRecord newAccount = AccountRecord.of(oldAccount).name(validName).build();
 		accounts.upsertRow(newAccount.id, newAccount);
 		return true;
 	}

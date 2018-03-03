@@ -76,8 +76,10 @@ public class IndexesService {
 
 	/**
 	 * Remove expired service (not used since 5 minutes)
+	 *
+	 * @return the number of evicted services
 	 */
-	public void removeExpired() {
+	public synchronized int removeExpired() {
 		final List<Pair<String, String>> expiredServices = new ArrayList<>();
 		final long refTime = TimeUnit.MINUTES.toMillis(5);
 		indexes.forEach((k, v) -> {
@@ -85,6 +87,7 @@ public class IndexesService {
 				expiredServices.add(k);
 		});
 		expiredServices.forEach(indexes::remove);
+		return expiredServices.size();
 	}
 
 }

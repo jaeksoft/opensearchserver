@@ -129,6 +129,47 @@
         </div>
     </div>
 </div>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Account limits</h5>
+            <form method="post">
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label for="inputName">Crawl</label>
+                        <input name="crawlNumberLimit" type="number" id="crawlNumberLimit" class="form-control"
+                               value="${accountRecord.crawlNumberLimit?html}">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="inputName">Tasks</label>
+                        <input name="tasksNumberLimit" type="number" id="tasksNumberLimit" class="form-control"
+                               value="${accountRecord.tasksNumberLimit?html}">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="inputName">Indexes</label>
+                        <input name="indexNumberLimit" type="number" id="indexNumberLimit" class="form-control"
+                               value="${accountRecord.indexNumberLimit?html}">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="inputName">Records</label>
+                        <input name="recordNumberLimit" type="number" id="recordNumberLimit" class="form-control"
+                               value="${accountRecord.recordNumberLimit?html}">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="inputName">Storage</label>
+                        <input name="storageLimit" type="number" id="storageLimit" class="form-control"
+                               value="${accountRecord.storageLimitMb?html}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit" name="action" value="setLimits">
+                        Update limits
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <#include '../includes/foot.ftl'>
 </body>
 </html>
