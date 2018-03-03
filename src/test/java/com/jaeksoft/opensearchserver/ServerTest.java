@@ -22,14 +22,21 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ServerTest {
 
 	protected static Client client;
 
 	@BeforeClass
-	public static void setup() {
+	public static void setup() throws IOException {
 		client = ClientBuilder.newClient();
+		final Path dataDir = Files.createTempDirectory("server-test-data");
+		System.setProperty("QWAZR_DATA", dataDir.toString());
+		Files.copy(Paths.get("config.properties"), dataDir.resolve("config.properties"));
 	}
 
 	@AfterClass
