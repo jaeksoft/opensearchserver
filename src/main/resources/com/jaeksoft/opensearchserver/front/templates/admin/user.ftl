@@ -21,8 +21,8 @@
     <#include '../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
-<br/>
+<#include '../includes/nav.ftl'>
+<#include '../includes/messages.ftl'>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
@@ -31,8 +31,8 @@
             <li class="breadcrumb-item active" aria-current="page">${userRecord.email!?html}</li>
         </ol>
     </nav>
- <#include '../includes/messages.ftl'>
-    <br/>
+</div>
+<div class="container">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">User Record</h5>
@@ -53,6 +53,8 @@
         </div>
     </div>
     <br/>
+</div>
+<div class="container">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Update status</h5>
@@ -67,6 +69,8 @@
         </div>
     </div>
     <br/>
+</div>
+<div class="container">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Account list</h5>
@@ -117,6 +121,8 @@
         </div>
     </div>
     <br/>
+</div>
+<div class="container">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Update password</h5>
@@ -140,6 +146,6 @@
         </div>
     </div>
 </div>
-    <#include '../includes/foot.ftl'>
+<#include '../includes/foot.ftl'>
 </body>
 </html>

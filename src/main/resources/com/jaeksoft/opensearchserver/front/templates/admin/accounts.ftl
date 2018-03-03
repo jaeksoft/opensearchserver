@@ -21,10 +21,9 @@
     <#include '../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
-<br/>
-<div class="container">
+<#include '../includes/nav.ftl'>
 <#include '../includes/messages.ftl'>
+<div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/admin">Admin</a></li>

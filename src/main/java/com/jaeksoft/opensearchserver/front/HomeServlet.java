@@ -17,11 +17,9 @@ package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.Components;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @WebServlet("")
 public class HomeServlet extends BaseServlet {
@@ -35,20 +33,8 @@ public class HomeServlet extends BaseServlet {
 	}
 
 	@Override
-	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return new Transaction(request, response);
+	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
+		return new StaticTransaction(components, TEMPLATE, request, response, false);
 	}
 
-	class Transaction extends ServletTransaction {
-
-		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
-			super(components, request, response, false);
-		}
-
-		@Override
-		protected void doGet() throws IOException, ServletException {
-			doTemplate(TEMPLATE);
-		}
-	}
 }

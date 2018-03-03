@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.front.LogoutServlet;
 import com.jaeksoft.opensearchserver.front.SigninServlet;
 import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminAccountsServlet;
+import com.jaeksoft.opensearchserver.front.admin.AdminHomeServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminUsersServlet;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
@@ -45,6 +46,7 @@ public class Server extends Components {
 				.registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
 				.registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
 				.registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this))
+				.registerJavaServlet(AdminHomeServlet.class, () -> new AdminHomeServlet(this))
 				.registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this))
 				.registerJavaServlet(AdminAccountsServlet.class, () -> new AdminAccountsServlet(this));
 		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService));
