@@ -36,7 +36,7 @@ public class AccountRecord {
 
 	private volatile UUID uuid;
 
-	@TableColumn(name = "status", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
+	@TableColumn(name = "status", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.INTEGER)
 	private final Integer status;
 
 	@TableColumn(name = "name", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)

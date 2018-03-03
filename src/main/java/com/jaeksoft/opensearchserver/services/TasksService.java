@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.ReadWriteLock;
 
 import javax.ws.rs.NotAcceptableException;
@@ -27,7 +28,6 @@ import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class TasksService extends StoreService<TaskRecord> {
 
@@ -78,12 +78,12 @@ public class TasksService extends StoreService<TaskRecord> {
 	}
 
 	public int collectActiveTasks(final String storeSchema, final int start, final int rows,
-			final Consumer<TaskRecord> recordConsumer) throws IOException {
+			final ConsumerEx<TaskRecord, IOException> recordConsumer) throws IOException {
 		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows, null, recordConsumer));
 	}
 
 	public int collectActiveTasks(final String storeSchema, final int start, final int rows, final UUID crawlUuid,
-			final Consumer<TaskRecord> recordConsumer) throws IOException {
+			final ConsumerEx<TaskRecord, IOException> recordConsumer) throws IOException {
 		final String crawlUuidString = crawlUuid.toString();
 		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows,
 				name -> name.startsWith(crawlUuidString), recordConsumer));
@@ -94,7 +94,7 @@ public class TasksService extends StoreService<TaskRecord> {
 	}
 
 	public int getArchivedTasks(final String storeSchema, final int start, final int rows,
-			final Consumer<TaskRecord> recordConsumer) throws IOException {
+			final ConsumerEx<TaskRecord, IOException> recordConsumer) throws IOException {
 		return rwl.readEx(() -> super.collect(storeSchema, ARCHIVE_DIRECTORY, start, rows, null, recordConsumer));
 	}
 

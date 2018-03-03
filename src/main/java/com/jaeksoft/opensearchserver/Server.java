@@ -29,12 +29,14 @@ import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.webapps.WebappManager;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class Server extends Components {
 
 	private final GenericServer server;
 
-	private Server(final ServerConfiguration configuration) throws IOException {
+	private Server(final ServerConfiguration configuration)
+			throws IOException, NoSuchMethodException, URISyntaxException {
 		super(configuration.dataDirectory.toPath());
 
 		final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
@@ -52,6 +54,7 @@ public class Server extends Components {
 		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService));
 		webAppBuilder.build();
 		server = serverBuilder.build();
+		getJobService().startTasks();
 	}
 
 	@Override

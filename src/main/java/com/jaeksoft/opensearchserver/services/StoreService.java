@@ -21,6 +21,7 @@ import com.qwazr.store.StoreFileResult;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
 import com.qwazr.utils.StringUtils;
+import com.qwazr.utils.concurrent.ConsumerEx;
 
 import javax.ws.rs.WebApplicationException;
 import java.io.BufferedInputStream;
@@ -33,7 +34,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -116,7 +116,8 @@ public abstract class StoreService<T> {
 	 * @return the total number of records found, and the paginated records as a list
 	 */
 	protected int collect(final String storeSchema, final String subDirectory, Integer start, Integer rows,
-			final Function<String, Boolean> filter, final Consumer<T> recordsConsumer) throws IOException {
+			final Function<String, Boolean> filter, final ConsumerEx<T, IOException> recordsConsumer)
+			throws IOException {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
 			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;

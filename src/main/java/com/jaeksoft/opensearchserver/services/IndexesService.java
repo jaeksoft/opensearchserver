@@ -16,10 +16,12 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.qwazr.search.index.IndexServiceInterface;
+import com.qwazr.server.client.ErrorWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +41,7 @@ public class IndexesService {
 	}
 
 	public Set<String> getIndexes(final String accountId) {
-		indexService.createUpdateSchema(accountId);
-		final Map<String, UUID> indexMap = indexService.getIndexes(accountId);
+		final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
 		return indexMap == null ? null : indexMap.keySet();
 	}
 
@@ -65,9 +66,12 @@ public class IndexesService {
 	}
 
 	public Map<UUID, String> getIndexNameResolver(final String accountId) {
-		final Map<UUID, String> indexMap = new HashMap<>();
-		indexService.getIndexes(accountId).forEach((name, uuid) -> indexMap.put(uuid, name));
-		return indexMap;
+		final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
+		if (indexMap == null)
+			return Collections.emptyMap();
+		final Map<UUID, String> indexReverseMap = new HashMap<>();
+		indexMap.forEach((name, uuid) -> indexReverseMap.put(uuid, name));
+		return indexReverseMap;
 	}
 
 	/**

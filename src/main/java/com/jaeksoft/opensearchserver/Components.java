@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.JobService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.ProcessingService;
 import com.jaeksoft.opensearchserver.services.TasksService;
@@ -91,6 +92,8 @@ public class Components implements Closeable {
 	private volatile UsersService usersService;
 	private volatile AccountsService accountsService;
 	private volatile PermissionsService permissionsService;
+
+	private volatile JobService jobService;
 
 	Components(final Path dataDirectory) {
 		this.closing = new ArrayList<>();
@@ -259,6 +262,14 @@ public class Components implements Closeable {
 		if (accountsService == null)
 			accountsService = new AccountsService(getTableService());
 		return accountsService;
+	}
+
+	public synchronized JobService getJobService() throws IOException, NoSuchMethodException, URISyntaxException {
+		if (jobService == null) {
+			jobService = new JobService(getAccountsService(), getTasksService(), getIndexesService());
+			closing.add(jobService);
+		}
+		return jobService;
 	}
 
 	@Override

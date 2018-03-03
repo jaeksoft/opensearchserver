@@ -25,6 +25,7 @@ import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
 import com.qwazr.utils.StringUtils;
+import com.qwazr.utils.concurrent.ConsumerEx;
 import org.apache.commons.lang3.CharUtils;
 
 import javax.ws.rs.InternalServerErrorException;
@@ -159,6 +160,33 @@ public class AccountsService {
 		final AccountRecord newAccount = AccountRecord.of(oldAccount).name(validName).build();
 		accounts.upsertRow(newAccount.id, newAccount);
 		return true;
+	}
+
+	public TableRequestResultRecords<AccountRecord> getActiveAccounts(final int start, final int rows)
+			throws IOException, ReflectiveOperationException {
+		return accounts.queryRows(TableRequest.from(start, rows)
+				.query(new TableQuery.IntegerTerm("status", ActiveStatus.ENABLED.value))
+				.column(AccountRecord.COLUMNS)
+				.build());
+	}
+
+	public int forEachActiveAccount(final ConsumerEx<AccountRecord, IOException> accountConsumer) {
+		int start = 0;
+		final int rows = 20;
+		try {
+			for (; ; ) {
+				final List<AccountRecord> accounts = getActiveAccounts(start, rows).getRecords();
+				if (accounts == null || accounts.isEmpty())
+					break;
+				start += accounts.size();
+				if (accountConsumer != null)
+					for (AccountRecord account : accounts)
+						accountConsumer.accept(account);
+			}
+			return start;
+		} catch (IOException | ReflectiveOperationException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

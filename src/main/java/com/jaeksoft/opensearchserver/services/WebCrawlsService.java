@@ -18,10 +18,10 @@ package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.utils.concurrent.ConsumerEx;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 
@@ -45,7 +45,7 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 	}
 
 	public int collect(final String storeSchema, final int start, final int rows,
-			final Consumer<WebCrawlRecord> recordConsumer) throws IOException {
+			final ConsumerEx<WebCrawlRecord, IOException> recordConsumer) throws IOException {
 		return super.collect(storeSchema, null, start, rows, null, recordConsumer);
 	}
 
