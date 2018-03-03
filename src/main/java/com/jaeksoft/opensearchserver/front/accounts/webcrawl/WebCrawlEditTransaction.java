@@ -21,8 +21,8 @@ import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.StringUtils;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
@@ -46,7 +46,7 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		webCrawlRecord = webCrawlsService.read(accountRecord.id, webCrawlUuid);
 		if (webCrawlRecord == null)
 			throw new NotFoundException("Web crawl not found: " + webCrawlUuid);
-		
+
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 	}
 
@@ -55,19 +55,18 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void delete() throws IOException, ServletException {
+	public String delete() {
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
 			webCrawlsService.remove(accountRecord.id, webCrawlRecord.getUuid());
 			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-			response.sendRedirect("/accounts/" + accountRecord.id + "/crawlers/web");
-			return;
-		} else
-			addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
-		doGet();
+			return StringUtils.EMPTY;
+		}
+		addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
+		return null;
 	}
 
-	public void save() throws IOException {
+	public String save() throws IOException {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
@@ -75,7 +74,7 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
 		webCrawlsService.save(accountRecord.id,
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		response.sendRedirect("/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid());
+		return "/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid();
 	}
 
 }

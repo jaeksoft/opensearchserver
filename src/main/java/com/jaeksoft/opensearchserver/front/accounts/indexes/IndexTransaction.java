@@ -51,18 +51,17 @@ public class IndexTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void delete() throws IOException, ServletException {
+	public String delete() {
 		final String indexName = request.getParameter("indexName");
-		if (!StringUtils.isBlank(indexName)) {
-			if (indexName.equals(this.indexName)) {
-				indexesService.deleteIndex(accountRecord.id, indexName);
-				addMessage(Message.Css.info, null, "Index \"" + indexName + "\" deleted");
-				response.sendRedirect("/");
-				return;
-			} else
-				addMessage(Message.Css.warning, null, "Please confirm the name of the index to delete");
+		if (StringUtils.isBlank(indexName))
+			return null;
+		if (indexName.equals(this.indexName)) {
+			indexesService.deleteIndex(accountRecord.id, indexName);
+			addMessage(Message.Css.success, null, "Index \"" + indexName + "\" deleted");
+			return StringUtils.EMPTY;
 		}
-		doGet();
+		addMessage(Message.Css.warning, null, "Please confirm the name of the index to delete");
+		return null;
 	}
 
 	@Override

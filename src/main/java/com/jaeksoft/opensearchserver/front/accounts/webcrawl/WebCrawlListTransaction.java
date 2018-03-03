@@ -55,7 +55,6 @@ public class WebCrawlListTransaction extends AccountTransaction {
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
 		webCrawlsService.save(accountRecord.id,
 				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		doGet();
 	}
 
 	@Override

@@ -16,11 +16,11 @@
 package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.TasksService;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
@@ -51,14 +51,14 @@ public class ActiveTaskStatusTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void pause() throws IOException, ServletException {
+	public void pause() throws IOException {
 		tasksService.pause(accountRecord.id, taskRecord.getTaskId());
-		doGet();
+		addMessage(Message.Css.success, "The task has been paused", null);
 	}
 
-	public void start() throws IOException, ServletException {
+	public void start() throws IOException {
 		tasksService.start(accountRecord.id, taskRecord.getTaskId());
-		doGet();
+		addMessage(Message.Css.success, "The task has been started", null);
 	}
 
 }

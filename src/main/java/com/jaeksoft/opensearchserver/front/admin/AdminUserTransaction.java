@@ -58,14 +58,19 @@ public class AdminUserTransaction extends ServletTransaction {
 		this.userId = userId;
 	}
 
-	public void updatePassword() throws IOException, ServletException {
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
+	}
+
+	public void updatePassword() {
 		final String password1 = request.getParameter("password1");
 		final String password2 = request.getParameter("password2");
 		usersService.resetPassword(userId, password1);
 		if (!password1.equals(password2))
-			throw new NotAcceptableException("The passwords do not match");
-		addMessage(Message.Css.success, "Password updated!", null);
-		doGet();
+			addMessage(Message.Css.danger, "Error", "The passwords do not match");
+		else
+			addMessage(Message.Css.success, "Password updated!", null);
 	}
 
 	private AccountRecord getExistingAccountByName() {
@@ -76,7 +81,7 @@ public class AdminUserTransaction extends ServletTransaction {
 		return accountRecord;
 	}
 
-	public void setPermission() throws IOException, ServletException {
+	public void setPermission() {
 		final AccountRecord accountRecord = getExistingAccountByName();
 		final String levelName = request.getParameter("level");
 		final PermissionLevel level = PermissionLevel.resolve(levelName);
@@ -84,7 +89,6 @@ public class AdminUserTransaction extends ServletTransaction {
 			throw new NotAcceptableException("Unknown level: " + levelName);
 		if (permissionsService.setPermission(userId, accountRecord.getId(), level))
 			addMessage(Message.Css.success, "Permission added", null);
-		doGet();
 	}
 
 	private AccountRecord getExistingAccountById() {
@@ -95,18 +99,16 @@ public class AdminUserTransaction extends ServletTransaction {
 		return accountRecord;
 	}
 
-	public void removePermission() throws IOException, ServletException {
+	public void removePermission() {
 		final AccountRecord accountRecord = getExistingAccountById();
 		if (permissionsService.removePermission(userId, accountRecord.getId()))
 			addMessage(Message.Css.success, "Permission removed", null);
-		doGet();
 	}
 
-	public void updateStatus() throws IOException, ServletException {
+	public void updateStatus() {
 		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
 		if (usersService.updateStatus(userId, status))
 			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
-		doGet();
 	}
 
 	@Override
@@ -119,7 +121,7 @@ public class AdminUserTransaction extends ServletTransaction {
 		final Map<AccountRecord, PermissionRecord> accounts = accountsService.getAccountsByIds(permissions);
 		request.setAttribute("accounts", accounts);
 		request.setAttribute("userRecord", userRecord);
-		doTemplate(TEMPLATE);
+		super.doGet();
 	}
 
 }

@@ -17,11 +17,11 @@
 package com.jaeksoft.opensearchserver.front.accounts.indexes;
 
 import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.utils.StringUtils;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -46,11 +46,12 @@ public class IndexesTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void create() throws IOException, ServletException {
+	public void create() {
 		final String indexName = request.getParameter("indexName");
-		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(accountRecord.id, indexName);
-		doGet();
+		if (StringUtils.isBlank(indexName))
+			return;
+		indexesService.createIndex(accountRecord.id, indexName);
+		addMessage(Message.Css.success, "Index created: " + indexName, null);
 	}
 
 }

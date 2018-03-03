@@ -40,20 +40,24 @@ public class AdminUsersTransaction extends ServletTransaction {
 		usersService = components.getUsersService();
 	}
 
-	public void create() throws IOException, ServletException {
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
+	}
+
+	public String create() {
 		final String userEmail = request.getParameter("userEmail");
 		if (!StringUtils.isBlank(userEmail)) {
 			final UUID userId = usersService.createUser(userEmail);
-			response.sendRedirect("/admin/users/" + userId);
-			return;
+			return "/admin/users/" + userId;
 		}
-		doGet();
+		return null;
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0);
 		request.setAttribute("users", usersService.getUsers(start, 20));
-		doTemplate(TEMPLATE);
+		super.doGet();
 	}
 }

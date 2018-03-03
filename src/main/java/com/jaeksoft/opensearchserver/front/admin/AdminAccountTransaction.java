@@ -55,6 +55,11 @@ public class AdminAccountTransaction extends ServletTransaction {
 		this.accountId = accountId;
 	}
 
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
+	}
+
 	private UserRecord getExistingRecordByEmail() {
 		final String userEmail = request.getParameter("userEmail");
 		final UserRecord userRecord = usersService.getUserByEmail(userEmail);
@@ -63,7 +68,7 @@ public class AdminAccountTransaction extends ServletTransaction {
 		return userRecord;
 	}
 
-	public void setPermission() throws IOException, ServletException {
+	public void setPermission() {
 		final UserRecord userRecord = getExistingRecordByEmail();
 		final String levelName = request.getParameter("level");
 		final PermissionLevel level = PermissionLevel.resolve(levelName);
@@ -71,28 +76,24 @@ public class AdminAccountTransaction extends ServletTransaction {
 			throw new NotAcceptableException("Unknown level: " + levelName);
 		if (permissionsService.setPermission(userRecord.getId(), accountId, level))
 			addMessage(Message.Css.success, "Permission added", null);
-		doGet();
 	}
 
-	public void removePermission() throws IOException, ServletException {
+	public void removePermission() {
 		final UserRecord userRecord = getExistingRecordByEmail();
 		if (permissionsService.removePermission(userRecord.getId(), accountId))
 			addMessage(Message.Css.success, "Permission removed", null);
-		doGet();
 	}
 
-	public void updateStatus() throws IOException, ServletException {
+	public void updateStatus() {
 		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
 		if (accountsService.updateStatus(accountId, status))
 			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
-		doGet();
 	}
 
-	public void updateName() throws IOException, ServletException {
+	public void updateName() {
 		final String accountName = request.getParameter("accountName");
 		if (accountsService.updateName(accountId, accountName))
 			addMessage(Message.Css.success, "Name updated", "Name set to " + accountName);
-		doGet();
 	}
 
 	@Override
@@ -101,7 +102,7 @@ public class AdminAccountTransaction extends ServletTransaction {
 		if (accountId == null)
 			throw new NotFoundException("Account not found");
 		request.setAttribute("accountRecord", accountRecord);
-		doTemplate(TEMPLATE);
+		super.doGet();
 	}
 
 }

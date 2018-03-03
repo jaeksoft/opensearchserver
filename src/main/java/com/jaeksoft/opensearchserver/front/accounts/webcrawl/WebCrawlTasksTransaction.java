@@ -56,7 +56,7 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void crawl() throws IOException, ServletException {
+	public void crawl() throws IOException {
 		final String index = request.getParameter("index");
 		final UUID indexUuid =
 				UUID.fromString(indexesService.getIndex(accountRecord.id, index).getIndexStatus().index_uuid);
@@ -68,7 +68,6 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 			tasksService.saveActiveTask(accountRecord.id, record);
 			addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
 		}
-		doGet();
 	}
 
 	@Override

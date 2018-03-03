@@ -150,7 +150,7 @@ public abstract class ServletTransaction {
 	 * @throws IOException
 	 * @throws ServletException
 	 */
-	final void doPost() throws IOException, ServletException {
+	final void doPost() throws IOException {
 		final String action = request.getParameter("action");
 		if (StringUtils.isBlank(action)) {
 			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -158,11 +158,28 @@ public abstract class ServletTransaction {
 		}
 		try {
 			final Method method = getClass().getDeclaredMethod(action);
-			method.invoke(this);
+			final Object redirect = method.invoke(this);
+			if (!response.isCommitted())
+				sendRedirect(redirect == null ? null : redirect.toString());
 		} catch (ReflectiveOperationException | WebApplicationException e) {
 			addMessage(e);
-			doGet();
+			sendRedirect(null);
 		}
+	}
+
+	/**
+	 * Redirect to the given URL. If redirect is null, it redirects to the current URL
+	 *
+	 * @throws IOException
+	 */
+	private void sendRedirect(String redirect) throws IOException {
+		if (redirect == null) {
+			final String queryString = request.getQueryString();
+			redirect = request.getRequestURI();
+			if (queryString != null)
+				redirect += '?' + queryString;
+		}
+		response.sendRedirect(redirect);
 	}
 
 	/**
