@@ -22,10 +22,7 @@
 </head>
 <body>
     <#include 'includes/nav.ftl'>
-<br/>
-<div class="container">
 <#include 'includes/messages.ftl'>
-</div>
 <div class="container">
     <div class="card">
         <div class="card-body">

@@ -16,46 +16,36 @@
 package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.TasksService;
+import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
+import java.util.UUID;
 
-public class ArchivedTaskListTransaction extends ServletTransaction {
+public class ArchivedTaskListTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/tasks/archived.ftl";
+	private final static String TEMPLATE = "accounts/tasks/archived.ftl";
 
-	private final String accountId;
-	private final TasksService tasksService;
-	private final IndexesService indexesService;
-
-	public ArchivedTaskListTransaction(final Components components, final String accountId,
+	public ArchivedTaskListTransaction(final Components components, final UUID accountId,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException {
-		super(components, request, response, true);
-		this.accountId = accountId;
-		tasksService = components.getTasksService();
-		indexesService = components.getIndexesService();
-	}
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, accountId, request, response);
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountId, null);
-		int totalCount = tasksService.collectActiveTasks(accountId, start, rows, resultBuilder::add);
-		final List<TaskResult> tasks = resultBuilder.build();
+		final TaskResult.Builder resultBuilder = TaskResult.of(components.getIndexesService(), accountRecord.id, null);
+		int totalCount =
+				components.getTasksService().collectActiveTasks(accountRecord.id, start, rows, resultBuilder::add);
 
-		request.setAttribute("accountId", accountId);
-		request.setAttribute("tasks", tasks);
+		request.setAttribute("tasks", resultBuilder.build());
 		request.setAttribute("totalCount", totalCount);
-		doTemplate(TEMPLATE_INDEX);
+	}
+
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
 	}
 }

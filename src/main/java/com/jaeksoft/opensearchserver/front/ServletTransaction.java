@@ -19,6 +19,7 @@ import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.ExceptionUtils;
+import com.qwazr.utils.LinkUtils;
 import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.StringUtils;
 import freemarker.template.TemplateException;
@@ -72,7 +73,8 @@ public abstract class ServletTransaction {
 		}
 		final String requestUrl = requestUrlBuilder.toString();
 		addMessage(Message.Css.warning, "Please sign in to be able to see this content", requestUrl);
-		throw new RedirectionException(requestUrl, Response.Status.TEMPORARY_REDIRECT, URI.create("/signin"));
+		throw new RedirectionException(requestUrl, Response.Status.TEMPORARY_REDIRECT,
+				URI.create("/signin?url=" + LinkUtils.urlEncode(requestUrl)));
 	}
 
 	/**
@@ -121,13 +123,25 @@ public abstract class ServletTransaction {
 	}
 
 	/**
-	 * This default implementation for HTTP GET method returns a 405 error code.
+	 * @return the freemarker template
+	 */
+	protected String getTemplate() {
+		return null;
+	}
+
+	/**
+	 * This default implementation for HTTP GET method display the template provided by getTemplate().
+	 * If there is not template, it returns a 405 error code.
 	 *
 	 * @throws IOException      if any I/O error occured
 	 * @throws ServletException if any Servlet error occured
 	 */
 	protected void doGet() throws IOException, ServletException {
-		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+		final String template = getTemplate();
+		if (template != null)
+			doTemplate(template);
+		else
+			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
 
 	/**

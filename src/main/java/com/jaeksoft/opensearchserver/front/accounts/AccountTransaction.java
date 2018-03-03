@@ -19,10 +19,7 @@ package com.jaeksoft.opensearchserver.front.accounts;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
-import com.jaeksoft.opensearchserver.services.AccountsService;
-import com.jaeksoft.opensearchserver.services.PermissionsService;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAllowedException;
@@ -34,25 +31,20 @@ public class AccountTransaction extends ServletTransaction {
 
 	private final static String TEMPLATE = "accounts/account.ftl";
 
-	private final AccountsService accountsService;
-	private final PermissionsService permissions;
-	private final UUID accountId;
+	protected final AccountRecord accountRecord;
 
-	AccountTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
+	protected AccountTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
 			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
 		super(components, request, response, true);
-		this.accountId = accountId;
-		this.accountsService = components.getAccountsService();
-		this.permissions = components.getPermissionsService();
+		if (components.getPermissionsService().getPermission(userRecord.getId(), accountId) == null)
+			throw new NotAllowedException("Not allowed");
+		accountRecord = components.getAccountsService().getExistingAccount(accountId);
+		request.setAttribute("account", accountRecord);
 	}
 
 	@Override
-	protected void doGet() throws IOException, ServletException {
-		if (permissions.getPermission(userRecord.getId(), accountId) == null)
-			throw new NotAllowedException("Not allowed");
-		final AccountRecord accountRecord = accountsService.getExistingAccount(accountId);
-		request.setAttribute("account", accountRecord);
-		doTemplate(TEMPLATE);
+	protected String getTemplate() {
+		return TEMPLATE;
 	}
 
 }

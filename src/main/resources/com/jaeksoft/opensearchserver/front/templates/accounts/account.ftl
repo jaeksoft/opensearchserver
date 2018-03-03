@@ -21,19 +21,15 @@
     <#include '../includes/head.ftl'>
 </head>
 <body>
-    <#include '../includes/nav.ftl'>
-<br/>
-<div class="container">
+<#include '../includes/nav.ftl'>
 <#include '../includes/messages.ftl'>
-</div>
 <div class="container">
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title">Account : ${account.name?html}</h4>
-            <h6 class="card-subtitle mb-2 text-muted">Discover below the main sections</h6>
-        </div>
-    </div>
-    <br/>
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
+            <li class="breadcrumb-item active" aria-current="page">${account.name?html}</li>
+        </ol>
+    </nav>
     <div class="row">
         <div class="col-md-4">
             <div class="card">
@@ -64,6 +60,6 @@
         </div>
     </div>
 </div>
-    <#include '../includes/foot.ftl'>
+<#include '../includes/foot.ftl'>
 </body>
 </html>

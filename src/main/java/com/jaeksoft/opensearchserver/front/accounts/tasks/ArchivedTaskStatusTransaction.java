@@ -16,41 +16,34 @@
 package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
-import com.jaeksoft.opensearchserver.services.TasksService;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
-public class ArchivedTaskStatusTransaction extends ServletTransaction {
+public class ArchivedTaskStatusTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/tasks/achived_status.ftl";
+	private final static String TEMPLATE = "accounts/tasks/achived_status.ftl";
 
-	private final String accountId;
-	private final TasksService tasksService;
-	private final TaskRecord taskRecord;
-
-	public ArchivedTaskStatusTransaction(final Components components, final String accountId, final String taskId,
+	public ArchivedTaskStatusTransaction(final Components components, final UUID accountId, final String taskId,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException {
-		super(components, request, response, true);
-		this.accountId = accountId;
-		tasksService = components.getTasksService();
-		taskRecord = tasksService.getActiveTask(accountId, taskId);
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, accountId, request, response);
+
+		final TaskRecord taskRecord = components.getTasksService().getActiveTask(accountRecord.id, taskId);
+		if (taskRecord == null)
+			throw new NotFoundException("Task not found : " + taskId);
+
+		request.setAttribute("task", taskRecord);
 	}
 
 	@Override
-	protected void doGet() throws IOException, ServletException {
-		if (taskRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-		request.setAttribute("accountId", accountId);
-		request.setAttribute("task", taskRecord);
-		doTemplate(TEMPLATE_INDEX);
+	protected String getTemplate() {
+		return TEMPLATE;
 	}
 }

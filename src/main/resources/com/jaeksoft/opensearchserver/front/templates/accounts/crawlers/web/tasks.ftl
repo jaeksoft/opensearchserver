@@ -21,17 +21,17 @@
     <#include '../../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../../../includes/nav.ftl'>
-<br/>
+<#include '../../../includes/nav.ftl'>
+<#include '../../../includes/messages.ftl'>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/accounts/">Accounts</a></li>
-            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}">${accountId?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item">Crawlers</li>
-            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}/crawlers/web">Web</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}/crawlers/web">Web</a></li>
             <li class="breadcrumb-item">
-                <a href="/accounts/${accountId?url}/crawlers/web/${webCrawlRecord.uuid?url}">
+                <a href="/accounts/${account.id?url}/crawlers/web/${webCrawlRecord.uuid?url}">
                 ${webCrawlRecord.name!webCrawlRecord.uuid!?html}</a>
             </li>
             <li class=" breadcrumb-item active" aria-current="page">
@@ -39,43 +39,45 @@
             </li>
         </ol>
     </nav>
- <#include '../../../includes/messages.ftl'>
-    <#if tasks?has_content>
-     <div class="card">
-         <div class="card-body">
-             <h5 class="card-title">Active tasks</h5>
-             <#assign show_crawl = false>
-             <#include '../../tasks/includes/task_list.ftl'>
-         </div>
-     </div>
+</div>
+<#if tasks?has_content>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Active tasks</h5>
+         <#assign show_crawl = false>
+         <#include '../../tasks/includes/task_list.ftl'>
+        </div>
+    </div>
     <br/>
-    </#if>
-
-    <#if indexes?has_content>
-          <div class="card">
-              <div class="card-body">
-                  <h5 class="card-title">Start a crawl</h5>
-                  <p class="card-text text-muted">Choose an index and click on the button to start the crawl
-                      process.</p>
-              </div>
-              <div class="card-footer">
-                  <form method="post" class="form-inline">
-                      <label for="indexList" class="sr-only">Index list</label>
-                      <select class="form-control mb-2 mr-sm-2" id="indexList" name="index">
-                    <#list indexes as index>
-                        <option value="${index?html}">${index?html}</option>
-                    </#list>
-                      </select>
-                      <button class="btn btn-primary mb-2"
-                              name="action" value="crawl" type="submit">
-                          Start crawling
-                      </button>
-                  </form>
-              </div>
-          </div>
-        <br/>
-    </#if>
-
+</div>
+</#if>
+<#if indexes?has_content>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Start a crawl</h5>
+            <p class="card-text text-muted">Choose an index and click on the button to start the crawl
+                process.</p>
+        </div>
+        <div class="card-footer">
+            <form method="post" class="form-inline">
+                <label for="indexList" class="sr-only">Index list</label>
+                <select class="form-control mb-2 mr-sm-2" id="indexList" name="index">
+                <#list indexes as index>
+                    <option value="${index?html}">${index?html}</option>
+                </#list>
+                </select>
+                <button class="btn btn-primary mb-2"
+                        name="action" value="crawl" type="submit">
+                    Start crawling
+                </button>
+            </form>
+        </div>
+    </div>
+    <br/>
+</div>
+</#if>
 <#-- START CRAWLING
     <div class="card">
         <form method="post">
@@ -109,7 +111,6 @@
     </div>
     <br/>
     -->
-</div>
 <#include '../../../includes/foot.ftl'>
 </body>
 </html>

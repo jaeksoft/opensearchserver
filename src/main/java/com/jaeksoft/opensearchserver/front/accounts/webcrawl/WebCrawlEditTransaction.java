@@ -17,7 +17,7 @@ package com.jaeksoft.opensearchserver.front.accounts.webcrawl;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
-import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -25,37 +25,42 @@ import com.qwazr.crawler.web.WebCrawlDefinition;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-public class WebCrawlEditTransaction extends ServletTransaction {
+public class WebCrawlEditTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/edit.ftl";
+	private final static String TEMPLATE = "accounts/crawlers/web/edit.ftl";
 
-	private final String accountId;
 	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
 
-	public WebCrawlEditTransaction(final Components components, final String accountId, final UUID webCrawlUuid,
+	public WebCrawlEditTransaction(final Components components, final UUID accountId, final UUID webCrawlUuid,
 			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException {
-		super(components, request, response, true);
-		this.accountId = accountId;
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, accountId, request, response);
+
 		this.webCrawlsService = components.getWebCrawlsService();
-		webCrawlRecord = webCrawlsService.read(accountId, webCrawlUuid);
+		webCrawlRecord = webCrawlsService.read(accountRecord.id, webCrawlUuid);
+		if (webCrawlRecord == null)
+			throw new NotFoundException("Web crawl not found: " + webCrawlUuid);
+		
+		request.setAttribute("webCrawlRecord", webCrawlRecord);
+	}
+
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
 	}
 
 	public void delete() throws IOException, ServletException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
-			webCrawlsService.remove(accountId, webCrawlRecord.getUuid());
+			webCrawlsService.remove(accountRecord.id, webCrawlRecord.getUuid());
 			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
-			response.sendRedirect("/accounts/" + accountId + "/crawlers/web");
+			response.sendRedirect("/accounts/" + accountRecord.id + "/crawlers/web");
 			return;
 		} else
 			addMessage(Message.Css.warning, null, "Please confirm the name of the crawl to delete");
@@ -63,28 +68,14 @@ public class WebCrawlEditTransaction extends ServletTransaction {
 	}
 
 	public void save() throws IOException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(accountId,
+		webCrawlsService.save(accountRecord.id,
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
-		response.sendRedirect("/accounts/" + accountId + "/crawlers/web/" + webCrawlRecord.getUuid());
+		response.sendRedirect("/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid());
 	}
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		if (webCrawlRecord == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-		request.setAttribute("accountId", accountId);
-		request.setAttribute("webCrawlRecord", webCrawlRecord);
-		doTemplate(TEMPLATE_INDEX);
-	}
 }

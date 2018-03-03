@@ -22,9 +22,8 @@
 </head>
 <body>
     <#include '../includes/nav.ftl'>
-<br/>
-<div class="container">
 <#include '../includes/messages.ftl'>
+<div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">Accounts</li>
@@ -32,30 +31,30 @@
     </nav>
 </div>
 <#if accounts?has_content>
-    <div class="container">
-        <table class="table table-hover">
-            <thead class="thead-dark">
-            <tr>
-                <th>Account ID</th>
-                <th>Account Name</th>
-                <th>Permission</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-        <#list accounts as account,permission>
+<div class="container">
+    <table class="table table-hover">
+        <thead class="thead-dark">
         <tr>
-            <td>${account.id?html}</td>
-            <td>${account.name?html}</td>
-            <td>${permission.level?html}</td>
-            <td align="right">
-                <a href="/accounts/${account.id?url}" class=" btn btn-sm btn-info">View</a>
-            </td>
+            <th>Account ID</th>
+            <th>Account Name</th>
+            <th>Permission</th>
+            <th></th>
         </tr>
-        </#list>
-            </tbody>
-        </table>
-    </div>
+        </thead>
+        <tbody>
+    <#list accounts as account,permission>
+    <tr>
+        <td>${account.id?html}</td>
+        <td>${account.name?html}</td>
+        <td>${permission.level?html}</td>
+        <td align="right">
+            <a href="/accounts/${account.id?url}" class=" btn btn-sm btn-info">View</a>
+        </td>
+    </tr>
+    </#list>
+        </tbody>
+    </table>
+</div>
 </#if>
 <#include '../includes/foot.ftl'>
 </body>

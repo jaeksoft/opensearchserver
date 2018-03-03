@@ -21,14 +21,13 @@
     <#include '../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../../includes/nav.ftl'>
-<br/>
-<div class="container">
+<#include '../../includes/nav.ftl'>
 <#include '../../includes/messages.ftl'>
+<div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
-            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}">${accountId?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Indexes</li>
         </ol>
     </nav>
@@ -47,7 +46,7 @@
         <tr>
             <th>${index!?html}</th>
             <td align="right">
-                <a href="/accounts/${accountId?url}/indexes/${index!?url}" class=" btn btn-sm btn-info">Edit</a>
+                <a href="/accounts/${account.id?url}/indexes/${index!?url}" class=" btn btn-sm btn-info">Edit</a>
             </td>
         </tr>
         </#list>
@@ -69,6 +68,6 @@
         </div>
     </form>
 </div>
-    <#include '../../includes/foot.ftl'>
+<#include '../../includes/foot.ftl'>
 </body>
 </html>

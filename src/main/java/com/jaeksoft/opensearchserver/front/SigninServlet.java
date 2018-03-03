@@ -47,19 +47,22 @@ public class SigninServlet extends BaseServlet {
 			super(components, request, response, false);
 		}
 
+		@Override
+		protected String getTemplate() {
+			return TEMPLATE;
+		}
+
 		public void signin() throws ServletException, IOException {
 			request.login(request.getParameter("email"), request.getParameter("current-pwd"));
 			final String url = request.getParameter("url");
 			if (request.getUserPrincipal() != null) {
 				addMessage(Message.Css.success, "Welcome Back !", null);
-				response.sendRedirect(StringUtils.isBlank(url) ? "/" : url);
+				response.sendRedirect(StringUtils.isBlank(url) ? "/accounts" : url);
+				return;
 			}
+			request.setAttribute("url", url);
 			doGet();
 		}
 
-		@Override
-		protected void doGet() throws IOException, ServletException {
-			doTemplate(TEMPLATE);
-		}
 	}
 }

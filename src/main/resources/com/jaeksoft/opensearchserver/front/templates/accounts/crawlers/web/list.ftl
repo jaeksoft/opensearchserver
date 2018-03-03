@@ -21,18 +21,17 @@
     <#include '../../../includes/head.ftl'>
 </head>
 <body>
-    <#include '../../../includes/nav.ftl'>
-<br/>
+<#include '../../../includes/nav.ftl'>
+<#include '../../../includes/messages.ftl'>
 <div class="container">
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
-            <li class="breadcrumb-item"><a href="/accounts/${accountId?url}">${accountId?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item">Crawler</li>
             <li class="breadcrumb-item active">Web</li>
         </ol>
     </nav>
- <#include '../../../includes/messages.ftl'>
 </div>
 <#if webCrawlRecords?has_content>
     <div class="container">
@@ -52,9 +51,9 @@
                <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
                <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
                <td align="right">
-                   <a href="/accounts/${accountId?url}/crawlers/web/${webCrawlRecord.uuid!}"
+                   <a href="/accounts/${account.id?url}/crawlers/web/${webCrawlRecord.uuid!}"
                       class=" btn btn-sm btn-secondary">Edit</a>
-                   <a href="/accounts/${accountId?url}/crawlers/web/${webCrawlRecord.uuid!}/tasks"
+                   <a href="/accounts/${account.id?url}/crawlers/web/${webCrawlRecord.uuid!}/tasks"
                       class=" btn btn-sm btn-info">Tasks</a>
                </td>
            </tr>

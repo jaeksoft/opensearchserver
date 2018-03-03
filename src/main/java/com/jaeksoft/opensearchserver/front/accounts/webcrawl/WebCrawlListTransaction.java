@@ -16,7 +16,7 @@
 package com.jaeksoft.opensearchserver.front.accounts.webcrawl;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -28,20 +28,23 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public class WebCrawlListTransaction extends ServletTransaction {
+public class WebCrawlListTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE_INDEX = "accounts/crawlers/web/list.ftl";
+	private final static String TEMPLATE = "accounts/crawlers/web/list.ftl";
 
-	private final String accountId;
 	private final WebCrawlsService webCrawlsService;
 
-	public WebCrawlListTransaction(final Components components, final String accountId,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException {
-		super(components, request, response, true);
-		this.accountId = accountId;
+	public WebCrawlListTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
+			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, accountId, request, response);
 		webCrawlsService = components.getWebCrawlsService();
+	}
+
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
 	}
 
 	public void create() throws IOException, ServletException {
@@ -50,7 +53,7 @@ public class WebCrawlListTransaction extends ServletTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(accountId,
+		webCrawlsService.save(accountRecord.id,
 				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		doGet();
 	}
@@ -61,11 +64,10 @@ public class WebCrawlListTransaction extends ServletTransaction {
 		final int rows = getRequestParameter("rows", 25);
 
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount = webCrawlsService.collect(accountId, start, rows, webCrawlRecords::add);
+		final int totalCount = webCrawlsService.collect(accountRecord.id, start, rows, webCrawlRecords::add);
 
-		request.setAttribute("accountId", accountId);
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
 		request.setAttribute("totalCount", totalCount);
-		doTemplate(TEMPLATE_INDEX);
+		super.doGet();
 	}
 }

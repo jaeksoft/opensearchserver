@@ -17,7 +17,7 @@
 package com.jaeksoft.opensearchserver.front.accounts.indexes;
 
 import com.jaeksoft.opensearchserver.Components;
-import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.utils.StringUtils;
 
@@ -26,33 +26,31 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
-public class IndexesTransaction extends ServletTransaction {
+public class IndexesTransaction extends AccountTransaction {
 
 	private final static String TEMPLATE = "accounts/indexes/indexes.ftl";
 
-	private final String accountId;
 	private final IndexesService indexesService;
 
-	public IndexesTransaction(final Components components, final String accountId, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, URISyntaxException {
-		super(components, request, response, true);
+	public IndexesTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
+			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, accountId, request, response);
 		this.indexesService = components.getIndexesService();
-		this.accountId = accountId;
+		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
+	}
+
+	@Override
+	protected String getTemplate() {
+		return TEMPLATE;
 	}
 
 	public void create() throws IOException, ServletException {
 		final String indexName = request.getParameter("indexName");
 		if (!StringUtils.isBlank(indexName))
-			indexesService.createIndex(accountId, indexName);
+			indexesService.createIndex(accountRecord.id, indexName);
 		doGet();
-	}
-
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		request.setAttribute("accountId", accountId);
-		request.setAttribute("indexes", indexesService.getIndexes(accountId));
-		doTemplate(TEMPLATE);
 	}
 
 }
