@@ -32,10 +32,12 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 		implements ProcessingService<T, S> {
 
 	private final CrawlerServiceInterface<D, S> crawlerService;
+	protected final ConfigService configService;
 	protected final IndexesService indexesService;
 
-	protected CrawlProcessingService(final CrawlerServiceInterface<D, S> crawlerService,
-			final IndexesService indexesService) {
+	protected CrawlProcessingService(final ConfigService configService,
+			final CrawlerServiceInterface<D, S> crawlerService, final IndexesService indexesService) {
+		this.configService = configService;
 		this.crawlerService = crawlerService;
 		this.indexesService = indexesService;
 	}

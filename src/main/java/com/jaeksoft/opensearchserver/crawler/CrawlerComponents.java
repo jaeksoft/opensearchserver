@@ -21,6 +21,7 @@ import com.jaeksoft.opensearchserver.crawler.web.WebAfterCrawl;
 import com.jaeksoft.opensearchserver.crawler.web.WebAfterSession;
 import com.jaeksoft.opensearchserver.crawler.web.WebBeforeCrawl;
 import com.jaeksoft.opensearchserver.crawler.web.WebBeforeSession;
+import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.common.EventEnum;
@@ -96,7 +97,7 @@ public class CrawlerComponents implements CrawlerContext {
 	static volatile ExtractorManager extractorManager;
 	static volatile ExtractorServiceInterface extractorService;
 
-	public static ExtractorServiceInterface getExtractorService() throws IOException, ClassNotFoundException {
+	public static ExtractorServiceInterface getExtractorService() {
 		if (extractorService != null)
 			return extractorService;
 		synchronized (CrawlerComponents.class) {
@@ -110,7 +111,7 @@ public class CrawlerComponents implements CrawlerContext {
 	}
 
 	public static WebCrawlDefinition buildCrawl(final String accountId, final String indexName, final UUID crawlUuid,
-			final Long taskCreationTime, final URL indexServiceUrl, final URL storeServiceUrl,
+			final Long taskCreationTime, final ConfigService configService,
 			final WebCrawlDefinition.Builder crawlBuilder) {
 
 		// Set the event
@@ -124,11 +125,11 @@ public class CrawlerComponents implements CrawlerContext {
 				.variable(CRAWL_UUID, crawlUuid.toString())
 				.variable(TASK_CREATION_TIME, taskCreationTime.toString());
 
-		if (indexServiceUrl != null)
-			crawlBuilder.variable(INDEX_SERVICE_URL, indexServiceUrl.toString());
+		if (configService.getIndexServiceUri() != null)
+			crawlBuilder.variable(INDEX_SERVICE_URL, configService.getIndexServiceUri().toString());
 
-		if (storeServiceUrl != null)
-			crawlBuilder.variable(STORE_SERVICE_URL, storeServiceUrl.toString());
+		if (configService.getStoreServiceUri() != null)
+			crawlBuilder.variable(STORE_SERVICE_URL, configService.getStoreServiceUri().toString());
 
 		return crawlBuilder.build();
 	}

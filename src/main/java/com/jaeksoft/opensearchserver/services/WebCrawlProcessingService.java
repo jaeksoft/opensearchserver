@@ -16,7 +16,6 @@
 
 package com.jaeksoft.opensearchserver.services;
 
-import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -29,9 +28,9 @@ import java.net.URL;
 public class WebCrawlProcessingService
 		extends CrawlProcessingService<WebCrawlTaskRecord, WebCrawlDefinition, WebCrawlStatus> {
 
-	public WebCrawlProcessingService(final WebCrawlerServiceInterface webCrawlerService,
-			final IndexesService indexesService) {
-		super(webCrawlerService, indexesService);
+	public WebCrawlProcessingService(final ConfigService configService,
+			final WebCrawlerServiceInterface webCrawlerService, final IndexesService indexesService) {
+		super(configService, webCrawlerService, indexesService);
 	}
 
 	public Class<WebCrawlTaskRecord> getTaskRecordClass() {
@@ -63,7 +62,7 @@ public class WebCrawlProcessingService
 		else if (taskRecord.crawlDefinition.crawlWaitMs > 60000)
 			crawlBuilder.setCrawlWaitMs(60000);
 
-		return CrawlerComponents.buildCrawl(schema, indexName, taskRecord.crawlUuid, taskRecord.creationTime, null,
-				null, crawlBuilder);
+		return CrawlerComponents.buildCrawl(schema, indexName, taskRecord.crawlUuid, taskRecord.creationTime,
+				configService, crawlBuilder);
 	}
 }

@@ -28,6 +28,7 @@ import com.qwazr.search.query.BooleanQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.LongDocValuesExactQuery;
 import com.qwazr.search.query.TermQuery;
+import com.qwazr.server.client.ErrorWrapper;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -70,7 +71,7 @@ public class IndexService extends UsableService {
 	}
 
 	public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final long taskCreationTime)
-			throws IOException, ReflectiveOperationException {
+			throws Exception {
 		updateLastUse();
 		final UrlRecord urlRecord = getDocument(url);
 		return urlRecord != null && !CrawlStatus.isUnknown(urlRecord.crawlStatus) &&
@@ -94,9 +95,9 @@ public class IndexService extends UsableService {
 		service.updateDocumentsValues(values);
 	}
 
-	public UrlRecord getDocument(final String url) throws IOException, ReflectiveOperationException {
+	public UrlRecord getDocument(final String url) throws Exception {
 		updateLastUse();
-		return service.getDocument(url);
+		return ErrorWrapper.bypass(() -> service.getDocument(url), 404);
 	}
 
 	public IndexStatus getIndexStatus() {

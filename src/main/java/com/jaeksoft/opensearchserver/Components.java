@@ -161,7 +161,8 @@ public class Components implements Closeable {
 	private synchronized WebCrawlProcessingService getWebCrawlProcessingService()
 			throws IOException, URISyntaxException {
 		if (webCrawlProcessingService == null)
-			webCrawlProcessingService = new WebCrawlProcessingService(getWebCrawlerService(), getIndexesService());
+			webCrawlProcessingService =
+					new WebCrawlProcessingService(getConfigService(), getWebCrawlerService(), getIndexesService());
 		return webCrawlProcessingService;
 
 	}
