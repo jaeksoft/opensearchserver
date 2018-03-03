@@ -156,23 +156,19 @@ public class AccountsService {
 				.build());
 	}
 
-	public int forEachActiveAccount(final ConsumerEx<AccountRecord, IOException> accountConsumer) {
+	public int forEachActiveAccount(final ConsumerEx<AccountRecord, Exception> accountConsumer) throws Exception {
 		int start = 0;
 		final int rows = 20;
-		try {
-			for (; ; ) {
-				final List<AccountRecord> accounts = getActiveAccounts(start, rows).getRecords();
-				if (accounts == null || accounts.isEmpty())
-					break;
-				start += accounts.size();
-				if (accountConsumer != null)
-					for (AccountRecord account : accounts)
-						accountConsumer.accept(account);
-			}
-			return start;
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new RuntimeException(e);
+		for (; ; ) {
+			final List<AccountRecord> accounts = getActiveAccounts(start, rows).getRecords();
+			if (accounts == null || accounts.isEmpty())
+				break;
+			start += accounts.size();
+			if (accountConsumer != null)
+				for (AccountRecord account : accounts)
+					accountConsumer.accept(account);
 		}
+		return start;
 	}
 
 }

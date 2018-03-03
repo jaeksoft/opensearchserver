@@ -26,7 +26,6 @@ import com.qwazr.server.client.ErrorWrapper;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.net.MalformedURLException;
 
 public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extends CrawlDefinition, S extends CrawlStatus<D>>
 		implements ProcessingService<T, S> {
@@ -68,20 +67,25 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 		}
 	}
 
-	protected abstract D getNewCrawlDefinition(final String schema, final T taskRecord) throws MalformedURLException;
+	protected abstract D getNewCrawlDefinition(final String schema, final T taskRecord) throws Exception;
 
 	@Override
-	final public void checkIsRunning(final String schema, final TaskRecord taskRecord) throws MalformedURLException {
+	final public TaskRecord.Status checkIsRunning(final String schema, final TaskRecord taskRecord) throws Exception {
+		if (taskRecord.getStatus() != TaskRecord.Status.STARTED)
+			return taskRecord.getStatus();
 		if (isRunning(taskRecord.getTaskId()))
-			return;
-		final D crawlDefinition = getNewCrawlDefinition(schema, getTaskRecordClass().cast(taskRecord));
-		if (crawlDefinition == null) // Nothing to do
-			return;
+			return taskRecord.getStatus();
 		try {
+			final D crawlDefinition = getNewCrawlDefinition(schema, getTaskRecordClass().cast(taskRecord));
+			if (crawlDefinition == null)
+				return TaskRecord.Status.DONE;
 			crawlerService.runSession(taskRecord.getTaskId(), crawlDefinition);
 		} catch (WebApplicationException e) {
 			if (e.getResponse().getStatus() != Response.Status.CONFLICT.getStatusCode())
 				throw e;
+		} catch (Exception e) {
+			throw e;
 		}
+		return taskRecord.getStatus();
 	}
 }

@@ -21,7 +21,6 @@ import com.qwazr.store.StoreFileResult;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
 import com.qwazr.utils.StringUtils;
-import com.qwazr.utils.concurrent.ConsumerEx;
 
 import javax.ws.rs.WebApplicationException;
 import java.io.BufferedInputStream;
@@ -32,6 +31,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
@@ -110,14 +110,14 @@ public abstract class StoreService<T> {
 	/**
 	 * Read the record list with paging parameters
 	 *
-	 * @param start  pagination start (can be null)
-	 * @param rows   pagination end (can be null)
-	 * @param filter an optional filter
+	 * @param start     pagination start (can be null)
+	 * @param rows      pagination end (can be null)
+	 * @param filter    an optional filter
+	 * @param collector the record collector
 	 * @return the total number of records found, and the paginated records as a list
 	 */
 	protected int collect(final String storeSchema, final String subDirectory, Integer start, Integer rows,
-			final Function<String, Boolean> filter, final ConsumerEx<T, IOException> recordsConsumer)
-			throws IOException {
+			final Function<String, Boolean> filter, final Collection<T> collector) throws IOException {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
 			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;
@@ -139,8 +139,8 @@ public abstract class StoreService<T> {
 					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
 					if (filter != null && !filter.apply(baseName))
 						continue;
-					if (recordsConsumer != null)
-						recordsConsumer.accept(read(storeSchema, subDirectory, baseName));
+					if (collector != null)
+						collector.add(read(storeSchema, subDirectory, baseName));
 					rows--;
 					count++;
 				}

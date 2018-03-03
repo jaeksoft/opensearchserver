@@ -17,11 +17,14 @@ package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
+import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ArchivedTaskListTransaction extends AccountTransaction {
@@ -36,9 +39,11 @@ public class ArchivedTaskListTransaction extends AccountTransaction {
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
 
+		final List<TaskRecord> activeTasks = new ArrayList<>();
+		int totalCount = components.getTasksService().collectActiveTasks(accountRecord.id, start, rows, activeTasks);
+
 		final TaskResult.Builder resultBuilder = TaskResult.of(components.getIndexesService(), accountRecord.id, null);
-		int totalCount =
-				components.getTasksService().collectActiveTasks(accountRecord.id, start, rows, resultBuilder::add);
+		activeTasks.forEach(resultBuilder::add);
 
 		request.setAttribute("tasks", resultBuilder.build());
 		request.setAttribute("totalCount", totalCount);

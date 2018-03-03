@@ -19,6 +19,7 @@ import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskResult;
+import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
@@ -30,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class WebCrawlTasksTransaction extends AccountTransaction {
@@ -72,9 +75,12 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
+		final List<TaskRecord> activeTasks = new ArrayList<>();
+		int totalCount =
+				tasksService.collectActiveTasks(accountRecord.id, 0, 1000, webCrawlRecord.getUuid(), activeTasks);
 		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountRecord.id, null);
-		int totalCount = tasksService.collectActiveTasks(accountRecord.id, 0, 1000, webCrawlRecord.getUuid(),
-				resultBuilder::add);
+		activeTasks.forEach(resultBuilder::add);
+
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 		request.setAttribute("tasks", resultBuilder.build());
 		request.setAttribute("totalCount", totalCount);

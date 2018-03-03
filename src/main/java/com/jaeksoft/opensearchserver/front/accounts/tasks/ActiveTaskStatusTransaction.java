@@ -52,13 +52,13 @@ public class ActiveTaskStatusTransaction extends AccountTransaction {
 	}
 
 	public void pause() throws IOException {
-		tasksService.pause(accountRecord.id, taskRecord.getTaskId());
-		addMessage(Message.Css.success, "The task has been paused", null);
+		if (tasksService.updateStatus(accountRecord.id, taskRecord.getTaskId(), TaskRecord.Status.PAUSED))
+			addMessage(Message.Css.success, "The task has been paused", null);
 	}
 
 	public void start() throws IOException {
-		tasksService.start(accountRecord.id, taskRecord.getTaskId());
-		addMessage(Message.Css.success, "The task has been started", null);
+		if (tasksService.updateStatus(accountRecord.id, taskRecord.getTaskId(), TaskRecord.Status.STARTED))
+			addMessage(Message.Css.success, "The task has been started", null);
 	}
 
 }

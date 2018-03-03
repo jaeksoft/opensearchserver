@@ -59,8 +59,8 @@ public class TasksServiceTest extends BaseTest {
 	@Test
 	public void emptyList() throws IOException {
 		List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records::add), records, 0);
-		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records::add), records, 0);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records), records, 0);
+		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records), records, 0);
 	}
 
 	/**
@@ -108,27 +108,26 @@ public class TasksServiceTest extends BaseTest {
 		Assert.assertEquals(taskRecord, tasksService.getActiveTask(getAccountSchema(), taskRecord.getTaskId()));
 
 		final List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records::add), records, 1, taskRecord);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records), records, 1, taskRecord);
 
 		records.clear();
-		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records::add), records, 0);
+		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records), records, 0);
 
 		records.clear();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, taskRecord.crawlUuid, records::add),
-				records, 1, taskRecord);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, taskRecord.crawlUuid, records), records,
+				1, taskRecord);
 
 		records.clear();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, UUID.randomUUID(), records::add),
-				records, 0);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, UUID.randomUUID(), records), records, 0);
 
 		waitForAchivedActiveTask(taskRecord);
 
 		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(getAccountSchema(), taskRecord.getTaskId()));
 		records.clear();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records::add), records, 0);
+		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records), records, 0);
 
 		records.clear();
-		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records::add), records, 1, taskRecord);
+		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records), records, 1, taskRecord);
 	}
 
 	@Test(expected = NoContentException.class)

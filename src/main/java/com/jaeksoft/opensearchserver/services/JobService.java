@@ -16,10 +16,13 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.utils.LoggerUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -56,13 +59,21 @@ public class JobService implements Closeable {
 	void checkAccountTasks() {
 		try {
 			LOGGER.info("Check account tasks");
-			accountsService.forEachActiveAccount(account -> {
-				if (!scheduler.isShutdown())
-					tasksService.collectActiveTasks(account.id, 0, account.getCrawlNumberLimit(), task -> {
-						if (!scheduler.isShutdown() && task.isStartable())
-							tasksService.start(account.id, task.taskId);
-					});
+			final int count = accountsService.forEachActiveAccount(account -> {
+				if (scheduler.isShutdown())
+					return;
+				final List<TaskRecord> activeTasks = new ArrayList<>();
+				tasksService.collectActiveTasks(account.id, 0, account.getCrawlNumberLimit(), activeTasks);
+				for (TaskRecord activeTask : activeTasks) {
+					if (scheduler.isShutdown())
+						return;
+					final TaskRecord.Status nextStatus =
+							tasksService.getTasksProcessor(activeTask).checkIsRunning(account.id, activeTask);
+					if (nextStatus != activeTask.status)
+						tasksService.updateStatus(account.id, activeTask.getTaskId(), nextStatus);
+				}
 			});
+			LOGGER.info(count + " tasks checked");
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "CheckAccountTasks failed", e);
 		}

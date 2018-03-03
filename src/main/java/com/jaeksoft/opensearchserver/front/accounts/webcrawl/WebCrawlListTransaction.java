@@ -63,7 +63,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 		final int rows = getRequestParameter("rows", 25);
 
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount = webCrawlsService.collect(accountRecord.id, start, rows, webCrawlRecords::add);
+		final int totalCount = webCrawlsService.collect(accountRecord.id, start, rows, webCrawlRecords);
 
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
 		request.setAttribute("totalCount", totalCount);

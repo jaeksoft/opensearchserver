@@ -18,14 +18,13 @@ package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.store.StoreServiceInterface;
-import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.ReadWriteLock;
 
-import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,7 +45,7 @@ public class TasksService extends StoreService<TaskRecord> {
 		this.tasksProcessors = tasksProcessors;
 	}
 
-	private ProcessingService<?, ?> getTasksProcessor(final TaskRecord taskRecord) {
+	public ProcessingService<?, ?> getTasksProcessor(final TaskRecord taskRecord) {
 		return tasksProcessors.getOrDefault(taskRecord.getClass(), ProcessingService.DEFAULT);
 	}
 
@@ -55,8 +54,6 @@ public class TasksService extends StoreService<TaskRecord> {
 			if (super.read(storeSchema, ARCHIVE_DIRECTORY, taskRecord.getTaskId()) != null)
 				throw new NotAllowedException("The task has already been archived");
 			super.save(storeSchema, ACTIVE_DIRECTORY, taskRecord);
-			if (taskRecord.getStatus() != TaskRecord.Status.PAUSED)
-				getTasksProcessor(taskRecord).checkIsRunning(storeSchema, taskRecord);
 		});
 	}
 
@@ -78,15 +75,15 @@ public class TasksService extends StoreService<TaskRecord> {
 	}
 
 	public int collectActiveTasks(final String storeSchema, final int start, final int rows,
-			final ConsumerEx<TaskRecord, IOException> recordConsumer) throws IOException {
-		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows, null, recordConsumer));
+			final Collection<TaskRecord> recordCollector) throws IOException {
+		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows, null, recordCollector));
 	}
 
 	public int collectActiveTasks(final String storeSchema, final int start, final int rows, final UUID crawlUuid,
-			final ConsumerEx<TaskRecord, IOException> recordConsumer) throws IOException {
+			final Collection<TaskRecord> recordCollector) throws IOException {
 		final String crawlUuidString = crawlUuid.toString();
 		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows,
-				name -> name.startsWith(crawlUuidString), recordConsumer));
+				name -> name.startsWith(crawlUuidString), recordCollector));
 	}
 
 	public TaskRecord getArchivedTask(final String storeSchema, final String taskId) throws IOException {
@@ -94,8 +91,8 @@ public class TasksService extends StoreService<TaskRecord> {
 	}
 
 	public int getArchivedTasks(final String storeSchema, final int start, final int rows,
-			final ConsumerEx<TaskRecord, IOException> recordConsumer) throws IOException {
-		return rwl.readEx(() -> super.collect(storeSchema, ARCHIVE_DIRECTORY, start, rows, null, recordConsumer));
+			final Collection<TaskRecord> recordCollector) throws IOException {
+		return rwl.readEx(() -> super.collect(storeSchema, ARCHIVE_DIRECTORY, start, rows, null, recordCollector));
 	}
 
 	@Override
@@ -110,20 +107,15 @@ public class TasksService extends StoreService<TaskRecord> {
 		throw new NotFoundException("Task not found: " + taskId);
 	}
 
-	public void pause(final String storeSchema, final String taskId) throws IOException {
+	public boolean updateStatus(final String storeSchema, final String taskId, final TaskRecord.Status nextStatus)
+			throws IOException {
 		final TaskRecord taskRecord = checkExistingTaskRecord(storeSchema, taskId);
-		if (!taskRecord.isPausable())
-			throw new NotAcceptableException("This task cannot be paused: " + taskId);
-		getTasksProcessor(taskRecord).abort(taskId);
-		saveActiveTask(storeSchema, taskRecord.from().status(TaskRecord.Status.PAUSED).build());
-	}
+		if (taskRecord.getStatus() == nextStatus || nextStatus == null)
+			return false;
+		if (taskRecord.getStatus() == TaskRecord.Status.PAUSED)
+			getTasksProcessor(taskRecord).abort(taskId);
+		saveActiveTask(storeSchema, taskRecord.from().status(nextStatus).build());
+		return true;
 
-	public void start(final String storeSchema, final String taskId) throws IOException {
-		final TaskRecord taskRecord = checkExistingTaskRecord(storeSchema, taskId);
-		if (!taskRecord.isStartable())
-			throw new NotAcceptableException("This task cannot be started: " + taskId);
-		final TaskRecord newTaskRecord = taskRecord.from().status(TaskRecord.Status.STARTED).build();
-		saveActiveTask(storeSchema, newTaskRecord);
-		getTasksProcessor(taskRecord).checkIsRunning(storeSchema, newTaskRecord);
 	}
 }

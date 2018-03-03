@@ -138,27 +138,27 @@
                     <div class="form-group col-md-2">
                         <label for="inputName">Crawl</label>
                         <input name="crawlNumberLimit" type="number" id="crawlNumberLimit" class="form-control"
-                               value="${accountRecord.crawlNumberLimit?html}">
+                               value="${accountRecord.crawlNumberLimit?c}">
                     </div>
                     <div class="form-group col-md-2">
                         <label for="inputName">Tasks</label>
                         <input name="tasksNumberLimit" type="number" id="tasksNumberLimit" class="form-control"
-                               value="${accountRecord.tasksNumberLimit?html}">
+                               value="${accountRecord.tasksNumberLimit?c}">
                     </div>
                     <div class="form-group col-md-2">
                         <label for="inputName">Indexes</label>
                         <input name="indexNumberLimit" type="number" id="indexNumberLimit" class="form-control"
-                               value="${accountRecord.indexNumberLimit?html}">
+                               value="${accountRecord.indexNumberLimit?c}">
                     </div>
                     <div class="form-group col-md-2">
                         <label for="inputName">Records</label>
                         <input name="recordNumberLimit" type="number" id="recordNumberLimit" class="form-control"
-                               value="${accountRecord.recordNumberLimit?html}">
+                               value="${accountRecord.recordNumberLimit?c}">
                     </div>
                     <div class="form-group col-md-2">
                         <label for="inputName">Storage</label>
                         <input name="storageLimit" type="number" id="storageLimit" class="form-control"
-                               value="${accountRecord.storageLimitMb?html}">
+                               value="${accountRecord.storageLimitMb?c}">
                     </div>
                 </div>
                 <div class="form-group">

@@ -51,8 +51,7 @@ public class WebCrawlsServiceTest extends BaseTest {
 	@Test
 	public void getEmptyList() throws IOException {
 		List<WebCrawlRecord> crawlRecords = new ArrayList<>();
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords::add), crawlRecords,
-				0);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords), crawlRecords, 0);
 	}
 
 	public static WebCrawlRecord createNewCrawlRecord() {
@@ -68,29 +67,29 @@ public class WebCrawlsServiceTest extends BaseTest {
 		webCrawlsService.save(getAccountSchema(), crawlRecord1);
 
 		final List<WebCrawlRecord> crawlRecords = new ArrayList<>();
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords::add), crawlRecords,
-				1, crawlRecord1);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords), crawlRecords, 1,
+				crawlRecord1);
 
 		// Save a second new record
 		crawlRecords.clear();
 		;
 		final WebCrawlRecord crawlRecord2 = createNewCrawlRecord();
 		webCrawlsService.save(getAccountSchema(), crawlRecord2);
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords::add), crawlRecords,
-				2, crawlRecord1, crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords), crawlRecords, 2,
+				crawlRecord1, crawlRecord2);
 		crawlRecords.clear();
 
 		// Update the first one
 		crawlRecords.clear();
 		webCrawlsService.save(getAccountSchema(), crawlRecord1);
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords::add), crawlRecords,
-				2, crawlRecord1, crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords), crawlRecords, 2,
+				crawlRecord1, crawlRecord2);
 
 		// Remove the first one
 		crawlRecords.clear();
 		webCrawlsService.remove(getAccountSchema(), crawlRecord1.getUuid());
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords::add), crawlRecords,
-				1, crawlRecord2);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountSchema(), 0, 10, crawlRecords), crawlRecords, 1,
+				crawlRecord2);
 	}
 
 }

@@ -22,7 +22,6 @@ import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class WebCrawlProcessingService
@@ -39,17 +38,23 @@ public class WebCrawlProcessingService
 
 	@Override
 	protected WebCrawlDefinition getNewCrawlDefinition(final String schema, final WebCrawlTaskRecord taskRecord)
-			throws MalformedURLException {
+			throws Exception {
 
 		final WebCrawlDefinition.Builder crawlBuilder = WebCrawlDefinition.of(taskRecord.crawlDefinition);
 
 		final String indexName = indexesService.getIndexNameResolver(schema).get(taskRecord.indexUuid);
+		if (indexName == null)
+			return null;
 		final IndexService indexService = indexesService.getIndex(schema, indexName);
 
 		final int count =
 				indexService.fillUnknownUrls(100, taskRecord.crawlUuid, taskRecord.creationTime, crawlBuilder);
-		if (count == 0)
+		if (count == 0) {
+			if (indexService.isAlreadyCrawled(taskRecord.crawlDefinition.entryUrl, taskRecord.crawlUuid,
+					taskRecord.creationTime))
+				return null;
 			crawlBuilder.addUrl(taskRecord.crawlDefinition.entryUrl, 0);
+		}
 
 		final URL baseUrl = new URL(taskRecord.crawlDefinition.entryUrl);
 		crawlBuilder.addInclusionPattern(baseUrl.toString());

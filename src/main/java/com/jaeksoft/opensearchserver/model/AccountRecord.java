@@ -87,7 +87,7 @@ public class AccountRecord {
 		tasksNumberLimit = builder.tasksNumberLimit;
 		storageLimit = builder.storageLimit;
 		recordNumberLimit = builder.recordNumberLimit;
-		}
+	}
 
 	@Override
 	public boolean equals(final Object o) {
@@ -134,7 +134,7 @@ public class AccountRecord {
 	}
 
 	public int getStorageLimitMb() {
-		return (int) (getStorageLimit() / 1024);
+		return (int) (getStorageLimit() / 1024 / 1024);
 	}
 
 	public int getCrawlNumberLimit() {
