@@ -72,6 +72,14 @@ public abstract class TaskRecord {
 		return statusTime;
 	}
 
+	public boolean isPausable() {
+		return status == null || status == Status.STARTED;
+	}
+
+	public boolean isStartable() {
+		return status == null || status == Status.PAUSED;
+	}
+
 	public abstract TaskBuilder<? extends TaskRecord, ? extends TaskBuilder> from();
 
 	@Override
