@@ -43,6 +43,7 @@ public abstract class WebAbstractEvent extends WebCrawlScriptEvent implements Cr
 		final WebCurrentCrawl currentCrawl;
 		final UUID crawlUuid;
 		final Long taskCreationTime;
+		//final Path sessionTempDirectory;
 
 		public final IndexService indexService;
 		public final WebCrawlsService webCrawlsService;
@@ -56,6 +57,7 @@ public abstract class WebAbstractEvent extends WebCrawlScriptEvent implements Cr
 			indexQueue = crawlSession.getAttribute(INDEX_QUEUE, IndexQueue.class);
 			crawlUuid = crawlSession.getAttribute(CRAWL_UUID, UUID.class);
 			taskCreationTime = crawlSession.getAttribute(TASK_CREATION_TIME, Long.class);
+			//sessionTempDirectory = crawlSession.getAttribute(SESSION_TEMP_DIRECTORY, Path.class);
 		}
 
 	}

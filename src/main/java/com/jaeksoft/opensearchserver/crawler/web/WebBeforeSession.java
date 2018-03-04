@@ -20,16 +20,25 @@ import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.crawler.IndexQueue;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
+import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class WebBeforeSession extends WebAbstractEvent {
 
+	final static Logger LOGGER = LoggerUtils.getLogger(WebBeforeSession.class);
+
 	@Override
 	public boolean run(final EventContext context) throws Exception {
+
+		final WebCrawlDefinition crawlDefinition = context.crawlSession.getCrawlDefinition();
+		LOGGER.info("Crawl entry: " + crawlDefinition.entryUrl + " - URLs: " +
+				(crawlDefinition.urls == null ? 0 : crawlDefinition.urls.size()));
 
 		final URL indexServiceUrl = toUrl(context.crawlSession.getVariable(INDEX_SERVICE_URL, String.class));
 		final URL storeServiceUrl = toUrl(context.crawlSession.getVariable(STORE_SERVICE_URL, String.class));
@@ -39,6 +48,9 @@ public class WebBeforeSession extends WebAbstractEvent {
 		final String taskCreationTime = context.crawlSession.getVariable(TASK_CREATION_TIME, String.class);
 
 		final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUrl, accountId, indexName);
+
+		//final Path tempDirectory = Files.createTempDirectory("oss-web-crawl");
+		//context.crawlSession.setAttribute(SESSION_TEMP_DIRECTORY, tempDirectory, Path.class);
 
 		context.crawlSession.setAttribute(INDEX_SERVICE, indexService, IndexService.class);
 		context.crawlSession.setAttribute(INDEX_QUEUE, new IndexQueue(indexService, 20, 100, 60), IndexQueue.class);

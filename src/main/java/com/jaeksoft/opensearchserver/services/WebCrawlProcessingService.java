@@ -59,6 +59,7 @@ public class WebCrawlProcessingService
 		final URL baseUrl = new URL(taskRecord.crawlDefinition.entryUrl);
 		crawlBuilder.addInclusionPattern(baseUrl.toString());
 		crawlBuilder.addInclusionPattern(baseUrl.getProtocol() + "://" + baseUrl.getHost() + "/*");
+		crawlBuilder.setRemoveFragments(true);
 
 		if (taskRecord.crawlDefinition.crawlWaitMs == null)
 			crawlBuilder.setCrawlWaitMs(1000);

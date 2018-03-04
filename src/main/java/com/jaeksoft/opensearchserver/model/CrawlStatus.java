@@ -21,10 +21,7 @@ import com.jaeksoft.opensearchserver.front.Message;
 public enum CrawlStatus {
 
 	UNKNOWN(0, "Not yet crawled", Message.Css.info),
-	BEFORE_CRAWL(1, "Before crawl", Message.Css.danger),
-	EXCLUSION_MATCH(2, "Matches exclusion", Message.Css.warning),
-	INCLUSION_MISS(3, "Missed inclusion", Message.Css.warning),
-	ROBOTS_TXT_DISALLOW(4, "Disallowed by Robots.txt", Message.Css.warning),
+	CRAWL_IN_PROGRESS(1, "Crawl in progress", Message.Css.danger),
 	REDIRECTION(8, "Redirected", Message.Css.info),
 	ERROR(9, "In error", Message.Css.danger),
 	CRAWLED(10, "Crawled", Message.Css.success);

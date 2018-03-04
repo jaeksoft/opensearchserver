@@ -18,14 +18,18 @@ package com.jaeksoft.opensearchserver.crawler;
 
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.jaeksoft.opensearchserver.services.IndexService;
+import com.qwazr.utils.LoggerUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class IndexQueue {
+
+	private final static Logger LOGGER = LoggerUtils.getLogger(IndexQueue.class);
 
 	private final IndexService indexService;
 
@@ -63,9 +67,11 @@ public class IndexQueue {
 	}
 
 	public void post(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
+		LOGGER.info("Post: " + uri);
 		synchronized (postBuffer) {
 			synchronized (updateBuffer) {
-				updateBuffer.remove(uri);
+				if (updateBuffer.remove(uri) != null)
+					LOGGER.warning("Remove update: " + uri);
 				postBuffer.put(uri, urlRecord);
 				if (shouldBeFlushed())
 					flush();
@@ -74,9 +80,11 @@ public class IndexQueue {
 	}
 
 	public void update(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
+		LOGGER.info("Update: " + uri);
 		synchronized (updateBuffer) {
 			synchronized (postBuffer) {
-				postBuffer.remove(uri);
+				if (postBuffer.remove(uri) != null)
+					LOGGER.warning("Remove post: " + uri);
 				updateBuffer.put(uri, urlRecord);
 				if (shouldBeFlushed())
 					flush();

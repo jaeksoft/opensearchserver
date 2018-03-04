@@ -43,6 +43,10 @@ public class WebAfterCrawl extends WebAbstractEvent {
 
 		final URI currentUri = context.currentCrawl.getUri();
 
+		//Do we already have a status for this URL for this crawl task ?
+		if (context.indexService.isAlreadyCrawled(currentUri.toString(), context.crawlUuid, context.taskCreationTime))
+			return false;
+
 		final UrlRecord.Builder urlBuilder = UrlRecord.of(currentUri)
 				.crawlUuid(context.crawlUuid)
 				.hostAndUrlStore(currentUri.getHost())

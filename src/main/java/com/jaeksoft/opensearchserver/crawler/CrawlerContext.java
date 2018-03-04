@@ -30,5 +30,6 @@ public interface CrawlerContext {
 	String INDEX_SERVICE = "indexService";
 	String WEBCRAWLS_SERVICE = "webCrawlsService";
 	String INDEX_QUEUE = "indexQueue";
+	//String SESSION_TEMP_DIRECTORY = "sessionTempDirectory";
 
 }

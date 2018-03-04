@@ -30,7 +30,7 @@ public class WebBeforeCrawl extends WebAbstractEvent {
 		final URI uri = context.currentCrawl.getUri();
 
 		final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
-				.crawlStatus(CrawlStatus.BEFORE_CRAWL)
+				.crawlStatus(CrawlStatus.CRAWL_IN_PROGRESS)
 				.crawlUuid(context.crawlUuid)
 				.taskCreationTime(context.taskCreationTime);
 
@@ -38,16 +38,8 @@ public class WebBeforeCrawl extends WebAbstractEvent {
 		if (context.indexService.isAlreadyCrawled(uri.toString(), context.crawlUuid, context.taskCreationTime))
 			return false;
 
-		// If there is exclusions and if any exclusion matched we do not crawl
-		if (context.currentCrawl.isInExclusion() != null && context.currentCrawl.isInExclusion())
-			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.EXCLUSION_MATCH));
-
-		// If there is inclusions and if no inclusion matches we do not crawl
-		if (context.currentCrawl.isInInclusion() != null && !context.currentCrawl.isInInclusion())
-			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.INCLUSION_MISS));
-
-		if (context.currentCrawl.isRobotsTxtDisallow() != null && context.currentCrawl.isRobotsTxtDisallow())
-			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.ROBOTS_TXT_DISALLOW));
+		if (context.currentCrawl.isIgnored())
+			return false;
 
 		if (context.currentCrawl.getError() != null)
 			return noCrawl(context, uri, linkBuilder.crawlStatus(CrawlStatus.ERROR));

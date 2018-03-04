@@ -20,7 +20,10 @@ public class WebAfterSession extends WebAbstractEvent {
 
 	@Override
 	public boolean run(final EventContext context) throws Exception {
-		context.indexQueue.flush();
+		if (context.indexQueue != null)
+			context.indexQueue.flush();
+		//if (context.sessionTempDirectory != null)
+		//	FileUtils.deleteDirectory(context.sessionTempDirectory);
 		return true;
 	}
 
