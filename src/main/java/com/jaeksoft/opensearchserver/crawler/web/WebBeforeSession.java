@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 
 public class WebBeforeSession extends WebAbstractEvent {
 
-	final static Logger LOGGER = LoggerUtils.getLogger(WebBeforeSession.class);
+	private final static Logger LOGGER = LoggerUtils.getLogger(WebBeforeSession.class);
 
 	@Override
 	public boolean run(final EventContext context) throws Exception {

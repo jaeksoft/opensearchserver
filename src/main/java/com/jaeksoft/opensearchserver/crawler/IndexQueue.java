@@ -66,8 +66,16 @@ public class IndexQueue {
 
 	}
 
+	public boolean contains(final URI uri) {
+		synchronized (postBuffer) {
+			synchronized (updateBuffer) {
+				return updateBuffer.containsKey(uri) || postBuffer.containsKey(uri);
+			}
+		}
+	}
+
 	public void post(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
-		LOGGER.info("Post: " + uri);
+		LOGGER.info(() -> "Post: " + urlRecord.url + " - " + urlRecord.crawlStatus + " - " + urlRecord.depth);
 		synchronized (postBuffer) {
 			synchronized (updateBuffer) {
 				if (updateBuffer.remove(uri) != null)
@@ -80,7 +88,7 @@ public class IndexQueue {
 	}
 
 	public void update(final URI uri, final UrlRecord urlRecord) throws IOException, InterruptedException {
-		LOGGER.info("Update: " + uri);
+		LOGGER.info(() -> "Update: " + urlRecord.url + " - " + urlRecord.crawlStatus + " - " + urlRecord.depth);
 		synchronized (updateBuffer) {
 			synchronized (postBuffer) {
 				if (postBuffer.remove(uri) != null)
@@ -115,4 +123,5 @@ public class IndexQueue {
 			}
 		}
 	}
+
 }

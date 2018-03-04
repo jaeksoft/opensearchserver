@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 
 public class WebAfterCrawl extends WebAbstractEvent {
 
-	final static Logger LOGGER = LoggerUtils.getLogger(WebAfterCrawl.class);
+	private final static Logger LOGGER = LoggerUtils.getLogger(WebAfterCrawl.class);
 
 	@Override
 	protected boolean run(final EventContext context) throws Exception {
@@ -53,10 +53,8 @@ public class WebAfterCrawl extends WebAbstractEvent {
 				.taskCreationTime(context.taskCreationTime)
 				.depth(context.currentCrawl.getDepth())
 				.lastModificationTime(System.currentTimeMillis())
-				.depth(context.currentCrawl.getDepth())
 				.httpContentType(context.currentCrawl.getContentType())
-				.httpStatus(context.currentCrawl.getStatusCode())
-				.crawlStatus(CrawlStatus.CRAWLED);
+				.httpStatus(context.currentCrawl.getStatusCode());
 
 		if (context.currentCrawl.getRedirect() != null) {
 			context.indexQueue.post(currentUri, urlBuilder.crawlStatus(CrawlStatus.REDIRECTION).build());
@@ -64,17 +62,18 @@ public class WebAfterCrawl extends WebAbstractEvent {
 		}
 
 		if (!context.currentCrawl.isCrawled()) {
-			context.indexQueue.post(currentUri, urlBuilder.build());
+			context.indexQueue.post(currentUri, urlBuilder.crawlStatus(CrawlStatus.ERROR).build());
 			return true;
 		}
 
+		urlBuilder.crawlStatus(CrawlStatus.CRAWLED);
 		final String currentUrl = currentUri.toString();
-		final int nextDepth = context.currentCrawl.getDepth() + 1;
 
 		// We put links in the database
 		final Set<URI> uris = context.currentCrawl.getFilteredLinks();
 
 		if (uris != null) {
+			final int nextDepth = context.currentCrawl.getDepth() + 1;
 			for (URI uri : uris) {
 				final String url = uri.toString();
 				if (currentUrl.equals(url))
@@ -83,6 +82,8 @@ public class WebAfterCrawl extends WebAbstractEvent {
 						context.crawlSession.getCrawlDefinition().urls.containsKey(url))
 					continue;
 				if (context.indexService.isAlreadyCrawled(url, context.crawlUuid, context.taskCreationTime))
+					continue;
+				if (context.indexQueue.contains(uri))
 					continue;
 				final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
 						.crawlStatus(CrawlStatus.UNKNOWN)
