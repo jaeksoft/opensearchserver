@@ -51,7 +51,7 @@
             <td>${account.name?html}</td>
             <td>${account.creationTime?number_to_datetime}</td>
             <td align="right">
-                <a href="/admin/accounts/${account.id?url}" class=" btn btn-sm btn-info">Edit</a>
+                <a href="/admin/accounts/${account.name?url}" class=" btn btn-sm btn-info">Edit</a>
             </td>
         </tr>
         </#list>

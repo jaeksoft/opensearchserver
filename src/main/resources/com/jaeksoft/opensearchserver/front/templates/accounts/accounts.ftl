@@ -48,7 +48,7 @@
         <td>${account.name?html}</td>
         <td>${permission.level?html}</td>
         <td align="right">
-            <a href="/accounts/${account.id?url}" class=" btn btn-sm btn-info">View</a>
+            <a href="/accounts/${account.name?url}" class=" btn btn-sm btn-info">View</a>
         </td>
     </tr>
     </#list>

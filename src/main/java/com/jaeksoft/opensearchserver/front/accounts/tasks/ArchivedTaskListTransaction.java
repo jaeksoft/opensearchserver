@@ -17,6 +17,7 @@ package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,16 +26,15 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class ArchivedTaskListTransaction extends AccountTransaction {
 
 	private final static String TEMPLATE = "accounts/tasks/archived.ftl";
 
-	public ArchivedTaskListTransaction(final Components components, final UUID accountId,
+	public ArchivedTaskListTransaction(final Components components, final AccountRecord accountRecord,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, accountId, request, response);
+		super(components, accountRecord, request, response);
 
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);

@@ -28,6 +28,7 @@ import com.jaeksoft.opensearchserver.front.accounts.tasks.ArchivedTaskStatusTran
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlEditTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlListTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlTasksTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.annotation.WebServlet;
@@ -52,35 +53,35 @@ public class AccountsServlet extends BaseServlet {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			return new AccountsTransaction(components, request, response);
-		final UUID accountId = UUID.fromString(pathParts[0]);
+		final AccountRecord accountRecord = components.getAccountsService().findExistingAccount(pathParts[0]);
 		if (pathParts.length == 1)
-			return new AccountTransaction(components, accountId, request, response);
+			return new AccountTransaction(components, accountRecord, request, response);
 		final String cmd = pathParts[1];
 		switch (cmd) {
 		case "indexes":
-			return doIndexes(accountId, pathParts, request, response);
+			return doIndexes(accountRecord, pathParts, request, response);
 		case "crawlers":
-			return doCrawlers(accountId, pathParts, request, response);
+			return doCrawlers(accountRecord, pathParts, request, response);
 		case "tasks":
-			return doTasks(accountId, pathParts, request, response);
+			return doTasks(accountRecord, pathParts, request, response);
 		default:
 			return null;
 		}
 	}
 
-	private ServletTransaction doIndexes(final UUID accountId, final String[] pathParts,
+	private ServletTransaction doIndexes(final AccountRecord accountRecord, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		if (pathParts.length == 2)
-			return new IndexesTransaction(components, accountId, request, response);
+			return new IndexesTransaction(components, accountRecord, request, response);
 		if (pathParts.length == 3) {
 			final String indexName = pathParts[2];
-			return new IndexTransaction(components, accountId, indexName, request, response);
+			return new IndexTransaction(components, accountRecord, indexName, request, response);
 		}
 		return null;
 	}
 
-	private ServletTransaction doCrawlers(final UUID accountId, final String[] pathParts,
+	private ServletTransaction doCrawlers(final AccountRecord accountRecord, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		if (pathParts.length == 2)
@@ -88,45 +89,46 @@ public class AccountsServlet extends BaseServlet {
 		final String crawlerType = pathParts[2];
 		switch (crawlerType) {
 		case "web":
-			return doCrawlerWeb(accountId, pathParts, request, response);
+			return doCrawlerWeb(accountRecord, pathParts, request, response);
 		default:
 			return null;
 		}
 	}
 
-	private ServletTransaction doCrawlerWeb(final UUID accountId, final String[] pathParts,
+	private ServletTransaction doCrawlerWeb(final AccountRecord accountRecord, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		if (pathParts.length == 3)
-			return new WebCrawlListTransaction(components, accountId, request, response);
+			return new WebCrawlListTransaction(components, accountRecord, request, response);
 		final UUID webCrawlUuid = UUID.fromString(pathParts[3]);
 		if (pathParts.length == 4)
-			return new WebCrawlEditTransaction(components, accountId, webCrawlUuid, request, response);
+			return new WebCrawlEditTransaction(components, accountRecord, webCrawlUuid, request, response);
 		if (pathParts.length == 5 && "tasks".equals(pathParts[4]))
-			return new WebCrawlTasksTransaction(components, accountId, webCrawlUuid, request, response);
+			return new WebCrawlTasksTransaction(components, accountRecord, webCrawlUuid, request, response);
 		return null;
 	}
 
-	private ServletTransaction doTasks(final UUID accountId, final String[] pathParts, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
+	private ServletTransaction doTasks(final AccountRecord accountRecord, final String[] pathParts,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
 		if (pathParts.length == 2)
-			return new ActiveTaskListTransaction(components, accountId, request, response);
+			return new ActiveTaskListTransaction(components, accountRecord, request, response);
 		final String taskName = pathParts[2];
 		if ("archives".equals(taskName))
-			return doArchivesTasks(accountId, pathParts, request, response);
+			return doArchivesTasks(accountRecord, pathParts, request, response);
 		if (pathParts.length == 3)
-			return new ActiveTaskStatusTransaction(components, accountId, taskName, request, response);
+			return new ActiveTaskStatusTransaction(components, accountRecord, taskName, request, response);
 		return null;
 	}
 
-	private ServletTransaction doArchivesTasks(final UUID accountId, final String[] pathParts,
+	private ServletTransaction doArchivesTasks(final AccountRecord accountRecord, final String[] pathParts,
 			final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
 		if (pathParts.length == 3)
-			return new ArchivedTaskListTransaction(components, accountId, request, response);
+			return new ArchivedTaskListTransaction(components, accountRecord, request, response);
 		final String taskName = pathParts[3];
 		if (pathParts.length == 4)
-			return new ArchivedTaskStatusTransaction(components, accountId, taskName, request, response);
+			return new ArchivedTaskStatusTransaction(components, accountRecord, taskName, request, response);
 		return null;
 	}
 }

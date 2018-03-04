@@ -27,9 +27,9 @@
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
-            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}">${account.name?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.name?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item">Crawlers</li>
-            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}/crawlers/web">Web</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.name?url}/crawlers/web">Web</a></li>
             <li class="breadcrumb-item active" aria-current="page">
             ${webCrawlRecord.name!webCrawlRecord.uuid!?html}
             </li>

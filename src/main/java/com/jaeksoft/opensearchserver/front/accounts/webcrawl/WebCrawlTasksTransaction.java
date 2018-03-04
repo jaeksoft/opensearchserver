@@ -19,6 +19,7 @@ import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskResult;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
@@ -43,10 +44,10 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 	private final IndexesService indexesService;
 	private final TasksService tasksService;
 
-	public WebCrawlTasksTransaction(final Components components, final UUID accountId, final UUID webCrawlUuid,
-			final HttpServletRequest request, final HttpServletResponse response)
+	public WebCrawlTasksTransaction(final Components components, final AccountRecord accountRecord,
+			final UUID webCrawlUuid, final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, accountId, request, response);
+		super(components, accountRecord, request, response);
 		webCrawlRecord = components.getWebCrawlsService().read(accountRecord.id, webCrawlUuid);
 		if (webCrawlRecord == null)
 			throw new NotFoundException("Crawl not found: " + webCrawlUuid);

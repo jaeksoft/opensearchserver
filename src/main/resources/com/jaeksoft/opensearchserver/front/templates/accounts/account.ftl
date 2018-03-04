@@ -36,7 +36,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Indexes</h5>
                     <p class="card-text">Manage your indexes here.</p>
-                    <a href="/accounts/${account.id?url}/indexes" class="btn btn-primary">Indexes</a>
+                    <a href="/accounts/${account.name?url}/indexes" class="btn btn-primary">Indexes</a>
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Web crawls</h5>
                     <p class="card-text">Manage your Web crawls here.</p>
-                    <a href="/accounts/${account.id?url}/crawlers/web" class="btn btn-primary">Web crawls</a>
+                    <a href="/accounts/${account.name?url}/crawlers/web" class="btn btn-primary">Web crawls</a>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Tasks</h5>
                     <p class="card-text">Manage your running tasks here.</p>
-                    <a href="/accounts/${account.id?url}/tasks" class="btn btn-primary">Tasks</a>
+                    <a href="/accounts/${account.name?url}/tasks" class="btn btn-primary">Tasks</a>
                 </div>
             </div>
         </div>

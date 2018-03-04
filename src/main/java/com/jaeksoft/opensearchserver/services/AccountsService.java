@@ -125,6 +125,23 @@ public class AccountsService {
 		return account;
 	}
 
+	public AccountRecord getExistingAccount(final String accountName) {
+		final AccountRecord account = getAccountByName(accountName);
+		if (account == null)
+			throw new NotFoundException("Account not found: " + accountName);
+		return account;
+	}
+
+	public AccountRecord findExistingAccount(String pathPart) {
+		final UUID accountId;
+		try {
+			accountId = UUID.fromString(pathPart);
+		} catch (IllegalArgumentException e) {
+			return getExistingAccount(pathPart);
+		}
+		return getExistingAccount(accountId);
+	}
+
 	/**
 	 * Update an AccountRecord.
 	 *

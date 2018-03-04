@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.front.accounts.tasks;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.services.TasksService;
 
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 public class ActiveTaskStatusTransaction extends AccountTransaction {
 
@@ -35,10 +35,10 @@ public class ActiveTaskStatusTransaction extends AccountTransaction {
 	private final TasksService tasksService;
 	private final TaskRecord taskRecord;
 
-	public ActiveTaskStatusTransaction(final Components components, final UUID accountId, final String taskId,
-			final HttpServletRequest request, final HttpServletResponse response)
+	public ActiveTaskStatusTransaction(final Components components, final AccountRecord accountRecord,
+			final String taskId, final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, accountId, request, response);
+		super(components, accountRecord, request, response);
 		this.tasksService = components.getTasksService();
 		taskRecord = tasksService.getActiveTask(accountRecord.id, taskId);
 		if (taskRecord == null)

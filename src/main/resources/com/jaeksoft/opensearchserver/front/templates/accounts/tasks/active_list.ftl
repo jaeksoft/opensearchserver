@@ -27,7 +27,7 @@
     <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
-            <li class="breadcrumb-item"><a href="/accounts/${account.id?url}">${account.name?html}</a></li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.name?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item active">Tasks</li>
         </ol>
     </nav>

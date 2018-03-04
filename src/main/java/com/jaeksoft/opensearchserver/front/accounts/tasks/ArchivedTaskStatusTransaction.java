@@ -17,6 +17,7 @@ package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,10 +31,10 @@ public class ArchivedTaskStatusTransaction extends AccountTransaction {
 
 	private final static String TEMPLATE = "accounts/tasks/achived_status.ftl";
 
-	public ArchivedTaskStatusTransaction(final Components components, final UUID accountId, final String taskId,
-			final HttpServletRequest request, final HttpServletResponse response)
+	public ArchivedTaskStatusTransaction(final Components components, final AccountRecord accountRecord,
+			final String taskId, final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, accountId, request, response);
+		super(components, accountRecord, request, response);
 
 		final TaskRecord taskRecord = components.getTasksService().getActiveTask(accountRecord.id, taskId);
 		if (taskRecord == null)

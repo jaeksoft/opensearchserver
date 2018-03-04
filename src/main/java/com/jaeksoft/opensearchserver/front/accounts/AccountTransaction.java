@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAllowedException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 public class AccountTransaction extends ServletTransaction {
 
@@ -33,12 +32,13 @@ public class AccountTransaction extends ServletTransaction {
 
 	protected final AccountRecord accountRecord;
 
-	protected AccountTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+	protected AccountTransaction(final Components components, final AccountRecord accountRecord,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws NoSuchMethodException, IOException, URISyntaxException {
 		super(components, request, response, true);
-		if (components.getPermissionsService().getPermission(userRecord.getId(), accountId) == null)
+		this.accountRecord = accountRecord;
+		if (components.getPermissionsService().getPermission(userRecord.getId(), accountRecord.getId()) == null)
 			throw new NotAllowedException("Not allowed");
-		accountRecord = components.getAccountsService().getExistingAccount(accountId);
 		request.setAttribute("account", accountRecord);
 	}
 

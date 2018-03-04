@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminAccountsServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminHomeServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminUsersServlet;
+import com.jaeksoft.opensearchserver.front.search.SearchServlet;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
@@ -45,6 +46,7 @@ public class Server extends Components {
 				.registerWebjars()
 				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
 				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
+				.registerJavaServlet(SearchServlet.class, () -> new SearchServlet(this))
 				.registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
 				.registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
 				.registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this))

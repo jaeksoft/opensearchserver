@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.front.accounts.webcrawl;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -37,10 +38,10 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
 
-	public WebCrawlEditTransaction(final Components components, final UUID accountId, final UUID webCrawlUuid,
-			final HttpServletRequest request, final HttpServletResponse response)
+	public WebCrawlEditTransaction(final Components components, final AccountRecord accountRecord,
+			final UUID webCrawlUuid, final HttpServletRequest request, final HttpServletResponse response)
 			throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, accountId, request, response);
+		super(components, accountRecord, request, response);
 
 		this.webCrawlsService = components.getWebCrawlsService();
 		webCrawlRecord = webCrawlsService.read(accountRecord.id, webCrawlUuid);

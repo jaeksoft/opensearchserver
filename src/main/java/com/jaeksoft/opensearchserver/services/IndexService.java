@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.field.FieldDefinition;
+import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexStatus;
 import com.qwazr.search.index.QueryDefinition;
@@ -27,14 +28,17 @@ import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.BooleanQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.LongDocValuesExactQuery;
+import com.qwazr.search.query.MultiFieldQuery;
+import com.qwazr.search.query.QueryParserOperator;
 import com.qwazr.search.query.TermQuery;
 import com.qwazr.server.client.ErrorWrapper;
+import com.qwazr.utils.StringUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class IndexService extends UsableService {
@@ -115,5 +119,64 @@ public class IndexService extends UsableService {
 				crawlStatusMap.put(crawlStatus, result.total_hits);
 		}
 		return crawlStatusMap;
+	}
+
+	public ResultDefinition.WithObject<UrlRecord> search(final String keywords, final int start, final int rows) {
+		if (StringUtils.isBlank(keywords))
+			return null;
+
+		final MultiFieldQuery fullTextQuery = MultiFieldQuery.of()
+				.tieBreakerMultiplier(0.02f)
+				.queryString(keywords)
+				.defaultOperator(QueryParserOperator.and)
+				.fieldAndFilter("full", "fullFr", "fullDe", "fullEn", "fullIt")
+				.fieldBoost("urlLike", 13f)
+				.fieldBoost("title", 8f)
+				.fieldBoost("titleFr", 8f)
+				.fieldBoost("titleDe", 8f)
+				.fieldBoost("titleEn", 8f)
+				.fieldBoost("titleIt", 8f)
+				.fieldBoost("description", 5f)
+				.fieldBoost("descriptionFr", 5f)
+				.fieldBoost("descriptionDe", 5f)
+				.fieldBoost("descriptionEn", 5f)
+				.fieldBoost("descriptionIt", 5f)
+				.fieldBoost("content", 3f)
+				.fieldBoost("contentFr", 3f)
+				.fieldBoost("contentDe", 3f)
+				.fieldBoost("contentEn", 3f)
+				.fieldBoost("contentIt", 3F)
+				.fieldBoost("full", 1f)
+				.fieldBoost("fullFr", 1f)
+				.fieldBoost("fullDe", 1f)
+				.fieldBoost("fullEn", 1f)
+				.fieldBoost("fullIt", 1f)
+				.build();
+
+		final BooleanQuery booleanQuery = BooleanQuery.of()
+				.addClause(BooleanQuery.Occur.must, fullTextQuery)
+				.addClause(BooleanQuery.Occur.filter,
+						new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code))
+				.build();
+
+		final QueryDefinition queryDef = QueryDefinition.of(booleanQuery)
+				.start(start)
+				.rows(rows)
+				.returnedField("urlStore")
+				.highlighter("title", HighlighterDefinition.of("title")	.setMaxPassages(1).setMaxLength(1000).build())
+				.highlighter("description", HighlighterDefinition.of("description")
+						.setMaxNoHighlightPassages(5)
+						.setMaxPassages(5)
+						.setMaxLength(100)
+						.build())
+				.highlighter("content", HighlighterDefinition.of("content")
+						.setMaxNoHighlightPassages(5)
+						.setMaxPassages(5)
+						.setMaxLength(100)
+						.build())
+				.build();
+
+		return service.searchQuery(queryDef);
+
 	}
 }

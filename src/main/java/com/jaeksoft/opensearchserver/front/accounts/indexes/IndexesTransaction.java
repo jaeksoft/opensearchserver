@@ -19,6 +19,7 @@ package com.jaeksoft.opensearchserver.front.accounts.indexes;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.utils.StringUtils;
 
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 public class IndexesTransaction extends AccountTransaction {
 
@@ -34,9 +34,10 @@ public class IndexesTransaction extends AccountTransaction {
 
 	private final IndexesService indexesService;
 
-	public IndexesTransaction(final Components components, final UUID accountId, final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
-		super(components, accountId, request, response);
+	public IndexesTransaction(final Components components, final AccountRecord accountRecord,
+			final HttpServletRequest request, final HttpServletResponse response)
+			throws IOException, URISyntaxException, NoSuchMethodException {
+		super(components, accountRecord, request, response);
 		this.indexesService = components.getIndexesService();
 		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
 	}

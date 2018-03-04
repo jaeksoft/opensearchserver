@@ -60,6 +60,7 @@ public class WebCrawlProcessingService
 		crawlBuilder.addInclusionPattern(baseUrl.toString());
 		crawlBuilder.addInclusionPattern(baseUrl.getProtocol() + "://" + baseUrl.getHost() + "/*");
 		crawlBuilder.setRemoveFragments(true);
+		crawlBuilder.userAgent("OpenSearchServer-Bot");
 
 		if (taskRecord.crawlDefinition.crawlWaitMs == null)
 			crawlBuilder.setCrawlWaitMs(1000);
