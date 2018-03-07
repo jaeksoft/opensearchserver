@@ -82,6 +82,19 @@ public class IndexService extends UsableService {
 				crawlUuid.equals(urlRecord.getCrawlUuid()) && urlRecord.getTaskCreationTime() == taskCreationTime;
 	}
 
+	public Long deleteOldCrawl(final UUID crawlUuid, final Long taskCreationTime) {
+		updateLastUse();
+		final QueryDefinition queryDef = QueryDefinition.of(BooleanQuery.of(true, null)
+				.addClause(BooleanQuery.Occur.filter,
+						new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
+				.addClause(BooleanQuery.Occur.filter,
+						new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
+				.addClause(BooleanQuery.Occur.must_not,
+						new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
+				.build()).build();
+		return service.deleteByQuery(queryDef).getTotalHits();
+	}
+
 	public boolean exists(final String url) {
 		updateLastUse();
 		final QueryDefinition queryDef = QueryDefinition.of(new TermQuery(FieldDefinition.ID_FIELD, url)).build();
@@ -163,7 +176,7 @@ public class IndexService extends UsableService {
 				.start(start)
 				.rows(rows)
 				.returnedField("urlStore")
-				.highlighter("title", HighlighterDefinition.of("title")	.setMaxPassages(1).setMaxLength(1000).build())
+				.highlighter("title", HighlighterDefinition.of("title").setMaxPassages(1).setMaxLength(1000).build())
 				.highlighter("description", HighlighterDefinition.of("description")
 						.setMaxNoHighlightPassages(5)
 						.setMaxPassages(5)
@@ -179,4 +192,5 @@ public class IndexService extends UsableService {
 		return service.searchQuery(queryDef);
 
 	}
+
 }

@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.qwazr.utils.LoggerUtils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.util.LinkedHashMap;
@@ -27,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-public class IndexQueue {
+public class IndexQueue implements Closeable {
 
 	private final static Logger LOGGER = LoggerUtils.getLogger(IndexQueue.class);
 
@@ -114,7 +115,7 @@ public class IndexQueue {
 		updateBuffer.clear();
 	}
 
-	public void flush() throws IOException, InterruptedException {
+	void flush() throws IOException, InterruptedException {
 		synchronized (postBuffer) {
 			synchronized (updateBuffer) {
 				flushUpdateBuffer();
@@ -124,4 +125,12 @@ public class IndexQueue {
 		}
 	}
 
+	@Override
+	public void close() throws IOException {
+		try {
+			flush();
+		} catch (InterruptedException e) {
+			throw new IOException(e);
+		}
+	}
 }

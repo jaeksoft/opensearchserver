@@ -17,15 +17,12 @@
 package com.jaeksoft.opensearchserver.crawler.web;
 
 import com.jaeksoft.opensearchserver.crawler.CrawlerContext;
-import com.jaeksoft.opensearchserver.crawler.IndexQueue;
-import com.jaeksoft.opensearchserver.services.IndexService;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
+import com.jaeksoft.opensearchserver.crawler.SessionStore;
 import com.qwazr.crawler.web.WebCrawlScriptEvent;
 import com.qwazr.crawler.web.WebCrawlSession;
 import com.qwazr.crawler.web.WebCurrentCrawl;
 
 import java.util.Map;
-import java.util.UUID;
 
 public abstract class WebAbstractEvent extends WebCrawlScriptEvent implements CrawlerContext {
 
@@ -41,23 +38,12 @@ public abstract class WebAbstractEvent extends WebCrawlScriptEvent implements Cr
 
 		final WebCrawlSession crawlSession;
 		final WebCurrentCrawl currentCrawl;
-		final UUID crawlUuid;
-		final Long taskCreationTime;
-		//final Path sessionTempDirectory;
-
-		public final IndexService indexService;
-		public final WebCrawlsService webCrawlsService;
-		public final IndexQueue indexQueue;
+		final SessionStore sessionStore;
 
 		private EventContext(final WebCrawlSession crawlSession, final WebCurrentCrawl currentCrawl) {
 			this.crawlSession = crawlSession;
 			this.currentCrawl = currentCrawl;
-			indexService = crawlSession.getAttribute(INDEX_SERVICE, IndexService.class);
-			webCrawlsService = crawlSession.getAttribute(WEBCRAWLS_SERVICE, WebCrawlsService.class);
-			indexQueue = crawlSession.getAttribute(INDEX_QUEUE, IndexQueue.class);
-			crawlUuid = crawlSession.getAttribute(CRAWL_UUID, UUID.class);
-			taskCreationTime = crawlSession.getAttribute(TASK_CREATION_TIME, Long.class);
-			//sessionTempDirectory = crawlSession.getAttribute(SESSION_TEMP_DIRECTORY, Path.class);
+			sessionStore = crawlSession.getAttribute(SESSION_STORE, SessionStore.class);
 		}
 
 	}

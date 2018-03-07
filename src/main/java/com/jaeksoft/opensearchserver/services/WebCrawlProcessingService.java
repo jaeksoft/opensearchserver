@@ -51,8 +51,10 @@ public class WebCrawlProcessingService
 				indexService.fillUnknownUrls(100, taskRecord.crawlUuid, taskRecord.creationTime, crawlBuilder);
 		if (count == 0) {
 			if (indexService.isAlreadyCrawled(taskRecord.crawlDefinition.entryUrl, taskRecord.crawlUuid,
-					taskRecord.creationTime))
+					taskRecord.creationTime)) {
+				indexService.deleteOldCrawl(taskRecord.crawlUuid, taskRecord.creationTime);
 				return null;
+			}
 			crawlBuilder.addUrl(taskRecord.crawlDefinition.entryUrl, 0);
 		}
 

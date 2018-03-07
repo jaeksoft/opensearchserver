@@ -16,6 +16,8 @@
 
 package com.jaeksoft.opensearchserver.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.net.InternetDomainName;
 import com.qwazr.search.analysis.SmartAnalyzerSet;
 import com.qwazr.search.annotations.Copy;
@@ -34,6 +36,11 @@ import java.util.Set;
 import java.util.UUID;
 
 @Index(schema = "", name = "")
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE,
+		setterVisibility = JsonAutoDetect.Visibility.NONE,
+		isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+		fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
 public class UrlRecord {
 
 	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)

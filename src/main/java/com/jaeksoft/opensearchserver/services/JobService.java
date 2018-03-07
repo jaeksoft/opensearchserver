@@ -69,8 +69,9 @@ public class JobService implements Closeable {
 						return;
 					final TaskRecord.Status nextStatus =
 							tasksService.getTasksProcessor(activeTask).checkIsRunning(account.id, activeTask);
-					if (nextStatus != activeTask.status)
+					if (nextStatus != activeTask.status) {
 						tasksService.updateStatus(account.id, activeTask.getTaskId(), nextStatus);
+					}
 				}
 			});
 			LOGGER.info(count + " tasks checked");

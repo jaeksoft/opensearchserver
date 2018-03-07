@@ -27,7 +27,6 @@ import com.qwazr.utils.LoggerUtils;
 import javax.ws.rs.WebApplicationException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,26 +42,27 @@ public class WebAfterCrawl extends WebAbstractEvent {
 
 		final URI currentUri = context.currentCrawl.getUri();
 
-		//Do we already have a status for this URL for this crawl task ?
-		if (context.indexService.isAlreadyCrawled(currentUri.toString(), context.crawlUuid, context.taskCreationTime))
-			return false;
-
 		final UrlRecord.Builder urlBuilder = UrlRecord.of(currentUri)
-				.crawlUuid(context.crawlUuid)
+				.crawlUuid(context.sessionStore.crawlUuid)
 				.hostAndUrlStore(currentUri.getHost())
-				.taskCreationTime(context.taskCreationTime)
+				.taskCreationTime(context.sessionStore.taskCreationTime)
 				.depth(context.currentCrawl.getDepth())
 				.lastModificationTime(System.currentTimeMillis())
 				.httpContentType(context.currentCrawl.getContentType())
 				.httpStatus(context.currentCrawl.getStatusCode());
 
 		if (context.currentCrawl.getRedirect() != null) {
-			context.indexQueue.post(currentUri, urlBuilder.crawlStatus(CrawlStatus.REDIRECTION).build());
+			context.sessionStore.saveCrawl(currentUri, urlBuilder.crawlStatus(CrawlStatus.REDIRECTION).build());
+			return true;
+		}
+
+		if (context.currentCrawl.getError() != null) {
+			context.sessionStore.saveCrawl(currentUri, urlBuilder.crawlStatus(CrawlStatus.ERROR).build());
 			return true;
 		}
 
 		if (!context.currentCrawl.isCrawled()) {
-			context.indexQueue.post(currentUri, urlBuilder.crawlStatus(CrawlStatus.ERROR).build());
+			context.sessionStore.saveCrawl(currentUri, urlBuilder.crawlStatus(CrawlStatus.NOT_CRAWLABLE).build());
 			return true;
 		}
 
@@ -70,33 +70,8 @@ public class WebAfterCrawl extends WebAbstractEvent {
 		final String currentUrl = currentUri.toString();
 
 		// We put links in the database
-		final Set<URI> uris = context.currentCrawl.getFilteredLinks();
-
-		if (uris != null) {
-			final int nextDepth = context.currentCrawl.getDepth() + 1;
-			for (URI uri : uris) {
-				final String url = uri.toString();
-				if (currentUrl.equals(url))
-					continue;
-				if (context.crawlSession.getCrawlDefinition().urls != null &&
-						context.crawlSession.getCrawlDefinition().urls.containsKey(url))
-					continue;
-				if (context.indexService.isAlreadyCrawled(url, context.crawlUuid, context.taskCreationTime))
-					continue;
-				if (context.indexQueue.contains(uri))
-					continue;
-				final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
-						.crawlStatus(CrawlStatus.UNKNOWN)
-						.crawlUuid(context.crawlUuid)
-						.taskCreationTime(context.taskCreationTime)
-						.depth(nextDepth);
-				if (context.indexService.exists(url))
-					context.indexQueue.update(uri, linkBuilder.build());
-				else
-					context.indexQueue.post(uri,
-							linkBuilder.hostAndUrlStore(null).lastModificationTime(System.currentTimeMillis()).build());
-			}
-		}
+		final int nextDepth = context.currentCrawl.getDepth() + 1;
+		context.sessionStore.saveNewLinks(context.currentCrawl.getFilteredLinks(), nextDepth);
 
 		final String contentType = context.currentCrawl.getContentType();
 
@@ -119,7 +94,7 @@ public class WebAfterCrawl extends WebAbstractEvent {
 			LOGGER.log(Level.WARNING, "Parsing failed with " + contentType + " on " + currentUrl, e);
 		}
 
-		context.indexQueue.post(currentUri, urlBuilder.build());
+		context.sessionStore.saveCrawl(currentUri, urlBuilder.build());
 		return true;
 	}
 

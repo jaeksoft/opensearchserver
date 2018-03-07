@@ -16,15 +16,29 @@
 
 package com.jaeksoft.opensearchserver.crawler.web;
 
+import com.qwazr.utils.StringUtils;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class WebAfterSession extends WebAbstractEvent {
 
 	@Override
 	public boolean run(final EventContext context) throws Exception {
-		if (context.indexQueue != null)
-			context.indexQueue.flush();
-		//if (context.sessionTempDirectory != null)
-		//	FileUtils.deleteDirectory(context.sessionTempDirectory);
+
+		final URL indexServiceUrl = toUrl(context.crawlSession.getVariable(INDEX_SERVICE_URL, String.class));
+		final String accountId = context.crawlSession.getVariable(ACCOUNT_ID, String.class);
+		final String indexName = context.crawlSession.getVariable(INDEX_NAME, String.class);
+
+		try {
+			context.sessionStore.index(indexServiceUrl, accountId, indexName);
+		} finally {
+			context.sessionStore.close();
+		}
 		return true;
 	}
 
+	private static URL toUrl(final String url) throws MalformedURLException {
+		return StringUtils.isBlank(url) ? null : new URL(url);
+	}
 }

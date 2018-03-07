@@ -27,9 +27,7 @@ public interface CrawlerContext {
 	String STORE_SERVICE_URL = "storeServiceUrl";
 
 	// Attributes
-	String INDEX_SERVICE = "indexService";
-	String WEBCRAWLS_SERVICE = "webCrawlsService";
-	String INDEX_QUEUE = "indexQueue";
-	//String SESSION_TEMP_DIRECTORY = "sessionTempDirectory";
+	//String WEBCRAWLS_SERVICE = "webCrawlsService";
+	String SESSION_STORE = "sessionStore";
 
 }

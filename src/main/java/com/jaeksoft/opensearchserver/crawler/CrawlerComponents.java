@@ -19,7 +19,6 @@ package com.jaeksoft.opensearchserver.crawler;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.crawler.web.WebAfterCrawl;
 import com.jaeksoft.opensearchserver.crawler.web.WebAfterSession;
-import com.jaeksoft.opensearchserver.crawler.web.WebBeforeCrawl;
 import com.jaeksoft.opensearchserver.crawler.web.WebBeforeSession;
 import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexService;
@@ -117,7 +116,6 @@ public class CrawlerComponents implements CrawlerContext {
 		// Set the event
 		crawlBuilder.script(EventEnum.before_session, ScriptDefinition.of(WebBeforeSession.class).build()).
 				script(EventEnum.after_session, ScriptDefinition.of(WebAfterSession.class).build()).
-				script(EventEnum.before_crawl, ScriptDefinition.of(WebBeforeCrawl.class).build()).
 				script(EventEnum.after_crawl, ScriptDefinition.of(WebAfterCrawl.class).build());
 
 		crawlBuilder.variable(ACCOUNT_ID, accountId)
