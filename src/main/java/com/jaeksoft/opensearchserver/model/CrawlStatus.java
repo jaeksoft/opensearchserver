@@ -21,7 +21,6 @@ import com.jaeksoft.opensearchserver.front.Message;
 public enum CrawlStatus {
 
 	UNKNOWN(0, "Not yet crawled", Message.Css.info),
-	CRAWL_IN_PROGRESS(1, "Crawl in progress", Message.Css.danger),
 	NOT_CRAWLABLE(7, "Not crawlable", Message.Css.warning),
 	REDIRECTION(8, "Redirected", Message.Css.info),
 	ERROR(9, "In error", Message.Css.danger),

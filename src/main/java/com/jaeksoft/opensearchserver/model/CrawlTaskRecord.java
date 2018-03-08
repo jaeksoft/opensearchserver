@@ -31,7 +31,7 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 
 	protected CrawlTaskRecord(final UUID crawlUuid, final UUID indexUuid, final D crawlDefinition,
 			final Long creationTime, final Status status, final Long statusTime) {
-		super(taskId(crawlUuid, indexUuid), creationTime, status, statusTime);
+		super(buildTaskId(crawlUuid, indexUuid), creationTime, status, statusTime);
 		this.crawlUuid = crawlUuid;
 		this.indexUuid = indexUuid;
 		this.crawlDefinition = crawlDefinition;
@@ -44,7 +44,7 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 		this.crawlDefinition = builder.crawlDefinition;
 	}
 
-	static String taskId(final UUID crawlUuid, final UUID indexUuid) {
+	public static String buildTaskId(final UUID crawlUuid, final UUID indexUuid) {
 		return crawlUuid.toString() + '_' + indexUuid.toString();
 	}
 
@@ -60,7 +60,7 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 		return Objects.equals(crawlUuid, r.crawlUuid) && Objects.equals(indexUuid, r.indexUuid) &&
 				Objects.equals(crawlDefinition, r.crawlDefinition);
 	}
-	
+
 	public static abstract class BaseBuilder<D extends CrawlDefinition, R extends CrawlTaskRecord, B extends BaseBuilder<D, R, B>>
 			extends TaskBuilder<R, B> {
 
@@ -91,7 +91,7 @@ public abstract class CrawlTaskRecord<D extends CrawlDefinition> extends TaskRec
 		 */
 		protected BaseBuilder(final Class<B> builderClass, final UUID crawlUuid, final UUID indexUuid,
 				final D crawlDefinition) {
-			super(builderClass, taskId(crawlUuid, indexUuid));
+			super(builderClass, buildTaskId(crawlUuid, indexUuid));
 			this.crawlUuid = crawlUuid;
 			this.indexUuid = indexUuid;
 			this.crawlDefinition = crawlDefinition;

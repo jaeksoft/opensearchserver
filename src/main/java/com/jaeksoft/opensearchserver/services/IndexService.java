@@ -74,24 +74,31 @@ public class IndexService extends UsableService {
 		return result.documents.size();
 	}
 
-	public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final Long taskCreationTime)
-			throws Exception {
+	private static BooleanQuery.Builder addCrawlUuidFilter(final BooleanQuery.Builder booleanQueryBuilder,
+			final UUID crawlUuid) {
+		booleanQueryBuilder.addClause(BooleanQuery.Occur.filter,
+				new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
+				.addClause(BooleanQuery.Occur.filter,
+						new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()));
+		return booleanQueryBuilder;
+	}
+
+	public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final Long taskCreationTime) {
 		updateLastUse();
-		final UrlRecord urlRecord = getDocument(url);
-		return urlRecord != null && !CrawlStatus.isUnknown(urlRecord.crawlStatus) &&
-				crawlUuid.equals(urlRecord.getCrawlUuid()) && taskCreationTime.equals(urlRecord.getTaskCreationTime());
+		final QueryDefinition queryDef = QueryDefinition.of(
+				addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid).addClause(BooleanQuery.Occur.filter,
+						new TermQuery(FieldDefinition.ID_FIELD, url))
+						.addClause(BooleanQuery.Occur.filter,
+								new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
+						.build()).start(0).rows(0).build();
+		return service.searchQuery(queryDef).total_hits > 0L;
 	}
 
 	public Long deleteOldCrawl(final UUID crawlUuid, final Long taskCreationTime) {
 		updateLastUse();
-		final QueryDefinition queryDef = QueryDefinition.of(BooleanQuery.of(true, null)
-				.addClause(BooleanQuery.Occur.filter,
-						new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
-				.addClause(BooleanQuery.Occur.filter,
-						new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
-				.addClause(BooleanQuery.Occur.must_not,
-						new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
-				.build()).build();
+		final QueryDefinition queryDef = QueryDefinition.of(
+				addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid).addClause(BooleanQuery.Occur.must_not,
+						new LongDocValuesExactQuery("taskCreationTime", taskCreationTime)).build()).build();
 		return service.deleteByQuery(queryDef).getTotalHits();
 	}
 

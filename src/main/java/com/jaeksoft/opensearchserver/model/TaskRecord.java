@@ -80,6 +80,10 @@ public abstract class TaskRecord {
 		return status == null || status == Status.PAUSED;
 	}
 
+	public boolean isTerminated() {
+		return status == Status.DONE || status == Status.ERROR;
+	}
+
 	public abstract TaskBuilder<? extends TaskRecord, ? extends TaskBuilder> from();
 
 	@Override

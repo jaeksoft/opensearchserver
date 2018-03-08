@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskResult;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
+import com.jaeksoft.opensearchserver.model.CrawlTaskRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
@@ -64,15 +65,19 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 		final String index = request.getParameter("index");
 		final UUID indexUuid =
 				UUID.fromString(indexesService.getIndex(accountRecord.id, index).getIndexStatus().index_uuid);
-		final WebCrawlTaskRecord taskRecord =
-				WebCrawlTaskRecord.of(webCrawlRecord, indexUuid).status(TaskRecord.Status.STARTED).build();
-		if (tasksService.getActiveTask(accountRecord.id, taskRecord.getTaskId()) != null) {
+
+		final String taskId = CrawlTaskRecord.buildTaskId(webCrawlRecord.uuid, indexUuid);
+
+		final TaskRecord activeTaskRecord = tasksService.getActiveTask(accountRecord.id, taskId);
+		if (activeTaskRecord != null && !activeTaskRecord.isTerminated()) {
 			addMessage(Message.Css.warning, "Web crawl already started",
 					"This Web crawl has already been started on " + index);
-		} else {
-			tasksService.saveActiveTask(accountRecord.id, taskRecord);
-			addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
+			return;
 		}
+		final WebCrawlTaskRecord newTaskRecord =
+				WebCrawlTaskRecord.of(webCrawlRecord, indexUuid).status(TaskRecord.Status.STARTED).build();
+		tasksService.saveActiveTask(accountRecord.id, newTaskRecord);
+		addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
 	}
 
 	@Override
