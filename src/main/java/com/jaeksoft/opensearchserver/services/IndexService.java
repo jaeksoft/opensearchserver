@@ -74,12 +74,12 @@ public class IndexService extends UsableService {
 		return result.documents.size();
 	}
 
-	public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final long taskCreationTime)
+	public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final Long taskCreationTime)
 			throws Exception {
 		updateLastUse();
 		final UrlRecord urlRecord = getDocument(url);
 		return urlRecord != null && !CrawlStatus.isUnknown(urlRecord.crawlStatus) &&
-				crawlUuid.equals(urlRecord.getCrawlUuid()) && urlRecord.getTaskCreationTime() == taskCreationTime;
+				crawlUuid.equals(urlRecord.getCrawlUuid()) && taskCreationTime.equals(urlRecord.getTaskCreationTime());
 	}
 
 	public Long deleteOldCrawl(final UUID crawlUuid, final Long taskCreationTime) {

@@ -40,12 +40,12 @@ import java.util.UUID;
 public class SessionStore implements Closeable {
 
 	public final UUID crawlUuid;
-	public final long taskCreationTime;
+	public final Long taskCreationTime;
 	private final Path tempDirectory;
 	private final Map<String, UUID> uris;
 	private final PatriciaTrie<Integer> newLinks;
 
-	public SessionStore(final UUID crawlUuid, final long taskCreationTime) throws IOException {
+	public SessionStore(final UUID crawlUuid, final Long taskCreationTime) throws IOException {
 		this.crawlUuid = crawlUuid;
 		this.taskCreationTime = taskCreationTime;
 		tempDirectory = Files.createTempDirectory("oss-session-store");

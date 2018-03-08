@@ -22,7 +22,6 @@ import com.jaeksoft.opensearchserver.crawler.web.WebAfterSession;
 import com.jaeksoft.opensearchserver.crawler.web.WebBeforeSession;
 import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexService;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.common.EventEnum;
 import com.qwazr.crawler.common.ScriptDefinition;
 import com.qwazr.crawler.web.WebCrawlDefinition;
@@ -30,7 +29,6 @@ import com.qwazr.extractor.ExtractorManager;
 import com.qwazr.extractor.ExtractorServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
 import com.qwazr.server.RemoteService;
-import com.qwazr.store.StoreSingleClient;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,7 +41,6 @@ import java.util.UUID;
 public class CrawlerComponents implements CrawlerContext {
 
 	private static volatile Map<URL, Map<String, IndexService>> localIndexServices;
-	private static volatile Map<URL, Map<String, WebCrawlsService>> localWebCrawlsServices;
 
 	static volatile Components localComponents;
 
@@ -70,25 +67,6 @@ public class CrawlerComponents implements CrawlerContext {
 				throw new RuntimeException(
 						"Error while creating the IndexService for " + indexServiceUrl + " / " + accountId + " / " +
 								indexName, e);
-			}
-		});
-	}
-
-	public static synchronized WebCrawlsService getWebCrawlsService(final URL storeServiceUrl, final String accountId)
-			throws IOException, URISyntaxException {
-		if (storeServiceUrl == null)
-			return Objects.requireNonNull(localComponents, "No local components available").getWebCrawlsService();
-		if (localWebCrawlsServices == null)
-			localWebCrawlsServices = new HashMap<>();
-		final Map<String, WebCrawlsService> webCrawlsServices =
-				localWebCrawlsServices.computeIfAbsent(storeServiceUrl, r -> new HashMap<>());
-		return webCrawlsServices.computeIfAbsent(accountId, s -> {
-			try {
-				final RemoteService remote = RemoteService.of(storeServiceUrl.toURI()).build();
-				final StoreSingleClient client = new StoreSingleClient(remote);
-				return new WebCrawlsService(client);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Error while creating the WebCrawlsService for " + storeServiceUrl, e);
 			}
 		});
 	}

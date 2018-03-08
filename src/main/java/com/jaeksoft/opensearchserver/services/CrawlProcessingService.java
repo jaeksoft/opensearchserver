@@ -71,10 +71,11 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 
 	@Override
 	final public TaskRecord.Status checkIsRunning(final String schema, final TaskRecord taskRecord) throws Exception {
-		if (taskRecord.getStatus() != TaskRecord.Status.STARTED)
-			return taskRecord.getStatus();
+		final TaskRecord.Status currentStatus = taskRecord.getStatus();
+		if (currentStatus != TaskRecord.Status.STARTED)
+			return currentStatus;
 		if (isRunning(taskRecord.getTaskId()))
-			return taskRecord.getStatus();
+			return currentStatus;
 		try {
 			final D crawlDefinition = getNewCrawlDefinition(schema, getTaskRecordClass().cast(taskRecord));
 			if (crawlDefinition == null)
@@ -86,6 +87,6 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 		} catch (Exception e) {
 			throw e;
 		}
-		return taskRecord.getStatus();
+		return currentStatus;
 	}
 }
