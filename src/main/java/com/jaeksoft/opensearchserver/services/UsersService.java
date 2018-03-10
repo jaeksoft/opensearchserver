@@ -17,6 +17,7 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.ActiveStatus;
+import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.AnnotatedTableService;
@@ -38,6 +39,11 @@ import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -127,6 +133,25 @@ public class UsersService implements IdentityManager {
 			return users.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), UserRecord.COLUMNS_SET);
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new InternalServerErrorException("Cannot get user by id", e);
+		}
+	}
+
+	public Map<UserRecord, PermissionRecord> getUsersByIds(
+			final TableRequestResultRecords<PermissionRecord> permissions) {
+		try {
+			if (permissions == null || permissions.records == null)
+				return Collections.emptyMap();
+			final Set<String> idSet = new LinkedHashSet<>();
+			permissions.records.forEach(permission -> idSet.add(permission.getUserId().toString()));
+			final List<UserRecord> userList = users.getRows(UserRecord.COLUMNS_SET, idSet);
+			if (userList == null || userList.isEmpty())
+				return Collections.emptyMap();
+			final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
+			final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
+			userList.forEach(account -> results.put(account, permissionsIterator.next()));
+			return results;
+		} catch (IOException | ReflectiveOperationException e) {
+			throw new InternalServerErrorException("Cannot get users by ids", e);
 		}
 	}
 

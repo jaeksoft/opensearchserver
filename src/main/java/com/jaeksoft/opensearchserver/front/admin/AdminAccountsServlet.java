@@ -19,19 +19,20 @@ package com.jaeksoft.opensearchserver.front.admin;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.BaseServlet;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.UUID;
 
 @WebServlet("/admin/accounts/*")
 public class AdminAccountsServlet extends BaseServlet {
 
-	final Components components;
+	private final Components components;
 
 	public AdminAccountsServlet(final Components components) {
 		this.components = components;
@@ -43,9 +44,11 @@ public class AdminAccountsServlet extends BaseServlet {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			return new AdminAccountsTransaction(components, request, response);
-		final String accountId = pathParts[0];
+		final AccountRecord accountRecord = components.getAccountsService().findExistingAccount(pathParts[0]);
+		if (accountRecord == null)
+			throw new NotFoundException("Account not found");
 		if (pathParts.length == 1)
-			return new AdminAccountTransaction(components, UUID.fromString(accountId), request, response);
+			return new AdminAccountTransaction(components, accountRecord, request, response);
 		return null;
 	}
 }

@@ -73,22 +73,28 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Users</h5>
-                <#if accountRecord.accountIds?has_content>
+            <h5 class="card-title">User list</h5>
+                <#if users?has_content>
                     <form method="post">
-                        <input type="hidden" name="action" value="removeAccount">
                         <table class="table">
                             <tr>
-                                <th>Account ID</th>
-                                <th>Action</th>
+                                <th>User ID</th>
+                                <th>User Email</th>
+                                <th>Permission</th>
+                                <th></th>
                             </tr>
-                            <#list userRecord.accountIds as accountId>
+                            <#list users as user,permission>
                             <tr>
-                                <td>${accountId?html}</td>
+                                <td>${user.id?html}</td>
+                                <td>${user.email?html}</td>
+                                <td>${permission.level?html}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-danger" type="submit" name="account"
-                                            value="${accountId?html}">Remove
-                                    </button>
+                                    <form method="post">
+                                        <input type="hidden" name="userEmail" value="${user.email?html}">
+                                        <button class="btn btn-sm btn-danger" type="submit" name="action"
+                                                value="removePermission">Remove
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             </#list>
@@ -99,10 +105,16 @@
         <div class="card-footer">
             <form method="post">
                 <div class="input-group">
-                    <input type="text" name="account" class="form-control" placeholder="Account ID"
-                           aria-label="Account ID">
+                    <input type="text" name="userEmail" class="form-control" placeholder="User email"
+                           aria-label="User email">
                     <div class="input-group-append">
-                        <button class="btn btn-info" name="action" value="addAccount" type="submit">Add</button>
+                        <select class="custom-select" name="level">
+                            <option value="owner" selected>Owner</option>
+                            <option value="admin">Admin</option>
+                            <option value="write">Write</option>
+                            <option value="read">Read</option>
+                        </select>
+                        <button class="btn btn-info" name="action" value="setPermission" type="submit">Add</button>
                     </div>
                 </div>
             </form>
