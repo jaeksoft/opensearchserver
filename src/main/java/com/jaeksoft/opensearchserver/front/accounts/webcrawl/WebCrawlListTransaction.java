@@ -21,13 +21,20 @@ import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WebCrawlListTransaction extends AccountTransaction {
 
@@ -46,14 +53,36 @@ public class WebCrawlListTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void create() throws IOException {
+	public void create() throws IOException, URISyntaxException {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
-		final WebCrawlDefinition.Builder webCrawlDefBuilder =
-				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(accountRecord.getId(),
-				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+
+		// Extract the URLs
+		final Set<URI> uriSet = new LinkedHashSet<>();
+		try (final BufferedReader reader = new BufferedReader(new StringReader(entryUrl))) {
+			String urlLine;
+			while ((urlLine = reader.readLine()) != null) {
+				urlLine = urlLine.trim();
+				if (StringUtils.isBlank(urlLine))
+					continue;
+				uriSet.add(new URI(urlLine).normalize());
+			}
+		}
+
+		int count = 0;
+		for (final URI uri : uriSet) {
+			final WebCrawlDefinition.Builder webCrawlDefBuilder =
+					WebCrawlDefinition.of().setEntryUrl(uri.toString()).setMaxDepth(maxDepth);
+			final String name;
+			if (crawlName == null || crawlName.isEmpty())
+				name = uri.getHost();
+			else
+				name = crawlName + (count == 0 ? StringUtils.EMPTY : count);
+			count++;
+			webCrawlsService.save(accountRecord.getId(),
+					WebCrawlRecord.of().name(name).crawlDefinition(webCrawlDefBuilder.build()).build());
+		}
 	}
 
 	@Override

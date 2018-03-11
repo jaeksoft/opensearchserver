@@ -65,13 +65,13 @@
 <div class="container">
     <form method="post">
         <div class="form-row">
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-3">
                 <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
                        aria-label="Crawl name">
             </div>
-            <div class="form-group col-md-7">
-                <input type="url" name="entryUrl" class="form-control" placeholder="Entry URL"
-                       aria-label="Entry URL">
+            <div class="form-group col-md-6">
+                <textarea class="form-control" name="entryUrl" rows="3" placeholder="Entry URL"
+                          aria-label="Entry URL"></textarea>
             </div>
             <div class="form-group col-md-2">
                 <input type="number" name="maxDepth" class="form-control" placeholder="maxDepth"
