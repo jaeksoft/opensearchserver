@@ -319,6 +319,8 @@ public class Components implements Closeable {
 			executorService = null;
 		}
 
+		Tables.closeAll();
+
 		// Set the singletons back to null
 		scriptManager = null;
 
