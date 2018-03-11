@@ -19,23 +19,19 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.BaseTest;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
-import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
+import com.jaeksoft.opensearchserver.model.WebCrawlTaskDefinition;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.RandomUtils;
-import com.qwazr.utils.concurrent.ThreadUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.core.NoContentException;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class TasksServiceTest extends BaseTest {
@@ -72,74 +68,44 @@ public class TasksServiceTest extends BaseTest {
 	 * @return
 	 * @throws IOException
 	 */
-	WebCrawlTaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth)
-			throws IOException, URISyntaxException {
+	TaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth) throws IOException {
 		final IndexesService indexesService = getIndexesService();
 		indexesService.createIndex(getAccountId().toString(), indexName);
 		final IndexService indexService = indexesService.getIndex(getAccountId().toString(), indexName);
-		return TaskRecord.of(WebCrawlRecord.of()
+
+		final WebCrawlRecord webCrawlRecord = WebCrawlRecord.of()
 				.name(taskName)
 				.crawlDefinition(WebCrawlDefinition.of().setEntryUrl(urlCrawl).setMaxDepth(maxDepth).build())
-				.build(), UUID.fromString(indexService.getIndexStatus().index_uuid)).build();
-	}
+				.build();
 
-	private void waitForAchivedActiveTask(TaskRecord taskRecord) throws IOException {
-		// Archive Task, wait until the task in not running
-		for (; ; ) {
-			try {
-				tasksService.archiveActiveTask(getAccountSchema(), taskRecord.getTaskId());
-				break;
-			} catch (NotAllowedException e) {
-				// That's OK
-				LOGGER.info("Wait until the task is done");
-				ThreadUtils.sleep(5, TimeUnit.SECONDS);
-			}
-		}
+		final UUID indexUuid = UUID.fromString(indexService.getIndexStatus().index_uuid);
+
+		final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
+
+		return TaskRecord.of(getAccountId(), webCrawlTask).status(TaskRecord.Status.PAUSED).build();
 	}
 
 	@Test
-	public void createTaskAndArchive() throws IOException, URISyntaxException {
+	public void createTask() throws IOException {
 
-		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
+		final TaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 
-		// Save as an active task
-		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
-		Assert.assertEquals(taskRecord, tasksService.getActiveTask(getAccountSchema(), taskRecord.getTaskId()));
+		// Create a new task
+		tasksService.createTask(taskRecord);
+		Assert.assertEquals(taskRecord, tasksService.getTask(taskRecord.getTaskId()));
 
 		final List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records), records, 1, taskRecord);
+		checkResult(tasksService.collectAccountTasks(getAccountId(), 0, 25, records), records, 1, taskRecord);
 
-		records.clear();
-		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records), records, 0);
+		Assert.assertEquals(tasksService.getTask(taskRecord.getTaskId()), taskRecord);
 
-		records.clear();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, taskRecord.crawlUuid, records), records,
-				1, taskRecord);
+		Assert.assertNull(tasksService.getTask(UUID.randomUUID().toString()));
 
-		records.clear();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, UUID.randomUUID(), records), records, 0);
-
-		waitForAchivedActiveTask(taskRecord);
-
-		Assert.assertEquals(taskRecord, tasksService.getArchivedTask(getAccountSchema(), taskRecord.getTaskId()));
-		records.clear();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records), records, 0);
-
-		records.clear();
-		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records), records, 1, taskRecord);
 	}
 
-	@Test(expected = NoContentException.class)
-	public void archiveUnkownTask() throws IOException {
-		tasksService.archiveActiveTask(getAccountSchema(), RandomUtils.alphanumeric(8));
-	}
-
-	@Test(expected = NotAllowedException.class)
-	public void saveAlreadyArchived() throws IOException, URISyntaxException {
-		final WebCrawlTaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
-		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
-		waitForAchivedActiveTask(taskRecord);
-		tasksService.saveActiveTask(getAccountSchema(), taskRecord);
+	@Test(expected = NotFoundException.class)
+	public void updateUnknownTask() throws IOException {
+		tasksService.updateStatus(RandomUtils.alphanumeric(8), TaskRecord.Status.PAUSED);
 	}
 
 }

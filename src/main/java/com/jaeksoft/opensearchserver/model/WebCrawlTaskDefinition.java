@@ -43,4 +43,8 @@ public class WebCrawlTaskDefinition extends CrawlTaskDefinition<WebCrawlDefiniti
 		super(id, TYPE, indexUuid, crawlDefinition);
 	}
 
+	public WebCrawlTaskDefinition(final WebCrawlRecord webCrawlRecord, final UUID indexUuid) {
+		this(webCrawlRecord.getUuid(), indexUuid, webCrawlRecord.getCrawlDefinition());
+	}
+
 }

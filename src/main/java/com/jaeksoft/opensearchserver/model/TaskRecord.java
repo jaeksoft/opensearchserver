@@ -66,8 +66,8 @@ public class TaskRecord {
 	@TableColumn(name = "type", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
 	public final String type;
 
-	@TableColumn(name = "customId", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
-	public final String customId;
+	@TableColumn(name = "definitionId", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
+	public final String definitionId;
 
 	@TableColumn(name = "sessionTimeId", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
 	public final Long sessionTimeId;
@@ -82,7 +82,7 @@ public class TaskRecord {
 			"accountId",
 			"definition",
 			"type",
-			"customId",
+			"definitionId",
 			"sessionTimeId",
 			"statusCode",
 			"statusTime" };
@@ -90,22 +90,22 @@ public class TaskRecord {
 	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
 
 	private volatile UUID accountUuid;
-	private volatile UUID customUuid;
+	private volatile UUID definitionUuid;
 	private volatile TaskDefinition taskDefinition;
 	private volatile Status status;
 
 	public TaskRecord() {
-		taskId = accountId = definition = type = customId = null;
+		taskId = accountId = definition = type = definitionId = null;
 		sessionTimeId = statusTime = null;
 		statusCode = null;
 	}
 
 	protected TaskRecord(final Builder builder) throws JsonProcessingException {
-		taskId = Objects.requireNonNull(builder.taskId, "The taskId is missing");
-		accountId = Objects.requireNonNull(builder.accountId, "The accountId is missing").toString();
 		Objects.requireNonNull(builder.definition, "The task definition is missing");
+		taskId = Objects.requireNonNull(builder.definition.getTaskId(), "The taskId is missing");
+		accountId = Objects.requireNonNull(builder.accountId, "The accountId is missing").toString();
 		definition = ObjectMappers.JSON.writeValueAsString(builder.definition);
-		customId = Objects.requireNonNull(builder.customId, "The customId is missing").toString();
+		definitionId = Objects.requireNonNull(builder.definition.getId(), "The definitionId is missing").toString();
 		type = builder.definition.type;
 		sessionTimeId = builder.sessionTimeId;
 		statusCode = Objects.requireNonNull(builder.status, "The status is missing").code;
@@ -137,9 +137,9 @@ public class TaskRecord {
 		return type;
 	}
 
-	public synchronized UUID getCustomUuid() {
-		if (customUuid == null && customId != null)
-			customUuid = UUID.fromString(customId);
+	public synchronized UUID getDefinitionId() {
+		if (definitionUuid == null && definitionId != null)
+			definitionUuid = UUID.fromString(definitionId);
 		return accountUuid;
 	}
 
@@ -157,7 +157,7 @@ public class TaskRecord {
 		return statusTime;
 	}
 
-	public Builder from() throws IOException {
+	public Builder from() {
 		return new Builder(this);
 	}
 
@@ -170,40 +170,34 @@ public class TaskRecord {
 		final TaskRecord r = (TaskRecord) o;
 		return Objects.equals(taskId, r.taskId) && Objects.equals(accountId, r.accountId) &&
 				Objects.equals(definition, r.definition) && Objects.equals(type, r.type) &&
-				Objects.equals(customId, r.customId) && Objects.equals(sessionTimeId, r.sessionTimeId) &&
+				Objects.equals(definitionId, r.definitionId) && Objects.equals(sessionTimeId, r.sessionTimeId) &&
 				Objects.equals(status, r.status) && Objects.equals(statusTime, r.statusTime);
 	}
 
-	public static Builder of(final String taskId) {
-		return new Builder(taskId);
+	public static Builder of(final UUID accountId, final TaskDefinition taskDefinition) {
+		return new Builder(accountId, taskDefinition);
 	}
 
 	public static class Builder {
 
-		private final String taskId;
-		private UUID accountId;
-		private UUID customId;
-		private TaskDefinition definition;
+		private final UUID accountId;
+		private final TaskDefinition definition;
+
 		private Long sessionTimeId;
 		private Status status;
 		private Long statusTime;
 
-		private Builder(final String taskId) {
-			this.taskId = taskId;
+		private Builder(final UUID accountId, final TaskDefinition definition) {
+			this.accountId = accountId;
+			this.definition = definition;
 		}
 
-		private Builder(final TaskRecord taskRecord) throws IOException {
-			this.taskId = taskRecord.taskId;
+		private Builder(final TaskRecord taskRecord) {
 			this.accountId = taskRecord.getAccountId();
 			this.definition = taskRecord.getDefinition();
 			this.sessionTimeId = taskRecord.getSessionTimeId();
 			this.status = taskRecord.getStatus();
 			this.statusTime = taskRecord.getStatusTime();
-		}
-
-		public Builder customId(UUID customId) {
-			this.customId = customId;
-			return this;
 		}
 
 		public Builder status(Status status) {

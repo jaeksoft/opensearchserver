@@ -22,8 +22,10 @@ import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
+import com.qwazr.server.client.ErrorWrapper;
 
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,11 +52,13 @@ public class TasksService {
 	}
 
 	public TaskRecord getTask(final String taskId) {
-		try {
-			return tasks.getRow(Objects.requireNonNull(taskId, "The taskId is null"), TaskRecord.COLUMNS_SET);
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get task by id", e);
-		}
+		return ErrorWrapper.bypass(() -> {
+			try {
+				return tasks.getRow(Objects.requireNonNull(taskId, "The taskId is null"), TaskRecord.COLUMNS_SET);
+			} catch (IOException | ReflectiveOperationException e) {
+				throw new InternalServerErrorException("Cannot get task by id", e);
+			}
+		}, 404);
 	}
 
 	private void saveTask(final TaskRecord taskRecord) {
@@ -84,6 +88,12 @@ public class TasksService {
 	public long collectCustomTasks(final UUID customId, final int start, final int rows,
 			Collection<TaskRecord> taskRecords) {
 		return collectTasks(new TableQuery.StringTerm("customId", customId.toString()), start, rows, taskRecords);
+	}
+
+	public void createTask(final TaskRecord taskRecord) {
+		if (getTask(taskRecord.getTaskId()) != null)
+			throw new NotAcceptableException("The task already exist");
+		saveTask(taskRecord);
 	}
 
 	private TaskRecord checkExistingTask(final String taskId) {

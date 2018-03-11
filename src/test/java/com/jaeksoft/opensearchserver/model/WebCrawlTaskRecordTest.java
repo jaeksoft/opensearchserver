@@ -17,7 +17,6 @@
 package com.jaeksoft.opensearchserver.model;
 
 import com.jaeksoft.opensearchserver.services.WebCrawlsServiceTest;
-import com.qwazr.utils.HashUtils;
 import com.qwazr.utils.ObjectMappers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,10 +27,9 @@ public class WebCrawlTaskRecordTest {
 
 	@Test
 	public void serializationDeserializationTest() throws IOException {
-		final WebCrawlRecord record = WebCrawlsServiceTest.createNewCrawlRecord();
-		final WebCrawlTaskRecord taskRecord1 = WebCrawlTaskRecord.of(record, HashUtils.newTimeBasedUUID()).build();
+		final WebCrawlRecord taskRecord1 = WebCrawlsServiceTest.createNewCrawlRecord();
 		final String taskRecordString = ObjectMappers.JSON.writeValueAsString(taskRecord1);
-		final CrawlTaskRecord taskRecord2 = ObjectMappers.JSON.readValue(taskRecordString, CrawlTaskRecord.class);
+		final WebCrawlRecord taskRecord2 = ObjectMappers.JSON.readValue(taskRecordString, WebCrawlRecord.class);
 		Assert.assertEquals(taskRecord1, taskRecord2);
 	}
 }
