@@ -46,7 +46,7 @@
                     <td>${userRecord.email?html}</td>
                 </tr>
                 <tr>
-                    <th>Creation time</th>
+                    <th>Session start time</th>
                     <td>${userRecord.creationTime?number_to_datetime}</td>
                 </tr>
             </table>

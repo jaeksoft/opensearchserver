@@ -36,12 +36,21 @@ public class TaskRecord {
 
 	public enum Status {
 
-		ACTIVE(1), ERROR(9), DONE(10), PAUSED(0);
+		PAUSED(0, true, false, true),
+		ACTIVE(1, false, true, false),
+		ERROR(9, true, false, true),
+		DONE(10, true, false, true);
 
 		private int code;
+		private boolean activable;
+		private boolean pausable;
+		private boolean removable;
 
-		Status(int code) {
+		Status(int code, boolean activable, boolean pausable, boolean removable) {
 			this.code = code;
+			this.activable = activable;
+			this.pausable = pausable;
+			this.removable = removable;
 		}
 
 		public static Status find(Integer statusCode) {
@@ -52,6 +61,19 @@ public class TaskRecord {
 					return status;
 			return null;
 		}
+
+		public boolean isActivable() {
+			return activable;
+		}
+
+		public boolean isPausable() {
+			return pausable;
+		}
+
+		public boolean isRemovable() {
+			return removable;
+		}
+
 	}
 
 	@TableColumn(name = TableDefinition.ID_COLUMN_NAME)
@@ -107,7 +129,7 @@ public class TaskRecord {
 		definition = ObjectMappers.JSON.writeValueAsString(builder.definition);
 		definitionId = Objects.requireNonNull(builder.definition.getId(), "The definitionId is missing").toString();
 		type = builder.definition.type;
-		sessionTimeId = builder.sessionTimeId;
+		sessionTimeId = Objects.requireNonNull(builder.sessionTimeId, "The sessionTimeId is missing");
 		statusCode = Objects.requireNonNull(builder.status, "The status is missing").code;
 		statusTime = Objects.requireNonNull(builder.statusTime, "The status time is missing");
 	}
@@ -190,6 +212,7 @@ public class TaskRecord {
 		private Builder(final UUID accountId, final TaskDefinition definition) {
 			this.accountId = accountId;
 			this.definition = definition;
+			this.sessionTimeId = System.currentTimeMillis();
 		}
 
 		private Builder(final TaskRecord taskRecord) {
@@ -206,8 +229,17 @@ public class TaskRecord {
 			return this;
 		}
 
-		public TaskRecord build() throws JsonProcessingException {
-			return new TaskRecord(this);
+		public Builder nextSession() {
+			this.sessionTimeId = System.currentTimeMillis();
+			return this;
+		}
+
+		public TaskRecord build() {
+			try {
+				return new TaskRecord(this);
+			} catch (JsonProcessingException e) {
+				throw new InternalServerErrorException(e);
+			}
 		}
 	}
 

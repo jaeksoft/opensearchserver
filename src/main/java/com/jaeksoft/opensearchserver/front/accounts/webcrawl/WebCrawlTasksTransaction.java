@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskResult;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.jaeksoft.opensearchserver.model.WebCrawlTaskDefinition;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 
@@ -30,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,33 +58,29 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void crawl() throws IOException {
-
+	private WebCrawlTaskDefinition getWebCrawlTask() {
 		final String index = request.getParameter("index");
 		final UUID indexUuid =
 				UUID.fromString(indexesService.getIndex(accountRecord.id, index).getIndexStatus().index_uuid);
+		return new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
+	}
 
-		/* TODO EK
-		final String taskId = CrawlTaskRecord.buildTaskId(webCrawlRecord.uuid, indexUuid);
-
-		final TaskRecord taskRecord = tasksService.get(webCrawlRecord.crawlDefinition.getT);
-		if (activeTaskRecord != null && !activeTaskRecord.isTerminated()) {
-			addMessage(Message.Css.warning, "Web crawl already started",
-					"This Web crawl has already been started on " + index);
+	public void activate() {
+		final WebCrawlTaskDefinition webCrawlTask = getWebCrawlTask();
+		final TaskRecord taskRecord = tasksService.getTask(webCrawlTask.getTaskId());
+		if (taskRecord != null) {
+			addMessage(Message.Css.warning, "Warning!", "This Web crawl was already activated");
 			return;
 		}
-		final WebCrawlTaskDefinition newTask =
-				WebCrawlTaskDefinition.of(webCrawlRecord, indexUuid).status(TaskRecord.Status.ACTIVE).build();
-
-		tasksService.saveActiveTask(accountRecord.id, newTaskRecord);
-		*/
-		addMessage(Message.Css.success, "Web crawl started", "The Web crawl has been started on " + index);
+		tasksService.createTask(
+				TaskRecord.of(accountRecord.getId(), webCrawlTask).status(TaskRecord.Status.ACTIVE).build());
+		addMessage(Message.Css.success, "Success!", "The Web crawl has been activated.");
 	}
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
 		final List<TaskRecord> tasks = new ArrayList<>();
-		final long totalCount = tasksService.collectCustomTasks(webCrawlRecord.getUuid(), 0, 1000, tasks);
+		final long totalCount = tasksService.collectTasksByDefinition(webCrawlRecord.getUuid(), 0, 1000, tasks);
 		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountRecord.getId(), null);
 		for (TaskRecord task : tasks)
 			resultBuilder.add(task);

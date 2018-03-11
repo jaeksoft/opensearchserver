@@ -26,10 +26,10 @@ import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import java.net.URL;
 import java.util.Objects;
 
-public class WebCrawlProcessingService extends CrawlProcessingService<WebCrawlDefinition, WebCrawlStatus> {
+public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCrawlStatus> {
 
-	public WebCrawlProcessingService(final ConfigService configService,
-			final WebCrawlerServiceInterface webCrawlerService, final IndexesService indexesService) {
+	public WebCrawlProcessor(final ConfigService configService, final WebCrawlerServiceInterface webCrawlerService,
+			final IndexesService indexesService) {
 		super(configService, webCrawlerService, indexesService);
 	}
 
@@ -55,6 +55,7 @@ public class WebCrawlProcessingService extends CrawlProcessingService<WebCrawlDe
 		final int count =
 				indexService.fillUnknownUrls(100, webCrawlTask.getId(), taskRecord.sessionTimeId, crawlBuilder);
 		if (count == 0) {
+
 			if (indexService.isAlreadyCrawled(webCrawlTask.crawlDefinition.entryUrl, webCrawlTask.getId(),
 					taskRecord.sessionTimeId)) {
 				indexService.deleteOldCrawl(webCrawlTask.getId(), taskRecord.sessionTimeId);

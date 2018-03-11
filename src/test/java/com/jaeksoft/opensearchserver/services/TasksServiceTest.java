@@ -55,7 +55,7 @@ public class TasksServiceTest extends BaseTest {
 	@Test
 	public void emptyList() {
 		List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectAccountTasks(getAccountId(), 0, 25, records), records, 0);
+		checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 0);
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class TasksServiceTest extends BaseTest {
 		Assert.assertEquals(taskRecord, tasksService.getTask(taskRecord.getTaskId()));
 
 		final List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectAccountTasks(getAccountId(), 0, 25, records), records, 1, taskRecord);
+		checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 1, taskRecord);
 
 		Assert.assertEquals(tasksService.getTask(taskRecord.getTaskId()), taskRecord);
 

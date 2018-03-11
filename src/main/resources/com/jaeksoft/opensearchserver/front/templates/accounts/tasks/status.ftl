@@ -39,8 +39,8 @@
             <h5 class="card-title">Task status</h5>
             <table class="table">
                 <tr>
-                    <th>Creation time</th>
-                    <td>${task.creationTime?number_to_datetime}</td>
+                    <th>Session start time</th>
+                    <td>${task.sessionTimeId?number_to_datetime}</td>
                 </tr>
                 <tr>
                     <th>Type</th>
@@ -62,16 +62,21 @@
                    </#switch>
             </table>
         </div>
+        <#if task.status??>
         <div class="card-footer">
             <form class="form-inline" method="post">
-            <#if task.pausable>
-                <button class="btn btn-warning" name="action" value="pause" type="submit">Pause</button>
-            </#if>
-             <#if task.startable>
-                <button class="btn btn-warning" name="action" value="start" type="submit">Start</button>
-             </#if>
+                <#if task.status.pausable>
+                    <button class="btn btn-warning" name="action" value="pause" type="submit">Pause</button>
+                </#if>
+                <#if task.status.activable>
+                    <button class="btn btn-success" name="action" value="start" type="submit">Activate</button>
+                </#if>
+                <#if task.status.removable>
+                    <button class="btn btn-danger" name="action" value="remove" type="submit">Remove</button>
+                </#if>
             </form>
         </div>
+        </#if>
     </div>
 </div>
 <#include '../../includes/foot.ftl'>

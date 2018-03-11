@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotFoundException;
-import java.io.IOException;
 
 public class TaskStatusTransaction extends AccountTransaction {
 
@@ -42,7 +41,7 @@ public class TaskStatusTransaction extends AccountTransaction {
 		taskRecord = tasksService.getTask(taskId);
 		if (taskRecord == null)
 			throw new NotFoundException("Task not found: " + taskId);
-		if (accountRecord.getId().equals(taskRecord.getAccountId()))
+		if (!accountRecord.getId().equals(taskRecord.getAccountId()))
 			throw new NotAllowedException("Not allowed: " + taskId);
 		request.setAttribute("task", taskRecord);
 	}
@@ -52,14 +51,22 @@ public class TaskStatusTransaction extends AccountTransaction {
 		return TEMPLATE;
 	}
 
-	public void pause() throws IOException {
+	public void pause() {
 		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED))
 			addMessage(Message.Css.success, "The task has been paused", null);
 	}
 
-	public void start() throws IOException {
+	public void start() {
 		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE))
 			addMessage(Message.Css.success, "The task has been activated", null);
+	}
+
+	public String remove() {
+		if (tasksService.removeTask(taskRecord.getTaskId())) {
+			addMessage(Message.Css.success, "The task has been removed", null);
+			return "/accounts/" + accountRecord.getName() + "/tasks";
+		}
+		return null;
 	}
 
 }

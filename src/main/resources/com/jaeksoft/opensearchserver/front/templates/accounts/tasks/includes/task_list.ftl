@@ -2,7 +2,7 @@
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
-                <th>Creation time</th>
+                <th>Session start time</th>
                 <#if show_crawl>
                 <th>Type</th>
                 <th>Crawl</th>
@@ -16,7 +16,7 @@
             <tbody>
             <#list tasks as task>
             <tr>
-                <td>${task.record.creationTime?number_to_datetime}</td>
+                <td>${task.record.sessionTimeId?number_to_datetime}</td>
                 <#if show_crawl>
                 <td>${task.record.type?capitalize}</td>
                 <td><#if task.crawlName??>

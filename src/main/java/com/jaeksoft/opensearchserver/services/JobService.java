@@ -16,12 +16,13 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.AccountRecord;
+import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.utils.LoggerUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,16 +37,19 @@ public class JobService implements Closeable {
 	private final ConfigService configService;
 	private final ScheduledExecutorService scheduler;
 	private final AccountsService accountsService;
+	private final TaskExecutionService taskExecutionService;
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
 
 	public JobService(final ConfigService configService, final AccountsService accountsService,
-			final TasksService tasksService, final IndexesService indexesService) {
+			final TasksService tasksService, final IndexesService indexesService,
+			final TaskExecutionService taskExecutionService) {
 		this.configService = configService;
 		this.accountsService = accountsService;
 		this.tasksService = tasksService;
 		this.indexesService = indexesService;
-		scheduler = Executors.newScheduledThreadPool(10);
+		this.taskExecutionService = taskExecutionService;
+		scheduler = Executors.newScheduledThreadPool(2);
 	}
 
 	@Override
@@ -58,26 +62,48 @@ public class JobService implements Closeable {
 		}
 	}
 
-	void checkAccountTasks() {
+	private void runSessions(final AccountRecord account) {
+		int taskLeft = account.getTasksNumberLimit();
+		final List<TaskExecutionRecord> taskExecutions = taskExecutionService.getNextTaskExecutions(account.getId());
+		if (taskExecutions == null)
+			return;
+		for (TaskExecutionRecord taskExecution : taskExecutions) {
+			if (taskLeft <= 0)
+				return;
+			if (taskExecution.nextExecutionTime > System.currentTimeMillis())
+				return;
+			// Non active tasks can be removed from the queue
+			final TaskRecord taskRecord = tasksService.getTask(taskExecution.taskId);
+			if (taskRecord == null || taskRecord.getStatus() != TaskRecord.Status.ACTIVE) {
+				taskExecutionService.removeTaskExecution(account.getId(), taskExecution.taskId);
+				continue;
+			}
+			taskLeft--;
+			// Is the task already running ?
+			final TaskProcessor<?> taskProcessor = taskExecutionService.getTasksProcessor(taskRecord.type);
+			if (taskProcessor.isRunning(taskExecution.taskId))
+				continue;
+			// Let's start the next run
+			taskExecutionService.upsertTaskExecution(taskRecord);
+			try {
+				if (taskProcessor.runSession(taskRecord) == TaskRecord.Status.DONE)
+					// If the task was done, we can plan a new run with a new SessionTimeId
+					tasksService.nextSession(taskRecord.taskId);
+			} catch (Exception e) {
+				// If any error occured, let's update the status
+				tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR);
+			}
+		}
+
+	}
+
+	void checkAccountsTasks() {
 		try {
 			LOGGER.info("Check account tasks");
 			final int count = accountsService.forEachActiveAccount(account -> {
 				if (scheduler.isShutdown())
 					return;
-				final List<TaskRecord> tasks = new ArrayList<>();
-				tasksService.collectAccountTasks(account.getId(), 0, account.getCrawlNumberLimit(), tasks);
-				for (TaskRecord task : tasks) {
-					if (scheduler.isShutdown())
-						return;
-					final TaskRecord.Status nextStatus = tasksService.getTasksProcessor(task).checkIsRunning(task);
-					if (nextStatus == task.getStatus())
-						continue;
-					LOGGER.info(
-							() -> "Task status updated: " + task.getTaskId() + " from " + task.getStatus() + " to " +
-									nextStatus);
-					tasksService.updateStatus(task.getTaskId(), nextStatus);
-
-				}
+				runSessions(account);
 			});
 			LOGGER.info(count + " tasks checked");
 		} catch (Exception e) {
@@ -85,12 +111,12 @@ public class JobService implements Closeable {
 		}
 	}
 
-	public void startAccountTaskRun() {
-		scheduler.scheduleWithFixedDelay(this::checkAccountTasks, 0, configService.getJobCrawlPeriodSeconds(),
+	void startAccountTaskRun() {
+		scheduler.scheduleWithFixedDelay(this::checkAccountsTasks, 0, configService.getJobCrawlPeriodSeconds(),
 				TimeUnit.SECONDS);
 	}
 
-	public void startExpireIndex() {
+	void startExpireIndex() {
 		scheduler.scheduleWithFixedDelay(indexesService::removeExpired, 0, 1, TimeUnit.MINUTES);
 	}
 

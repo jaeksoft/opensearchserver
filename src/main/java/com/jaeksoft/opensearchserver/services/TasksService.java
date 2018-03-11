@@ -30,25 +30,20 @@ import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public class TasksService {
 
 	private final AnnotatedTableService<TaskRecord> tasks;
-	private final Map<String, TaskProcessingService> tasksProcessors;
+	private final TaskExecutionService taskExecutionService;
 
-	public TasksService(final TableServiceInterface tableService,
-			final Map<String, TaskProcessingService> tasksProcessors) throws NoSuchMethodException, URISyntaxException {
-		this.tasksProcessors = tasksProcessors;
+	public TasksService(final TableServiceInterface tableService, final TaskExecutionService taskExecutionService)
+			throws NoSuchMethodException, URISyntaxException {
+		this.taskExecutionService = taskExecutionService;
 		tasks = new AnnotatedTableService<>(tableService, TaskRecord.class);
 		tasks.createUpdateTable();
 		tasks.createUpdateFields();
-	}
-
-	public TaskProcessingService<?> getTasksProcessor(final TaskRecord taskRecord) {
-		return tasksProcessors.getOrDefault(taskRecord.type, TaskProcessingService.DEFAULT);
 	}
 
 	public TaskRecord getTask(final String taskId) {
@@ -68,8 +63,8 @@ public class TasksService {
 	private long collectTasks(final TableQuery tableQuery, final int start, final int rows,
 			final Collection<TaskRecord> taskRecords) {
 		try {
-			final TableRequestResultRecords<TaskRecord> result =
-					tasks.queryRows(TableRequest.from(start, rows).query(tableQuery).build());
+			final TableRequestResultRecords<TaskRecord> result = tasks.queryRows(
+					TableRequest.from(start, rows).column(TaskRecord.COLUMNS).query(tableQuery).build());
 			if (result == null || result.records == null)
 				return 0L;
 			if (taskRecords != null)
@@ -80,20 +75,22 @@ public class TasksService {
 		}
 	}
 
-	public long collectAccountTasks(final UUID accountId, final int start, final int rows,
+	public long collectTasksByAccount(final UUID accountId, final int start, final int rows,
 			Collection<TaskRecord> taskRecords) {
 		return collectTasks(new TableQuery.StringTerm("accountId", accountId.toString()), start, rows, taskRecords);
 	}
 
-	public long collectCustomTasks(final UUID customId, final int start, final int rows,
+	public long collectTasksByDefinition(final UUID definitionId, final int start, final int rows,
 			Collection<TaskRecord> taskRecords) {
-		return collectTasks(new TableQuery.StringTerm("customId", customId.toString()), start, rows, taskRecords);
+		return collectTasks(new TableQuery.StringTerm("definitionId", definitionId.toString()), start, rows,
+				taskRecords);
 	}
 
 	public void createTask(final TaskRecord taskRecord) {
 		if (getTask(taskRecord.getTaskId()) != null)
 			throw new NotAcceptableException("The task already exist");
 		saveTask(taskRecord);
+		taskExecutionService.checkTaskStatus(taskRecord);
 	}
 
 	private TaskRecord checkExistingTask(final String taskId) {
@@ -103,15 +100,25 @@ public class TasksService {
 		throw new NotFoundException("Task not found: " + taskId);
 	}
 
-	public boolean updateStatus(final String taskId, final TaskRecord.Status nextStatus) throws IOException {
-		final TaskRecord taskRecord = checkExistingTask(taskId);
-		if (taskRecord.getStatus() == nextStatus || nextStatus == null)
+	public boolean updateStatus(final String taskId, final TaskRecord.Status nextStatus) {
+		final TaskRecord oldTask = checkExistingTask(taskId);
+		if (oldTask.getStatus() == nextStatus || nextStatus == null)
 			return false;
-		if (taskRecord.getStatus() == TaskRecord.Status.PAUSED)
-			getTasksProcessor(taskRecord).abort(taskId);
-		saveTask(taskRecord.from().status(nextStatus).build());
+		final TaskRecord newTask = oldTask.from().status(nextStatus).build();
+		saveTask(newTask);
+		taskExecutionService.checkTaskStatus(newTask);
 		return true;
+	}
 
+	public void nextSession(final String taskId) {
+		final TaskRecord oldTask = checkExistingTask(taskId);
+		final TaskRecord newTask = oldTask.from().nextSession().build();
+		saveTask(newTask);
+	}
+
+	public boolean removeTask(final String taskId) {
+		updateStatus(taskId, TaskRecord.Status.PAUSED);
+		return tasks.deleteRow(taskId);
 	}
 
 }

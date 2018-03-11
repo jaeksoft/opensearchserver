@@ -30,7 +30,6 @@ import com.qwazr.extractor.ExtractorServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
 import com.qwazr.server.RemoteService;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public class CrawlerComponents implements CrawlerContext {
 	}
 
 	public static synchronized IndexService getIndexService(final URL indexServiceUrl, final String accountId,
-			final String indexName) throws IOException, URISyntaxException {
+			final String indexName) {
 		if (indexServiceUrl == null)
 			return Objects.requireNonNull(localComponents, "No local components available")
 					.getIndexesService()

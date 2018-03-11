@@ -38,7 +38,7 @@ public class TaskListTransaction extends AccountTransaction {
 
 		final List<TaskRecord> taskRecords = new ArrayList<>();
 		long totalCount =
-				components.getTasksService().collectAccountTasks(accountRecord.getId(), start, rows, taskRecords);
+				components.getTasksService().collectTasksByAccount(accountRecord.getId(), start, rows, taskRecords);
 
 		final TaskResult.Builder resultBuilder =
 				TaskResult.of(components.getIndexesService(), accountRecord.getId(), components.getWebCrawlsService());

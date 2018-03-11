@@ -56,8 +56,8 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Start a crawl</h5>
-            <p class="card-text text-muted">Choose an index and click on the button to start the crawl
+            <h5 class="card-title">Activate a crawl</h5>
+            <p class="card-text text-muted">Choose an index and click on the button to activate the crawl
                 process.</p>
         </div>
         <div class="card-footer">
@@ -69,8 +69,8 @@
                 </#list>
                 </select>
                 <button class="btn btn-primary mb-2"
-                        name="action" value="crawl" type="submit">
-                    Start crawling
+                        name="action" value="activate" type="submit">
+                    Crawling activation
                 </button>
             </form>
         </div>

@@ -22,10 +22,10 @@ import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.JobService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.TaskExecutionService;
-import com.jaeksoft.opensearchserver.services.TaskProcessingService;
+import com.jaeksoft.opensearchserver.services.TaskProcessor;
 import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.UsersService;
-import com.jaeksoft.opensearchserver.services.WebCrawlProcessingService;
+import com.jaeksoft.opensearchserver.services.WebCrawlProcessor;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
@@ -83,8 +83,8 @@ public class Components implements Closeable {
 	private volatile WebCrawlsService webCrawlsService;
 
 	private volatile TasksService tasksService;
-	private volatile Map<String, TaskProcessingService> tasksProcessors;
-	private volatile WebCrawlProcessingService webCrawlProcessingService;
+	private volatile Map<String, TaskProcessor> tasksProcessors;
+	private volatile WebCrawlProcessor webCrawlProcessor;
 	private volatile TaskExecutionService taskExecutionService;
 
 	private volatile StoreManager storeManager;
@@ -174,30 +174,28 @@ public class Components implements Closeable {
 		return webCrawlsService;
 	}
 
-	private synchronized WebCrawlProcessingService getWebCrawlProcessingService() {
-		if (webCrawlProcessingService == null)
-			webCrawlProcessingService =
-					new WebCrawlProcessingService(getConfigService(), getWebCrawlerService(), getIndexesService());
-		return webCrawlProcessingService;
+	private synchronized WebCrawlProcessor getWebCrawlProcessor() {
+		if (webCrawlProcessor == null)
+			webCrawlProcessor = new WebCrawlProcessor(getConfigService(), getWebCrawlerService(), getIndexesService());
+		return webCrawlProcessor;
 
 	}
 
-	private synchronized Map<String, TaskProcessingService> getProcessors() {
+	private synchronized Map<String, TaskProcessor> getProcessors() {
 		if (tasksProcessors == null)
-			tasksProcessors = TaskProcessingService.of().register(getWebCrawlProcessingService()).build();
+			tasksProcessors = TaskProcessor.of().register(getWebCrawlProcessor()).build();
 		return tasksProcessors;
 	}
 
 	public synchronized TasksService getTasksService() {
 		if (tasksService == null)
-			tasksService = bypass(() -> new TasksService(getTableService(), getProcessors()));
+			tasksService = bypass(() -> new TasksService(getTableService(), getTaskExecutionService()));
 		return tasksService;
 	}
 
-	public synchronized TaskExecutionService getTaskExecutionService()
-			throws IOException, URISyntaxException, NoSuchMethodException {
+	public synchronized TaskExecutionService getTaskExecutionService() {
 		if (taskExecutionService == null)
-			taskExecutionService = new TaskExecutionService(getTableService());
+			taskExecutionService = bypass(() -> new TaskExecutionService(getTableService(), getProcessors()));
 		return taskExecutionService;
 	}
 
@@ -295,7 +293,8 @@ public class Components implements Closeable {
 	public synchronized JobService getJobService() {
 		if (jobService == null) {
 			jobService =
-					new JobService(getConfigService(), getAccountsService(), getTasksService(), getIndexesService());
+					new JobService(getConfigService(), getAccountsService(), getTasksService(), getIndexesService(),
+							getTaskExecutionService());
 			closing.add(jobService);
 		}
 		return jobService;
@@ -332,8 +331,9 @@ public class Components implements Closeable {
 		webCrawlsService = null;
 
 		tasksService = null;
+		taskExecutionService = null;
 		tasksProcessors = null;
-		webCrawlProcessingService = null;
+		webCrawlProcessor = null;
 
 		storeManager = null;
 		storeService = null;

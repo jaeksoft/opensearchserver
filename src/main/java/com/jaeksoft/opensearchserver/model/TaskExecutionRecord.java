@@ -56,22 +56,22 @@ public class TaskExecutionRecord {
 
 	TaskExecutionRecord(Builder builder) {
 		accountId = Objects.requireNonNull(builder.accountId, "The accountId is missing").toString();
-		taskId = Objects.requireNonNull(builder.taskId, "The taskId is missing").toString();
+		taskId = Objects.requireNonNull(builder.taskId, "The taskId is missing");
 		id = accountId + '_' + taskId;
 		nextExecutionTime = builder.nextExecutionTime;
 	}
 
-	public static Builder of(final UUID accountId, final UUID taskId) {
+	public static Builder of(final UUID accountId, final String taskId) {
 		return new Builder(accountId, taskId);
 	}
 
 	public static class Builder {
 
 		private final UUID accountId;
-		private final UUID taskId;
+		private final String taskId;
 		private Long nextExecutionTime;
 
-		Builder(UUID accountId, UUID taskId) {
+		Builder(UUID accountId, String taskId) {
 			this.accountId = accountId;
 			this.taskId = taskId;
 		}

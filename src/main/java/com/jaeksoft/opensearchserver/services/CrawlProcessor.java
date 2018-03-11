@@ -26,15 +26,14 @@ import com.qwazr.server.client.ErrorWrapper;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-public abstract class CrawlProcessingService<D extends CrawlDefinition, S extends CrawlStatus<D>>
-		implements TaskProcessingService<S> {
+public abstract class CrawlProcessor<D extends CrawlDefinition, S extends CrawlStatus<D>> implements TaskProcessor<S> {
 
 	private final CrawlerServiceInterface<D, S> crawlerService;
 	protected final ConfigService configService;
 	protected final IndexesService indexesService;
 
-	protected CrawlProcessingService(final ConfigService configService,
-			final CrawlerServiceInterface<D, S> crawlerService, final IndexesService indexesService) {
+	protected CrawlProcessor(final ConfigService configService, final CrawlerServiceInterface<D, S> crawlerService,
+			final IndexesService indexesService) {
 		this.configService = configService;
 		this.crawlerService = crawlerService;
 		this.indexesService = indexesService;
@@ -69,7 +68,7 @@ public abstract class CrawlProcessingService<D extends CrawlDefinition, S extend
 	protected abstract D getNextCrawlDefinition(final TaskRecord taskRecord) throws Exception;
 
 	@Override
-	final public TaskRecord.Status checkIsRunning(final TaskRecord taskRecord) throws Exception {
+	final public TaskRecord.Status runSession(final TaskRecord taskRecord) throws Exception {
 		final TaskRecord.Status currentStatus = taskRecord.getStatus();
 		if (currentStatus != TaskRecord.Status.ACTIVE)
 			return currentStatus;

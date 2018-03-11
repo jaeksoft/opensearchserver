@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public interface TaskProcessingService<S> {
+public interface TaskProcessor<S> {
 
-	TaskProcessingService DEFAULT = new TaskProcessingService() {
+	TaskProcessor DEFAULT = new TaskProcessor() {
 	};
 
 	default String getType() {
@@ -37,11 +37,11 @@ public interface TaskProcessingService<S> {
 	}
 
 	/**
-	 * Check if the task is running. The TasksExecutorService may decide to start the task.
+	 * Start the next run for this task.
 	 *
 	 * @param taskRecord
 	 */
-	default TaskRecord.Status checkIsRunning(final TaskRecord taskRecord) throws Exception {
+	default TaskRecord.Status runSession(final TaskRecord taskRecord) throws Exception {
 		throw notSupportedException(taskRecord.taskId);
 	}
 
@@ -63,18 +63,18 @@ public interface TaskProcessingService<S> {
 
 	class Builder {
 
-		final Map<String, TaskProcessingService<?>> processorMap;
+		final Map<String, TaskProcessor<?>> processorMap;
 
 		private Builder() {
 			processorMap = new LinkedHashMap<>();
 		}
 
-		public Builder register(final TaskProcessingService<?> tasksExecutorService) {
+		public Builder register(final TaskProcessor<?> tasksExecutorService) {
 			processorMap.put(tasksExecutorService.getType(), tasksExecutorService);
 			return this;
 		}
 
-		public Map<String, TaskProcessingService> build() {
+		public Map<String, TaskProcessor> build() {
 			return Collections.unmodifiableMap(processorMap);
 		}
 	}
