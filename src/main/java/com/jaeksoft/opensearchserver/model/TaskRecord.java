@@ -193,7 +193,7 @@ public class TaskRecord {
 		return Objects.equals(taskId, r.taskId) && Objects.equals(accountId, r.accountId) &&
 				Objects.equals(definition, r.definition) && Objects.equals(type, r.type) &&
 				Objects.equals(definitionId, r.definitionId) && Objects.equals(sessionTimeId, r.sessionTimeId) &&
-				Objects.equals(status, r.status) && Objects.equals(statusTime, r.statusTime);
+				Objects.equals(statusCode, r.statusCode) && Objects.equals(statusTime, r.statusTime);
 	}
 
 	public static Builder of(final UUID accountId, final TaskDefinition taskDefinition) {

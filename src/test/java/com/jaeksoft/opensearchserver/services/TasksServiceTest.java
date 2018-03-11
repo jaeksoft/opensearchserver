@@ -92,13 +92,13 @@ public class TasksServiceTest extends BaseTest {
 
 		// Create a new task
 		tasksService.createTask(taskRecord);
-		Assert.assertEquals(taskRecord, tasksService.getTask(taskRecord.getTaskId()));
+
+		final TaskRecord getTaskRecord = tasksService.getTask(taskRecord.getTaskId());
+		Assert.assertEquals(taskRecord, getTaskRecord);
 
 		final List<TaskRecord> records = new ArrayList<>();
 		checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 1, taskRecord);
-
-		Assert.assertEquals(tasksService.getTask(taskRecord.getTaskId()), taskRecord);
-
+		
 		Assert.assertNull(tasksService.getTask(UUID.randomUUID().toString()));
 
 	}
