@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class WebCrawlEditTransaction extends AccountTransaction {
@@ -39,12 +38,11 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 	private final WebCrawlRecord webCrawlRecord;
 
 	public WebCrawlEditTransaction(final Components components, final AccountRecord accountRecord,
-			final UUID webCrawlUuid, final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final UUID webCrawlUuid, final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 
 		this.webCrawlsService = components.getWebCrawlsService();
-		webCrawlRecord = webCrawlsService.read(accountRecord.id, webCrawlUuid);
+		webCrawlRecord = webCrawlsService.read(accountRecord.getId(), webCrawlUuid);
 		if (webCrawlRecord == null)
 			throw new NotFoundException("Web crawl not found: " + webCrawlUuid);
 
@@ -59,7 +57,7 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 	public String delete() {
 		final String crawlName = request.getParameter("crawlName");
 		if (webCrawlRecord.name.equals(crawlName)) {
-			webCrawlsService.remove(accountRecord.id, webCrawlRecord.getUuid());
+			webCrawlsService.remove(accountRecord.getId(), webCrawlRecord.getUuid());
 			addMessage(Message.Css.success, null, "Crawl \"" + webCrawlRecord.name + "\" deleted");
 			return StringUtils.EMPTY;
 		}
@@ -73,7 +71,7 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(accountRecord.id,
+		webCrawlsService.save(accountRecord.getId(),
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		return "/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid();
 	}

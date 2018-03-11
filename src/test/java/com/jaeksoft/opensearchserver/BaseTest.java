@@ -22,14 +22,15 @@ import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import org.junit.After;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class BaseTest {
 
 	private Components components;
+	private final UUID accountId = UUID.randomUUID();
 
 	private synchronized Components getComponents() throws IOException {
 		if (components == null) {
@@ -40,19 +41,19 @@ public class BaseTest {
 		return components;
 	}
 
-	protected String getAccountSchema() {
-		return "test-local";
+	protected UUID getAccountId() {
+		return accountId;
 	}
 
-	protected WebCrawlsService getWebCrawlsService() throws IOException, URISyntaxException {
+	protected WebCrawlsService getWebCrawlsService() throws IOException {
 		return getComponents().getWebCrawlsService();
 	}
 
-	protected TasksService getTasksService() throws IOException, URISyntaxException {
+	protected TasksService getTasksService() throws IOException {
 		return getComponents().getTasksService();
 	}
 
-	protected IndexesService getIndexesService() throws IOException, URISyntaxException {
+	protected IndexesService getIndexesService() throws IOException {
 		return getComponents().getIndexesService();
 	}
 

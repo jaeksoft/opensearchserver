@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -50,7 +49,7 @@ public class AdminUserTransaction extends ServletTransaction {
 	private final UUID userId;
 
 	AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletResponse response) {
 		super(components, request, response, false);
 		this.usersService = components.getUsersService();
 		this.accountsService = components.getAccountsService();

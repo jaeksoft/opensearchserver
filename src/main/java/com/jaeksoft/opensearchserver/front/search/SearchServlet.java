@@ -26,8 +26,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 @WebServlet("/search/*")
 public class SearchServlet extends BaseServlet {
@@ -40,7 +38,7 @@ public class SearchServlet extends BaseServlet {
 
 	@Override
 	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletResponse response) {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			throw new NotFoundException();

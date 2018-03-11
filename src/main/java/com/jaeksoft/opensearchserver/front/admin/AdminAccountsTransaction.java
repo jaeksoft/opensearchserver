@@ -35,7 +35,7 @@ public class AdminAccountsTransaction extends ServletTransaction {
 	private final AccountsService accountsService;
 
 	AdminAccountsTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletResponse response) {
 		super(components, request, response, false);
 		accountsService = components.getAccountsService();
 	}

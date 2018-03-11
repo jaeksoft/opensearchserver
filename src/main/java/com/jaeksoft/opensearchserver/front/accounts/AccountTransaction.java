@@ -23,8 +23,6 @@ import com.jaeksoft.opensearchserver.model.AccountRecord;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAllowedException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class AccountTransaction extends ServletTransaction {
 
@@ -33,8 +31,7 @@ public class AccountTransaction extends ServletTransaction {
 	protected final AccountRecord accountRecord;
 
 	protected AccountTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, request, response, true);
 		this.accountRecord = accountRecord;
 		if (components.getPermissionsService().getPermission(userRecord.getId(), accountRecord.getId()) == null)

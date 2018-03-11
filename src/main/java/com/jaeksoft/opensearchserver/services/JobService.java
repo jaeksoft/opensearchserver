@@ -33,13 +33,15 @@ public class JobService implements Closeable {
 
 	private final static Logger LOGGER = LoggerUtils.getLogger(JobService.class);
 
+	private final ConfigService configService;
 	private final ScheduledExecutorService scheduler;
 	private final AccountsService accountsService;
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
 
-	public JobService(final AccountsService accountsService, final TasksService tasksService,
-			final IndexesService indexesService) {
+	public JobService(final ConfigService configService, final AccountsService accountsService,
+			final TasksService tasksService, final IndexesService indexesService) {
+		this.configService = configService;
 		this.accountsService = accountsService;
 		this.tasksService = tasksService;
 		this.indexesService = indexesService;
@@ -62,19 +64,18 @@ public class JobService implements Closeable {
 			final int count = accountsService.forEachActiveAccount(account -> {
 				if (scheduler.isShutdown())
 					return;
-				final List<TaskRecord> activeTasks = new ArrayList<>();
-				tasksService.collectActiveTasks(account.id, 0, account.getCrawlNumberLimit(), activeTasks);
-				for (TaskRecord activeTask : activeTasks) {
+				final List<TaskRecord> tasks = new ArrayList<>();
+				tasksService.collectAccountTasks(account.getId(), 0, account.getCrawlNumberLimit(), tasks);
+				for (TaskRecord task : tasks) {
 					if (scheduler.isShutdown())
 						return;
-					final TaskRecord.Status nextStatus =
-							tasksService.getTasksProcessor(activeTask).checkIsRunning(account.id, activeTask);
-					if (nextStatus == activeTask.status)
+					final TaskRecord.Status nextStatus = tasksService.getTasksProcessor(task).checkIsRunning(task);
+					if (nextStatus == task.getStatus())
 						continue;
 					LOGGER.info(
-							() -> "Task status updated: " + activeTask.getTaskId() + " from " + activeTask.getStatus() +
-									" to " + nextStatus);
-					tasksService.updateStatus(account.id, activeTask.getTaskId(), nextStatus);
+							() -> "Task status updated: " + task.getTaskId() + " from " + task.getStatus() + " to " +
+									nextStatus);
+					tasksService.updateStatus(task.getTaskId(), nextStatus);
 
 				}
 			});
@@ -85,7 +86,8 @@ public class JobService implements Closeable {
 	}
 
 	public void startAccountTaskRun() {
-		scheduler.scheduleWithFixedDelay(this::checkAccountTasks, 0, 1, TimeUnit.MINUTES);
+		scheduler.scheduleWithFixedDelay(this::checkAccountTasks, 0, configService.getJobCrawlPeriodSeconds(),
+				TimeUnit.SECONDS);
 	}
 
 	public void startExpireIndex() {

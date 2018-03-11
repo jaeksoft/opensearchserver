@@ -26,8 +26,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 @WebServlet("/admin/accounts/*")
 public class AdminAccountsServlet extends BaseServlet {
@@ -39,8 +37,7 @@ public class AdminAccountsServlet extends BaseServlet {
 	}
 
 	@Override
-	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			return new AdminAccountsTransaction(components, request, response);

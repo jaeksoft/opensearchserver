@@ -24,25 +24,26 @@ import com.jaeksoft.opensearchserver.services.TasksService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
-public class ActiveTaskStatusTransaction extends AccountTransaction {
+public class TaskStatusTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/tasks/active_status.ftl";
+	private final static String TEMPLATE = "accounts/tasks/status.ftl";
 
 	private final TasksService tasksService;
 	private final TaskRecord taskRecord;
 
-	public ActiveTaskStatusTransaction(final Components components, final AccountRecord accountRecord,
-			final String taskId, final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+	public TaskStatusTransaction(final Components components, final AccountRecord accountRecord, final String taskId,
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 		this.tasksService = components.getTasksService();
-		taskRecord = tasksService.getActiveTask(accountRecord.id, taskId);
+		taskRecord = tasksService.getTask(taskId);
 		if (taskRecord == null)
 			throw new NotFoundException("Task not found: " + taskId);
+		if (accountRecord.getId().equals(taskRecord.getAccountId()))
+			throw new NotAllowedException("Not allowed: " + taskId);
 		request.setAttribute("task", taskRecord);
 	}
 
@@ -52,13 +53,13 @@ public class ActiveTaskStatusTransaction extends AccountTransaction {
 	}
 
 	public void pause() throws IOException {
-		if (tasksService.updateStatus(accountRecord.id, taskRecord.getTaskId(), TaskRecord.Status.PAUSED))
+		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED))
 			addMessage(Message.Css.success, "The task has been paused", null);
 	}
 
 	public void start() throws IOException {
-		if (tasksService.updateStatus(accountRecord.id, taskRecord.getTaskId(), TaskRecord.Status.STARTED))
-			addMessage(Message.Css.success, "The task has been started", null);
+		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE))
+			addMessage(Message.Css.success, "The task has been activated", null);
 	}
 
 }

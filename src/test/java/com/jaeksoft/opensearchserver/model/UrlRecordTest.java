@@ -14,19 +14,18 @@
  *  limitations under the License.
  */
 
-package com.jaeksoft.opensearchserver.crawler;
+package com.jaeksoft.opensearchserver.model;
 
-public interface CrawlerContext {
+import org.junit.Assert;
+import org.junit.Test;
 
-	// Script variables
-	String ACCOUNT_ID = "accountId";
-	String INDEX_NAME = "indexName";
-	String CRAWL_UUID = "crawlUuid";
-	String SESSION_TIME_ID = "sessionTimeId";
-	String INDEX_SERVICE_URL = "indexServiceUrl";
-	String STORE_SERVICE_URL = "storeServiceUrl";
+import java.net.URI;
 
-	// Attributes
-	String SESSION_STORE = "sessionStore";
+public class UrlRecordTest {
 
+	@Test
+	public void normalizeTest() {
+		Assert.assertEquals("http://www.qwazr.com/test",
+				UrlRecord.of(URI.create("http://www.qwazr.com/./test")).build().url);
+	}
 }

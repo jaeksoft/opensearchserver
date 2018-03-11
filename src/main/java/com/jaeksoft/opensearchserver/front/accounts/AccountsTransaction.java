@@ -33,7 +33,7 @@ public class AccountsTransaction extends ServletTransaction {
 	private final static String TEMPLATE = "accounts/accounts.ftl";
 
 	AccountsTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletResponse response) {
 		super(components, request, response, true);
 		final TableRequestResultRecords<PermissionRecord> permissions =
 				components.getPermissionsService().getPermissionsByUser(userRecord.getId(), 0, 1000);

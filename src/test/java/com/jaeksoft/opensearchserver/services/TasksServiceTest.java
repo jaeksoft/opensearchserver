@@ -45,11 +45,11 @@ public class TasksServiceTest extends BaseTest {
 	private TasksService tasksService;
 
 	@Before
-	public void setup() throws IOException, URISyntaxException {
+	public void setup() throws IOException {
 		tasksService = getTasksService();
 	}
 
-	private void checkResult(int totalCount, List<TaskRecord> records, int expectedResults,
+	private void checkResult(long totalCount, List<TaskRecord> records, int expectedResults,
 			TaskRecord... expectedRecords) {
 		Assert.assertNotNull(records);
 		Assert.assertEquals(expectedResults, totalCount);
@@ -57,10 +57,9 @@ public class TasksServiceTest extends BaseTest {
 	}
 
 	@Test
-	public void emptyList() throws IOException {
+	public void emptyList() {
 		List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectActiveTasks(getAccountSchema(), 0, 25, records), records, 0);
-		checkResult(tasksService.getArchivedTasks(getAccountSchema(), 0, 25, records), records, 0);
+		checkResult(tasksService.collectAccountTasks(getAccountId(), 0, 25, records), records, 0);
 	}
 
 	/**
@@ -76,9 +75,9 @@ public class TasksServiceTest extends BaseTest {
 	WebCrawlTaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth)
 			throws IOException, URISyntaxException {
 		final IndexesService indexesService = getIndexesService();
-		indexesService.createIndex(getAccountSchema(), indexName);
-		final IndexService indexService = indexesService.getIndex(getAccountSchema(), indexName);
-		return WebCrawlTaskRecord.of(WebCrawlRecord.of()
+		indexesService.createIndex(getAccountId().toString(), indexName);
+		final IndexService indexService = indexesService.getIndex(getAccountId().toString(), indexName);
+		return TaskRecord.of(WebCrawlRecord.of()
 				.name(taskName)
 				.crawlDefinition(WebCrawlDefinition.of().setEntryUrl(urlCrawl).setMaxDepth(maxDepth).build())
 				.build(), UUID.fromString(indexService.getIndexStatus().index_uuid)).build();

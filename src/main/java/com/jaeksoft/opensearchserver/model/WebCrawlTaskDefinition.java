@@ -32,52 +32,15 @@ import java.util.UUID;
 		creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeName(WebCrawlTaskRecord.TYPE)
-public class WebCrawlTaskRecord extends CrawlTaskRecord<WebCrawlDefinition> {
+@JsonTypeName(WebCrawlTaskDefinition.TYPE)
+public class WebCrawlTaskDefinition extends CrawlTaskDefinition<WebCrawlDefinition> {
 
-	final static String TYPE = "web";
+	public final static String TYPE = "web";
 
 	@JsonCreator
-	WebCrawlTaskRecord(@JsonProperty("crawlUuid") UUID crawlUuid, @JsonProperty("indexUuid") UUID indexUuid,
-			@JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition,
-			@JsonProperty("creationTime") Long creationTime, @JsonProperty("status") Status status,
-			@JsonProperty("statusTime") Long statusTime) {
-		super(crawlUuid, indexUuid, crawlDefinition, creationTime, status, statusTime);
+	WebCrawlTaskDefinition(@JsonProperty("id") UUID id, @JsonProperty("indexUuid") UUID indexUuid,
+			@JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition) {
+		super(id, TYPE, indexUuid, crawlDefinition);
 	}
 
-	public String getType() {
-		return TYPE;
-	}
-
-	WebCrawlTaskRecord(final Builder builder) {
-		super(builder);
-	}
-
-	public Builder from() {
-		return new Builder(this);
-	}
-
-	public static Builder of(final WebCrawlRecord record, final UUID indexUuid) {
-		return new Builder(record.getUuid(), indexUuid, record.crawlDefinition);
-	}
-
-	public static class Builder extends BaseBuilder<WebCrawlDefinition, WebCrawlTaskRecord, Builder> {
-
-		/**
-		 * Constructor to use when updating a record
-		 *
-		 * @param record
-		 */
-		private Builder(final WebCrawlTaskRecord record) {
-			super(Builder.class, record);
-		}
-
-		private Builder(UUID crawlUuid, UUID indexUuid, WebCrawlDefinition crawlDefinition) {
-			super(Builder.class, crawlUuid, indexUuid, crawlDefinition);
-		}
-
-		public WebCrawlTaskRecord build() {
-			return new WebCrawlTaskRecord(this);
-		}
-	}
 }

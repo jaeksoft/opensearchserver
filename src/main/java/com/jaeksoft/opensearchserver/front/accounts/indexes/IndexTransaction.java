@@ -29,7 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class IndexTransaction extends AccountTransaction {
 
@@ -39,8 +38,7 @@ public class IndexTransaction extends AccountTransaction {
 	private final String indexName;
 
 	public IndexTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 		this.indexesService = components.getIndexesService();
 		this.indexName = indexName;

@@ -24,8 +24,6 @@ import com.qwazr.utils.StringUtils;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 @WebServlet("/admin/users/*")
@@ -38,8 +36,7 @@ public class AdminUsersServlet extends BaseServlet {
 	}
 
 	@Override
-	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			return new AdminUsersTransaction(components, request, response);

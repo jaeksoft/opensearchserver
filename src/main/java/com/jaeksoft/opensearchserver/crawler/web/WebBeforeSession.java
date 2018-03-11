@@ -35,7 +35,7 @@ public class WebBeforeSession extends WebAbstractEvent {
 				(crawlDefinition.urls == null ? 0 : crawlDefinition.urls.size()));
 
 		final String crawlUuid = context.crawlSession.getVariable(CRAWL_UUID, String.class);
-		final String taskCreationTime = context.crawlSession.getVariable(TASK_CREATION_TIME, String.class);
+		final String taskCreationTime = context.crawlSession.getVariable(SESSION_TIME_ID, String.class);
 		context.crawlSession.setAttribute(SESSION_STORE,
 				new SessionStore(UUID.fromString(crawlUuid), Long.valueOf(taskCreationTime)), SessionStore.class);
 

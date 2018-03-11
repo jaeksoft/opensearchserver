@@ -16,12 +16,15 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.store.StoreFileResult;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.utils.ObjectMappers;
 import com.qwazr.utils.StringUtils;
 
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -68,10 +71,10 @@ public abstract class StoreService<T> {
 	 * @param record the record to save
 	 * @throws IOException if any I/O error occured
 	 */
-	protected void save(final String storeSchema, final String subDirectory, final T record) throws IOException {
+	protected void save(final String storeSchema, final String subDirectory, final T record) {
 		final String storeName = getStoreName(record);
-		final Path tmpJsonCrawlFile = Files.createTempFile(storeName, JSON_GZ_SUFFIX);
 		try {
+			final Path tmpJsonCrawlFile = Files.createTempFile(storeName, JSON_GZ_SUFFIX);
 			try (final OutputStream fileOutput = Files.newOutputStream(tmpJsonCrawlFile, StandardOpenOption.CREATE)) {
 				try (final BufferedOutputStream bufOutput = new BufferedOutputStream(fileOutput)) {
 					try (final GZIPOutputStream compressedOutput = new GZIPOutputStream(bufOutput)) {
@@ -82,8 +85,8 @@ public abstract class StoreService<T> {
 			storeService.createSchema(storeSchema);
 			storeService.putFile(storeSchema, getRecordPath(subDirectory, getStoreName(record)), tmpJsonCrawlFile,
 					System.currentTimeMillis());
-		} finally {
-			Files.deleteIfExists(tmpJsonCrawlFile);
+		} catch (IOException e) {
+			throw new InternalServerErrorException(e);
 		}
 	}
 
@@ -94,7 +97,7 @@ public abstract class StoreService<T> {
 	 * @return the record or null if there is any
 	 * @throws IOException if any I/O error occured
 	 */
-	protected T read(final String storeSchema, final String subDirectory, final String storeName) throws IOException {
+	protected T read(final String storeSchema, final String subDirectory, final String storeName) {
 		return ErrorWrapper.bypass(() -> {
 			try (final InputStream fileInput = storeService.getFile(storeSchema,
 					getRecordPath(subDirectory, storeName))) {
@@ -103,6 +106,8 @@ public abstract class StoreService<T> {
 						return ObjectMappers.JSON.readValue(compressedInput, recordClass);
 					}
 				}
+			} catch (IOException e) {
+				throw new InternalServerErrorException(e);
 			}
 		}, 404);
 	}
@@ -117,7 +122,7 @@ public abstract class StoreService<T> {
 	 * @return the total number of records found, and the paginated records as a list
 	 */
 	protected int collect(final String storeSchema, final String subDirectory, Integer start, Integer rows,
-			final Function<String, Boolean> filter, final Collection<T> collector) throws IOException {
+			final Function<String, Boolean> filter, final Collection<T> collector) {
 		try {
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
 			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;

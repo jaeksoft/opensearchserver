@@ -357,7 +357,7 @@ public class UrlRecord {
 	public static class Builder extends UrlRecordBuilder<UrlRecord, Builder> {
 
 		Builder(final URI url) {
-			super(Builder.class, url);
+			super(Builder.class, url.normalize());
 		}
 
 		@Override

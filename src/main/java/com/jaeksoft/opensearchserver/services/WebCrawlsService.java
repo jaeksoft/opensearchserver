@@ -36,21 +36,21 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 		return record.getUuid().toString();
 	}
 
-	public void save(final String storeSchema, final WebCrawlRecord crawlRecord) throws IOException {
-		super.save(storeSchema, null, crawlRecord);
+	public void save(final UUID accountId, final WebCrawlRecord crawlRecord) {
+		super.save(accountId.toString(), null, crawlRecord);
 	}
 
-	public WebCrawlRecord read(final String storeSchema, final UUID webCrawlUuid) throws IOException {
-		return super.read(storeSchema, null, webCrawlUuid.toString());
+	public WebCrawlRecord read(final UUID accountId, final UUID webCrawlUuid) {
+		return super.read(accountId.toString(), null, webCrawlUuid.toString());
 	}
 
-	public int collect(final String storeSchema, final int start, final int rows,
-			final Collection<WebCrawlRecord> recordCollector) throws IOException {
-		return super.collect(storeSchema, null, start, rows, null, recordCollector);
+	public int collect(final UUID accountId, final int start, final int rows,
+			final Collection<WebCrawlRecord> recordCollector) {
+		return super.collect(accountId.toString(), null, start, rows, null, recordCollector);
 	}
 
-	public void remove(final String storeSchema, UUID webCrawlUuid) {
-		super.remove(storeSchema, null, webCrawlUuid.toString());
+	public void remove(final UUID accountId, UUID webCrawlUuid) {
+		super.remove(accountId.toString(), null, webCrawlUuid.toString());
 	}
 
 }

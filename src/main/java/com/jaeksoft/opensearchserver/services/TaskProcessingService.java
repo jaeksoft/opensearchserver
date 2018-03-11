@@ -23,12 +23,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public interface ProcessingService<T extends TaskRecord, S> {
+public interface TaskProcessingService<S> {
 
-	ProcessingService DEFAULT = new ProcessingService() {
+	TaskProcessingService DEFAULT = new TaskProcessingService() {
 	};
 
-	default Class<T> getTaskRecordClass() {
+	default String getType() {
 		throw new NotSupportedException();
 	}
 
@@ -41,8 +41,8 @@ public interface ProcessingService<T extends TaskRecord, S> {
 	 *
 	 * @param taskRecord
 	 */
-	default TaskRecord.Status checkIsRunning(final String schema, final TaskRecord taskRecord) throws Exception {
-		throw notSupportedException(taskRecord.getTaskId());
+	default TaskRecord.Status checkIsRunning(final TaskRecord taskRecord) throws Exception {
+		throw notSupportedException(taskRecord.taskId);
 	}
 
 	default boolean isRunning(final String taskId) {
@@ -63,18 +63,18 @@ public interface ProcessingService<T extends TaskRecord, S> {
 
 	class Builder {
 
-		final Map<Class<? extends TaskRecord>, ProcessingService<?, ?>> processorMap;
+		final Map<String, TaskProcessingService<?>> processorMap;
 
 		private Builder() {
 			processorMap = new LinkedHashMap<>();
 		}
 
-		public Builder register(final ProcessingService<?, ?> tasksExecutorService) {
-			processorMap.put(tasksExecutorService.getTaskRecordClass(), tasksExecutorService);
+		public Builder register(final TaskProcessingService<?> tasksExecutorService) {
+			processorMap.put(tasksExecutorService.getType(), tasksExecutorService);
 			return this;
 		}
 
-		public Map<Class<? extends TaskRecord>, ProcessingService> build() {
+		public Map<String, TaskProcessingService> build() {
 			return Collections.unmodifiableMap(processorMap);
 		}
 	}

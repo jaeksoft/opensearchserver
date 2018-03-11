@@ -16,10 +16,11 @@
 
 package com.jaeksoft.opensearchserver.front.accounts.tasks;
 
-import com.jaeksoft.opensearchserver.model.CrawlTaskRecord;
+import com.jaeksoft.opensearchserver.model.CrawlTaskDefinition;
+import com.jaeksoft.opensearchserver.model.TaskDefinition;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
-import com.jaeksoft.opensearchserver.model.WebCrawlTaskRecord;
+import com.jaeksoft.opensearchserver.model.WebCrawlTaskDefinition;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.utils.ExceptionUtils;
@@ -73,7 +74,7 @@ public class TaskResult {
 		return taskRecord;
 	}
 
-	public static Builder of(final IndexesService indexesService, final String accountId,
+	public static Builder of(final IndexesService indexesService, final UUID accountId,
 			final WebCrawlsService webCrawlsService) {
 		return new Builder(indexesService, accountId, webCrawlsService);
 	}
@@ -83,13 +84,13 @@ public class TaskResult {
 		private final Map<UUID, String> indexNameResolver;
 		private final Map<String, String> crawlResolver;
 		private final WebCrawlsService webCrawlsService;
-		private final String accountId;
+		private final UUID accountUuid;
 
 		private volatile List<TaskResult> results;
 
-		Builder(final IndexesService indexesService, final String accountId, final WebCrawlsService webCrawlsService) {
-			this.accountId = accountId;
-			indexNameResolver = indexesService.getIndexNameResolver(accountId);
+		Builder(final IndexesService indexesService, final UUID accountUuid, final WebCrawlsService webCrawlsService) {
+			this.accountUuid = accountUuid;
+			indexNameResolver = indexesService.getIndexNameResolver(accountUuid.toString());
 			if (webCrawlsService != null) {
 				this.webCrawlsService = webCrawlsService;
 				this.crawlResolver = new HashMap<>();
@@ -106,23 +107,25 @@ public class TaskResult {
 			String indexPath = null;
 			String crawlName = null;
 			String crawlPath = null;
-			if (taskRecord instanceof CrawlTaskRecord) {
-				final CrawlTaskRecord crawlTask = (CrawlTaskRecord) taskRecord;
+			final TaskDefinition taskDefinition = taskRecord.getDefinition();
+			if (taskDefinition instanceof CrawlTaskDefinition) {
+				final CrawlTaskDefinition crawlTask = (CrawlTaskDefinition) taskDefinition;
 				indexName = indexNameResolver.get(crawlTask.indexUuid);
+				final String accountId = accountUuid.toString();
 				if (indexName == null)
 					indexName = crawlTask.indexUuid.toString();
 				else
 					indexPath = "/accounts/" + LinkUtils.urlEncode(accountId) + "/indexes/" +
 							LinkUtils.urlEncode(indexName);
-				if (taskRecord instanceof WebCrawlTaskRecord) {
+				if (taskDefinition instanceof WebCrawlTaskDefinition) {
 					if (webCrawlsService != null && crawlResolver != null) {
-						crawlName = crawlResolver.computeIfAbsent(taskRecord.taskId, taskId -> {
+						crawlName = crawlResolver.computeIfAbsent(taskDefinition.getTaskId(), taskId -> {
 							final WebCrawlRecord webCrawlRecord =
-									ExceptionUtils.bypass(() -> webCrawlsService.read(accountId, crawlTask.crawlUuid));
-							return webCrawlRecord == null ? crawlTask.crawlUuid.toString() : webCrawlRecord.getName();
+									ExceptionUtils.bypass(() -> webCrawlsService.read(accountUuid, crawlTask.id));
+							return webCrawlRecord == null ? crawlTask.id.toString() : webCrawlRecord.getName();
 						});
 						crawlPath = "/accounts/" + LinkUtils.urlEncode(accountId) + "/crawlers/web/" +
-								crawlTask.crawlUuid.toString();
+								crawlTask.id.toString();
 					}
 				}
 			}

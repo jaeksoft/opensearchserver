@@ -19,28 +19,29 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.RedirectionException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public abstract class BaseServlet extends HttpServlet {
 
 	protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, URISyntaxException, NoSuchMethodException;
+			final HttpServletResponse response) throws IOException, ServletException;
 
 	private void doTransaction(final HttpServletRequest request, final HttpServletResponse response,
 			final DoMethod doMethod) throws IOException, ServletException {
 		final ServletTransaction transaction;
 		try {
 			transaction = getServletTransaction(request, response);
-		} catch (URISyntaxException | NoSuchMethodException e) {
-			throw new ServletException(e);
 		} catch (RedirectionException e) {
 			response.sendRedirect(e.getLocation().toString());
 			return;
 		} catch (NotFoundException e) {
 			response.sendError(404, e.getMessage());
+			return;
+		} catch (InternalServerErrorException e) {
+			response.sendError(500, e.getMessage());
 			return;
 		}
 		if (transaction != null)

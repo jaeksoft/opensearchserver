@@ -16,7 +16,6 @@
 
 package com.jaeksoft.opensearchserver.services;
 
-import com.jaeksoft.opensearchserver.model.CrawlTaskRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.crawler.common.CrawlDefinition;
 import com.qwazr.crawler.common.CrawlStatus;
@@ -27,8 +26,8 @@ import com.qwazr.server.client.ErrorWrapper;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extends CrawlDefinition, S extends CrawlStatus<D>>
-		implements ProcessingService<T, S> {
+public abstract class CrawlProcessingService<D extends CrawlDefinition, S extends CrawlStatus<D>>
+		implements TaskProcessingService<S> {
 
 	private final CrawlerServiceInterface<D, S> crawlerService;
 	protected final ConfigService configService;
@@ -67,17 +66,17 @@ public abstract class CrawlProcessingService<T extends CrawlTaskRecord, D extend
 		}
 	}
 
-	protected abstract D getNewCrawlDefinition(final String schema, final T taskRecord) throws Exception;
+	protected abstract D getNextCrawlDefinition(final TaskRecord taskRecord) throws Exception;
 
 	@Override
-	final public TaskRecord.Status checkIsRunning(final String schema, final TaskRecord taskRecord) throws Exception {
+	final public TaskRecord.Status checkIsRunning(final TaskRecord taskRecord) throws Exception {
 		final TaskRecord.Status currentStatus = taskRecord.getStatus();
-		if (currentStatus != TaskRecord.Status.STARTED)
+		if (currentStatus != TaskRecord.Status.ACTIVE)
 			return currentStatus;
 		if (isRunning(taskRecord.getTaskId()))
 			return currentStatus;
 		try {
-			final D crawlDefinition = getNewCrawlDefinition(schema, getTaskRecordClass().cast(taskRecord));
+			final D crawlDefinition = getNextCrawlDefinition(taskRecord);
 			if (crawlDefinition == null)
 				return TaskRecord.Status.DONE;
 			crawlerService.runSession(taskRecord.getTaskId(), crawlDefinition);

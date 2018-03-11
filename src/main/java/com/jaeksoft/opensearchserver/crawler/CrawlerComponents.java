@@ -88,7 +88,7 @@ public class CrawlerComponents implements CrawlerContext {
 	}
 
 	public static WebCrawlDefinition buildCrawl(final String accountId, final String indexName, final UUID crawlUuid,
-			final Long taskCreationTime, final ConfigService configService,
+			final Long sessionTimeId, final ConfigService configService,
 			final WebCrawlDefinition.Builder crawlBuilder) {
 
 		// Set the event
@@ -99,7 +99,7 @@ public class CrawlerComponents implements CrawlerContext {
 		crawlBuilder.variable(ACCOUNT_ID, accountId)
 				.variable(INDEX_NAME, indexName)
 				.variable(CRAWL_UUID, crawlUuid.toString())
-				.variable(TASK_CREATION_TIME, taskCreationTime.toString());
+				.variable(SESSION_TIME_ID, sessionTimeId.toString());
 
 		if (configService.getIndexServiceUri() != null)
 			crawlBuilder.variable(INDEX_SERVICE_URL, configService.getIndexServiceUri().toString());

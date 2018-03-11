@@ -32,6 +32,7 @@ public class ConfigService {
 
 	private final static String SERVER_NAME = "serverName";
 	private final static String APPLICATION_SALT = "applicationSalt";
+	private final static String JOB_CRAWL_PERIOD_SECONDS = "jobCrawlPeriodSeconds";
 	private final static String STORE_SERVICE_URI = "storeServiceUri";
 	private final static String INDEX_SERVICE_URI = "indexServiceUri";
 	private final static String TABLE_SERVICE_URI = "tableServiceUri";
@@ -40,6 +41,7 @@ public class ConfigService {
 	final Properties properties;
 	final String serverName;
 	final String applicationSalt;
+	final int jobCrawlPeriodSeconds;
 	final URI storeServiceUri;
 	final URI indexServiceUri;
 	final URI tableServiceUri;
@@ -52,6 +54,7 @@ public class ConfigService {
 		}
 		serverName = getRequiredProperty(SERVER_NAME);
 		applicationSalt = getRequiredProperty(APPLICATION_SALT);
+		jobCrawlPeriodSeconds = getIntProperty(JOB_CRAWL_PERIOD_SECONDS, 60);
 		storeServiceUri = getUriProperty(STORE_SERVICE_URI);
 		indexServiceUri = getUriProperty(INDEX_SERVICE_URI);
 		tableServiceUri = getUriProperty(TABLE_SERVICE_URI);
@@ -67,12 +70,21 @@ public class ConfigService {
 		return StringUtils.isBlank(value) ? null : new URI(value);
 	}
 
+	private Integer getIntProperty(String key, Integer defaultValue) {
+		final String val = properties.getProperty(key);
+		return val == null ? defaultValue : Integer.valueOf(val);
+	}
+
 	public String getServerName() {
 		return serverName;
 	}
 
 	public String getApplicationSalt() {
 		return applicationSalt;
+	}
+
+	public int getJobCrawlPeriodSeconds() {
+		return jobCrawlPeriodSeconds;
 	}
 
 	public URI getStoreServiceUri() {

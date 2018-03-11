@@ -22,30 +22,31 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArchivedTaskListTransaction extends AccountTransaction {
+public class TaskListTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/tasks/archived.ftl";
+	private final static String TEMPLATE = "accounts/tasks/list.ftl";
 
-	public ArchivedTaskListTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+	public TaskListTransaction(final Components components, final AccountRecord accountRecord,
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 
 		final int start = getRequestParameter("start", 0);
 		final int rows = getRequestParameter("rows", 25);
 
-		final List<TaskRecord> activeTasks = new ArrayList<>();
-		int totalCount = components.getTasksService().collectActiveTasks(accountRecord.id, start, rows, activeTasks);
+		final List<TaskRecord> taskRecords = new ArrayList<>();
+		long totalCount =
+				components.getTasksService().collectAccountTasks(accountRecord.getId(), start, rows, taskRecords);
 
-		final TaskResult.Builder resultBuilder = TaskResult.of(components.getIndexesService(), accountRecord.id, null);
-		activeTasks.forEach(resultBuilder::add);
+		final TaskResult.Builder resultBuilder =
+				TaskResult.of(components.getIndexesService(), accountRecord.getId(), components.getWebCrawlsService());
+		taskRecords.forEach(resultBuilder::add);
+		final List<TaskResult> tasks = resultBuilder.build();
 
-		request.setAttribute("tasks", resultBuilder.build());
+		request.setAttribute("accountId", accountRecord.id);
+		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
 	}
 
@@ -53,4 +54,5 @@ public class ArchivedTaskListTransaction extends AccountTransaction {
 	protected String getTemplate() {
 		return TEMPLATE;
 	}
+
 }

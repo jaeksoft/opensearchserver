@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +36,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 	private final WebCrawlsService webCrawlsService;
 
 	public WebCrawlListTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 		webCrawlsService = components.getWebCrawlsService();
 	}
@@ -54,7 +52,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
-		webCrawlsService.save(accountRecord.id,
+		webCrawlsService.save(accountRecord.getId(),
 				WebCrawlRecord.of().name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 	}
 
@@ -64,7 +62,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 		final int rows = getRequestParameter("rows", 25);
 
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount = webCrawlsService.collect(accountRecord.id, start, rows, webCrawlRecords);
+		final int totalCount = webCrawlsService.collect(accountRecord.getId(), start, rows, webCrawlRecords);
 
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
 		request.setAttribute("totalCount", totalCount);

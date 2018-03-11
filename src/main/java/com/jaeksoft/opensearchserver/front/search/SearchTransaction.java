@@ -43,8 +43,7 @@ public class SearchTransaction extends ServletTransaction {
 	private final IndexService indexService;
 
 	public SearchTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, request, response, false);
 		this.indexService = components.getIndexesService().getIndex(accountRecord.id, indexName);
 		if (indexService == null)

@@ -17,105 +17,91 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.TaskRecord;
-import com.qwazr.store.StoreServiceInterface;
-import com.qwazr.utils.concurrent.ReadWriteLock;
+import com.qwazr.database.TableServiceInterface;
+import com.qwazr.database.annotations.AnnotatedTableService;
+import com.qwazr.database.annotations.TableRequestResultRecords;
+import com.qwazr.database.model.TableQuery;
+import com.qwazr.database.model.TableRequest;
 
-import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-public class TasksService extends StoreService<TaskRecord> {
+public class TasksService {
 
-	private final ReadWriteLock rwl = ReadWriteLock.reentrant(true);
+	private final AnnotatedTableService<TaskRecord> tasks;
+	private final Map<String, TaskProcessingService> tasksProcessors;
 
-	private final static String TASKS_DIRECTORY = "tasks";
-
-	private final static String ACTIVE_DIRECTORY = "active";
-	private final static String ARCHIVE_DIRECTORY = "archived";
-
-	private final Map<Class<? extends TaskRecord>, ProcessingService> tasksProcessors;
-
-	public TasksService(final StoreServiceInterface storeService,
-			final Map<Class<? extends TaskRecord>, ProcessingService> tasksProcessors) {
-		super(storeService, TASKS_DIRECTORY, TaskRecord.class);
+	public TasksService(final TableServiceInterface tableService,
+			final Map<String, TaskProcessingService> tasksProcessors) throws NoSuchMethodException, URISyntaxException {
 		this.tasksProcessors = tasksProcessors;
+		tasks = new AnnotatedTableService<>(tableService, TaskRecord.class);
+		tasks.createUpdateTable();
+		tasks.createUpdateFields();
 	}
 
-	public ProcessingService<?, ?> getTasksProcessor(final TaskRecord taskRecord) {
-		return tasksProcessors.getOrDefault(taskRecord.getClass(), ProcessingService.DEFAULT);
+	public TaskProcessingService<?> getTasksProcessor(final TaskRecord taskRecord) {
+		return tasksProcessors.getOrDefault(taskRecord.type, TaskProcessingService.DEFAULT);
 	}
 
-	public void saveActiveTask(final String storeSchema, final TaskRecord taskRecord) throws IOException {
-		rwl.writeEx(() -> {
-			if (super.read(storeSchema, ARCHIVE_DIRECTORY, taskRecord.getTaskId()) != null)
-				throw new NotAllowedException("The task has already been archived");
-			super.save(storeSchema, ACTIVE_DIRECTORY, taskRecord);
-		});
+	public TaskRecord getTask(final String taskId) {
+		try {
+			return tasks.getRow(Objects.requireNonNull(taskId, "The taskId is null"), TaskRecord.COLUMNS_SET);
+		} catch (IOException | ReflectiveOperationException e) {
+			throw new InternalServerErrorException("Cannot get task by id", e);
+		}
 	}
 
-	public synchronized void archiveActiveTask(final String storeSchema, final String taskId) throws IOException {
-		rwl.writeEx(() -> {
-			final TaskRecord taskRecord = super.read(storeSchema, ACTIVE_DIRECTORY, taskId);
-			if (taskRecord == null)
-				throw new NoContentException("Task not found");
-			if (getTasksProcessor(taskRecord).isRunning(taskId))
-				throw new NotAllowedException(
-						"Can't archive the task because it is running. It should be stopped first.");
-			super.save(storeSchema, ARCHIVE_DIRECTORY, taskRecord);
-			super.remove(storeSchema, ACTIVE_DIRECTORY, taskId);
-		});
+	private void saveTask(final TaskRecord taskRecord) {
+		tasks.upsertRow(taskRecord.taskId, taskRecord);
 	}
 
-	public TaskRecord getActiveTask(final String storeSchema, final String taskId) throws IOException {
-		return rwl.readEx(() -> super.read(storeSchema, ACTIVE_DIRECTORY, taskId));
+	private long collectTasks(final TableQuery tableQuery, final int start, final int rows,
+			final Collection<TaskRecord> taskRecords) {
+		try {
+			final TableRequestResultRecords<TaskRecord> result =
+					tasks.queryRows(TableRequest.from(start, rows).query(tableQuery).build());
+			if (result == null || result.records == null)
+				return 0L;
+			if (taskRecords != null)
+				taskRecords.addAll(result.records);
+			return result.count == null ? 0L : result.count;
+		} catch (IOException | ReflectiveOperationException e) {
+			throw new InternalServerErrorException(e);
+		}
 	}
 
-	public int collectActiveTasks(final String storeSchema, final int start, final int rows,
-			final Collection<TaskRecord> recordCollector) throws IOException {
-		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows, null, recordCollector));
+	public long collectAccountTasks(final UUID accountId, final int start, final int rows,
+			Collection<TaskRecord> taskRecords) {
+		return collectTasks(new TableQuery.StringTerm("accountId", accountId.toString()), start, rows, taskRecords);
 	}
 
-	public int collectActiveTasks(final String storeSchema, final int start, final int rows, final UUID crawlUuid,
-			final Collection<TaskRecord> recordCollector) throws IOException {
-		final String crawlUuidString = crawlUuid.toString();
-		return rwl.readEx(() -> super.collect(storeSchema, ACTIVE_DIRECTORY, start, rows,
-				name -> name.startsWith(crawlUuidString), recordCollector));
+	public long collectCustomTasks(final UUID customId, final int start, final int rows,
+			Collection<TaskRecord> taskRecords) {
+		return collectTasks(new TableQuery.StringTerm("customId", customId.toString()), start, rows, taskRecords);
 	}
 
-	public TaskRecord getArchivedTask(final String storeSchema, final String taskId) throws IOException {
-		return rwl.readEx(() -> super.read(storeSchema, ARCHIVE_DIRECTORY, taskId));
-	}
-
-	public int getArchivedTasks(final String storeSchema, final int start, final int rows,
-			final Collection<TaskRecord> recordCollector) throws IOException {
-		return rwl.readEx(() -> super.collect(storeSchema, ARCHIVE_DIRECTORY, start, rows, null, recordCollector));
-	}
-
-	@Override
-	protected String getStoreName(final TaskRecord record) {
-		return record.getTaskId();
-	}
-
-	private TaskRecord checkExistingTaskRecord(final String storeSchema, final String taskId) throws IOException {
-		final TaskRecord taskRecord = getActiveTask(storeSchema, taskId);
+	private TaskRecord checkExistingTask(final String taskId) {
+		final TaskRecord taskRecord = getTask(taskId);
 		if (taskRecord != null)
 			return taskRecord;
 		throw new NotFoundException("Task not found: " + taskId);
 	}
 
-	public boolean updateStatus(final String storeSchema, final String taskId, final TaskRecord.Status nextStatus)
-			throws IOException {
-		final TaskRecord taskRecord = checkExistingTaskRecord(storeSchema, taskId);
+	public boolean updateStatus(final String taskId, final TaskRecord.Status nextStatus) throws IOException {
+		final TaskRecord taskRecord = checkExistingTask(taskId);
 		if (taskRecord.getStatus() == nextStatus || nextStatus == null)
 			return false;
 		if (taskRecord.getStatus() == TaskRecord.Status.PAUSED)
 			getTasksProcessor(taskRecord).abort(taskId);
-		saveActiveTask(storeSchema, taskRecord.from().status(nextStatus).build());
+		saveTask(taskRecord.from().status(nextStatus).build());
 		return true;
 
 	}
+
 }

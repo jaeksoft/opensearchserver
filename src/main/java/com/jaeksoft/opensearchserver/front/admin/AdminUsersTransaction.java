@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class AdminUsersTransaction extends ServletTransaction {
@@ -35,7 +34,7 @@ public class AdminUsersTransaction extends ServletTransaction {
 	private final UsersService usersService;
 
 	AdminUsersTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletResponse response) {
 		super(components, request, response, false);
 		usersService = components.getUsersService();
 	}

@@ -48,8 +48,7 @@ public class AdminAccountTransaction extends ServletTransaction {
 	private final AccountRecord accountRecord;
 
 	AdminAccountTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws NoSuchMethodException, IOException, URISyntaxException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, request, response, false);
 		this.usersService = components.getUsersService();
 		this.accountsService = components.getAccountsService();

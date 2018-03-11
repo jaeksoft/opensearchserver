@@ -21,10 +21,8 @@ import com.jaeksoft.opensearchserver.front.BaseServlet;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexesTransaction;
-import com.jaeksoft.opensearchserver.front.accounts.tasks.ActiveTaskListTransaction;
-import com.jaeksoft.opensearchserver.front.accounts.tasks.ActiveTaskStatusTransaction;
-import com.jaeksoft.opensearchserver.front.accounts.tasks.ArchivedTaskListTransaction;
-import com.jaeksoft.opensearchserver.front.accounts.tasks.ArchivedTaskStatusTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskListTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskStatusTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlEditTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlListTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlTasksTransaction;
@@ -35,7 +33,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 @WebServlet("/accounts/*")
@@ -49,7 +46,7 @@ public class AccountsServlet extends BaseServlet {
 
 	@Override
 	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			throws IOException {
 		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
 		if (pathParts == null || pathParts.length == 0)
 			return new AccountsTransaction(components, request, response);
@@ -70,8 +67,7 @@ public class AccountsServlet extends BaseServlet {
 	}
 
 	private ServletTransaction doIndexes(final AccountRecord accountRecord, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length == 2)
 			return new IndexesTransaction(components, accountRecord, request, response);
 		if (pathParts.length == 3) {
@@ -82,8 +78,7 @@ public class AccountsServlet extends BaseServlet {
 	}
 
 	private ServletTransaction doCrawlers(final AccountRecord accountRecord, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length == 2)
 			return null;
 		final String crawlerType = pathParts[2];
@@ -96,8 +91,7 @@ public class AccountsServlet extends BaseServlet {
 	}
 
 	private ServletTransaction doCrawlerWeb(final AccountRecord accountRecord, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length == 3)
 			return new WebCrawlListTransaction(components, accountRecord, request, response);
 		final UUID webCrawlUuid = UUID.fromString(pathParts[3]);
@@ -109,26 +103,12 @@ public class AccountsServlet extends BaseServlet {
 	}
 
 	private ServletTransaction doTasks(final AccountRecord accountRecord, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
+			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length == 2)
-			return new ActiveTaskListTransaction(components, accountRecord, request, response);
-		final String taskName = pathParts[2];
-		if ("archives".equals(taskName))
-			return doArchivesTasks(accountRecord, pathParts, request, response);
+			return new TaskListTransaction(components, accountRecord, request, response);
 		if (pathParts.length == 3)
-			return new ActiveTaskStatusTransaction(components, accountRecord, taskName, request, response);
+			return new TaskStatusTransaction(components, accountRecord, pathParts[2], request, response);
 		return null;
 	}
 
-	private ServletTransaction doArchivesTasks(final AccountRecord accountRecord, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, URISyntaxException, NoSuchMethodException {
-		if (pathParts.length == 3)
-			return new ArchivedTaskListTransaction(components, accountRecord, request, response);
-		final String taskName = pathParts[3];
-		if (pathParts.length == 4)
-			return new ArchivedTaskStatusTransaction(components, accountRecord, taskName, request, response);
-		return null;
-	}
 }
