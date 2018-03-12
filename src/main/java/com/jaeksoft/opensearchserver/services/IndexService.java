@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.CrawlStatus;
+import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
@@ -141,40 +142,72 @@ public class IndexService extends UsableService {
 		return crawlStatusMap;
 	}
 
-	public ResultDefinition.WithObject<UrlRecord> search(final String keywords, final int start, final int rows) {
+	public ResultDefinition.WithObject<UrlRecord> search(final Language lang, final String keywords, final int start,
+			final int rows) {
 		if (StringUtils.isBlank(keywords))
 			return null;
 
-		final MultiFieldQuery fullTextQuery = MultiFieldQuery.of()
+		final MultiFieldQuery.Builder fullTextQueryBuilder = MultiFieldQuery.of()
 				.tieBreakerMultiplier(0.02f)
 				.queryString(keywords)
 				.defaultOperator(QueryParserOperator.and)
-				.fieldAndFilter("full", "fullFr", "fullDe", "fullEn", "fullIt")
+				.fieldAndFilter("full")
 				.fieldBoost("urlLike", 13f)
 				.fieldBoost("title", 8f)
-				.fieldBoost("titleFr", 8f)
-				.fieldBoost("titleDe", 8f)
-				.fieldBoost("titleEn", 8f)
-				.fieldBoost("titleIt", 8f)
 				.fieldBoost("description", 5f)
-				.fieldBoost("descriptionFr", 5f)
-				.fieldBoost("descriptionDe", 5f)
-				.fieldBoost("descriptionEn", 5f)
-				.fieldBoost("descriptionIt", 5f)
 				.fieldBoost("content", 3f)
-				.fieldBoost("contentFr", 3f)
-				.fieldBoost("contentDe", 3f)
-				.fieldBoost("contentEn", 3f)
-				.fieldBoost("contentIt", 3F)
-				.fieldBoost("full", 1f)
-				.fieldBoost("fullFr", 1f)
-				.fieldBoost("fullDe", 1f)
-				.fieldBoost("fullEn", 1f)
-				.fieldBoost("fullIt", 1f)
-				.build();
+				.fieldBoost("full", 1f);
+
+		final String titleLang;
+		final String descriptionLang;
+		final String contentLang;
+
+		switch (lang) {
+		default:
+		case en:
+			fullTextQueryBuilder.fieldBoost("titleEn", 8f)
+					.fieldBoost("descriptionEn", 5f)
+					.fieldBoost("contentEn", 3f)
+					.fieldBoost("fullEn", 1f)
+					.fieldAndFilter("fullEn");
+			titleLang = "titleEn";
+			descriptionLang = "descriptionEn";
+			contentLang = "contentEn";
+			break;
+		case de:
+			fullTextQueryBuilder.fieldBoost("titleDe", 8f)
+					.fieldBoost("descriptionDe", 5f)
+					.fieldBoost("contentDe", 3f)
+					.fieldBoost("fullDe", 1f)
+					.fieldAndFilter("fullDe");
+			titleLang = "titleDe";
+			descriptionLang = "descriptionDe";
+			contentLang = "contentDe";
+			break;
+		case fr:
+			fullTextQueryBuilder.fieldBoost("titleFr", 8f)
+					.fieldBoost("descriptionFr", 5f)
+					.fieldBoost("contentFr", 3f)
+					.fieldBoost("fullFr", 1f)
+					.fieldAndFilter("fullFr");
+			titleLang = "titleFr";
+			descriptionLang = "descriptionFr";
+			contentLang = "contentFr";
+			break;
+		case it:
+			fullTextQueryBuilder.fieldBoost("titleIt", 8f)
+					.fieldBoost("descriptionIt", 5f)
+					.fieldBoost("contentIt", 3f)
+					.fieldBoost("fullIt", 1f)
+					.fieldAndFilter("fullIt");
+			titleLang = "titleIt";
+			descriptionLang = "descriptionIt";
+			contentLang = "contentIt";
+			break;
+		}
 
 		final BooleanQuery booleanQuery = BooleanQuery.of()
-				.addClause(BooleanQuery.Occur.must, fullTextQuery)
+				.addClause(BooleanQuery.Occur.must, fullTextQueryBuilder.build())
 				.addClause(BooleanQuery.Occur.filter,
 						new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code))
 				.build();
@@ -183,16 +216,22 @@ public class IndexService extends UsableService {
 				.start(start)
 				.rows(rows)
 				.returnedField("urlStore")
-				.highlighter("title", HighlighterDefinition.of("title").setMaxPassages(1).setMaxLength(1000).build())
-				.highlighter("description", HighlighterDefinition.of("description")
+				.highlighter("title", HighlighterDefinition.of().setMaxPassages(1).build())
+				.highlighter("titleLang",
+						HighlighterDefinition.of(titleLang).setStoredField("title").setMaxPassages(1).build())
+				.highlighter("description",
+						HighlighterDefinition.of().setMaxNoHighlightPassages(5).setMaxPassages(5).build())
+				.highlighter("descriptionLang", HighlighterDefinition.of(descriptionLang)
+						.setStoredField("description")
 						.setMaxNoHighlightPassages(5)
 						.setMaxPassages(5)
-						.setMaxLength(100)
 						.build())
-				.highlighter("content", HighlighterDefinition.of("content")
+				.highlighter("content",
+						HighlighterDefinition.of().setMaxNoHighlightPassages(5).setMaxPassages(5).build())
+				.highlighter("contentLang", HighlighterDefinition.of(contentLang)
+						.setStoredField("content")
 						.setMaxNoHighlightPassages(5)
 						.setMaxPassages(5)
-						.setMaxLength(100)
 						.build())
 				.build();
 

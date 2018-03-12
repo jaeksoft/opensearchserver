@@ -19,6 +19,7 @@ package com.jaeksoft.opensearchserver.front.search;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
+import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.qwazr.search.index.ResultDefinition;
@@ -31,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,8 +61,11 @@ public class SearchTransaction extends ServletTransaction {
 	public void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0);
 		final String keywords = request.getParameter("keywords");
+		final String lang = request.getParameter("lang");
+		final Language language = Language.findByName(lang, Language.en);
+		request.setAttribute("lang", language.name());
 		if (!StringUtils.isBlank(keywords)) {
-			final ResultDefinition.WithObject<UrlRecord> results = indexService.search(keywords, start, 25);
+			final ResultDefinition.WithObject<UrlRecord> results = indexService.search(language, keywords, start, 25);
 			request.setAttribute("keywords", keywords);
 			request.setAttribute("numDocs", results.getTotalHits());
 			request.setAttribute("totalTime", (double) (results.getTimer().totalTime) / 1000);
@@ -82,9 +85,20 @@ public class SearchTransaction extends ServletTransaction {
 		private Result(ResultDocumentObject<UrlRecord> document) {
 			url = document.record.urlStore;
 			urlDisplay = url == null ? null : LinkUtils.urlHostPathWrapReduce(url, 70);
-			title = document.highlights == null ? null : document.highlights.get("title");
-			description = document.highlights == null ? null : document.highlights.get("description");
-			content = document.highlights == null ? null : document.highlights.get("content");
+			title = getBestHighlight(document, "titleLang", "title");
+			description = getBestHighlight(document, "descriptionLang", "description");
+			content = getBestHighlight(document, "contentLang", "content");
+		}
+
+		private String getBestHighlight(final ResultDocumentObject<UrlRecord> document, final String... fields) {
+			if (document.highlights == null)
+				return null;
+			for (String field : fields) {
+				final String value = document.highlights.get(field);
+				if (value != null && value.contains("<b>"))
+					return value;
+			}
+			return null;
 		}
 
 		public String getUrl() {

@@ -29,6 +29,14 @@
             <input type="text" class="form-control" aria-label="Search keywords" name="keywords"
                    value="${keywords!?html}" aria-describedby="basic-addon2">
             <div class="input-group-append">
+                <select class="custom-select" name="lang">
+                    <option value="en" <#if lang == 'en'>selected</#if>>English</option>
+                    <option value="de"<#if lang == 'de'>selected</#if>>German</option>
+                    <option value="fr"<#if lang == 'fr'>selected</#if>>French</option>
+                    <option value="it"<#if lang == 'it'>selected</#if>>Italian</option>
+                </select>
+            </div>
+            <div class="input-group-append">
                 <button class="btn btn-primary" type="submit">Search</button>
             </div>
         </div>

@@ -81,13 +81,13 @@ public class WebAfterCrawl extends WebAbstractEvent {
 					CrawlerComponents.getExtractorService().putMagic(null, null, null, contentType, inputStream);
 			if (parserResult != null && parserResult.documents != null) {
 				final Object language = parserResult.getDocumentFieldValue(0, "lang_detection", 0);
-				final Language foundLanguage = Language.find(language);
+				final Language foundLanguage = Language.find(language, Language.en);
 				if (foundLanguage != null)
 					urlBuilder.lang(foundLanguage);
 				urlBuilder.title(parserResult.getDocumentFieldValue(0, "title", 0), foundLanguage);
 				parserResult.documents.forEach(fields -> {
 					final Object contentLang = fields.get("lang_detection");
-					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang));
+					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang, Language.en));
 				});
 			}
 		} catch (WebApplicationException | ServerException e) {
