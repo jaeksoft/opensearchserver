@@ -20,11 +20,8 @@ import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.Language;
-import com.jaeksoft.opensearchserver.model.UrlRecord;
+import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.jaeksoft.opensearchserver.services.IndexService;
-import com.qwazr.search.index.ResultDefinition;
-import com.qwazr.search.index.ResultDocumentObject;
-import com.qwazr.utils.LinkUtils;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -32,9 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class SearchTransaction extends ServletTransaction {
 
@@ -65,76 +59,13 @@ public class SearchTransaction extends ServletTransaction {
 		final Language language = Language.findByName(lang, Language.en);
 		request.setAttribute("lang", language.name());
 		if (!StringUtils.isBlank(keywords)) {
-			final ResultDefinition.WithObject<UrlRecord> results = indexService.search(language, keywords, start, 25);
+			final SearchResults results = indexService.search(language, keywords, start, 25);
 			request.setAttribute("keywords", keywords);
-			request.setAttribute("numDocs", results.getTotalHits());
-			request.setAttribute("totalTime", (double) (results.getTimer().totalTime) / 1000);
-			request.setAttribute("results", Result.from(results.documents, language));
+			request.setAttribute("numDocs", results.getNumDocs());
+			request.setAttribute("totalTime", results.getTotalTime());
+			request.setAttribute("results", results.getResults());
 		}
 		super.doGet();
 	}
 
-	public static class Result {
-
-		private final String url;
-		private final String urlDisplay;
-		private final String title;
-		private final String description;
-		private final String content;
-
-		private Result(final ResultDocumentObject<UrlRecord> document, final Language language) {
-			url = document.record.urlStore;
-			urlDisplay = url == null ? null : LinkUtils.urlHostPathWrapReduce(url, 70);
-			title = getBestHighlight(document, language.title, "title");
-			description = getBestHighlight(document, language.description, "description");
-			content = getBestHighlight(document, language.content, "content");
-		}
-
-		private String getBestHighlight(final ResultDocumentObject<UrlRecord> document, final String... fields) {
-			if (document.highlights == null)
-				return null;
-			String firstNonNull = null;
-			for (String field : fields) {
-				final String value = document.highlights.get(field);
-				if (StringUtils.isBlank(value))
-					continue;
-				if (firstNonNull == null)
-					firstNonNull = value;
-				if (value.contains("<b>"))
-					return value;
-			}
-			return firstNonNull;
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public String getUrlDisplay() {
-			return urlDisplay;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public String getDescription() {
-			return description;
-		}
-
-		public String getContent() {
-			return content;
-		}
-
-		public static List<Result> from(final List<ResultDocumentObject<UrlRecord>> documentResults,
-				final Language language) {
-			if (documentResults == null)
-				return null;
-			if (documentResults.isEmpty())
-				return Collections.emptyList();
-			final List<Result> results = new ArrayList<>(documentResults.size());
-			documentResults.forEach(doc -> results.add(new Result(doc, language)));
-			return results;
-		}
-	}
 }

@@ -15,6 +15,8 @@
  */
 package com.jaeksoft.opensearchserver.model;
 
+import com.qwazr.search.index.HighlighterDefinition;
+import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.utils.StringUtils;
 
 import java.util.Collection;
@@ -27,12 +29,45 @@ public enum Language {
 	public final String description;
 	public final String content;
 	public final String full;
+	public final HighlighterDefinition.BreakIteratorDefinition breakIterator;
+	public final HighlighterDefinition titleHighlight;
+	public final HighlighterDefinition descriptionHighlight;
+	public final HighlighterDefinition contentHighlight;
 
 	Language() {
-		this.title = "title" + StringUtils.capitalize(name());
-		this.description = "description" + StringUtils.capitalize(name());
-		this.content = "content" + StringUtils.capitalize(name());
-		this.full = "full" + StringUtils.capitalize(name());
+
+		title = "title" + StringUtils.capitalize(name());
+		description = "description" + StringUtils.capitalize(name());
+		content = "content" + StringUtils.capitalize(name());
+		full = "full" + StringUtils.capitalize(name());
+
+		breakIterator = new HighlighterDefinition.BreakIteratorDefinition(
+				HighlighterDefinition.BreakIteratorDefinition.Type.sentence, name());
+
+		titleHighlight = HighlighterDefinition.of(title)
+				.setStoredField("title")
+				.setMaxNoHighlightPassages(1)
+				.setMaxPassages(1)
+				.setBreak(breakIterator)
+				.build();
+		descriptionHighlight = HighlighterDefinition.of(description)
+				.setStoredField("description")
+				.setMaxNoHighlightPassages(5)
+				.setMaxPassages(5)
+				.setBreak(breakIterator)
+				.build();
+		contentHighlight = HighlighterDefinition.of(content)
+				.setStoredField("content")
+				.setMaxNoHighlightPassages(5)
+				.setMaxPassages(5)
+				.setBreak(breakIterator)
+				.build();
+	}
+
+	public void highlights(final QueryBuilder builder) {
+		builder.highlighter(title, titleHighlight);
+		builder.highlighter(description, descriptionHighlight);
+		builder.highlighter(content, contentHighlight);
 	}
 
 	public static Language findByName(final String name, final Language defaultValue) {

@@ -18,19 +18,17 @@ package com.jaeksoft.opensearchserver.crawler;
 
 import com.jaeksoft.opensearchserver.BaseTest;
 import com.jaeksoft.opensearchserver.model.Language;
-import com.jaeksoft.opensearchserver.model.UrlRecord;
+import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
-import com.qwazr.search.index.ResultDefinition;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.UUID;
 
 public class CrawlTest extends BaseTest {
@@ -70,14 +68,12 @@ public class CrawlTest extends BaseTest {
 		}
 
 		Assert.assertTrue(indexService.isAlreadyCrawled(url, crawlUuid, sessionTimeId));
-		final ResultDefinition.WithObject<UrlRecord> results = indexService.search(Language.en, "frame", 0, 1);
+		final SearchResults results = indexService.search(Language.en, "frame", 0, 1);
 		Assert.assertNotNull(results);
-		Assert.assertNotNull(results.getDocuments());
-		Assert.assertEquals(1, results.getDocuments().size());
+		Assert.assertNotNull(results.getResults());
+		Assert.assertEquals(1, results.getResults().size());
 
-		final Map<String, String> highlights = results.getDocuments().get(0).getHighlights();
-		Assert.assertNotNull(highlights);
-		final String title = highlights.get("title");
+		final String title = results.getResults().get(0).getTitle();
 		Assert.assertNotNull(title);
 	}
 }

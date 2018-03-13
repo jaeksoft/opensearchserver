@@ -28,7 +28,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -93,7 +92,7 @@ public class SessionStore implements Closeable {
 	}
 
 	public void index(final URL indexServiceUrl, final String accountId, final String indexName)
-			throws IOException, URISyntaxException, InterruptedException {
+			throws IOException, InterruptedException {
 		final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUrl, accountId, indexName);
 		try (final IndexQueue indexQueue = new IndexQueue(indexService, 20, 100, 60)) {
 			for (UUID uuid : uris.values()) {

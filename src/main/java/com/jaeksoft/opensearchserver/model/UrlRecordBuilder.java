@@ -16,7 +16,7 @@
 
 package com.jaeksoft.opensearchserver.model;
 
-import com.qwazr.utils.StringUtils;
+import com.qwazr.utils.HtmlUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -79,10 +79,23 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 		return me();
 	}
 
+	/**
+	 * Remove HTML tags and trim
+	 *
+	 * @param value
+	 * @return
+	 */
+	private String cleanHtml(String value) {
+		if (value == null)
+			return null;
+		value = HtmlUtils.removeTag(value.trim()).trim();
+		return value.isEmpty() ? null : value;
+	}
+
 	public T title(String title, final Language language) {
-		if (StringUtils.isBlank(title))
+		title = cleanHtml(title);
+		if (title == null)
 			return me();
-		title = title.trim();
 		this.title = title;
 		if (language != null) {
 			switch (language) {
@@ -112,9 +125,9 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	}
 
 	public T description(String description, final Language language) {
-		if (StringUtils.isBlank(description))
+		description = cleanHtml(description);
+		if (description == null)
 			return me();
-		description = description.trim();
 		this.description = description;
 		if (language != null) {
 			switch (language) {
@@ -170,9 +183,9 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	}
 
 	public T content(String content, final Language language) {
-		if (StringUtils.isBlank(content))
+		content = cleanHtml(content);
+		if (content == null)
 			return me();
-		content = content.trim();
 		if (content.equals(title))
 			return me();
 		if (this.content == null)
