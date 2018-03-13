@@ -27,7 +27,7 @@
     <form method="get">
         <div class="input-group mb-3">
             <input type="text" class="form-control" aria-label="Search keywords" name="keywords"
-                   value="${keywords!?html}" aria-describedby="basic-addon2">
+                   value="${keywords!?html}" aria-describedby="search keywords">
             <div class="input-group-append">
                 <select class="custom-select" name="lang">
                     <option value="en" <#if lang == 'en'>selected</#if>>English</option>

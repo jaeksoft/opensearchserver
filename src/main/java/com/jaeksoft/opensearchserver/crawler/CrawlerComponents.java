@@ -70,8 +70,8 @@ public class CrawlerComponents implements CrawlerContext {
 		});
 	}
 
-	static volatile ExtractorManager extractorManager;
-	static volatile ExtractorServiceInterface extractorService;
+	private static volatile ExtractorManager extractorManager;
+	private static volatile ExtractorServiceInterface extractorService;
 
 	public static ExtractorServiceInterface getExtractorService() {
 		if (extractorService != null)
@@ -100,11 +100,13 @@ public class CrawlerComponents implements CrawlerContext {
 				.variable(CRAWL_UUID, crawlUuid.toString())
 				.variable(SESSION_TIME_ID, sessionTimeId.toString());
 
-		if (configService.getIndexServiceUri() != null)
-			crawlBuilder.variable(INDEX_SERVICE_URL, configService.getIndexServiceUri().toString());
+		if (configService != null) {
+			if (configService.getIndexServiceUri() != null)
+				crawlBuilder.variable(INDEX_SERVICE_URL, configService.getIndexServiceUri().toString());
 
-		if (configService.getStoreServiceUri() != null)
-			crawlBuilder.variable(STORE_SERVICE_URL, configService.getStoreServiceUri().toString());
+			if (configService.getStoreServiceUri() != null)
+				crawlBuilder.variable(STORE_SERVICE_URL, configService.getStoreServiceUri().toString());
+		}
 
 		return crawlBuilder.build();
 	}

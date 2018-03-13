@@ -19,6 +19,7 @@ package com.jaeksoft.opensearchserver;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
+import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import org.junit.After;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class BaseTest {
 	private Components components;
 	private final UUID accountId = UUID.randomUUID();
 
-	private synchronized Components getComponents() throws IOException {
+	protected synchronized Components getComponents() throws IOException {
 		if (components == null) {
 			final Path dataDirectory = Files.createTempDirectory("BaseTest");
 			Files.copy(Paths.get("config.properties"), dataDirectory.resolve("config.properties"));
@@ -43,6 +44,10 @@ public class BaseTest {
 
 	protected UUID getAccountId() {
 		return accountId;
+	}
+
+	protected WebCrawlerServiceInterface getWebCrawlService() throws IOException {
+		return getComponents().getWebCrawlerService();
 	}
 
 	protected WebCrawlsService getWebCrawlsService() throws IOException {

@@ -211,7 +211,7 @@ public class Components implements Closeable {
 		return webCrawlerManager;
 	}
 
-	synchronized WebCrawlerServiceInterface getWebCrawlerService() {
+	protected synchronized WebCrawlerServiceInterface getWebCrawlerService() {
 		if (webCrawlerService == null) {
 			if (getConfigService().getCrawlerServiceUri() != null)
 				webCrawlerService =
