@@ -69,7 +69,7 @@ public class SearchTransaction extends ServletTransaction {
 			request.setAttribute("keywords", keywords);
 			request.setAttribute("numDocs", results.getTotalHits());
 			request.setAttribute("totalTime", (double) (results.getTimer().totalTime) / 1000);
-			request.setAttribute("results", Result.from(results.documents));
+			request.setAttribute("results", Result.from(results.documents, language));
 		}
 		super.doGet();
 	}
@@ -82,23 +82,28 @@ public class SearchTransaction extends ServletTransaction {
 		private final String description;
 		private final String content;
 
-		private Result(ResultDocumentObject<UrlRecord> document) {
+		private Result(final ResultDocumentObject<UrlRecord> document, final Language language) {
 			url = document.record.urlStore;
 			urlDisplay = url == null ? null : LinkUtils.urlHostPathWrapReduce(url, 70);
-			title = getBestHighlight(document, "titleLang", "title");
-			description = getBestHighlight(document, "descriptionLang", "description");
-			content = getBestHighlight(document, "contentLang", "content");
+			title = getBestHighlight(document, language.title, "title");
+			description = getBestHighlight(document, language.description, "description");
+			content = getBestHighlight(document, language.content, "content");
 		}
 
 		private String getBestHighlight(final ResultDocumentObject<UrlRecord> document, final String... fields) {
 			if (document.highlights == null)
 				return null;
+			String firstNonNull = null;
 			for (String field : fields) {
 				final String value = document.highlights.get(field);
-				if (value != null && value.contains("<b>"))
+				if (StringUtils.isBlank(value))
+					continue;
+				if (firstNonNull == null)
+					firstNonNull = value;
+				if (value.contains("<b>"))
 					return value;
 			}
-			return null;
+			return firstNonNull;
 		}
 
 		public String getUrl() {
@@ -121,13 +126,14 @@ public class SearchTransaction extends ServletTransaction {
 			return content;
 		}
 
-		public static List<Result> from(final List<ResultDocumentObject<UrlRecord>> documentResults) {
+		public static List<Result> from(final List<ResultDocumentObject<UrlRecord>> documentResults,
+				final Language language) {
 			if (documentResults == null)
 				return null;
 			if (documentResults.isEmpty())
 				return Collections.emptyList();
 			final List<Result> results = new ArrayList<>(documentResults.size());
-			documentResults.forEach(doc -> results.add(new Result(doc)));
+			documentResults.forEach(doc -> results.add(new Result(doc, language)));
 			return results;
 		}
 	}

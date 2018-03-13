@@ -15,10 +15,25 @@
  */
 package com.jaeksoft.opensearchserver.model;
 
+import com.qwazr.utils.StringUtils;
+
 import java.util.Collection;
 
 public enum Language {
+
 	en, fr, de, it;
+
+	public final String title;
+	public final String description;
+	public final String content;
+	public final String full;
+
+	Language() {
+		this.title = "title" + StringUtils.capitalize(name());
+		this.description = "description" + StringUtils.capitalize(name());
+		this.content = "content" + StringUtils.capitalize(name());
+		this.full = "full" + StringUtils.capitalize(name());
+	}
 
 	public static Language findByName(final String name, final Language defaultValue) {
 		try {
