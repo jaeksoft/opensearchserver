@@ -59,11 +59,12 @@ public class SearchTransaction extends ServletTransaction {
 		final Language language = Language.findByName(lang, Language.en);
 		request.setAttribute("lang", language.name());
 		if (!StringUtils.isBlank(keywords)) {
-			final SearchResults results = indexService.search(language, keywords, start, 25);
+			final SearchResults results = indexService.search(language, keywords, start, 10);
 			request.setAttribute("keywords", keywords);
 			request.setAttribute("numDocs", results.getNumDocs());
 			request.setAttribute("totalTime", results.getTotalTime());
 			request.setAttribute("results", results.getResults());
+			request.setAttribute("paging", results.getPaging());
 		}
 		super.doGet();
 	}

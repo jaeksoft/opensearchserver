@@ -51,20 +51,53 @@
 </#if>
 </div>
 <#if results?has_content>
-<div class="container">
-    <hr/>
-<#list results as result>
-    <p><a href="${result.url}">${result.title!'No title'}</a><br/>
-        <span class="text-success small">${result.urlDisplay}</span><br/>
-    <#if result.description?has_content>
-        <span class="text-muted small">${result.description}</span>
-    <#elseif result.content?has_content>
-        <span class="text-muted small">${result.content}</span>
+    <div class="container">
+        <hr/>
+    <#list results as result>
+        <p><a href="${result.url}">${result.title!'No title'}</a><br/>
+            <span class="text-success small">${result.urlDisplay}</span><br/>
+        <#if result.description?has_content>
+            <span class="text-muted small">${result.description}</span>
+        <#elseif result.content?has_content>
+            <span class="text-muted small">${result.content}</span>
+        </#if>
+        </p>
+        <hr/>
+    </#list>
+    </div>
+    <#if paging?has_content>
+    <div class="container">
+        <form>
+            <input type="hidden" name="keywords" value="${keywords?html}">
+            <input type="hidden" name="lang" value="${lang?html}">
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                <#if paging.prev?has_content>
+                 <li class="page-item">
+                     <button class="page-link" type="submit" name="start" value="${paging.prev.start?c}">
+                         Previous
+                     </button>
+                 </li>
+                </#if>
+                <#list paging.pages as page>
+                <li class="page-item<#if page.current> active</#if>">
+                    <button class="page-link" type="submit" name="start" value="${page.start?c}">
+                        ${page.number?c}
+                    </button>
+                </li>
+                </#list>
+                <#if paging.next?has_content>
+                <li class="page-item">
+                    <button class="page-link" type="submit" name="start" value="${paging.next.start?c}">
+                        Next
+                    </button>
+                </li>
+                </#if>
+                </ul>
+            </nav>
+        </form>
+    </div>
     </#if>
-    </p>
-    <hr/>
-</#list>
-</div>
 </#if>
 <#include '../includes/foot.ftl'>
 </body>

@@ -19,6 +19,7 @@ package com.jaeksoft.opensearchserver.model;
 import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.index.ResultDocumentObject;
 import com.qwazr.utils.LinkUtils;
+import com.qwazr.utils.Paging;
 import com.qwazr.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -30,11 +31,14 @@ public class SearchResults {
 	private final List<SearchResult> searchResults;
 	private final Double totalTime;
 	private final Long numDocs;
+	private final Paging paging;
 
-	public SearchResults(final ResultDefinition.WithObject<UrlRecord> results, final Language language) {
+	public SearchResults(final long start, final int rows, final ResultDefinition.WithObject<UrlRecord> results,
+			final Language language) {
 		searchResults = from(results.documents, language);
 		totalTime = (double) results.getTimer().totalTime / 1000;
-		numDocs = results.getTotalHits();
+		numDocs = results.total_hits == null ? 0 : results.total_hits;
+		paging = new Paging(numDocs, start, rows, 10);
 	}
 
 	private static List<SearchResult> from(final List<ResultDocumentObject<UrlRecord>> documentResults,
@@ -58,6 +62,10 @@ public class SearchResults {
 
 	public Long getNumDocs() {
 		return numDocs;
+	}
+
+	public Paging getPaging() {
+		return paging;
 	}
 
 	public static class SearchResult {

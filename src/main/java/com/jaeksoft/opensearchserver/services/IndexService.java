@@ -184,7 +184,7 @@ public class IndexService extends UsableService {
 
 		lang.highlights(queryBuilder);
 
-		return new SearchResults(service.searchQuery(queryBuilder.build()), lang);
+		return new SearchResults(start, rows, service.searchQuery(queryBuilder.build()), lang);
 
 	}
 
