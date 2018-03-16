@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.field.FieldDefinition;
+import com.qwazr.search.function.IntFieldSource;
 import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexStatus;
@@ -29,6 +30,8 @@ import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.BooleanQuery;
+import com.qwazr.search.query.CustomScoreQuery;
+import com.qwazr.search.query.FunctionQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.LongDocValuesExactQuery;
 import com.qwazr.search.query.MultiFieldQueryParser;
@@ -36,6 +39,8 @@ import com.qwazr.search.query.QueryParserOperator;
 import com.qwazr.search.query.TermQuery;
 import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.utils.StringUtils;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.queries.CustomScoreProvider;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -165,8 +170,11 @@ public class IndexService extends UsableService {
 				.addBoost(lang.full, 1f)
 				.build();
 
+		final CustomScoreQuery customScoreQuery =
+				new CustomScoreQuery(fullTextQuery, DepthScore.class, new FunctionQuery(new IntFieldSource("depth")));
+
 		final BooleanQuery booleanQuery = BooleanQuery.of()
-				.addClause(BooleanQuery.Occur.must, fullTextQuery)
+				.addClause(BooleanQuery.Occur.must, customScoreQuery)
 				.addClause(BooleanQuery.Occur.filter,
 						new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code))
 				.build();
@@ -184,6 +192,28 @@ public class IndexService extends UsableService {
 		lang.highlights(queryBuilder);
 
 		return new SearchResults(start, rows, service.searchQuery(queryBuilder.build()), lang);
+	}
+
+	public static class DepthScore extends CustomScoreProvider {
+
+		public DepthScore(LeafReaderContext context) {
+			super(context);
+		}
+
+		public float customScore(int doc, float subQueryScore, float valSrcScore) {
+			switch ((int) valSrcScore) {
+			case 0:
+				return subQueryScore * 2.3f;
+			case 1:
+				return subQueryScore * 1.8f;
+			case 2:
+				return subQueryScore * 1.3f;
+			case 3:
+				return subQueryScore * 1.2f;
+			default:
+				return subQueryScore;
+			}
+		}
 	}
 
 }
