@@ -170,8 +170,8 @@ public class IndexService extends UsableService {
 				.addBoost(lang.full, 1f)
 				.build();
 
-		final CustomScoreQuery customScoreQuery =
-				new CustomScoreQuery(fullTextQuery, DepthScore.class, new FunctionQuery(new IntFieldSource("depth")));
+		final CustomScoreQuery customScoreQuery = new CustomScoreQuery(fullTextQuery, DepthScore.class.getName(),
+				new FunctionQuery(new IntFieldSource("depth")));
 
 		final BooleanQuery booleanQuery = BooleanQuery.of()
 				.addClause(BooleanQuery.Occur.must, customScoreQuery)
