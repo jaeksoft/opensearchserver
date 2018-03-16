@@ -31,7 +31,7 @@ import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.BooleanQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.LongDocValuesExactQuery;
-import com.qwazr.search.query.MultiFieldQuery;
+import com.qwazr.search.query.MultiFieldQueryParser;
 import com.qwazr.search.query.QueryParserOperator;
 import com.qwazr.search.query.TermQuery;
 import com.qwazr.server.client.ErrorWrapper;
@@ -149,21 +149,20 @@ public class IndexService extends UsableService {
 		if (StringUtils.isBlank(keywords))
 			return null;
 
-		final MultiFieldQuery fullTextQuery = MultiFieldQuery.of()
-				.tieBreakerMultiplier(0.02f)
-				.queryString(keywords)
-				.defaultOperator(QueryParserOperator.and)
-				.fieldAndFilter("full", lang.full)
-				.fieldBoost("urlLike", 13f)
-				.fieldBoost("title", 8f)
-				.fieldBoost(lang.title, 8f)
-				.fieldBoost("description", 5f)
-				.fieldBoost(lang.description, 5f)
-				.fieldBoost("content", 3f)
-				.fieldBoost(lang.content, 3f)
-				.fieldBoost("full", 1f)
-				.fieldBoost(lang.full, 1f)
-				.fieldAndFilter(lang.full)
+		final MultiFieldQueryParser fullTextQuery = MultiFieldQueryParser.of()
+				.setQueryString(keywords)
+				.setDefaultOperator(QueryParserOperator.and)
+				.addField("urlLike", "title", lang.title, "description", lang.description, "content", lang.content,
+						"full", lang.full)
+				.addBoost("urlLike", 13f)
+				.addBoost("title", 8f)
+				.addBoost(lang.title, 8f)
+				.addBoost("description", 5f)
+				.addBoost(lang.description, 5f)
+				.addBoost("content", 3f)
+				.addBoost(lang.content, 3f)
+				.addBoost("full", 1f)
+				.addBoost(lang.full, 1f)
 				.build();
 
 		final BooleanQuery booleanQuery = BooleanQuery.of()
@@ -185,7 +184,6 @@ public class IndexService extends UsableService {
 		lang.highlights(queryBuilder);
 
 		return new SearchResults(start, rows, service.searchQuery(queryBuilder.build()), lang);
-
 	}
 
 }

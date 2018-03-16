@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 
 public class SearchTransaction extends ServletTransaction {
@@ -58,13 +59,17 @@ public class SearchTransaction extends ServletTransaction {
 		final String lang = request.getParameter("lang");
 		final Language language = Language.findByName(lang, Language.en);
 		request.setAttribute("lang", language.name());
-		if (!StringUtils.isBlank(keywords)) {
-			final SearchResults results = indexService.search(language, keywords, start, 10);
-			request.setAttribute("keywords", keywords);
-			request.setAttribute("numDocs", results.getNumDocs());
-			request.setAttribute("totalTime", results.getTotalTime());
-			request.setAttribute("results", results.getResults());
-			request.setAttribute("paging", results.getPaging());
+		try {
+			if (!StringUtils.isBlank(keywords)) {
+				final SearchResults results = indexService.search(language, keywords, start, 10);
+				request.setAttribute("keywords", keywords);
+				request.setAttribute("numDocs", results.getNumDocs());
+				request.setAttribute("totalTime", results.getTotalTime());
+				request.setAttribute("results", results.getResults());
+				request.setAttribute("paging", results.getPaging());
+			}
+		} catch (WebApplicationException e) {
+			addMessage(e);
 		}
 		super.doGet();
 	}

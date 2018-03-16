@@ -21,9 +21,9 @@
     <#include '../includes/head.ftl'>
 </head>
 <body>
+<br/>
 <#include '../includes/messages.ftl'>
 <div class="container">
-    <br/>
     <form method="get">
         <div class="input-group mb-3">
             <input type="text" class="form-control" aria-label="Search keywords" name="keywords"
@@ -55,12 +55,8 @@
         <hr/>
     <#list results as result>
         <p><a href="${result.url}">${result.title!'No title'}</a><br/>
-            <span class="text-success small">${result.urlDisplay}</span><br/>
-        <#if result.description?has_content>
-            <span class="text-muted small">${result.description}</span>
-        <#elseif result.content?has_content>
-            <span class="text-muted small">${result.content}</span>
-        </#if>
+            <span class="text-success small">${result.urlDisplay!}</span><br/>
+            <span class="text-muted small">${result.description!result.content!}</span>
         </p>
         <hr/>
     </#list>
