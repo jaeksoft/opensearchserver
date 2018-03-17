@@ -41,12 +41,13 @@ public class SearchService {
 	private final HighlighterDefinition titleHighlighter = HighlighterDefinition.of().setMaxPassages(1).build();
 	private final HighlighterDefinition contentHighlighter = HighlighterDefinition.of().setMaxPassages(5).build();
 	private final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
-	private final IntDocValuesExactQuery crawledQuery =
-			new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code);
+	private final BooleanQuery.BooleanClause crawledClause = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+			new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code));
 
 	// Optimization: They are per thread singleton
 	private final ThreadLocal<Map<Language, MultiFieldQueryParser.Builder>> queryParserSupplier;
 	private final ThreadLocal<QueryBuilder> queryBuilderSupplier;
+	private final ThreadLocal<BooleanQuery.Builder> booleanQueryBuilderSupplier;
 
 	public SearchService() {
 		queryParserSupplier = ThreadLocal.withInitial(HashMap::new);
@@ -56,6 +57,7 @@ public class SearchService {
 						.highlighter("title", titleHighlighter)
 						.highlighter("description", contentHighlighter)
 						.highlighter("content", contentHighlighter));
+		booleanQueryBuilderSupplier = ThreadLocal.withInitial(BooleanQuery::of);
 	}
 
 	private MultiFieldQueryParser.Builder getQueryParser(final Language language) {
@@ -86,9 +88,8 @@ public class SearchService {
 		final CustomScoreQuery customScoreQuery =
 				new CustomScoreQuery(fullTextQuery, DepthScore.class.getName(), depthFunctionQuery);
 
-		final BooleanQuery booleanQuery = BooleanQuery.of()
-				.addClause(BooleanQuery.Occur.must, customScoreQuery)
-				.addClause(BooleanQuery.Occur.filter, crawledQuery)
+		final BooleanQuery booleanQuery = booleanQueryBuilderSupplier.get()
+				.setClauses(new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, customScoreQuery), crawledClause)
 				.build();
 
 		final QueryBuilder queryBuilder = queryBuilderSupplier.get().query(booleanQuery).start(start).rows(rows);
