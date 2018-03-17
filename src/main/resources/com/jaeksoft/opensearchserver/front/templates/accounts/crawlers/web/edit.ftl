@@ -42,22 +42,31 @@
             <div class="card-body">
                 <h5 class="card-title">Edit this web crawl</h5>
                 <div class="form-row">
-                    <div class="form-group col-md-9">
+                    <div class="form-group col-md-6">
                         <label for="webCrawlName">Name</label>
                         <input type="text" class="form-control" id="webCrawlName" name="crawlName"
                                placeholder="Crawl name" value="${webCrawlRecord.name!?html}">
+                        <small>The name of this crawl configuration</small>
                     </div>
                     <div class="form-group col-md-3">
                         <label for="maxDepth">Maximum depth</label>
                         <input type="number" id="maxDepth" class="form-control" name="maxDepth"
                                placeholder="Maximum depth" aria-label="Max depth"
                                value="${webCrawlRecord.crawlDefinition.maxDepth!?html}">
+                        <small>The crawl depth limit</small>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="maxUrlNumber">Max URL number</label>
+                        <input type="number" id="maxUrlNumber" class="form-control" name="maxUrlNumber"
+                               value="${webCrawlRecord.crawlDefinition.maxUrlNumber!?html}">
+                        <small>The maximum number of crawled URL</small>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="entryUrl">Entry URL</label>
                     <input type="url" class="form-control" id="group" name="entryUrl"
                            placeholder="Entry URL" value="${webCrawlRecord.crawlDefinition.entryUrl!?html}">
+                    <small>This URL is the first URL to be crawled until we discover new URLs</small>
                 </div>
             </div>
             <div class="card-footer text-right">

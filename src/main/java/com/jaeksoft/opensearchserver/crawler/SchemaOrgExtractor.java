@@ -81,7 +81,7 @@ class SchemaOrgExtractor {
 			if (scriptLdJson == null || scriptLdJson.isEmpty())
 				return;
 			final JsonNode jsonNode = ObjectMappers.JSON.readTree(scriptLdJson);
-			if (jsonNode == null)
+			if (jsonNode == null || jsonNode.isNull())
 				return;
 			final String context = asText(jsonNode.get("@context"));
 			if (!"http://schema.org".equals(context) && !"http://schema.org/".equals(context))
@@ -122,7 +122,7 @@ class SchemaOrgExtractor {
 	}
 
 	private static void extractSchemaOrgImage(final JsonNode image, final UrlRecord.Builder urlBuilder) {
-		if (image == null)
+		if (image == null || image.isNull())
 			return;
 		if (image.isTextual())
 			extractImage(image.asText(), urlBuilder);
@@ -131,7 +131,7 @@ class SchemaOrgExtractor {
 	}
 
 	private static void extractSchemaOrgPublisher(final JsonNode publisher, final UrlRecord.Builder builder) {
-		if (publisher == null)
+		if (publisher == null || publisher.isNull())
 			return;
 		final String type = asText(publisher.get("@type"));
 		if (type == null)
@@ -144,11 +144,11 @@ class SchemaOrgExtractor {
 	}
 
 	private static String asText(JsonNode node) {
-		return node == null ? null : node.asText();
+		return node == null || node.isNull() ? null : node.asText();
 	}
 
 	private static Double asDouble(JsonNode node) {
-		return node == null ? null : node.asDouble();
+		return node == null || node.isNull() ? null : node.asDouble();
 	}
 
 	private static Long asDateLong(final String dateString) {
@@ -174,9 +174,9 @@ class SchemaOrgExtractor {
 	}
 
 	private static void extractSchemaOrgOffers(final JsonNode offers, final UrlRecord.Builder urlBuilder) {
-		if (offers == null || !offers.isArray())
+		if (offers == null || offers.isNull() || !offers.isArray())
 			return;
-		for (JsonNode offer : offers)
+		for (final JsonNode offer : offers)
 			urlBuilder.lowestPrice(asText(offer.get("priceCurrency")), asDouble(offer.get("price")));
 	}
 

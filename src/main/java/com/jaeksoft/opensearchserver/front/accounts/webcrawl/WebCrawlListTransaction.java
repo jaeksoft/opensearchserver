@@ -57,6 +57,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
+		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null);
 
 		// Extract the URLs
 		final Set<URI> uriSet = new LinkedHashSet<>();
@@ -72,8 +73,10 @@ public class WebCrawlListTransaction extends AccountTransaction {
 
 		int count = 0;
 		for (final URI uri : uriSet) {
-			final WebCrawlDefinition.Builder webCrawlDefBuilder =
-					WebCrawlDefinition.of().setEntryUrl(uri.toString()).setMaxDepth(maxDepth);
+			final WebCrawlDefinition.Builder webCrawlDefBuilder = WebCrawlDefinition.of()
+					.setEntryUrl(uri.toString())
+					.setMaxDepth(maxDepth)
+					.setMaxUrlNumber(maxUrlNumber);
 			final String name;
 			if (crawlName == null || crawlName.isEmpty())
 				name = uri.getHost();

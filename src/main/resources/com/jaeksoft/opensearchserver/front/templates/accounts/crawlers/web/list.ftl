@@ -41,6 +41,7 @@
                 <th>Name</th>
                 <th>Entry URL</th>
                 <th>Depth</th>
+                <th>Max</th>
                 <th></th>
             </tr>
             </thead>
@@ -50,6 +51,7 @@
                <th>${webCrawlRecord.name!?html}</th>
                <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
                <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
+               <td>${webCrawlRecord.crawlDefinition.maxUrlNumber!}</td>
                <td align="right">
                    <a href="/accounts/${account.name?url}/crawlers/web/${webCrawlRecord.uuid!}"
                       class=" btn btn-sm btn-secondary">Edit</a>
@@ -65,17 +67,21 @@
 <div class="container">
     <form method="post">
         <div class="form-row">
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
                 <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
                        aria-label="Crawl name">
             </div>
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-5">
                 <textarea class="form-control" name="entryUrl" rows="3" placeholder="Entry URL"
                           aria-label="Entry URL"></textarea>
             </div>
             <div class="form-group col-md-2">
                 <input type="number" name="maxDepth" class="form-control" placeholder="maxDepth"
                        aria-label="Max depth">
+            </div>
+            <div class="form-group col-md-2">
+                <input type="number" name="maxUrlNumber" class="form-control" placeholder="maxUrlNumber"
+                       aria-label="Max URL number">
             </div>
             <div class="form-group col-md-1">
                 <button class="btn btn-primary" name="action" value="create" type="submit">Create</button>

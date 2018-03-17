@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.model.WebCrawlTaskDefinition;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
+import com.qwazr.utils.StringUtils;
 
 import java.net.URL;
 import java.util.Objects;
@@ -52,10 +53,22 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
 			return null;
 		final IndexService indexService = indexesService.getIndex(taskRecord.accountId, indexName);
 
-		final int count =
-				indexService.fillUnknownUrls(100, webCrawlTask.getId(), taskRecord.sessionTimeId, crawlBuilder);
-		if (count == 0) {
+		final int maxNextCrawl;
+		if (webCrawlTask.crawlDefinition.maxUrlNumber != null) {
+			final long crawledCount = indexService.getCrawledCount(webCrawlTask.getId(), taskRecord.sessionTimeId);
+			if (crawledCount < webCrawlTask.crawlDefinition.maxUrlNumber)
+				maxNextCrawl = Math.min((int) (webCrawlTask.crawlDefinition.maxUrlNumber - crawledCount), 100);
+			else
+				maxNextCrawl = 0;
+		} else
+			maxNextCrawl = 100;
 
+		final int nextUnknownCount = maxNextCrawl > 0 ?
+				indexService.fillUnknownUrls(maxNextCrawl, webCrawlTask.getId(), taskRecord.sessionTimeId,
+						crawlBuilder) :
+				0;
+
+		if (nextUnknownCount == 0) { // We're done with this session
 			if (indexService.isAlreadyCrawled(webCrawlTask.crawlDefinition.entryUrl, webCrawlTask.getId(),
 					taskRecord.sessionTimeId)) {
 				indexService.deleteOldCrawl(webCrawlTask.getId(), taskRecord.sessionTimeId);
@@ -68,7 +81,8 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
 		crawlBuilder.addInclusionPattern(baseUrl.toString());
 		crawlBuilder.addInclusionPattern(baseUrl.getProtocol() + "://" + baseUrl.getHost() + "/*");
 		crawlBuilder.setRemoveFragments(true);
-		crawlBuilder.userAgent("OpenSearchServer-Bot");
+		if (StringUtils.isBlank(webCrawlTask.crawlDefinition.userAgent))
+			crawlBuilder.userAgent("OpenSearchServer-Bot");
 
 		if (webCrawlTask.crawlDefinition.crawlWaitMs == null)
 			crawlBuilder.setCrawlWaitMs(1000);

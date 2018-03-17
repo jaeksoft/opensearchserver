@@ -41,6 +41,14 @@ public class IndexService extends UsableService {
 
 	private final AnnotatedIndexService<UrlRecord> service;
 
+	public final static BooleanQuery.BooleanClause CRAWLED_FILTER_CLAUSE =
+			new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+					new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code));
+
+	public final static BooleanQuery.BooleanClause UNKNOWN_FILTER_CLAUSE =
+			new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+					new IntDocValuesExactQuery("crawlStatus", CrawlStatus.UNKNOWN.code));
+
 	public IndexService(final IndexServiceInterface indexService, final String accountId, final String indexName)
 			throws URISyntaxException {
 		service = new AnnotatedIndexService<>(indexService, UrlRecord.class, accountId, indexName, null);
@@ -56,8 +64,7 @@ public class IndexService extends UsableService {
 				.addClause(BooleanQuery.Occur.filter,
 						new LongDocValuesExactQuery("crawlUuidLeast", crawlUuid.getLeastSignificantBits()))
 				.addClause(BooleanQuery.Occur.filter, new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))
-				.addClause(BooleanQuery.Occur.filter,
-						new IntDocValuesExactQuery("crawlStatus", CrawlStatus.UNKNOWN.code))
+				.addClause(UNKNOWN_FILTER_CLAUSE)
 				.build())
 				.returnedField("*")
 				.sort("lastModificationTime", QueryDefinition.SortEnum.ascending)
@@ -139,6 +146,19 @@ public class IndexService extends UsableService {
 				crawlStatusMap.put(crawlStatus, result.total_hits);
 		}
 		return crawlStatusMap;
+	}
+
+	public long getCrawledCount(final UUID crawlUuid, final Long taskCreationTime) {
+		updateLastUse();
+		final QueryDefinition queryDef = QueryDefinition.of(
+				addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid).setClauses(CRAWLED_FILTER_CLAUSE,
+						new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+								new LongDocValuesExactQuery("taskCreationTime", taskCreationTime))).build())
+				.start(0)
+				.rows(0)
+				.build();
+		final ResultDefinition result = service.searchQueryWithMap(queryDef);
+		return result != null && result.total_hits != null ? result.total_hits : 0;
 	}
 
 }

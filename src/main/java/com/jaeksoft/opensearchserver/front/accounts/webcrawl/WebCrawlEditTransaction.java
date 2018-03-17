@@ -27,7 +27,6 @@ import com.qwazr.utils.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
-import java.io.IOException;
 import java.util.UUID;
 
 public class WebCrawlEditTransaction extends AccountTransaction {
@@ -65,12 +64,13 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		return null;
 	}
 
-	public String save() throws IOException {
+	public String save() {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null);
+		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
-				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth);
+				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth).setMaxUrlNumber(maxUrlNumber);
 		webCrawlsService.save(accountRecord.getId(),
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
 		return "/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid();
