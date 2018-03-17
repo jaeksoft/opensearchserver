@@ -82,7 +82,7 @@ public class TasksServiceTest extends BaseTest {
 
 		final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
 
-		return TaskRecord.of(getAccountId(), webCrawlTask).status(TaskRecord.Status.PAUSED).build();
+		return TaskRecord.of(getAccountId()).definition(webCrawlTask).status(TaskRecord.Status.PAUSED).build();
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class TasksServiceTest extends BaseTest {
 
 		final List<TaskRecord> records = new ArrayList<>();
 		checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 1, taskRecord);
-		
+
 		Assert.assertNull(tasksService.getTask(UUID.randomUUID().toString()));
 
 	}

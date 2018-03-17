@@ -16,6 +16,7 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.TaskDefinition;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.AnnotatedTableService;
@@ -23,15 +24,18 @@ import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
 import com.qwazr.server.client.ErrorWrapper;
+import com.qwazr.utils.ObjectMappers;
 
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class TasksService {
 
@@ -86,6 +90,22 @@ public class TasksService {
 				taskRecords);
 	}
 
+	public void updateDefinitions(final UUID definitionId,
+			final Function<TaskDefinition, TaskDefinition> definitionSupplier) {
+		final Collection<TaskRecord> taskRecords = new ArrayList<>();
+		collectTasksByDefinition(definitionId, 0, 1000, taskRecords);
+		taskRecords.forEach(taskRecord -> {
+			try {
+				final TaskDefinition oldTaskDefinition =
+						ObjectMappers.JSON.readValue(taskRecord.definition, TaskDefinition.class);
+				final TaskDefinition newTaskDefinition = definitionSupplier.apply(oldTaskDefinition);
+				saveTask(taskRecord.from().definition(newTaskDefinition).build());
+			} catch (IOException e) {
+				throw new InternalServerErrorException(e);
+			}
+		});
+	}
+
 	public void createTask(final TaskRecord taskRecord) {
 		if (getTask(taskRecord.getTaskId()) != null)
 			throw new NotAcceptableException("The task already exist");
@@ -120,5 +140,4 @@ public class TasksService {
 		updateStatus(taskId, TaskRecord.Status.PAUSED);
 		return tasks.deleteRow(taskId);
 	}
-
 }

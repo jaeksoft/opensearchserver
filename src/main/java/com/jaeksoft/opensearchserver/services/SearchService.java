@@ -16,7 +16,7 @@
 
 package com.jaeksoft.opensearchserver.services;
 
-import com.jaeksoft.opensearchserver.model.CrawlStatus;
+import com.jaeksoft.opensearchserver.model.IndexStatus;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.qwazr.search.function.IntFieldSource;
@@ -41,8 +41,8 @@ public class SearchService {
 	private final HighlighterDefinition titleHighlighter = HighlighterDefinition.of().setMaxPassages(1).build();
 	private final HighlighterDefinition contentHighlighter = HighlighterDefinition.of().setMaxPassages(5).build();
 	private final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
-	private final BooleanQuery.BooleanClause crawledClause = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
-			new IntDocValuesExactQuery("crawlStatus", CrawlStatus.CRAWLED.code));
+	private final BooleanQuery.BooleanClause indexedStatus = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+			new IntDocValuesExactQuery("indexStatus", IndexStatus.INDEXED.code));
 
 	// Optimization: They are per thread singleton
 	private final ThreadLocal<Map<Language, MultiFieldQueryParser.Builder>> queryParserSupplier;
@@ -89,7 +89,7 @@ public class SearchService {
 				new CustomScoreQuery(fullTextQuery, DepthScore.class.getName(), depthFunctionQuery);
 
 		final BooleanQuery booleanQuery = booleanQueryBuilderSupplier.get()
-				.setClauses(new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, customScoreQuery), crawledClause)
+				.setClauses(new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, customScoreQuery), indexedStatus)
 				.build();
 
 		final QueryBuilder queryBuilder = queryBuilderSupplier.get().query(booleanQuery).start(start).rows(rows);

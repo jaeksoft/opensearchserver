@@ -86,9 +86,10 @@ public class JobService implements Closeable {
 			// Let's start the next run
 			taskExecutionService.upsertTaskExecution(taskRecord);
 			try {
-				if (taskProcessor.runSession(taskRecord) == TaskRecord.Status.DONE)
+				if (taskProcessor.runSession(taskRecord) == TaskRecord.Status.DONE) {
 					// If the task was done, we can plan a new run with a new SessionTimeId
 					tasksService.nextSession(taskRecord.taskId);
+				}
 			} catch (Exception e) {
 				// If any error occured, let's update the status
 				tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR);

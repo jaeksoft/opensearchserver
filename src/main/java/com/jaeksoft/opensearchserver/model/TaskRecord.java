@@ -196,22 +196,21 @@ public class TaskRecord {
 				Objects.equals(statusCode, r.statusCode) && Objects.equals(statusTime, r.statusTime);
 	}
 
-	public static Builder of(final UUID accountId, final TaskDefinition taskDefinition) {
-		return new Builder(accountId, taskDefinition);
+	public static Builder of(final UUID accountId) {
+		return new Builder(accountId);
 	}
 
 	public static class Builder {
 
 		private final UUID accountId;
-		private final TaskDefinition definition;
 
+		private TaskDefinition definition;
 		private Long sessionTimeId;
 		private Status status;
 		private Long statusTime;
 
-		private Builder(final UUID accountId, final TaskDefinition definition) {
+		private Builder(final UUID accountId) {
 			this.accountId = accountId;
-			this.definition = definition;
 			this.sessionTimeId = System.currentTimeMillis();
 		}
 
@@ -221,6 +220,11 @@ public class TaskRecord {
 			this.sessionTimeId = taskRecord.getSessionTimeId();
 			this.status = taskRecord.getStatus();
 			this.statusTime = taskRecord.getStatusTime();
+		}
+
+		public Builder definition(final TaskDefinition definition) {
+			this.definition = definition;
+			return this;
 		}
 
 		public Builder status(Status status) {

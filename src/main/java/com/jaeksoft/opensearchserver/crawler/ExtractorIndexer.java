@@ -81,9 +81,8 @@ public class ExtractorIndexer {
 					final Object contentLang = fields.get("lang_detection");
 					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang, Language.en));
 				});
+				SchemaOrgExtractor.extract(parserResult, urlBuilder);
 			}
-
-			SchemaOrgExtractor.extract(parserResult, urlBuilder);
 
 		} catch (WebApplicationException | ServerException e) {
 			LOGGER.log(Level.WARNING, "Parsing failed with " + contentType + " on " + currentCrawl.getUri(), e);

@@ -230,6 +230,9 @@ public class UrlRecord {
 	@IndexField(template = FieldDefinition.Template.IntDocValuesField)
 	final public Integer crawlStatus;
 
+	@IndexField(template = FieldDefinition.Template.IntDocValuesField)
+	final public Integer indexStatus;
+
 	@IndexField(template = FieldDefinition.Template.SortedDocValuesField)
 	final public String schemaOrgType;
 
@@ -285,6 +288,7 @@ public class UrlRecord {
 		crawlUuidLeast = null;
 		taskCreationTime = null;
 		crawlStatus = null;
+		indexStatus = null;
 		schemaOrgType = null;
 		imageUri = null;
 		organizationName = null;
@@ -379,6 +383,7 @@ public class UrlRecord {
 		}
 		this.taskCreationTime = builder.taskCreationTime;
 		this.crawlStatus = builder.crawlStatus == null ? CrawlStatus.UNKNOWN.code : builder.crawlStatus.code;
+		this.indexStatus = builder.indexStatus == null ? IndexStatus.UNKNOWN.code : builder.indexStatus.code;
 
 		this.schemaOrgType = builder.schemaOrgType;
 		this.imageUri = builder.imageUri == null ? null : builder.imageUri.toString();

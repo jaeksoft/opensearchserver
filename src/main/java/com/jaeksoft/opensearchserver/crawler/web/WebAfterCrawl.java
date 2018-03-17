@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.crawler.web;
 
 import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.CrawlStatus;
+import com.jaeksoft.opensearchserver.model.IndexStatus;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 
 import java.net.URI;
@@ -42,21 +43,24 @@ public class WebAfterCrawl extends WebAbstractEvent {
 				.httpStatus(context.currentCrawl.getStatusCode());
 
 		if (context.currentCrawl.getRedirect() != null) {
-			context.sessionStore.saveCrawl(currentUri, urlBuilder.crawlStatus(CrawlStatus.REDIRECTION).build());
+			context.sessionStore.saveCrawl(currentUri,
+					urlBuilder.crawlStatus(CrawlStatus.REDIRECTION).indexStatus(IndexStatus.NOT_INDEXABLE).build());
 			return true;
 		}
 
 		if (context.currentCrawl.getError() != null) {
-			context.sessionStore.saveCrawl(currentUri, urlBuilder.crawlStatus(CrawlStatus.ERROR).build());
+			context.sessionStore.saveCrawl(currentUri,
+					urlBuilder.crawlStatus(CrawlStatus.ERROR).indexStatus(IndexStatus.ERROR).build());
 			return true;
 		}
 
 		if (!context.currentCrawl.isCrawled()) {
-			context.sessionStore.saveCrawl(currentUri, urlBuilder.crawlStatus(CrawlStatus.NOT_CRAWLABLE).build());
+			context.sessionStore.saveCrawl(currentUri,
+					urlBuilder.crawlStatus(CrawlStatus.NOT_CRAWLABLE).indexStatus(IndexStatus.NOT_INDEXABLE).build());
 			return true;
 		}
 
-		urlBuilder.crawlStatus(CrawlStatus.CRAWLED);
+		urlBuilder.crawlStatus(CrawlStatus.CRAWLED).indexStatus(IndexStatus.INDEXED);
 
 		// We put links in the database
 		final int nextDepth = context.currentCrawl.getDepth() + 1;

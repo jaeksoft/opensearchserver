@@ -62,6 +62,7 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	UUID crawlUuid;
 	Long taskCreationTime;
 	CrawlStatus crawlStatus;
+	IndexStatus indexStatus;
 	String schemaOrgType;
 	URI imageUri;
 	String organizationName;
@@ -302,6 +303,11 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 
 	public T crawlStatus(final CrawlStatus crawlStatus) {
 		this.crawlStatus = crawlStatus;
+		return me();
+	}
+
+	public T indexStatus(final IndexStatus indexStatus) {
+		this.indexStatus = indexStatus;
 		return me();
 	}
 

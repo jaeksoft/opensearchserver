@@ -20,6 +20,8 @@ import com.jaeksoft.opensearchserver.front.Message;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.jaeksoft.opensearchserver.model.WebCrawlTaskDefinition;
+import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.utils.StringUtils;
@@ -35,16 +37,17 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 
 	private final WebCrawlsService webCrawlsService;
 	private final WebCrawlRecord webCrawlRecord;
+	private final TasksService tasksService;
 
 	public WebCrawlEditTransaction(final Components components, final AccountRecord accountRecord,
 			final UUID webCrawlUuid, final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 
 		this.webCrawlsService = components.getWebCrawlsService();
+		this.tasksService = components.getTasksService();
 		webCrawlRecord = webCrawlsService.read(accountRecord.getId(), webCrawlUuid);
 		if (webCrawlRecord == null)
 			throw new NotFoundException("Web crawl not found: " + webCrawlUuid);
-
 		request.setAttribute("webCrawlRecord", webCrawlRecord);
 	}
 
@@ -71,8 +74,13 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth).setMaxUrlNumber(maxUrlNumber);
-		webCrawlsService.save(accountRecord.getId(),
-				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build());
+		final WebCrawlRecord newWebCrawlRecord =
+				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build();
+		webCrawlsService.save(accountRecord.getId(), newWebCrawlRecord);
+		tasksService.updateDefinitions(webCrawlRecord.uuid, oldTaskDef -> {
+			final WebCrawlTaskDefinition oldWebCrawl = (WebCrawlTaskDefinition) oldTaskDef;
+			return new WebCrawlTaskDefinition(newWebCrawlRecord, oldWebCrawl.indexUuid);
+		});
 		return "/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid();
 	}
 
