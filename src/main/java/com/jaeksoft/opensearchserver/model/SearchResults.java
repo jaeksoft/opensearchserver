@@ -75,13 +75,21 @@ public class SearchResults {
 		private final String title;
 		private final String description;
 		private final String content;
+		private final String organization;
+		private final String schemaOrgType;
+		private final Long datePublished;
+		private final String imageUri;
 
-		public SearchResult(final ResultDocumentObject<UrlRecord> document, final Language language) {
+		SearchResult(final ResultDocumentObject<UrlRecord> document, final Language language) {
 			url = document.record.urlStore;
 			urlDisplay = url == null ? null : LinkUtils.urlHostPathWrapReduce(url, 70);
 			title = truncate(getBestHighlight(document, language.title, "title"), 100);
 			description = truncate(getBestHighlight(document, language.description, "description"), 250);
 			content = truncate(getBestHighlight(document, language.content, "content"), 250);
+			organization = document.record.organizationName;
+			schemaOrgType = document.record.schemaOrgType;
+			datePublished = document.record.datePublished;
+			imageUri = document.record.imageUri;
 		}
 
 		private static String getBestHighlight(final ResultDocumentObject<UrlRecord> document, final String... fields) {
@@ -139,6 +147,22 @@ public class SearchResults {
 
 		public String getContent() {
 			return content;
+		}
+
+		public String getOrganization() {
+			return organization;
+		}
+
+		public String getSchemaOrgType() {
+			return schemaOrgType;
+		}
+
+		public Long getDatePublished() {
+			return datePublished;
+		}
+
+		public String getImageUri() {
+			return imageUri;
 		}
 
 	}

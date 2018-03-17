@@ -41,7 +41,7 @@ public class CrawlerComponents implements CrawlerContext {
 
 	private static volatile Map<URL, Map<String, IndexService>> localIndexServices;
 
-	static volatile Components localComponents;
+	private static volatile Components localComponents;
 
 	public static synchronized void setLocalComponents(final Components localComponents) {
 		CrawlerComponents.localComponents = localComponents;
@@ -73,7 +73,7 @@ public class CrawlerComponents implements CrawlerContext {
 	private static volatile ExtractorManager extractorManager;
 	private static volatile ExtractorServiceInterface extractorService;
 
-	public static ExtractorServiceInterface getExtractorService() {
+	private static ExtractorServiceInterface getExtractorService() {
 		if (extractorService != null)
 			return extractorService;
 		synchronized (CrawlerComponents.class) {
@@ -83,6 +83,23 @@ public class CrawlerComponents implements CrawlerContext {
 			}
 			extractorService = extractorManager.getService();
 			return extractorService;
+		}
+	}
+
+	private static volatile ExtractorIndexer extractorIndexer;
+
+	public static ExtractorIndexer getExtractorIndexer() {
+		if (extractorIndexer != null)
+			return extractorIndexer;
+		synchronized (CrawlerComponents.class) {
+			if (extractorIndexer == null) {
+				try {
+					extractorIndexer = new ExtractorIndexer(getExtractorService());
+				} catch (URISyntaxException e) {
+					throw new RuntimeException("Error while creating the ExtractorIndexer", e);
+				}
+			}
+			return extractorIndexer;
 		}
 	}
 

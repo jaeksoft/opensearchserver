@@ -28,5 +28,4 @@ public interface CrawlerContext {
 
 	// Attributes
 	String SESSION_STORE = "sessionStore";
-
 }

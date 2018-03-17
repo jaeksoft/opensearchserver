@@ -230,6 +230,27 @@ public class UrlRecord {
 	@IndexField(template = FieldDefinition.Template.IntDocValuesField)
 	final public Integer crawlStatus;
 
+	@IndexField(template = FieldDefinition.Template.SortedDocValuesField)
+	final public String schemaOrgType;
+
+	@IndexField(template = FieldDefinition.Template.StoredField)
+	final public String imageUri;
+
+	@IndexField(template = FieldDefinition.Template.SortedDocValuesField)
+	final public String organizationName;
+
+	@IndexField(template = FieldDefinition.Template.SortedLongDocValuesField)
+	final public Long datePublished;
+
+	@IndexField(template = FieldDefinition.Template.SortedDoubleDocValuesField)
+	final public Double price;
+
+	@IndexField(template = FieldDefinition.Template.StringField)
+	final public String currency;
+
+	@IndexField(template = FieldDefinition.Template.StringField)
+	final public String gtIn13;
+
 	public UrlRecord() {
 		url = null;
 		urlStore = null;
@@ -264,6 +285,13 @@ public class UrlRecord {
 		crawlUuidLeast = null;
 		taskCreationTime = null;
 		crawlStatus = null;
+		schemaOrgType = null;
+		imageUri = null;
+		organizationName = null;
+		datePublished = null;
+		price = null;
+		currency = null;
+		gtIn13 = null;
 	}
 
 	public String getUrl() {
@@ -291,7 +319,7 @@ public class UrlRecord {
 	}
 
 	UrlRecord(UrlRecordBuilder<?, ?> builder) {
-		this.url = builder.url.toString();
+		this.url = builder.uri.toString();
 		this.urlStore = builder.urlStore;
 		this.host = builder.host;
 
@@ -351,6 +379,15 @@ public class UrlRecord {
 		}
 		this.taskCreationTime = builder.taskCreationTime;
 		this.crawlStatus = builder.crawlStatus == null ? CrawlStatus.UNKNOWN.code : builder.crawlStatus.code;
+
+		this.schemaOrgType = builder.schemaOrgType;
+		this.imageUri = builder.imageUri == null ? null : builder.imageUri.toString();
+		this.organizationName = builder.organizationName;
+		this.datePublished = builder.datePublished;
+
+		this.currency = builder.currency;
+		this.price = builder.price;
+		this.gtIn13 = builder.gtin13;
 	}
 
 	public static class Builder extends UrlRecordBuilder<UrlRecord, Builder> {

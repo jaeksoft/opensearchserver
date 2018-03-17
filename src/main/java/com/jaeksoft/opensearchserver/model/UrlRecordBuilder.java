@@ -30,7 +30,7 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 
 	private final Class<T> builderClass;
 
-	final URI url;
+	final URI uri;
 
 	String urlStore;
 	String host;
@@ -62,10 +62,17 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	UUID crawlUuid;
 	Long taskCreationTime;
 	CrawlStatus crawlStatus;
+	String schemaOrgType;
+	URI imageUri;
+	String organizationName;
+	Long datePublished;
+	String currency;
+	Double price;
+	String gtin13;
 
-	UrlRecordBuilder(final Class<T> builderClass, final URI url) {
+	UrlRecordBuilder(final Class<T> builderClass, final URI uri) {
 		this.builderClass = builderClass;
-		this.url = url;
+		this.uri = uri;
 
 	}
 
@@ -75,7 +82,7 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 
 	public T hostAndUrlStore(String host) {
 		this.host = host;
-		this.urlStore = url.toString();
+		this.urlStore = uri.toString();
 		return me();
 	}
 
@@ -298,6 +305,39 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 		return me();
 	}
 
-	public abstract R build();
+	public T schemaOrgType(final String schemaOrgType) {
+		this.schemaOrgType = schemaOrgType;
+		return me();
+	}
 
+	public T imageUri(final URI imageUri) {
+		this.imageUri = imageUri == null ? null : uri.resolve(imageUri);
+		return me();
+	}
+
+	public T organizationName(final String organizationName) {
+		this.organizationName = organizationName;
+		return me();
+	}
+
+	public T datePublished(final Long datePublished) {
+		if (datePublished != null)
+			this.datePublished = datePublished;
+		return me();
+	}
+
+	public T lowestPrice(final String currency, final Double price) {
+		if (this.price != null && this.price <= price)
+			return me();
+		this.currency = currency;
+		this.price = price;
+		return me();
+	}
+
+	public T gtin13(final String gtin13) {
+		this.gtin13 = gtin13;
+		return me();
+	}
+
+	public abstract R build();
 }

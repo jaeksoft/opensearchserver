@@ -21,6 +21,7 @@ import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.JobService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
+import com.jaeksoft.opensearchserver.services.SearchService;
 import com.jaeksoft.opensearchserver.services.TaskExecutionService;
 import com.jaeksoft.opensearchserver.services.TaskProcessor;
 import com.jaeksoft.opensearchserver.services.TasksService;
@@ -77,6 +78,7 @@ public class Components implements Closeable {
 	private volatile IndexManager indexManager;
 	private volatile IndexServiceInterface indexService;
 	private volatile IndexesService indexesService;
+	private volatile SearchService searchService;
 
 	private volatile WebCrawlerManager webCrawlerManager;
 	private volatile WebCrawlerServiceInterface webCrawlerService;
@@ -166,6 +168,12 @@ public class Components implements Closeable {
 		if (indexesService == null)
 			indexesService = new IndexesService(getIndexService());
 		return indexesService;
+	}
+
+	public synchronized SearchService getSearchService() {
+		if (searchService == null)
+			searchService = new SearchService();
+		return searchService;
 	}
 
 	public synchronized WebCrawlsService getWebCrawlsService() {

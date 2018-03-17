@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.jaeksoft.opensearchserver.services.IndexService;
+import com.jaeksoft.opensearchserver.services.SearchService;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -36,6 +37,7 @@ public class SearchTransaction extends ServletTransaction {
 	private final static String TEMPLATE = "search/home.ftl";
 
 	private final IndexService indexService;
+	private final SearchService searchService;
 
 	public SearchTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
 			final HttpServletRequest request, final HttpServletResponse response) {
@@ -43,6 +45,7 @@ public class SearchTransaction extends ServletTransaction {
 		this.indexService = components.getIndexesService().getIndex(accountRecord.id, indexName);
 		if (indexService == null)
 			throw new NotFoundException("Index not found: " + indexName);
+		this.searchService = components.getSearchService();
 		request.setAttribute("account", accountRecord);
 		request.setAttribute("indexName", indexName);
 	}
@@ -61,7 +64,7 @@ public class SearchTransaction extends ServletTransaction {
 		request.setAttribute("lang", language.name());
 		try {
 			if (!StringUtils.isBlank(keywords)) {
-				final SearchResults results = indexService.search(language, keywords, start, 10);
+				final SearchResults results = searchService.webSearch(indexService, language, keywords, start, 10);
 				request.setAttribute("keywords", keywords);
 				request.setAttribute("numDocs", results.getNumDocs());
 				request.setAttribute("totalTime", results.getTotalTime());

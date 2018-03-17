@@ -18,21 +18,11 @@ package com.jaeksoft.opensearchserver.crawler.web;
 
 import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
 import com.jaeksoft.opensearchserver.model.CrawlStatus;
-import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
-import com.qwazr.extractor.ParserResult;
-import com.qwazr.server.ServerException;
-import com.qwazr.utils.LoggerUtils;
 
-import javax.ws.rs.WebApplicationException;
-import java.io.InputStream;
 import java.net.URI;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class WebAfterCrawl extends WebAbstractEvent {
-
-	private final static Logger LOGGER = LoggerUtils.getLogger(WebAfterCrawl.class);
 
 	@Override
 	protected boolean run(final EventContext context) throws Exception {
@@ -67,32 +57,13 @@ public class WebAfterCrawl extends WebAbstractEvent {
 		}
 
 		urlBuilder.crawlStatus(CrawlStatus.CRAWLED);
-		final String currentUrl = currentUri.toString();
 
 		// We put links in the database
 		final int nextDepth = context.currentCrawl.getDepth() + 1;
 		context.sessionStore.saveNewLinks(context.currentCrawl.getFilteredLinks(), nextDepth);
 
-		final String contentType = context.currentCrawl.getContentType();
-
-		// Extract indexable data
-		try (final InputStream inputStream = context.currentCrawl.getBody().getContent().getInput()) {
-			final ParserResult parserResult =
-					CrawlerComponents.getExtractorService().putMagic(null, null, null, contentType, inputStream);
-			if (parserResult != null && parserResult.documents != null) {
-				final Object language = parserResult.getDocumentFieldValue(0, "lang_detection", 0);
-				final Language foundLanguage = Language.find(language, Language.en);
-				if (foundLanguage != null)
-					urlBuilder.lang(foundLanguage);
-				urlBuilder.title(parserResult.getDocumentFieldValue(0, "title", 0), foundLanguage);
-				parserResult.documents.forEach(fields -> {
-					final Object contentLang = fields.get("lang_detection");
-					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang, Language.en));
-				});
-			}
-		} catch (WebApplicationException | ServerException e) {
-			LOGGER.log(Level.WARNING, "Parsing failed with " + contentType + " on " + currentUrl, e);
-		}
+		// Call indexer
+		CrawlerComponents.getExtractorIndexer().extract(context.currentCrawl, urlBuilder);
 
 		context.sessionStore.saveCrawl(currentUri, urlBuilder.build());
 		return true;

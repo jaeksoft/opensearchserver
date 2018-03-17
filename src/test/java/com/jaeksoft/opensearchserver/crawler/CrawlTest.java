@@ -21,6 +21,7 @@ import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.SearchService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
@@ -51,6 +52,7 @@ public class CrawlTest extends BaseTest {
 		final IndexesService indexesService = getIndexesService();
 		indexesService.createIndex(getAccountId().toString(), indexName);
 		final IndexService indexService = indexesService.getIndex(accountId, indexName);
+		final SearchService searchService = new SearchService();
 
 		final WebCrawlDefinition.Builder webCrawl = WebCrawlDefinition.of().setEntryUrl(url).addUrl(url, 1);
 
@@ -68,7 +70,7 @@ public class CrawlTest extends BaseTest {
 		}
 
 		Assert.assertTrue(indexService.isAlreadyCrawled(url, crawlUuid, sessionTimeId));
-		final SearchResults results = indexService.search(Language.en, "frame", 0, 1);
+		final SearchResults results = searchService.webSearch(indexService, Language.en, "frame", 0, 1);
 		Assert.assertNotNull(results);
 		Assert.assertNotNull(results.getResults());
 		Assert.assertEquals(1, results.getResults().size());
