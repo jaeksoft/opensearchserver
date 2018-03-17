@@ -34,10 +34,12 @@
     </nav>
 </div>
 <#if webCrawlRecords?has_content>
-    <div class="container">
+<div class="container">
+    <form method="post">
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
+                <th>#</th>
                 <th>Name</th>
                 <th>Entry URL</th>
                 <th>Depth</th>
@@ -46,45 +48,83 @@
             </tr>
             </thead>
             <tbody>
-           <#list webCrawlRecords as webCrawlRecord>
-           <tr>
-               <th>${webCrawlRecord.name!?html}</th>
-               <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
-               <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
-               <td>${webCrawlRecord.crawlDefinition.maxUrlNumber!}</td>
-               <td align="right">
-                   <a href="/accounts/${account.name?url}/crawlers/web/${webCrawlRecord.uuid!}"
-                      class=" btn btn-sm btn-secondary">Edit</a>
-                   <a href="/accounts/${account.name?url}/crawlers/web/${webCrawlRecord.uuid!}/tasks"
-                      class=" btn btn-sm btn-info">Tasks</a>
-               </td>
-           </tr>
-           </#list>
+       <#list webCrawlRecords as webCrawlRecord>
+       <tr>
+           <th>
+               <div class="form-check">
+                   <input class="form-check-input" type="checkbox" name="c"
+                          value="${webCrawlRecord.uuid?html}">
+               </div>
+           </th>
+           <th>${webCrawlRecord.name!?html}</th>
+           <td>${webCrawlRecord.crawlDefinition.entryUrl!?html}</td>
+           <td>${webCrawlRecord.crawlDefinition.maxDepth!}</td>
+           <td>${webCrawlRecord.crawlDefinition.maxUrlNumber!}</td>
+           <td align="right">
+               <a href="/accounts/${account.name?url}/crawlers/web/${webCrawlRecord.uuid!}"
+                  class=" btn btn-sm btn-secondary">Edit</a>
+               <a href="/accounts/${account.name?url}/crawlers/web/${webCrawlRecord.uuid!}/tasks"
+                  class=" btn btn-sm btn-info">Tasks</a>
+           </td>
+       </tr>
+       </#list>
             </tbody>
         </table>
-    </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="form-inline">
+                    <div class="form-group mb-2 mr-sm-2">
+                        <label for="crawlAction" class="sr-only">Grouped crawl action</label>
+                        <select id="crawlAction" class="form-control" name="action">
+                            <option>Choose an action</option>
+                            <option value="activate">ACTIVATE</option>
+                            <option value="pause">PAUSE</option>
+                            <option value="stop">STOP</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-2 mr-sm-2">
+                        <label for="indexList" class="sr-only">Index list</label>
+                        <select class="form-control" id="indexList" name="index">
+                            <option>Choose an index</option>
+                     <#list indexes as index>
+                            <option value="${index?html}">${index?html}</option>
+                     </#list>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-2">Apply</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<br/>
 </#if>
 <div class="container">
     <form method="post">
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
-                       aria-label="Crawl name">
-            </div>
-            <div class="form-group col-md-5">
-                <textarea class="form-control" name="entryUrl" rows="3" placeholder="Entry URL"
-                          aria-label="Entry URL"></textarea>
-            </div>
-            <div class="form-group col-md-2">
-                <input type="number" name="maxDepth" class="form-control" placeholder="maxDepth"
-                       aria-label="Max depth">
-            </div>
-            <div class="form-group col-md-2">
-                <input type="number" name="maxUrlNumber" class="form-control" placeholder="maxUrlNumber"
-                       aria-label="Max URL number">
-            </div>
-            <div class="form-group col-md-1">
-                <button class="btn btn-primary" name="action" value="create" type="submit">Create</button>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Add Web crawl</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <input type="text" name="crawlName" class="form-control" placeholder="Crawl name"
+                               aria-label="Crawl name">
+                    </div>
+                    <div class="form-group col-md-5">
+                     <textarea class="form-control" name="entryUrl" rows="1" placeholder="Entry URL"
+                               aria-label="Entry URL"></textarea>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" name="maxDepth" class="form-control" placeholder="maxDepth"
+                               aria-label="Max depth">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" name="maxUrlNumber" class="form-control" placeholder="maxUrlNumber"
+                               aria-label="Max URL number">
+                    </div>
+                    <div class="form-group col-md-1">
+                        <button class="btn btn-primary" name="action" value="create" type="submit">Create</button>
+                    </div>
+                </div>
             </div>
         </div>
     </form>
