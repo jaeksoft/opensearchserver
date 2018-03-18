@@ -145,7 +145,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 
 	public void stop() {
 		final Integer count = forEachCrawl(
-				(webCrawlTask, taskRecord) -> tasksService != null && tasksService.removeTask(taskRecord.getTaskId()));
+				(webCrawlTask, taskRecord) -> taskRecord != null && tasksService.removeTask(taskRecord.getTaskId()));
 		if (count != null)
 			addMessage(Message.Css.success, "Stop Crawl", count + " crawl(s) stopped");
 	}
