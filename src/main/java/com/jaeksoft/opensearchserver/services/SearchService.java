@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.model.IndexStatus;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.qwazr.search.function.IntFieldSource;
+import com.qwazr.search.function.LongFieldSource;
 import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.query.BooleanQuery;
@@ -28,21 +29,37 @@ import com.qwazr.search.query.FunctionQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.MultiFieldQueryParser;
 import com.qwazr.search.query.QueryParserOperator;
+import com.qwazr.search.query.SortedDocValuesExactQuery;
 import com.qwazr.utils.StringUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.CustomScoreProvider;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class SearchService {
 
 	// Optimization: They are global singleton
-	private final HighlighterDefinition titleHighlighter = HighlighterDefinition.of().setMaxPassages(1).build();
-	private final HighlighterDefinition contentHighlighter = HighlighterDefinition.of().setMaxPassages(5).build();
-	private final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
-	private final BooleanQuery.BooleanClause indexedStatus = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+	protected final HighlighterDefinition titleHighlighter = HighlighterDefinition.of().setMaxPassages(1).build();
+
+	protected final HighlighterDefinition contentHighlighter = HighlighterDefinition.of().setMaxPassages(5).build();
+
+	protected final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
+
+	protected final FunctionQuery datePublishedFunctionQuery = new FunctionQuery(new LongFieldSource("datePublished"));
+
+	protected final BooleanQuery.BooleanClause indexedStatus = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
 			new IntDocValuesExactQuery("indexStatus", IndexStatus.INDEXED.code));
+
+	protected final BooleanQuery.BooleanClause newsFilter = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
+			BooleanQuery.of(false, null)
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "Article"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "NewsArticle"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "Blog"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "Report"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "TechArticle"))
+					.build());
 
 	// Optimization: They are per thread singleton
 	private final ThreadLocal<Map<Language, MultiFieldQueryParser.Builder>> queryParserSupplier;
@@ -60,7 +77,7 @@ public class SearchService {
 		booleanQueryBuilderSupplier = ThreadLocal.withInitial(BooleanQuery::of);
 	}
 
-	private MultiFieldQueryParser.Builder getQueryParser(final Language language) {
+	protected MultiFieldQueryParser.Builder getQueryParser(final Language language) {
 		return queryParserSupplier.get()
 				.computeIfAbsent(language, lang -> MultiFieldQueryParser.of()
 						.setDefaultOperator(QueryParserOperator.and)
@@ -77,25 +94,46 @@ public class SearchService {
 						.addBoost(lang.full, 1f));
 	}
 
-	public SearchResults webSearch(final IndexService indexService, final Language lang, final String keywords,
-			final int start, final int rows) {
+	protected QueryBuilder getQueryBuilder() {
+		return queryBuilderSupplier.get();
+	}
+
+	protected BooleanQuery.Builder getBooleanQueryBuilder() {
+		return booleanQueryBuilderSupplier.get();
+	}
+
+	public SearchResults search(final IndexService indexService, final Language lang, final String keywords,
+			final int start, final int rows,
+			final Function<MultiFieldQueryParser, CustomScoreQuery> customScoreQueryFunction,
+			final BooleanQuery.BooleanClause... filters) {
 
 		if (StringUtils.isBlank(keywords))
 			return null;
 
 		final MultiFieldQueryParser fullTextQuery = getQueryParser(lang).setQueryString(keywords).build();
 
-		final CustomScoreQuery customScoreQuery =
-				new CustomScoreQuery(fullTextQuery, DepthScore.class.getName(), depthFunctionQuery);
-
-		final BooleanQuery booleanQuery = booleanQueryBuilderSupplier.get()
-				.setClauses(new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, customScoreQuery), indexedStatus)
+		final BooleanQuery booleanQuery = getBooleanQueryBuilder().setClauses(
+				new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, customScoreQueryFunction.apply(fullTextQuery)))
+				.addClauses(filters)
 				.build();
 
-		final QueryBuilder queryBuilder = queryBuilderSupplier.get().query(booleanQuery).start(start).rows(rows);
+		final QueryBuilder queryBuilder = getQueryBuilder().query(booleanQuery).start(start).rows(rows);
 		lang.highlights(queryBuilder);
 
 		return new SearchResults(start, rows, indexService.search(queryBuilder.build()), lang);
+	}
+
+	public SearchResults webSearch(final IndexService indexService, final Language lang, final String keywords,
+			final int start, final int rows) {
+		return search(indexService, lang, keywords, start, rows,
+				query -> new CustomScoreQuery(query, DepthScore.class.getName(), depthFunctionQuery), indexedStatus);
+	}
+
+	public SearchResults newsSearch(final IndexService indexService, final Language lang, final String keywords,
+			final int start, final int rows) {
+		return search(indexService, lang, keywords, start, rows,
+				query -> new CustomScoreQuery(query, RecentScore.class.getName(), datePublishedFunctionQuery),
+				indexedStatus, newsFilter);
 	}
 
 	public static class DepthScore extends CustomScoreProvider {
@@ -117,6 +155,31 @@ public class SearchService {
 			default:
 				return subQueryScore;
 			}
+		}
+	}
+
+	public static class RecentScore extends CustomScoreProvider {
+
+		private static final float rangeTime = 1000 * 60 * 60 * 24 * 7;
+
+		private final long currentTime = System.currentTimeMillis();
+		private final float pivotTime = currentTime - rangeTime;
+
+		private final static float MAX_BOOST = 3.0f;
+		private final static float RANGE_BOOST = 2.0f;
+
+		public RecentScore(LeafReaderContext context) {
+			super(context);
+		}
+
+		public float customScore(final int doc, final float subQueryScore, final float valSrcScore) {
+			if (valSrcScore == 0 || valSrcScore <= pivotTime)
+				return subQueryScore;
+			final float distanceTime = valSrcScore - pivotTime;
+			if (distanceTime <= 0)
+				return MAX_BOOST * subQueryScore;
+			final float distanceCoef = 1 + RANGE_BOOST * (1 / (float) StrictMath.pow(rangeTime / distanceTime, 2));
+			return distanceCoef * subQueryScore;
 		}
 	}
 
