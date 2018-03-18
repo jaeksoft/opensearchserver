@@ -39,7 +39,11 @@
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
-                <th>#</th>
+                <th>
+                    <div class="form-check">
+                        <input id="checkBoxCheckAll" class="form-check-input position-static" type="checkbox">
+                    </div>
+                </th>
                 <th>Name</th>
                 <th>Entry URL</th>
                 <th>Depth</th>
@@ -52,7 +56,7 @@
        <tr>
            <th>
                <div class="form-check">
-                   <input class="form-check-input" type="checkbox" name="c"
+                   <input class="form-check-input position-static checkBoxClass" type="checkbox" name="c"
                           value="${webCrawlRecord.uuid?html}">
                </div>
            </th>
