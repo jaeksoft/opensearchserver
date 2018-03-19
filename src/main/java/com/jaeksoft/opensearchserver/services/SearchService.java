@@ -20,7 +20,7 @@ import com.jaeksoft.opensearchserver.model.IndexStatus;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.qwazr.search.function.IntFieldSource;
-import com.qwazr.search.function.LongFieldSource;
+import com.qwazr.search.function.MultiValuedLongFieldSource;
 import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.query.BooleanQuery;
@@ -33,6 +33,7 @@ import com.qwazr.search.query.SortedDocValuesExactQuery;
 import com.qwazr.utils.StringUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.CustomScoreProvider;
+import org.apache.lucene.search.SortedNumericSelector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,8 @@ public class SearchService {
 
 	protected final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
 
-	protected final FunctionQuery datePublishedFunctionQuery = new FunctionQuery(new LongFieldSource("datePublished"));
+	protected final FunctionQuery datePublishedFunctionQuery =
+			new FunctionQuery(new MultiValuedLongFieldSource("datePublished", SortedNumericSelector.Type.MAX));
 
 	protected final BooleanQuery.BooleanClause indexedStatus = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
 			new IntDocValuesExactQuery("indexStatus", IndexStatus.INDEXED.code));
