@@ -23,6 +23,7 @@ import com.qwazr.search.function.IntFieldSource;
 import com.qwazr.search.function.MultiValuedLongFieldSource;
 import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.QueryBuilder;
+import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.query.BooleanQuery;
 import com.qwazr.search.query.CustomScoreQuery;
 import com.qwazr.search.query.FunctionQuery;
@@ -125,6 +126,25 @@ public class SearchService {
 		return new SearchResults(start, rows, indexService.search(queryBuilder.build()), lang);
 	}
 
+	public SearchResults search(final IndexService indexService, final Language lang, final String keywords,
+			final int start, final int rows, final String sortField, final QueryDefinition.SortEnum sortEnum,
+			final BooleanQuery.BooleanClause... filters) {
+
+		if (StringUtils.isBlank(keywords))
+			return null;
+
+		final MultiFieldQueryParser fullTextQuery = getQueryParser(lang).setQueryString(keywords).build();
+
+		final BooleanQuery booleanQuery = getBooleanQueryBuilder().setClause(
+				new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, fullTextQuery)).addClauses(filters).build();
+
+		final QueryBuilder queryBuilder =
+				getQueryBuilder().query(booleanQuery).sort(sortField, sortEnum).start(start).rows(rows);
+		lang.highlights(queryBuilder);
+
+		return new SearchResults(start, rows, indexService.search(queryBuilder.build()), lang);
+	}
+
 	public SearchResults webSearch(final IndexService indexService, final Language lang, final String keywords,
 			final int start, final int rows) {
 		return search(indexService, lang, keywords, start, rows,
@@ -133,9 +153,8 @@ public class SearchService {
 
 	public SearchResults newsSearch(final IndexService indexService, final Language lang, final String keywords,
 			final int start, final int rows) {
-		return search(indexService, lang, keywords, start, rows,
-				query -> new CustomScoreQuery(query, RecentScore.class.getName(), datePublishedFunctionQuery),
-				indexedStatus, newsFilter);
+		return search(indexService, lang, keywords, start, rows, "datePublished",
+				QueryDefinition.SortEnum.descending_missing_last, indexedStatus, newsFilter);
 	}
 
 	public static class DepthScore extends CustomScoreProvider {
