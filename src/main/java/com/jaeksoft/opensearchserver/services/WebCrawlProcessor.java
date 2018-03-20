@@ -23,6 +23,7 @@ import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.crawler.web.WebCrawlStatus;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.utils.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.net.URL;
 import java.util.Objects;
@@ -78,8 +79,12 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
 		}
 
 		final URL baseUrl = new URL(webCrawlTask.crawlDefinition.entryUrl);
+		// We add the entry URL to the inclusion list
 		crawlBuilder.addInclusionPattern(baseUrl.toString());
-		crawlBuilder.addInclusionPattern(baseUrl.getProtocol() + "://" + baseUrl.getHost() + "/*");
+		// If we don't have any inclusion/exclusion pattern, we add the hostname as inclusion pattern
+		if (CollectionUtils.isEmpty(webCrawlTask.crawlDefinition.inclusionPatterns) &&
+				CollectionUtils.isEmpty(webCrawlTask.crawlDefinition.exclusionPatterns))
+			crawlBuilder.addInclusionPattern(baseUrl.getProtocol() + "://" + baseUrl.getHost() + "/*");
 		crawlBuilder.setRemoveFragments(true);
 		if (StringUtils.isBlank(webCrawlTask.crawlDefinition.userAgent))
 			crawlBuilder.userAgent("OpenSearchServer-Bot");
