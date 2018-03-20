@@ -74,6 +74,10 @@ public class TaskResult {
 		return taskRecord;
 	}
 
+	public static Builder of(final IndexesService indexesService, final UUID accountId) {
+		return of(indexesService, accountId, null);
+	}
+
 	public static Builder of(final IndexesService indexesService, final UUID accountId,
 			final WebCrawlsService webCrawlsService) {
 		return new Builder(indexesService, accountId, webCrawlsService);

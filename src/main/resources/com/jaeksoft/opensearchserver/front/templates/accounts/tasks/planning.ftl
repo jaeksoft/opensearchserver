@@ -17,7 +17,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Active Tasks - OpenSearchServer</title>
+    <title>Active Task planning - OpenSearchServer</title>
     <#include '../../includes/head.ftl'>
 </head>
 <body>
@@ -28,17 +28,18 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
             <li class="breadcrumb-item"><a href="/accounts/${account.name?url}">${account.name?html}</a></li>
-            <li class="breadcrumb-item active">Tasks</li>
+            <li class="breadcrumb-item"><a href="/accounts/${account.name?url}/tasks">Tasks</a></li>
+            <li class="breadcrumb-item active">Planning</li>
         </ol>
     </nav>
 </div>
 <div class="container">
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link active" href="/accounts/${account.name?url}/tasks/">Active Tasks</a>
+            <a class="nav-link" href="/accounts/${account.name?url}/tasks/">Active Tasks</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/accounts/${account.name?url}/tasks/planning">Execution planning</a>
+            <a class="nav-link active" href="/accounts/${account.name?url}/tasks/planning">Execution planning</a>
         </li>
     </ul>
     <br/>

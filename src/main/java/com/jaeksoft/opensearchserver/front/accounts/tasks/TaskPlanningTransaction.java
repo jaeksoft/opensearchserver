@@ -18,7 +18,7 @@ package com.jaeksoft.opensearchserver.front.accounts.tasks;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
-import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
 import com.qwazr.utils.Paging;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,24 +26,25 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskListTransaction extends AccountTransaction {
+public class TaskPlanningTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/tasks/list.ftl";
+	private final static String TEMPLATE = "accounts/tasks/planning.ftl";
 
-	public TaskListTransaction(final Components components, final AccountRecord accountRecord,
+	public TaskPlanningTransaction(final Components components, final AccountRecord accountRecord,
 			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 
 		final int start = getRequestParameter("start", 0, 0, null);
 		final int rows = getRequestParameter("rows", 25, 10, 100);
 
-		final List<TaskRecord> taskRecords = new ArrayList<>();
-		long totalCount =
-				components.getTasksService().collectTasksByAccount(accountRecord.getId(), start, rows, taskRecords);
+		final List<TaskExecutionRecord> taskExecutions = new ArrayList<>();
+		long totalCount = components.getTaskExecutionService()
+				.collectFutureExecutions(accountRecord, start, rows, taskExecutions);
 
 		final TaskResult.Builder resultBuilder =
 				TaskResult.of(components.getIndexesService(), accountRecord.getId(), components.getWebCrawlsService());
-		taskRecords.forEach(resultBuilder::add);
+		taskExecutions.forEach(taskExecutionRecord -> resultBuilder.add(
+				components.getTasksService().getTask(taskExecutionRecord.taskId)));
 		final List<TaskResult> tasks = resultBuilder.build();
 
 		request.setAttribute("start", start);

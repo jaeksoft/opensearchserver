@@ -87,7 +87,7 @@ public class TaskExecutionService {
 		return taskExecutionRecords.size() > rows ? taskExecutionRecords.subList(0, rows) : taskExecutionRecords;
 	}
 
-	public int getFutureExecutions(final AccountRecord account, final int start, final int rows,
+	public int collectFutureExecutions(final AccountRecord account, final int start, final int rows,
 			final Collection<TaskExecutionRecord> collector) {
 		return getNextTaskExecutions(account.getId(), account.getCrawlNumberLimit(), Long.MAX_VALUE, start, rows,
 				collector);

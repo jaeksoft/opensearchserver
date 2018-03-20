@@ -2,6 +2,7 @@
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
+                <th>#</th>
                 <th>Session start time</th>
                 <#if show_crawl>
                 <th>Type</th>
@@ -16,6 +17,7 @@
             <tbody>
             <#list tasks as task>
             <tr>
+                <td>${(start!0) + task?index + 1}</td>
                 <td>${task.record.sessionTimeId?number_to_datetime}</td>
                 <#if show_crawl>
                 <td>${task.record.type?capitalize}</td>

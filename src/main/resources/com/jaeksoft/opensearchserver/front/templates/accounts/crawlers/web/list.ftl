@@ -56,8 +56,10 @@
        <tr>
            <th>
                <div class="form-check">
-                   <input class="form-check-input position-static checkBoxClass" type="checkbox" name="c"
-                          value="${webCrawlRecord.uuid?html}">
+                   <#assign idx = (start!0) + webCrawlRecord?index + 1>
+                   <input class="form-check-input" type="checkbox" name="c"
+                          id="chk${idx?c}" value="${webCrawlRecord.uuid?html}">
+                   <label class="form-check-label" for="chk${idx?c}">${idx?c}</label>
                </div>
            </th>
            <th>${webCrawlRecord.name!?html}</th>

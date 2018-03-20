@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexesTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskListTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskPlanningTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskStatusTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlEditTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlListTransaction;
@@ -106,8 +107,13 @@ public class AccountsServlet extends BaseServlet {
 			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length == 2)
 			return new TaskListTransaction(components, accountRecord, request, response);
-		if (pathParts.length == 3)
-			return new TaskStatusTransaction(components, accountRecord, pathParts[2], request, response);
+		if (pathParts.length == 3) {
+			final String part3 = pathParts[2];
+			if ("planning".equals(part3))
+				return new TaskPlanningTransaction(components, accountRecord, request, response);
+			else
+				return new TaskStatusTransaction(components, accountRecord, part3, request, response);
+		}
 		return null;
 	}
 

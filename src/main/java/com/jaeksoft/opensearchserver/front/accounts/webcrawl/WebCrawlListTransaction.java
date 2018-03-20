@@ -160,6 +160,7 @@ public class WebCrawlListTransaction extends AccountTransaction {
 		final int totalCount = webCrawlsService.collect(accountRecord.getId(), start, rows, webCrawlRecords);
 
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
+		request.setAttribute("start", start);
 		request.setAttribute("rows", rows);
 		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));

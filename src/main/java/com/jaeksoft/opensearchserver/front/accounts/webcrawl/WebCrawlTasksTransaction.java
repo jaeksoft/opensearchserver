@@ -81,7 +81,7 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 	protected void doGet() throws IOException, ServletException {
 		final List<TaskRecord> tasks = new ArrayList<>();
 		final long totalCount = tasksService.collectTasksByDefinition(webCrawlRecord.getUuid(), 0, 1000, tasks);
-		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountRecord.getId(), null);
+		final TaskResult.Builder resultBuilder = TaskResult.of(indexesService, accountRecord.getId());
 		for (TaskRecord task : tasks)
 			resultBuilder.add(task);
 
