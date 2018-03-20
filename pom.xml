@@ -76,6 +76,11 @@
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
+                <artifactId>bootstrap</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars</groupId>
                 <artifactId>jquery</artifactId>
                 <version>3.2.1</version>
             </dependency>
@@ -85,9 +90,9 @@
                 <version>1.12.9</version>
             </dependency>
             <dependency>
-                <groupId>org.webjars</groupId>
-                <artifactId>octicons</artifactId>
-                <version>4.3.0</version>
+                <groupId>org.webjars.bower</groupId>
+                <artifactId>open-iconic</artifactId>
+                <version>1.1.1</version>
             </dependency>
             <dependency>
                 <groupId>org.xerial.snappy</groupId>
@@ -173,7 +178,10 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>open-iconic</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

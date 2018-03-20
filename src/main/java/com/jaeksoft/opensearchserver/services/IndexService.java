@@ -22,6 +22,7 @@ import com.qwazr.crawler.web.WebCrawlDefinition;
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.field.FieldDefinition;
 import com.qwazr.search.index.IndexServiceInterface;
+import com.qwazr.search.index.IndexSettingsDefinition;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.AbstractQuery;
@@ -51,7 +52,8 @@ public class IndexService extends UsableService {
 
 	public IndexService(final IndexServiceInterface indexService, final String accountId, final String indexName)
 			throws URISyntaxException {
-		service = new AnnotatedIndexService<>(indexService, UrlRecord.class, accountId, indexName, null);
+		service = new AnnotatedIndexService<>(indexService, UrlRecord.class, accountId, indexName,
+				IndexSettingsDefinition.of().mergeScheduler(IndexSettingsDefinition.MergeScheduler.SERIAL).build());
 		service.createUpdateFields();
 	}
 

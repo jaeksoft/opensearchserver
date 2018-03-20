@@ -74,6 +74,14 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null, null, null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth).setMaxUrlNumber(maxUrlNumber);
+		final String[] inclusions = request.getParameterValues("inclusion");
+		if (inclusions != null)
+			for (String inclusion : inclusions)
+				webCrawlDefBuilder.addInclusionPattern(inclusion);
+		final String[] exclusions = request.getParameterValues("exclusion");
+		if (exclusions != null)
+			for (String exclusion : exclusions)
+				webCrawlDefBuilder.addExclusionPattern(exclusion);
 		final WebCrawlRecord newWebCrawlRecord =
 				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build();
 		webCrawlsService.save(accountRecord.getId(), newWebCrawlRecord);
@@ -82,6 +90,10 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 			return new WebCrawlTaskDefinition(newWebCrawlRecord, oldWebCrawl.indexUuid);
 		});
 		return "/accounts/" + accountRecord.id + "/crawlers/web/" + webCrawlRecord.getUuid();
+	}
+
+	public String revert() {
+		return null;
 	}
 
 }

@@ -69,8 +69,13 @@
                     <small>This URL is the first URL to be crawled until we discover new URLs</small>
                 </div>
             </div>
-            <div class="card-footer text-right">
-                <button class="btn btn-primary" name="action" value="save" type="submit">Save</button>
+            <#include 'includes/inclusions.ftl'>
+            <#include 'includes/exclusions.ftl'>
+            <div class="card-footer">
+                <div class="form-group">
+                    <button class="btn btn-secondary" name="action" value="revert" type="submit">Revert</button>
+                    <button class="btn btn-primary float-right" name="action" value="save" type="submit">Save</button>
+                </div>
             </div>
         </form>
     </div>
@@ -94,5 +99,6 @@
     </div>
 </div>
 <#include '../../../includes/foot.ftl'>
+<script src="/s/js/crawl.js"></script>
 </body>
 </html>
