@@ -69,7 +69,8 @@ public class IndexTransaction extends AccountTransaction {
 		final IndexStatus status = indexService.getIndexStatus();
 		request.setAttribute("indexSize", status.segments_size);
 		request.setAttribute("indexCount", status.num_docs);
-		request.setAttribute("crawlStatusMap", indexService.getCrawlStatusCount());
+		request.setAttribute("crawlStatusCount", indexService.getCrawlStatusCount(null, null));
+		request.setAttribute("indexStatusCount", indexService.getIndexStatusCount(null, null));
 		super.doGet();
 	}
 

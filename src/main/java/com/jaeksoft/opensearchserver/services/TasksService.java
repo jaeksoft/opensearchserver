@@ -17,6 +17,7 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.TaskDefinition;
+import com.jaeksoft.opensearchserver.model.TaskInfos;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.AnnotatedTableService;
@@ -139,5 +140,9 @@ public class TasksService {
 	public boolean removeTask(final String taskId) {
 		updateStatus(taskId, TaskRecord.Status.PAUSED);
 		return tasks.deleteRow(taskId);
+	}
+
+	public TaskInfos getTaskInfos(final TaskRecord taskRecord) {
+		return taskExecutionService.getTasksProcessor(taskRecord.getType()).getTaskInfos(taskRecord);
 	}
 }

@@ -32,20 +32,35 @@
             <li class="breadcrumb-item active" aria-current="page">${indexName!?html}</li>
         </ol>
     </nav>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Infos</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item list-group-item-primary">Storage size : ${indexSize!?html}</li>
+                        <li class="list-group-item list-group-item-secondary">Number of records : ${indexCount!0}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <#include 'includes/crawl_status.ftl'>
+        </div>
+        <div class="col-md-4">
+            <#include 'includes/index_status.ftl'>
+        </div>
+    </div>
+    <br/>
     <div class="card">
         <div class="card-body">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item list-group-item-primary">Storage size : ${indexSize!?html}</li>
-                <li class="list-group-item list-group-item-secondary">Number of records : ${indexCount!0}</li>
-                <#list crawlStatusMap as status, count>
-                <li class="list-group-item list-group-item-${status.css}">${status} : ${count!0}</li>
-                </#list>
-            </ul>
-        </div>
-        <div class="card-footer">
+            <h5 class="card-title">Index deletion</h5>
+            <p class="card-text text-danger">Once you delete an index, there is no going back. Please be
+                certain.</p>
             <form method="post">
                 <div class="input-group">
-                    <input type="text" name="indexName" class="form-control" placeholder="Index name"
+                    <input type="text" name="indexName" class="form-control"
+                           placeholder="Type here the name of the index"
                            aria-label="Index name">
                     <div class="input-group-append">
                         <button class="btn btn-danger" name="action" value="delete" type="submit">Delete</button>

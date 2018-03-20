@@ -322,7 +322,7 @@ public class UrlRecord {
 		return taskCreationTime;
 	}
 
-	UrlRecord(UrlRecordBuilder<?, ?> builder) {
+	UrlRecord(final UrlRecordBuilder<?, ?> builder) {
 		this.url = builder.uri.toString();
 		this.urlStore = builder.urlStore;
 		this.host = builder.host;

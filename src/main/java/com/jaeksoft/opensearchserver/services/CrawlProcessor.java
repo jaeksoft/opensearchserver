@@ -16,6 +16,9 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.CrawlTaskDefinition;
+import com.jaeksoft.opensearchserver.model.CrawlTaskInfos;
+import com.jaeksoft.opensearchserver.model.TaskInfos;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.crawler.common.CrawlDefinition;
 import com.qwazr.crawler.common.CrawlStatus;
@@ -25,18 +28,22 @@ import com.qwazr.server.client.ErrorWrapper;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 
-public abstract class CrawlProcessor<D extends CrawlDefinition, S extends CrawlStatus<D>> implements TaskProcessor<S> {
+public abstract class CrawlProcessor<D extends CrawlDefinition, T extends CrawlTaskDefinition<D>, S extends CrawlStatus<D>>
+		implements TaskProcessor<S> {
 
 	private final CrawlerServiceInterface<D, S> crawlerService;
 	protected final ConfigService configService;
 	protected final IndexesService indexesService;
+	private final Class<T> crawlTaskDefinitionClass;
 
 	protected CrawlProcessor(final ConfigService configService, final CrawlerServiceInterface<D, S> crawlerService,
-			final IndexesService indexesService) {
+			final IndexesService indexesService, final Class<T> crawlTaskDefinitionClass) {
 		this.configService = configService;
 		this.crawlerService = crawlerService;
 		this.indexesService = indexesService;
+		this.crawlTaskDefinitionClass = crawlTaskDefinitionClass;
 	}
 
 	@Override
@@ -63,6 +70,23 @@ public abstract class CrawlProcessor<D extends CrawlDefinition, S extends CrawlS
 				return;
 			throw e;
 		}
+	}
+
+	protected T getCrawlTaskDefinition(final TaskRecord taskRecord) {
+		return crawlTaskDefinitionClass.cast(taskRecord.getDefinition());
+	}
+
+	@Override
+	public TaskInfos getTaskInfos(final TaskRecord taskRecord) {
+		final T crawlTaskDefinition = getCrawlTaskDefinition(taskRecord);
+		final String indexName =
+				indexesService.getIndexNameResolver(taskRecord.accountId).get(crawlTaskDefinition.indexUuid);
+		if (indexName == null)
+			return null;
+		Objects.requireNonNull(taskRecord.sessionTimeId, "The sessionTimeId is missing");
+		final IndexService indexService = indexesService.getIndex(taskRecord.accountId, indexName);
+		return new CrawlTaskInfos(indexService.getCrawlStatusCount(crawlTaskDefinition.id, taskRecord.sessionTimeId),
+				indexService.getIndexStatusCount(crawlTaskDefinition.id, taskRecord.sessionTimeId));
 	}
 
 	protected abstract D getNextCrawlDefinition(final TaskRecord taskRecord) throws Exception;

@@ -76,7 +76,7 @@ public class TaskExecutionRecord {
 			this.taskId = taskId;
 		}
 
-		public Builder nextExecutiontime(Long nextExecutionTime) {
+		public Builder nextExecutiontime(final Long nextExecutionTime) {
 			this.nextExecutionTime = nextExecutionTime;
 			return this;
 		}

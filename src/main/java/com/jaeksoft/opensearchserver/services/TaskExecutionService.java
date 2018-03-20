@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
+import com.jaeksoft.opensearchserver.model.TaskInfos;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.AnnotatedTableService;
@@ -93,7 +94,7 @@ public class TaskExecutionService {
 				collector);
 	}
 
-	void upsertTaskExecution(final TaskRecord taskRecord) {
+	void upsertTaskExecution(final TaskRecord taskRecord, final TaskInfos taskInfos) {
 		final TaskExecutionRecord taskExecutionRecord =
 				TaskExecutionRecord.of(taskRecord.getAccountId(), taskRecord.getTaskId())
 						.nextExecutiontime(System.currentTimeMillis())
@@ -106,12 +107,13 @@ public class TaskExecutionService {
 	}
 
 	public boolean checkTaskStatus(final TaskRecord taskRecord) {
+		final TaskProcessor taskProcessor = getTasksProcessor(taskRecord.type);
 		switch (taskRecord.getStatus()) {
 		case PAUSED:
-			getTasksProcessor(taskRecord.type).abort(taskRecord.taskId);
+			taskProcessor.abort(taskRecord.taskId);
 			return removeTaskExecution(taskRecord.getAccountId(), taskRecord.taskId);
 		case ACTIVE:
-			upsertTaskExecution(taskRecord);
+			upsertTaskExecution(taskRecord, taskProcessor.getTaskInfos(taskRecord));
 			return true;
 		}
 		return false;

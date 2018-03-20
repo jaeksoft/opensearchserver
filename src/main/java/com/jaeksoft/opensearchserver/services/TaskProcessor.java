@@ -16,6 +16,7 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.TaskInfos;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 
 import javax.ws.rs.NotSupportedException;
@@ -55,6 +56,10 @@ public interface TaskProcessor<S> {
 
 	default void abort(final String taskId) {
 		throw notSupportedException(taskId);
+	}
+
+	default TaskInfos getTaskInfos(final TaskRecord taskRecord) {
+		throw notSupportedException(taskRecord.taskId);
 	}
 
 	static Builder of() {

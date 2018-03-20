@@ -27,11 +27,11 @@ import com.qwazr.utils.StringUtils;
 import java.net.URL;
 import java.util.Objects;
 
-public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCrawlStatus> {
+public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCrawlTaskDefinition, WebCrawlStatus> {
 
 	public WebCrawlProcessor(final ConfigService configService, final WebCrawlerServiceInterface webCrawlerService,
 			final IndexesService indexesService) {
-		super(configService, webCrawlerService, indexesService);
+		super(configService, webCrawlerService, indexesService, WebCrawlTaskDefinition.class);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
 	@Override
 	protected WebCrawlDefinition getNextCrawlDefinition(final TaskRecord taskRecord) throws Exception {
 
-		final WebCrawlTaskDefinition webCrawlTask = WebCrawlTaskDefinition.class.cast(taskRecord.getDefinition());
+		final WebCrawlTaskDefinition webCrawlTask = getCrawlTaskDefinition(taskRecord);
 
 		final WebCrawlDefinition.Builder crawlBuilder = WebCrawlDefinition.of(webCrawlTask.crawlDefinition);
 

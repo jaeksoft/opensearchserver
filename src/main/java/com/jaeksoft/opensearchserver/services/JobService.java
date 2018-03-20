@@ -84,7 +84,7 @@ public class JobService implements Closeable {
 			if (taskProcessor.isRunning(taskExecution.taskId))
 				continue;
 			// Let's start the next run
-			taskExecutionService.upsertTaskExecution(taskRecord);
+			taskExecutionService.upsertTaskExecution(taskRecord, taskProcessor.getTaskInfos(taskRecord));
 			try {
 				if (taskProcessor.runSession(taskRecord) == TaskRecord.Status.DONE) {
 					// If the task was done, we can plan a new run with a new SessionTimeId

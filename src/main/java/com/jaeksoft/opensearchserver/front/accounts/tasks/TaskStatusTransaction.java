@@ -44,6 +44,7 @@ public class TaskStatusTransaction extends AccountTransaction {
 		if (!accountRecord.getId().equals(taskRecord.getAccountId()))
 			throw new NotAllowedException("Not allowed: " + taskId);
 		request.setAttribute("task", taskRecord);
+		request.setAttribute("infos", tasksService.getTaskInfos(taskRecord));
 	}
 
 	@Override
