@@ -64,7 +64,7 @@ public class JobService implements Closeable {
 
 	private void runSessions(final AccountRecord account) {
 		int taskLeft = account.getTasksNumberLimit();
-		final List<TaskExecutionRecord> taskExecutions = taskExecutionService.getNextTaskExecutions(account.getId());
+		final List<TaskExecutionRecord> taskExecutions = taskExecutionService.getImmediateTaskExecutions(account);
 		if (taskExecutions == null)
 			return;
 		for (TaskExecutionRecord taskExecution : taskExecutions) {

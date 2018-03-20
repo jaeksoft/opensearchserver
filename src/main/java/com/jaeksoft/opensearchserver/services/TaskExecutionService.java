@@ -16,6 +16,7 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.database.TableServiceInterface;
@@ -28,7 +29,9 @@ import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,10 +53,11 @@ public class TaskExecutionService {
 		return tasksProcessors.getOrDefault(taskType, TaskProcessor.DEFAULT);
 	}
 
-	List<TaskExecutionRecord> getNextTaskExecutions(final UUID accountId) {
+	private int getNextTaskExecutions(final UUID accountId, final int sizeLimit, final long timeLimit, int start,
+			int rows, final Collection<TaskExecutionRecord> collector) {
 		final TableRequestResultRecords<TaskExecutionRecord> results;
 		try {
-			results = taskExecutions.queryRows(TableRequest.from(0, 1000)
+			results = taskExecutions.queryRows(TableRequest.from(0, sizeLimit)
 					.column(TaskExecutionRecord.COLUMNS)
 					.query(new TableQuery.StringTerm("accountId", accountId.toString()))
 					.build());
@@ -61,10 +65,32 @@ public class TaskExecutionService {
 			throw new InternalServerErrorException(e);
 		}
 		if (results == null || results.records == null || results.records.isEmpty())
-			return null;
+			return 0;
 		final List<TaskExecutionRecord> sortableRecords = new ArrayList<>(results.records);
 		sortableRecords.sort(Comparator.comparingLong(r -> r.nextExecutionTime));
-		return sortableRecords;
+		final Iterator<TaskExecutionRecord> iterator = sortableRecords.iterator();
+		while (iterator.hasNext() && start-- > 0)
+			iterator.next();
+		while (iterator.hasNext() && rows-- > 0) {
+			final TaskExecutionRecord taskExecutionRecord = iterator.next();
+			if (taskExecutionRecord.nextExecutionTime > timeLimit)
+				break;
+			collector.add(taskExecutionRecord);
+		}
+		return results.count.intValue();
+	}
+
+	List<TaskExecutionRecord> getImmediateTaskExecutions(final AccountRecord account) {
+		final List<TaskExecutionRecord> taskExecutionRecords = new ArrayList<>();
+		final int rows = account.getCrawlNumberLimit();
+		getNextTaskExecutions(account.getId(), rows, System.currentTimeMillis(), 0, rows, taskExecutionRecords);
+		return taskExecutionRecords.size() > rows ? taskExecutionRecords.subList(0, rows) : taskExecutionRecords;
+	}
+
+	public int getFutureExecutions(final AccountRecord account, final int start, final int rows,
+			final Collection<TaskExecutionRecord> collector) {
+		return getNextTaskExecutions(account.getId(), account.getCrawlNumberLimit(), Long.MAX_VALUE, start, rows,
+				collector);
 	}
 
 	void upsertTaskExecution(final TaskRecord taskRecord) {
