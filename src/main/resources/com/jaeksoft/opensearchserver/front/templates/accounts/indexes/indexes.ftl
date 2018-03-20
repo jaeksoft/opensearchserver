@@ -54,6 +54,13 @@
         </#list>
             </tbody>
         </table>
+       <#if paging?has_content>
+        <br/>
+        <form>
+            <#if rows?has_content><input type="hidden" name="rows" value="${rows?c}"></#if>
+            <#include '../../includes/paging.ftl'>
+        </form>
+       </#if>
     </div>
 </#if>
 <div class="container">

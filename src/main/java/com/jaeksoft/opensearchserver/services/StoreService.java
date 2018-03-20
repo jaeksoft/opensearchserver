@@ -16,8 +16,6 @@
 
 package com.jaeksoft.opensearchserver.services;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.qwazr.server.client.ErrorWrapper;
 import com.qwazr.store.StoreFileResult;
 import com.qwazr.store.StoreServiceInterface;
@@ -131,24 +129,25 @@ public abstract class StoreService<T> {
 			final Iterator<String> iterator = files.keySet().iterator();
 			int count = 0;
 			if (start != null) {
-				while (start > 0 && iterator.hasNext()) {
+				while (start-- > 0 && iterator.hasNext()) {
 					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
 					if (filter != null && !filter.apply(baseName))
 						continue;
-					start--;
 					count++;
 				}
 			}
-			if (rows != null) {
-				while (rows > 0 && iterator.hasNext()) {
-					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-					if (filter != null && !filter.apply(baseName))
-						continue;
-					if (collector != null)
-						collector.add(read(storeSchema, subDirectory, baseName));
-					rows--;
+			while ((rows == null || rows-- > 0) && iterator.hasNext()) {
+				final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
+				if (filter != null && !filter.apply(baseName))
+					continue;
+				count++;
+				if (collector != null)
+					collector.add(read(storeSchema, subDirectory, baseName));
+			}
+			while (iterator.hasNext()) {
+				final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
+				if (filter == null || filter.apply(baseName))
 					count++;
-				}
 			}
 			return count;
 		} catch (WebApplicationException e) {

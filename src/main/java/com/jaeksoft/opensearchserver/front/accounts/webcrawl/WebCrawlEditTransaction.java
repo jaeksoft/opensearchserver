@@ -70,8 +70,8 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 	public String save() {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
-		final Integer maxDepth = getRequestParameter("maxDepth", null);
-		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null);
+		final Integer maxDepth = getRequestParameter("maxDepth", null, null, null);
+		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null, null, null);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth).setMaxUrlNumber(maxUrlNumber);
 		final WebCrawlRecord newWebCrawlRecord =

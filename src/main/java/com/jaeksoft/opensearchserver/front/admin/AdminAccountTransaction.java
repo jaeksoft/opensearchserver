@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAcceptableException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 public class AdminAccountTransaction extends ServletTransaction {
@@ -103,11 +102,11 @@ public class AdminAccountTransaction extends ServletTransaction {
 	}
 
 	public void setLimits() {
-		final int crawlNumberLimit = getRequestParameter("crawlNumberLimit", 0);
-		final int tasksNumberLimit = getRequestParameter("tasksNumberLimit", 0);
-		final int indexNumberLimit = getRequestParameter("indexNumberLimit", 0);
-		final int recordNumberLimit = getRequestParameter("recordNumberLimit", 0);
-		final int storageLimit = getRequestParameter("storageLimit", 0) * 1024 * 1024;
+		final int crawlNumberLimit = getRequestParameter("crawlNumberLimit", 0, 0, null);
+		final int tasksNumberLimit = getRequestParameter("tasksNumberLimit", 0, 0, null);
+		final int indexNumberLimit = getRequestParameter("indexNumberLimit", 0, 0, null);
+		final int recordNumberLimit = getRequestParameter("recordNumberLimit", 0, 0, null);
+		final int storageLimit = getRequestParameter("storageLimit", 0, 0, null) * 1024 * 1024;
 		if (accountsService.update(accountRecord.getId(), b -> b.crawlNumberLimit(crawlNumberLimit)
 				.tasksNumberLimit(tasksNumberLimit)
 				.indexNumberLimit(indexNumberLimit)

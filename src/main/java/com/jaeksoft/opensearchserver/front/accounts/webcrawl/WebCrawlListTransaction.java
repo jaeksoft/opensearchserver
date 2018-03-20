@@ -26,6 +26,7 @@ import com.jaeksoft.opensearchserver.services.IndexesService;
 import com.jaeksoft.opensearchserver.services.TasksService;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlDefinition;
+import com.qwazr.utils.Paging;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -67,8 +68,8 @@ public class WebCrawlListTransaction extends AccountTransaction {
 	public void create() throws IOException, URISyntaxException {
 		final String crawlName = request.getParameter("crawlName");
 		final String entryUrl = request.getParameter("entryUrl");
-		final Integer maxDepth = getRequestParameter("maxDepth", null);
-		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null);
+		final Integer maxDepth = getRequestParameter("maxDepth", null, null, null);
+		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null, null, null);
 
 		// Extract the URLs
 		final Set<URI> uriSet = new LinkedHashSet<>();
@@ -152,15 +153,17 @@ public class WebCrawlListTransaction extends AccountTransaction {
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0);
-		final int rows = getRequestParameter("rows", 25);
+		final int start = getRequestParameter("start", 0, 0, null);
+		final int rows = getRequestParameter("rows", 25, 10, 100);
 
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
 		final int totalCount = webCrawlsService.collect(accountRecord.getId(), start, rows, webCrawlRecords);
 
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
+		request.setAttribute("rows", rows);
 		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
+		request.setAttribute("paging", new Paging((long) totalCount, start, rows, 10));
 		super.doGet();
 	}
 }

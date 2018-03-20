@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 public class AdminAccountsTransaction extends ServletTransaction {
@@ -56,7 +55,7 @@ public class AdminAccountsTransaction extends ServletTransaction {
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0);
+		final int start = getRequestParameter("start", 0, null, null);
 		request.setAttribute("accounts", accountsService.getAccounts(start, 20));
 		super.doGet();
 	}

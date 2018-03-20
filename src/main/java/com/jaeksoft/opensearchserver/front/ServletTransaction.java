@@ -93,14 +93,22 @@ public abstract class ServletTransaction {
 	 * Returns the parameter value from the HTTP request or the default value.
 	 *
 	 * @param parameterName the name of the parameter
-	 * @param defaultValue  a default value
+	 * @param defaultValue  a default value (can be null)
+	 * @param minValue      the minimum value (can be null)
+	 * @param maxValue      the maximum value (can be null)
 	 * @return the value of the given parameter
 	 */
-	protected Integer getRequestParameter(String parameterName, Integer defaultValue) {
-		final String value = request.getParameter(parameterName);
-		if (StringUtils.isBlank(value))
+	protected Integer getRequestParameter(final String parameterName, final Integer defaultValue,
+			final Integer minValue, final Integer maxValue) {
+		final String stringValue = request.getParameter(parameterName);
+		if (StringUtils.isBlank(stringValue))
 			return defaultValue;
-		return Integer.parseInt(value);
+		final Integer value = Integer.parseInt(stringValue);
+		if (minValue != null && value < minValue)
+			return minValue;
+		if (maxValue != null && value > maxValue)
+			return maxValue;
+		return value;
 	}
 
 	/**

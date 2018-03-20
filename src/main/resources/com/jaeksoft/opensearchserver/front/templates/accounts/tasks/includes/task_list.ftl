@@ -34,6 +34,13 @@
             </#list>
             </tbody>
         </table>
+    <#if paging?has_content>
+            <br/>
+            <form>
+                <#if rows?has_content><input type="hidden" name="rows" value="${rows?c}"></#if>
+                <#include '../../../includes/paging.ftl'>
+            </form>
+    </#if>
 <#else>
         <p class="text-center text-muted"><em>No task</em></p>
 </#if>

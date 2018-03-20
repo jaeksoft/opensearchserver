@@ -19,6 +19,7 @@ import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.qwazr.utils.Paging;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,8 +34,8 @@ public class TaskListTransaction extends AccountTransaction {
 			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 
-		final int start = getRequestParameter("start", 0);
-		final int rows = getRequestParameter("rows", 25);
+		final int start = getRequestParameter("start", 0, 0, null);
+		final int rows = getRequestParameter("rows", 25, 10, 100);
 
 		final List<TaskRecord> taskRecords = new ArrayList<>();
 		long totalCount =
@@ -45,9 +46,11 @@ public class TaskListTransaction extends AccountTransaction {
 		taskRecords.forEach(resultBuilder::add);
 		final List<TaskResult> tasks = resultBuilder.build();
 
+		request.setAttribute("rows", rows);
 		request.setAttribute("accountId", accountRecord.id);
 		request.setAttribute("tasks", tasks);
 		request.setAttribute("totalCount", totalCount);
+		request.setAttribute("paging", new Paging(totalCount, start, rows, 10));
 	}
 
 	@Override

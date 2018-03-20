@@ -57,14 +57,16 @@ public class SearchTransaction extends ServletTransaction {
 
 	@Override
 	public void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0);
+		final int start = getRequestParameter("start", 0, 0, null);
+		final int rows = getRequestParameter("rows", 10, 10, 100);
 		final String keywords = request.getParameter("keywords");
 		final String lang = request.getParameter("lang");
 		final Language language = Language.findByName(lang, Language.en);
 		request.setAttribute("lang", language.name());
 		try {
 			if (!StringUtils.isBlank(keywords)) {
-				final SearchResults results = searchService.webSearch(indexService, language, keywords, start, 10);
+				final SearchResults results = searchService.webSearch(indexService, language, keywords, start, rows);
+				request.setAttribute("rows", rows);
 				request.setAttribute("keywords", keywords);
 				request.setAttribute("numDocs", results.getNumDocs());
 				request.setAttribute("totalTime", results.getTotalTime());

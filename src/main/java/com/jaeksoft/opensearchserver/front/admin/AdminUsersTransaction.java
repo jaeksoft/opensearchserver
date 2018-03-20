@@ -55,7 +55,7 @@ public class AdminUsersTransaction extends ServletTransaction {
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0);
+		final int start = getRequestParameter("start", 0, null, null);
 		request.setAttribute("users", usersService.getUsers(start, 20));
 		super.doGet();
 	}

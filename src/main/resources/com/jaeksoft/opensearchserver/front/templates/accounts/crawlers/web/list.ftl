@@ -95,11 +95,20 @@
                      </#list>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary mb-2">Apply</button>
+                    <button type="submit" class="btn btn-primary mb-2">Apply on selection</button>
                 </div>
             </div>
         </div>
     </form>
+    <#if paging?has_content>
+        <br/>
+        <form>
+            <#if rows?has_content>
+            <input type="hidden" name="rows" value="${rows?c}">
+            </#if>
+            <#include '../../../includes/paging.ftl'>
+        </form>
+    </#if>
 </div>
 <br/>
 </#if>
