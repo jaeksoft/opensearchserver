@@ -30,14 +30,13 @@ import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.webapps.WebappManager;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.logging.Logger;
 
 public class Server extends Components {
 
 	private final GenericServer server;
 
-	private Server(final ServerConfiguration configuration)
-			throws IOException, NoSuchMethodException, URISyntaxException {
+	private Server(final ServerConfiguration configuration) throws IOException {
 		super(configuration.dataDirectory.toPath());
 
 		final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
@@ -53,7 +52,8 @@ public class Server extends Components {
 				.registerJavaServlet(AdminHomeServlet.class, () -> new AdminHomeServlet(this))
 				.registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this))
 				.registerJavaServlet(AdminAccountsServlet.class, () -> new AdminAccountsServlet(this));
-		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService));
+		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService))
+				.webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"));
 		webAppBuilder.build();
 		server = serverBuilder.build();
 		getJobService().startTasks();

@@ -7,10 +7,10 @@
         <Property name="LogPath">${env:QWAZR_LOGS:-logs}/</Property>
 
         <!-- The default pattern -->
-        <Property name="SystemPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%n</Property>
+        <Property name="SystemPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%ex{0}%n</Property>
 
         <!-- The detailled error pattern -->
-        <Property name="ErrorPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx{filters(com.qwazr)}%n
+        <Property name="ErrorPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx%n
         </Property>
 
         <!-- The header of the Access logs -->
@@ -31,10 +31,18 @@
 
         <RollingFile name="ErrorFile" fileName="${LogPath}/error.${hostName}.log"
                      filePattern="${LogPath}/error.${hostName}.log.%d{yyyy-MM-dd}.gz">
-            <!-- We only want ERROR, FATAL and WARNING levels -->
-            <!-- <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="NEUTRAL"/> -->
             <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${ErrorPattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingFile>
+
+        <RollingFile name="InfoFile" fileName="${LogPath}/info.${hostName}.log"
+                     filePattern="${LogPath}/info.${hostName}.log.%d{yyyy-MM-dd}.gz">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${SystemPattern}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
@@ -58,6 +66,7 @@
         <Root level="WARN">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="ErrorFile"/>
+            <AppenderRef ref="InfoFile"/>
         </Root>
 
         <!-- The Access logs for the Webapps -->
@@ -68,6 +77,7 @@
         <!-- Default logs level -->
         <Logger name="com.qwazr" level="WARN"/>
         <Logger name="com.jaeksoft" level="WARN"/>
+        <Logger name="com.qwazr.server" level="INFO"/>
 
     </Loggers>
 
