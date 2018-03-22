@@ -7,10 +7,13 @@
         <Property name="LogPath">${env:QWAZR_LOGS:-logs}/</Property>
 
         <!-- The default pattern -->
-        <Property name="SystemPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%ex{0}%n</Property>
+        <Property name="SystemPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx{none}%n</Property>
+
+        <Property name="exceptionFilters">javax.servlet,io.undertow,sun.reflect,java.lang.reflect</Property>
 
         <!-- The detailled error pattern -->
-        <Property name="ErrorPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx%n
+        <Property name="ErrorPattern">
+            %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx{filters(${exceptionFilters})}%n
         </Property>
 
         <!-- The header of the Access logs -->
@@ -29,35 +32,35 @@
             <PatternLayout pattern="${SystemPattern}"/>
         </Console>
 
-        <RollingFile name="ErrorFile" fileName="${LogPath}/error.${hostName}.log"
-                     filePattern="${LogPath}/error.${hostName}.log.%d{yyyy-MM-dd}.gz">
+        <RollingRandomAccessFile name="ErrorFile" fileName="${LogPath}/error.${hostName}.log"
+                                 filePattern="${LogPath}/error.${hostName}.log.%d{yyyy-MM-dd}.gz">
             <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${ErrorPattern}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
             <DefaultRolloverStrategy max="31"/>
-        </RollingFile>
+        </RollingRandomAccessFile>
 
-        <RollingFile name="InfoFile" fileName="${LogPath}/info.${hostName}.log"
-                     filePattern="${LogPath}/info.${hostName}.log.%d{yyyy-MM-dd}.gz">
+        <RollingRandomAccessFile name="InfoFile" fileName="${LogPath}/info.${hostName}.log"
+                                 filePattern="${LogPath}/info.${hostName}.log.%d{yyyy-MM-dd}.gz">
             <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout pattern="${SystemPattern}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
             <DefaultRolloverStrategy max="31"/>
-        </RollingFile>
+        </RollingRandomAccessFile>
 
-        <RollingFile name="AccessFile" fileName="${LogPath}/access.${hostName}.log"
-                     filePattern="${LogPath}/access.${hostName}.log.%d{yyyy-MM-dd}.gz">
+        <RollingRandomAccessFile name="AccessFile" fileName="${LogPath}/access.${hostName}.log"
+                                 filePattern="${LogPath}/access.${hostName}.log.%d{yyyy-MM-dd}.gz">
             <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout header="${W3CHeader}" pattern="${W3CLogs}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
             </Policies>
             <DefaultRolloverStrategy max="31"/>
-        </RollingFile>
+        </RollingRandomAccessFile>
 
     </Appenders>
 

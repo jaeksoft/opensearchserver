@@ -74,7 +74,7 @@ public class SearchTransaction extends ServletTransaction {
 				request.setAttribute("paging", results.getPaging());
 			}
 		} catch (WebApplicationException e) {
-			addMessage(e);
+			addMessage(null, e);
 		}
 		super.doGet();
 	}

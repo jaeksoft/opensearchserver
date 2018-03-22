@@ -170,7 +170,7 @@ public abstract class ServletTransaction {
 			if (!response.isCommitted())
 				sendRedirect(redirect == null ? null : redirect.toString());
 		} catch (ReflectiveOperationException | WebApplicationException e) {
-			addMessage(e);
+			addMessage("Action failed: " + action, e);
 			sendRedirect(null);
 		}
 	}
@@ -178,7 +178,7 @@ public abstract class ServletTransaction {
 	/**
 	 * Redirect to the given URL. If redirect is null, it redirects to the current URL
 	 *
-	 * @throws IOException
+	 * @throws IOException if any I/O error occurs
 	 */
 	private void sendRedirect(String redirect) throws IOException {
 		if (redirect == null) {
@@ -194,8 +194,8 @@ public abstract class ServletTransaction {
 	 * Display a Freemarker template
 	 *
 	 * @param templatePath the path to the freemarker template
-	 * @throws IOException      if any I/O exception occured
-	 * @throws ServletException if any templace exception occured
+	 * @throws IOException      if any I/O exception occurs
+	 * @throws ServletException if any templace exception occurs
 	 */
 	protected void doTemplate(String templatePath) throws IOException, ServletException {
 		try {
@@ -219,8 +219,8 @@ public abstract class ServletTransaction {
 		getMessages().add(new Message(css, title, message));
 	}
 
-	protected void addMessage(final Exception e) {
-		LOGGER.log(Level.SEVERE, e, e::getMessage);
+	protected void addMessage(final String message, final Exception e) {
+		LOGGER.log(Level.SEVERE, e, () -> message == null ? e.getMessage() : message);
 		addMessage(Message.Css.danger, "Internal error", ExceptionUtils.getRootCauseMessage(e));
 	}
 
