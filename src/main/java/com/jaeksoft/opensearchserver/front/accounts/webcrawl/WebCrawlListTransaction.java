@@ -127,11 +127,11 @@ public class WebCrawlListTransaction extends AccountTransaction {
 			if (taskRecord == null) {
 				tasksService.createTask(TaskRecord.of(accountRecord.getId())
 						.definition(webCrawlTask)
-						.status(TaskRecord.Status.ACTIVE)
+						.status(TaskRecord.Status.ACTIVE, "Activated by the user")
 						.build());
 				return true;
 			}
-			return tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE);
+			return tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE, "Activated by the user");
 		});
 		if (count != null)
 			addMessage(Message.Css.success, "Activate Crawl", count + " crawl(s) activated");
@@ -139,14 +139,14 @@ public class WebCrawlListTransaction extends AccountTransaction {
 
 	public void pause() {
 		final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> taskRecord != null &&
-				tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED));
+				tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED, "Paused by the user"));
 		if (count != null)
 			addMessage(Message.Css.success, "Pause Crawl", count + " crawl(s) paused");
 	}
 
 	public void stop() {
-		final Integer count = forEachCrawl(
-				(webCrawlTask, taskRecord) -> taskRecord != null && tasksService.removeTask(taskRecord.getTaskId()));
+		final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> taskRecord != null &&
+				tasksService.removeTask(taskRecord.getTaskId(), "Stopped by the user"));
 		if (count != null)
 			addMessage(Message.Css.success, "Stop Crawl", count + " crawl(s) stopped");
 	}

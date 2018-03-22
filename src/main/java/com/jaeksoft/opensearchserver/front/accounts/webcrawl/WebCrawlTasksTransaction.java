@@ -72,8 +72,10 @@ public class WebCrawlTasksTransaction extends AccountTransaction {
 			addMessage(Message.Css.warning, "Warning!", "This Web crawl was already activated");
 			return;
 		}
-		tasksService.createTask(
-				TaskRecord.of(accountRecord.getId()).definition(webCrawlTask).status(TaskRecord.Status.ACTIVE).build());
+		tasksService.createTask(TaskRecord.of(accountRecord.getId())
+				.definition(webCrawlTask)
+				.status(TaskRecord.Status.ACTIVE, "Activated by the user")
+				.build());
 		addMessage(Message.Css.success, "Success!", "The Web crawl has been activated.");
 	}
 

@@ -21,7 +21,6 @@ import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.jaeksoft.opensearchserver.model.WebCrawlTaskDefinition;
 import com.qwazr.crawler.web.WebCrawlDefinition;
-import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,11 +31,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class TasksServiceTest extends BaseTest {
-
-	private final static Logger LOGGER = LoggerUtils.getLogger(TasksServiceTest.class);
 
 	private TasksService tasksService;
 
@@ -82,7 +78,10 @@ public class TasksServiceTest extends BaseTest {
 
 		final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
 
-		return TaskRecord.of(getAccountId()).definition(webCrawlTask).status(TaskRecord.Status.PAUSED).build();
+		return TaskRecord.of(getAccountId())
+				.definition(webCrawlTask)
+				.status(TaskRecord.Status.PAUSED, "Paused by the user")
+				.build();
 	}
 
 	@Test
@@ -104,8 +103,8 @@ public class TasksServiceTest extends BaseTest {
 	}
 
 	@Test(expected = NotFoundException.class)
-	public void updateUnknownTask() throws IOException {
-		tasksService.updateStatus(RandomUtils.alphanumeric(8), TaskRecord.Status.PAUSED);
+	public void updateUnknownTask() {
+		tasksService.updateStatus(RandomUtils.alphanumeric(8), TaskRecord.Status.PAUSED, "Paused by the user");
 	}
 
 }

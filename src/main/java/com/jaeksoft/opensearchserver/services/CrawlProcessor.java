@@ -28,6 +28,7 @@ import com.qwazr.server.client.ErrorWrapper;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
 import java.util.Objects;
 
 public abstract class CrawlProcessor<D extends CrawlDefinition, T extends CrawlTaskDefinition<D>, S extends CrawlStatus<D>>
@@ -89,7 +90,7 @@ public abstract class CrawlProcessor<D extends CrawlDefinition, T extends CrawlT
 				indexService.getIndexStatusCount(crawlTaskDefinition.id, taskRecord.sessionTimeId));
 	}
 
-	protected abstract D getNextCrawlDefinition(final TaskRecord taskRecord) throws Exception;
+	protected abstract D getNextCrawlDefinition(final TaskRecord taskRecord) throws MalformedURLException;
 
 	@Override
 	final public TaskRecord.Status runSession(final TaskRecord taskRecord) throws Exception {

@@ -21,6 +21,7 @@ import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.utils.LoggerUtils;
 
+import javax.ws.rs.WebApplicationException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
@@ -67,7 +68,7 @@ public class JobService implements Closeable {
 		final List<TaskExecutionRecord> taskExecutions = taskExecutionService.getImmediateTaskExecutions(account);
 		if (taskExecutions == null)
 			return;
-		for (TaskExecutionRecord taskExecution : taskExecutions) {
+		for (final TaskExecutionRecord taskExecution : taskExecutions) {
 			if (taskLeft <= 0)
 				return;
 			if (taskExecution.nextExecutionTime > System.currentTimeMillis())
@@ -86,13 +87,17 @@ public class JobService implements Closeable {
 			// Let's start the next run
 			taskExecutionService.upsertTaskExecution(taskRecord, taskProcessor.getTaskInfos(taskRecord));
 			try {
-				if (taskProcessor.runSession(taskRecord) == TaskRecord.Status.DONE) {
+				final TaskRecord.Status nextStatus = taskProcessor.runSession(taskRecord);
+				if (nextStatus == TaskRecord.Status.DONE)
 					// If the task was done, we can plan a new run with a new SessionTimeId
 					tasksService.nextSession(taskRecord.taskId);
-				}
+			} catch (WebApplicationException e) {
+				LOGGER.log(Level.SEVERE, e,
+						() -> "Error on task: " + taskRecord.taskId + " - account: " + taskRecord.accountId);
 			} catch (Exception e) {
-				// If any error occured, let's update the status
-				tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR);
+				LOGGER.log(Level.WARNING, e,
+						() -> "Error on task: " + taskRecord.taskId + " - account: " + taskRecord.accountId);
+				tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR, "Error: " + e.getMessage());
 			}
 		}
 

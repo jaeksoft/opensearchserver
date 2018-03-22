@@ -20,7 +20,6 @@ import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.qwazr.database.TableServiceInterface;
-import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
@@ -51,20 +50,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UsersService implements IdentityManager {
+public class UsersService extends BaseTableService<UserRecord> implements IdentityManager {
 
 	private final static Logger LOGGER = LoggerUtils.getLogger(UsersService.class);
 
 	private final ConfigService configService;
 
-	private final AnnotatedTableService<UserRecord> users;
-
 	public UsersService(final ConfigService configService, final TableServiceInterface tableServiceInterface)
 			throws NoSuchMethodException, URISyntaxException {
+		super(tableServiceInterface, UserRecord.class);
 		this.configService = configService;
-		users = new AnnotatedTableService<>(tableServiceInterface, UserRecord.class);
-		users.createUpdateTable();
-		users.createUpdateFields();
 	}
 
 	@Override
@@ -78,7 +73,7 @@ public class UsersService implements IdentityManager {
 	}
 
 	public Integer getUserCount() {
-		return users.getTableStatus().getNumRows();
+		return tableService.getTableStatus().getNumRows();
 	}
 
 	/**
@@ -130,7 +125,7 @@ public class UsersService implements IdentityManager {
 
 	public UserRecord getUserById(final UUID id) {
 		try {
-			return users.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), UserRecord.COLUMNS_SET);
+			return tableService.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), columnsSet);
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new InternalServerErrorException("Cannot get user by id", e);
 		}
@@ -143,7 +138,7 @@ public class UsersService implements IdentityManager {
 				return Collections.emptyMap();
 			final Set<String> idSet = new LinkedHashSet<>();
 			permissions.records.forEach(permission -> idSet.add(permission.getUserId().toString()));
-			final List<UserRecord> userList = users.getRows(UserRecord.COLUMNS_SET, idSet);
+			final List<UserRecord> userList = tableService.getRows(columnsSet, idSet);
 			if (userList == null || userList.isEmpty())
 				return Collections.emptyMap();
 			final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
@@ -157,8 +152,8 @@ public class UsersService implements IdentityManager {
 
 	public UserRecord getUserByEmail(final String email) {
 		try {
-			final TableRequestResultRecords<UserRecord> result = users.queryRows(TableRequest.from(0, 1)
-					.column(UserRecord.COLUMNS)
+			final TableRequestResultRecords<UserRecord> result = tableService.queryRows(TableRequest.from(0, 1)
+					.column(columnsArray)
 					.query(new TableQuery.StringTerm("email", email))
 					.build());
 			return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
@@ -169,7 +164,7 @@ public class UsersService implements IdentityManager {
 
 	public TableRequestResultRecords<UserRecord> getUsers(final int start, final int rows) {
 		try {
-			return users.queryRows(TableRequest.from(start, rows).column(UserRecord.COLUMNS).build());
+			return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new InternalServerErrorException("Cannot get user list", e);
 		}
@@ -180,7 +175,7 @@ public class UsersService implements IdentityManager {
 		if (existingUser != null)
 			return existingUser.getId();
 		final UserRecord newUser = UserRecord.of().email(userEmail).build();
-		users.upsertRow(newUser.id, newUser);
+		tableService.upsertRow(newUser.id, newUser);
 		return newUser.getId();
 	}
 
@@ -205,7 +200,7 @@ public class UsersService implements IdentityManager {
 		if (!checkPasswordStrength(newPassword))
 			throw new NotAcceptableException(PASSWORD_STRENGTH_MESSAGE);
 		final UserRecord newUser = UserRecord.of(oldUser).password(configService.applicationSalt, newPassword).build();
-		users.upsertRow(newUser.id, newUser);
+		tableService.upsertRow(newUser.id, newUser);
 	}
 
 	public boolean updateStatus(final UUID userId, final ActiveStatus status) {
@@ -213,7 +208,7 @@ public class UsersService implements IdentityManager {
 		if (oldUser.getStatus() != null && oldUser.getStatus() == status)
 			return false;
 		final UserRecord newUser = UserRecord.of(oldUser).status(status).build();
-		users.upsertRow(newUser.id, newUser);
+		tableService.upsertRow(newUser.id, newUser);
 		return true;
 	}
 

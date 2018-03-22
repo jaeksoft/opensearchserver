@@ -20,7 +20,6 @@ import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.qwazr.database.TableServiceInterface;
-import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
@@ -43,24 +42,20 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class AccountsService {
-
-	private final AnnotatedTableService<AccountRecord> accounts;
+public class AccountsService extends BaseTableService<AccountRecord> {
 
 	public AccountsService(final TableServiceInterface tableServiceInterface)
 			throws NoSuchMethodException, URISyntaxException {
-		accounts = new AnnotatedTableService<>(tableServiceInterface, AccountRecord.class);
-		accounts.createUpdateTable();
-		accounts.createUpdateFields();
+		super(tableServiceInterface, AccountRecord.class);
 	}
 
 	public Integer getCount() {
-		return accounts.getTableStatus().getNumRows();
+		return tableService.getTableStatus().getNumRows();
 	}
 
 	public TableRequestResultRecords<AccountRecord> getAccounts(final int start, final int rows) {
 		try {
-			return accounts.queryRows(TableRequest.from(start, rows).column(AccountRecord.COLUMNS).build());
+			return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new InternalServerErrorException("Cannot get account list", e);
 		}
@@ -68,8 +63,8 @@ public class AccountsService {
 
 	public AccountRecord getAccountById(final UUID accountId) {
 		try {
-			return accounts.getRow(Objects.requireNonNull(accountId, "The account UUID is null").toString(),
-					AccountRecord.COLUMNS_SET);
+			return tableService.getRow(Objects.requireNonNull(accountId, "The account UUID is null").toString(),
+					columnsSet);
 		} catch (IOException | ReflectiveOperationException e) {
 			throw new InternalServerErrorException("Cannot get account by id", e);
 		}
@@ -82,7 +77,7 @@ public class AccountsService {
 				return Collections.emptyMap();
 			final Set<String> idSet = new LinkedHashSet<>();
 			permissions.records.forEach(permission -> idSet.add(permission.getAccountId().toString()));
-			final List<AccountRecord> accountList = accounts.getRows(AccountRecord.COLUMNS_SET, idSet);
+			final List<AccountRecord> accountList = tableService.getRows(columnsSet, idSet);
 			if (accountList == null || accountList.isEmpty())
 				return Collections.emptyMap();
 			final Map<AccountRecord, PermissionRecord> results = new LinkedHashMap<>();
@@ -98,8 +93,8 @@ public class AccountsService {
 		if (StringUtils.isBlank(name))
 			return null;
 		try {
-			final TableRequestResultRecords<AccountRecord> result = accounts.queryRows(TableRequest.from(0, 1)
-					.column(AccountRecord.COLUMNS)
+			final TableRequestResultRecords<AccountRecord> result = tableService.queryRows(TableRequest.from(0, 1)
+					.column(columnsArray)
 					.query(new TableQuery.StringTerm("name", name))
 					.build());
 			return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
@@ -114,7 +109,7 @@ public class AccountsService {
 		if (existingAcount != null)
 			throw new NotAcceptableException("This name is already taken");
 		final AccountRecord newAccount = AccountRecord.of().name(validName).build();
-		accounts.upsertRow(newAccount.id, newAccount);
+		tableService.upsertRow(newAccount.id, newAccount);
 		return newAccount.getId();
 	}
 
@@ -161,15 +156,15 @@ public class AccountsService {
 		}
 		if (newAccount.equals(oldAccount))
 			return false;
-		accounts.upsertRow(newAccount.id, newAccount);
+		tableService.upsertRow(newAccount.id, newAccount);
 		return true;
 	}
 
 	public TableRequestResultRecords<AccountRecord> getActiveAccounts(final int start, final int rows)
 			throws IOException, ReflectiveOperationException {
-		return accounts.queryRows(TableRequest.from(start, rows)
+		return tableService.queryRows(TableRequest.from(start, rows)
 				.query(new TableQuery.IntegerTerm("status", ActiveStatus.ENABLED.value))
-				.column(AccountRecord.COLUMNS)
+				.column(columnsArray)
 				.build());
 	}
 

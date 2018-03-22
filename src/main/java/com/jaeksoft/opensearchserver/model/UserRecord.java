@@ -52,11 +52,6 @@ public class UserRecord implements Principal {
 	@TableColumn(name = "password", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
 	private final String password;
 
-	public static final String[] COLUMNS =
-			new String[] { TableDefinition.ID_COLUMN_NAME, "status", "name", "email", "password" };
-
-	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
-
 	public UserRecord() {
 		id = email = name = password = null;
 		status = 0;

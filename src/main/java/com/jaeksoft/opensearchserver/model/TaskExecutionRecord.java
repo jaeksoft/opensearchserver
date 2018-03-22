@@ -42,11 +42,6 @@ public class TaskExecutionRecord {
 	@TableColumn(name = "nextExecutionTime", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
 	public final Long nextExecutionTime;
 
-	public static final String[] COLUMNS =
-			new String[] { TableDefinition.ID_COLUMN_NAME, "accountId", "taskId", "nextExecutionTime" };
-
-	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
-
 	public TaskExecutionRecord() {
 		id = null;
 		accountId = null;

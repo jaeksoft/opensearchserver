@@ -45,11 +45,6 @@ public class PermissionRecord {
 	private volatile UUID userUuid;
 	private volatile UUID accountUuid;
 
-	public static final String[] COLUMNS =
-			new String[] { TableDefinition.ID_COLUMN_NAME, "level", "userId", "accountId" };
-
-	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
-
 	public PermissionRecord() {
 		id = null;
 		level = null;

@@ -20,7 +20,6 @@ import com.jaeksoft.opensearchserver.model.TaskDefinition;
 import com.jaeksoft.opensearchserver.model.TaskInfos;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.database.TableServiceInterface;
-import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
@@ -38,23 +37,20 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class TasksService {
+public class TasksService extends BaseTableService<TaskRecord> {
 
-	private final AnnotatedTableService<TaskRecord> tasks;
 	private final TaskExecutionService taskExecutionService;
 
 	public TasksService(final TableServiceInterface tableService, final TaskExecutionService taskExecutionService)
 			throws NoSuchMethodException, URISyntaxException {
+		super(tableService, TaskRecord.class);
 		this.taskExecutionService = taskExecutionService;
-		tasks = new AnnotatedTableService<>(tableService, TaskRecord.class);
-		tasks.createUpdateTable();
-		tasks.createUpdateFields();
 	}
 
 	public TaskRecord getTask(final String taskId) {
 		return ErrorWrapper.bypass(() -> {
 			try {
-				return tasks.getRow(Objects.requireNonNull(taskId, "The taskId is null"), TaskRecord.COLUMNS_SET);
+				return tableService.getRow(Objects.requireNonNull(taskId, "The taskId is null"), columnsSet);
 			} catch (IOException | ReflectiveOperationException e) {
 				throw new InternalServerErrorException("Cannot get task by id", e);
 			}
@@ -62,14 +58,14 @@ public class TasksService {
 	}
 
 	private void saveTask(final TaskRecord taskRecord) {
-		tasks.upsertRow(taskRecord.taskId, taskRecord);
+		tableService.upsertRow(taskRecord.taskId, taskRecord);
 	}
 
 	private long collectTasks(final TableQuery tableQuery, final int start, final int rows,
 			final Collection<TaskRecord> taskRecords) {
 		try {
-			final TableRequestResultRecords<TaskRecord> result = tasks.queryRows(
-					TableRequest.from(start, rows).column(TaskRecord.COLUMNS).query(tableQuery).build());
+			final TableRequestResultRecords<TaskRecord> result = tableService.queryRows(
+					TableRequest.from(start, rows).column(columnsArray).query(tableQuery).build());
 			if (result == null || result.records == null)
 				return 0L;
 			if (taskRecords != null)
@@ -121,11 +117,11 @@ public class TasksService {
 		throw new NotFoundException("Task not found: " + taskId);
 	}
 
-	public boolean updateStatus(final String taskId, final TaskRecord.Status nextStatus) {
+	public boolean updateStatus(final String taskId, final TaskRecord.Status nextStatus, final String statusInfo) {
 		final TaskRecord oldTask = checkExistingTask(taskId);
 		if (oldTask.getStatus() == nextStatus || nextStatus == null)
 			return false;
-		final TaskRecord newTask = oldTask.from().status(nextStatus).build();
+		final TaskRecord newTask = oldTask.from().status(nextStatus, statusInfo).build();
 		saveTask(newTask);
 		taskExecutionService.checkTaskStatus(newTask);
 		return true;
@@ -137,9 +133,9 @@ public class TasksService {
 		saveTask(newTask);
 	}
 
-	public boolean removeTask(final String taskId) {
-		updateStatus(taskId, TaskRecord.Status.PAUSED);
-		return tasks.deleteRow(taskId);
+	public boolean removeTask(final String taskId, final String reason) {
+		updateStatus(taskId, TaskRecord.Status.PAUSED, reason);
+		return tableService.deleteRow(taskId);
 	}
 
 	public TaskInfos getTaskInfos(final TaskRecord taskRecord) {

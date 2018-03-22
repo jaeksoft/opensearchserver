@@ -25,10 +25,7 @@ import com.qwazr.utils.ObjectMappers;
 
 import javax.ws.rs.InternalServerErrorException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Table("tasks")
@@ -100,16 +97,8 @@ public class TaskRecord {
 	@TableColumn(name = "statusTime", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
 	public final Long statusTime;
 
-	public static final String[] COLUMNS = new String[] { TableDefinition.ID_COLUMN_NAME,
-			"accountId",
-			"definition",
-			"type",
-			"definitionId",
-			"sessionTimeId",
-			"statusCode",
-			"statusTime" };
-
-	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
+	@TableColumn(name = "statusInfo", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
+	public final String statusInfo;
 
 	private volatile UUID accountUuid;
 	private volatile UUID definitionUuid;
@@ -117,7 +106,7 @@ public class TaskRecord {
 	private volatile Status status;
 
 	public TaskRecord() {
-		taskId = accountId = definition = type = definitionId = null;
+		taskId = accountId = definition = type = definitionId = statusInfo = null;
 		sessionTimeId = statusTime = null;
 		statusCode = null;
 	}
@@ -132,6 +121,7 @@ public class TaskRecord {
 		sessionTimeId = Objects.requireNonNull(builder.sessionTimeId, "The sessionTimeId is missing");
 		statusCode = Objects.requireNonNull(builder.status, "The status is missing").code;
 		statusTime = Objects.requireNonNull(builder.statusTime, "The status time is missing");
+		statusInfo = builder.statusInfo;
 	}
 
 	public String getTaskId() {
@@ -179,6 +169,10 @@ public class TaskRecord {
 		return statusTime;
 	}
 
+	public String getStatusInfo() {
+		return statusInfo;
+	}
+
 	public Builder from() {
 		return new Builder(this);
 	}
@@ -193,7 +187,8 @@ public class TaskRecord {
 		return Objects.equals(taskId, r.taskId) && Objects.equals(accountId, r.accountId) &&
 				Objects.equals(definition, r.definition) && Objects.equals(type, r.type) &&
 				Objects.equals(definitionId, r.definitionId) && Objects.equals(sessionTimeId, r.sessionTimeId) &&
-				Objects.equals(statusCode, r.statusCode) && Objects.equals(statusTime, r.statusTime);
+				Objects.equals(statusCode, r.statusCode) && Objects.equals(statusTime, r.statusTime) &&
+				Objects.equals(statusInfo, r.statusInfo);
 	}
 
 	public static Builder of(final UUID accountId) {
@@ -208,6 +203,7 @@ public class TaskRecord {
 		private Long sessionTimeId;
 		private Status status;
 		private Long statusTime;
+		private String statusInfo;
 
 		private Builder(final UUID accountId) {
 			this.accountId = accountId;
@@ -217,9 +213,10 @@ public class TaskRecord {
 		private Builder(final TaskRecord taskRecord) {
 			this.accountId = taskRecord.getAccountId();
 			this.definition = taskRecord.getDefinition();
-			this.sessionTimeId = taskRecord.getSessionTimeId();
+			this.sessionTimeId = taskRecord.sessionTimeId;
 			this.status = taskRecord.getStatus();
-			this.statusTime = taskRecord.getStatusTime();
+			this.statusTime = taskRecord.statusTime;
+			this.statusInfo = taskRecord.statusInfo;
 		}
 
 		public Builder definition(final TaskDefinition definition) {
@@ -227,9 +224,10 @@ public class TaskRecord {
 			return this;
 		}
 
-		public Builder status(Status status) {
+		public Builder status(Status status, String info) {
 			this.status = status;
 			this.statusTime = System.currentTimeMillis();
+			this.statusInfo = info;
 			return this;
 		}
 

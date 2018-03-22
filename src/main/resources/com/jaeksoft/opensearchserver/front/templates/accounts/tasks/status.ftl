@@ -56,6 +56,10 @@
                             <th>Status time</th>
                             <td><#if task.statusTime??>${task.statusTime?number_to_datetime}</#if></td>
                         </tr>
+                        <tr>
+                            <th>Status info</th>
+                            <td>${task.statusInfo!?html}</td>
+                        </tr>
                     </table>
                 </div>
                 <#if task.status??>

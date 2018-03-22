@@ -25,6 +25,7 @@ import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.utils.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -41,7 +42,7 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
 	}
 
 	@Override
-	protected WebCrawlDefinition getNextCrawlDefinition(final TaskRecord taskRecord) throws Exception {
+	protected WebCrawlDefinition getNextCrawlDefinition(final TaskRecord taskRecord) throws MalformedURLException {
 
 		final WebCrawlTaskDefinition webCrawlTask = getCrawlTaskDefinition(taskRecord);
 

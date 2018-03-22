@@ -53,17 +53,17 @@ public class TaskStatusTransaction extends AccountTransaction {
 	}
 
 	public void pause() {
-		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED))
+		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED, "Paused by the user"))
 			addMessage(Message.Css.success, "The task has been paused", null);
 	}
 
 	public void start() {
-		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE))
+		if (tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE, "Activated by the user"))
 			addMessage(Message.Css.success, "The task has been activated", null);
 	}
 
 	public String remove() {
-		if (tasksService.removeTask(taskRecord.getTaskId())) {
+		if (tasksService.removeTask(taskRecord.getTaskId(), "Stopped by the user")) {
 			addMessage(Message.Css.success, "The task has been removed", null);
 			return "/accounts/" + accountRecord.getName() + "/tasks";
 		}

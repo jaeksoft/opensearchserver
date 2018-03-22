@@ -25,10 +25,7 @@ import com.qwazr.utils.StringUtils;
 import org.apache.commons.lang3.CharUtils;
 
 import javax.ws.rs.NotAcceptableException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Table("accounts")
@@ -59,18 +56,7 @@ public class AccountRecord {
 
 	@TableColumn(name = "tasksNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
 	private final Integer tasksNumberLimit;
-
-	public static final String[] COLUMNS = new String[] { TableDefinition.ID_COLUMN_NAME,
-			"status",
-			"name",
-			"indexNumberLimit",
-			"recordNumberLimit",
-			"storageLimit",
-			"crawlNumberLimit",
-			"tasksNumberLimit" };
-
-	public static final Set<String> COLUMNS_SET = new HashSet<>(Arrays.asList(COLUMNS));
-
+	
 	public AccountRecord() {
 		id = name = null;
 		status = null;

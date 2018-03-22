@@ -21,7 +21,6 @@ import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
 import com.jaeksoft.opensearchserver.model.TaskInfos;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
 import com.qwazr.database.TableServiceInterface;
-import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
@@ -37,17 +36,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class TaskExecutionService {
+public class TaskExecutionService extends BaseTableService<TaskExecutionRecord> {
 
-	private final AnnotatedTableService<TaskExecutionRecord> taskExecutions;
 	private final Map<String, TaskProcessor> tasksProcessors;
 
 	public TaskExecutionService(final TableServiceInterface tableServiceInterface,
 			final Map<String, TaskProcessor> tasksProcessors) throws NoSuchMethodException, URISyntaxException {
+		super(tableServiceInterface, TaskExecutionRecord.class);
 		this.tasksProcessors = tasksProcessors;
-		taskExecutions = new AnnotatedTableService<>(tableServiceInterface, TaskExecutionRecord.class);
-		taskExecutions.createUpdateTable();
-		taskExecutions.createUpdateFields();
 	}
 
 	TaskProcessor<?> getTasksProcessor(final String taskType) {
@@ -58,8 +54,8 @@ public class TaskExecutionService {
 			int rows, final Collection<TaskExecutionRecord> collector) {
 		final TableRequestResultRecords<TaskExecutionRecord> results;
 		try {
-			results = taskExecutions.queryRows(TableRequest.from(0, sizeLimit)
-					.column(TaskExecutionRecord.COLUMNS)
+			results = tableService.queryRows(TableRequest.from(0, sizeLimit)
+					.column(columnsArray)
 					.query(new TableQuery.StringTerm("accountId", accountId.toString()))
 					.build());
 		} catch (IOException | ReflectiveOperationException e) {
@@ -99,11 +95,11 @@ public class TaskExecutionService {
 				TaskExecutionRecord.of(taskRecord.getAccountId(), taskRecord.getTaskId())
 						.nextExecutiontime(System.currentTimeMillis())
 						.build();
-		taskExecutions.upsertRow(taskExecutionRecord.id, taskExecutionRecord);
+		tableService.upsertRow(taskExecutionRecord.id, taskExecutionRecord);
 	}
 
 	boolean removeTaskExecution(final UUID accountId, final String taskId) {
-		return taskExecutions.deleteRow(TaskExecutionRecord.of(accountId, taskId).build().id);
+		return tableService.deleteRow(TaskExecutionRecord.of(accountId, taskId).build().id);
 	}
 
 	public boolean checkTaskStatus(final TaskRecord taskRecord) {

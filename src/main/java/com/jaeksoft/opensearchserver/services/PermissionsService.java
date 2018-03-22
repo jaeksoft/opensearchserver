@@ -19,7 +19,6 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.PermissionLevel;
 import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.qwazr.database.TableServiceInterface;
-import com.qwazr.database.annotations.AnnotatedTableService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
@@ -32,22 +31,18 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.UUID;
 
-public class PermissionsService {
-
-	private final AnnotatedTableService<PermissionRecord> permissions;
+public class PermissionsService extends BaseTableService<PermissionRecord> {
 
 	public PermissionsService(final TableServiceInterface tableServiceInterface)
 			throws NoSuchMethodException, URISyntaxException {
-		permissions = new AnnotatedTableService<>(tableServiceInterface, PermissionRecord.class);
-		permissions.createUpdateTable();
-		permissions.createUpdateFields();
+		super(tableServiceInterface, PermissionRecord.class);
 	}
 
 	public TableRequestResultRecords<PermissionRecord> getPermissionsByUser(final UUID userId, final int start,
 			final int rows) {
 		try {
-			return permissions.queryRows(TableRequest.from(start, rows)
-					.column(PermissionRecord.COLUMNS)
+			return tableService.queryRows(TableRequest.from(start, rows)
+					.column(columnsArray)
 					.query(new TableQuery.StringTerm("userId",
 							Objects.requireNonNull(userId, "The userID is null)").toString()))
 					.build());
@@ -59,8 +54,8 @@ public class PermissionsService {
 	public TableRequestResultRecords<PermissionRecord> getPermissionsByAccount(final UUID accountId, final int start,
 			final int rows) {
 		try {
-			return permissions.queryRows(TableRequest.from(start, rows)
-					.column(PermissionRecord.COLUMNS)
+			return tableService.queryRows(TableRequest.from(start, rows)
+					.column(columnsArray)
 					.query(new TableQuery.StringTerm("accountId",
 							Objects.requireNonNull(accountId, "The accountID is null)").toString()))
 					.build());
@@ -72,7 +67,7 @@ public class PermissionsService {
 	public PermissionRecord getPermission(final UUID userId, final UUID accountId) {
 		try {
 			final PermissionRecord permissionFinder = PermissionRecord.of(userId, accountId).build();
-			return permissions.getRow(permissionFinder.id, PermissionRecord.COLUMNS_SET);
+			return tableService.getRow(permissionFinder.id, columnsSet);
 		} catch (ServerException e) {
 			if (e.getStatusCode() == 404)
 				return null;
@@ -91,7 +86,7 @@ public class PermissionsService {
 		if (existingPermission != null && existingPermission.getLevel() == level)
 			return false;
 		final PermissionRecord newPermission = PermissionRecord.of(userId, accountId).level(level).build();
-		permissions.upsertRow(newPermission.id, newPermission);
+		tableService.upsertRow(newPermission.id, newPermission);
 		return true;
 	}
 
@@ -100,7 +95,7 @@ public class PermissionsService {
 		if (existingPermission == null)
 			return false;
 		final PermissionRecord permission = PermissionRecord.of(userId, accountId).build();
-		permissions.deleteRow(permission.id);
+		tableService.deleteRow(permission.id);
 		return true;
 	}
 
