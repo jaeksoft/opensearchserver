@@ -50,14 +50,14 @@ public class WebCrawlRecord {
 		this.uuid = uuid;
 		this.name = name;
 		this.crawlDefinition = crawlDefinition;
-		this.deleteOlderSession = deleteOlderSession;
+		this.deleteOlderSession = deleteOlderSession == null || deleteOlderSession;
 	}
 
 	WebCrawlRecord(final Builder builder) {
 		uuid = builder.uuid;
 		name = builder.name;
 		crawlDefinition = builder.crawlDefinition;
-		deleteOlderSession = builder.deleteOlderSession;
+		deleteOlderSession = builder.deleteOlderSession == null || builder.deleteOlderSession;
 	}
 
 	public UUID getUuid() {
@@ -73,7 +73,7 @@ public class WebCrawlRecord {
 	}
 
 	public boolean isDeleteOlderSession() {
-		return deleteOlderSession != null ? deleteOlderSession : true;
+		return deleteOlderSession;
 	}
 
 	@Override
