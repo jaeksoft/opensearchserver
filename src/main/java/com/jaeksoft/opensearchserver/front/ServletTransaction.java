@@ -112,6 +112,20 @@ public abstract class ServletTransaction {
 	}
 
 	/**
+	 * Return the parameter value from the HTTP request or the default value
+	 *
+	 * @param parameterName
+	 * @param defaultValue
+	 * @return
+	 */
+	protected Boolean getRequestParameter(final String parameterName, final Boolean defaultValue) {
+		final String stringValue = request.getParameter(parameterName);
+		if (StringUtils.isBlank(stringValue))
+			return defaultValue;
+		return Boolean.parseBoolean(stringValue);
+	}
+
+	/**
 	 * Returns the parameter value from the HTTP request or the value provided by the supplier
 	 *
 	 * @param parameterName the name of the parameter

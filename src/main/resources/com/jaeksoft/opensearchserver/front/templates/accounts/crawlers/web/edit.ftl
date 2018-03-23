@@ -68,13 +68,24 @@
                            placeholder="Entry URL" value="${webCrawlRecord.crawlDefinition.entryUrl!?html}">
                     <small>This URL is the first URL to be crawled until we discover new URLs</small>
                 </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="deleteOlderSession" class="form-check-input"
+                               name="deleteOlderSession" value="true"
+                              <#if webCrawlRecord.deleteOlderSession?? && webCrawlRecord.deleteOlderSession>
+                               checked</#if>>
+                        <label class="form-check-label" for="deleteOlderSession">Delete older crawl</label>
+                        <small>(delete remaining crawls from previous crawl sessions)</small>
+                    </div>
+                </div>
             </div>
-            <#include 'includes/inclusions.ftl'>
-            <#include 'includes/exclusions.ftl'>
+        <#include 'includes/inclusions.ftl'>
+        <#include 'includes/exclusions.ftl'>
             <div class="card-footer">
                 <div class="form-group">
                     <button class="btn btn-secondary" name="action" value="revert" type="submit">Revert</button>
-                    <button class="btn btn-primary float-right" name="action" value="save" type="submit">Save</button>
+                    <button class="btn btn-primary float-right" name="action" value="save" type="submit">Save
+                    </button>
                 </div>
             </div>
         </form>

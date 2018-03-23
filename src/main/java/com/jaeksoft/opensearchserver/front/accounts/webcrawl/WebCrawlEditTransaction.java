@@ -72,6 +72,7 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		final String entryUrl = request.getParameter("entryUrl");
 		final Integer maxDepth = getRequestParameter("maxDepth", null, null, null);
 		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null, null, null);
+		final Boolean deleteOlderSession = getRequestParameter("deleteOlderSession", false);
 		final WebCrawlDefinition.Builder webCrawlDefBuilder =
 				WebCrawlDefinition.of().setEntryUrl(entryUrl).setMaxDepth(maxDepth).setMaxUrlNumber(maxUrlNumber);
 		final String[] inclusions = request.getParameterValues("inclusion");
@@ -82,8 +83,11 @@ public class WebCrawlEditTransaction extends AccountTransaction {
 		if (exclusions != null)
 			for (String exclusion : exclusions)
 				webCrawlDefBuilder.addExclusionPattern(exclusion);
-		final WebCrawlRecord newWebCrawlRecord =
-				WebCrawlRecord.of(webCrawlRecord).name(crawlName).crawlDefinition(webCrawlDefBuilder.build()).build();
+		final WebCrawlRecord newWebCrawlRecord = webCrawlRecord.from()
+				.name(crawlName)
+				.crawlDefinition(webCrawlDefBuilder.build())
+				.deleteOlderSession(deleteOlderSession)
+				.build();
 		webCrawlsService.save(accountRecord.getId(), newWebCrawlRecord);
 		tasksService.updateDefinitions(webCrawlRecord.uuid, oldTaskDef -> {
 			final WebCrawlTaskDefinition oldWebCrawl = (WebCrawlTaskDefinition) oldTaskDef;

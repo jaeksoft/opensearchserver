@@ -73,7 +73,8 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
 		if (nextUnknownCount == 0) { // We're done with this session
 			if (indexService.isAlreadyCrawled(webCrawlTask.crawlDefinition.entryUrl, webCrawlTask.getId(),
 					taskRecord.sessionTimeId)) {
-				indexService.deleteOldCrawl(webCrawlTask.getId(), taskRecord.sessionTimeId);
+				if (webCrawlTask.deleteOlderSession)
+					indexService.deleteOldCrawl(webCrawlTask.getId(), taskRecord.sessionTimeId);
 				return null;
 			}
 			crawlBuilder.addUrl(webCrawlTask.crawlDefinition.entryUrl, 0);

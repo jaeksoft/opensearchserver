@@ -41,18 +41,23 @@ public class WebCrawlRecord {
 
 	public final WebCrawlDefinition crawlDefinition;
 
+	public final Boolean deleteOlderSession;
+
 	@JsonCreator
 	WebCrawlRecord(@JsonProperty("uuid") final UUID uuid, @JsonProperty("name") final String name,
-			@JsonProperty("crawlDefinition") final WebCrawlDefinition crawlDefinition) {
+			@JsonProperty("crawlDefinition") final WebCrawlDefinition crawlDefinition,
+			@JsonProperty("deleteOlderSession") final Boolean deleteOlderSession) {
 		this.uuid = uuid;
 		this.name = name;
 		this.crawlDefinition = crawlDefinition;
+		this.deleteOlderSession = deleteOlderSession;
 	}
 
 	WebCrawlRecord(final Builder builder) {
 		uuid = builder.uuid;
 		name = builder.name;
 		crawlDefinition = builder.crawlDefinition;
+		deleteOlderSession = builder.deleteOlderSession;
 	}
 
 	public UUID getUuid() {
@@ -67,6 +72,10 @@ public class WebCrawlRecord {
 		return crawlDefinition;
 	}
 
+	public boolean isDeleteOlderSession() {
+		return deleteOlderSession != null ? deleteOlderSession : true;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof WebCrawlRecord))
@@ -75,7 +84,8 @@ public class WebCrawlRecord {
 			return true;
 		final WebCrawlRecord w = (WebCrawlRecord) o;
 		return Objects.equals(uuid, w.uuid) && Objects.equals(name, w.name) &&
-				Objects.equals(crawlDefinition, w.crawlDefinition);
+				Objects.equals(crawlDefinition, w.crawlDefinition) &&
+				Objects.equals(deleteOlderSession, w.deleteOlderSession);
 	}
 
 	/**
@@ -91,11 +101,10 @@ public class WebCrawlRecord {
 	 * Create a builder that can be used to update the given WebCrawlRecord.
 	 * The builder is initially filled with all the data from the given WebCrawlRecord.
 	 *
-	 * @param record an existing WebCrawlRecord
 	 * @return a new WebCrawlRecord builder
 	 */
-	public static Builder of(final WebCrawlRecord record) {
-		return new Builder(record.uuid).name(record.name).crawlDefinition(record.crawlDefinition);
+	public Builder from() {
+		return new Builder(uuid).name(name).crawlDefinition(crawlDefinition).deleteOlderSession(deleteOlderSession);
 	}
 
 	public static class Builder {
@@ -103,6 +112,7 @@ public class WebCrawlRecord {
 		private final UUID uuid;
 		private String name;
 		private WebCrawlDefinition crawlDefinition;
+		private Boolean deleteOlderSession;
 
 		private Builder(final UUID uuid) {
 			this.uuid = uuid;
@@ -115,6 +125,11 @@ public class WebCrawlRecord {
 
 		public Builder crawlDefinition(final WebCrawlDefinition crawlDefinition) {
 			this.crawlDefinition = crawlDefinition;
+			return this;
+		}
+
+		public Builder deleteOlderSession(final Boolean deleteOlderSession) {
+			this.deleteOlderSession = deleteOlderSession;
 			return this;
 		}
 
