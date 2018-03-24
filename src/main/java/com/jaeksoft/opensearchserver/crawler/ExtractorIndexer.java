@@ -68,7 +68,7 @@ public class ExtractorIndexer {
 			if (mediaType.isCompatible(MediaType.TEXT_HTML_TYPE))
 				uriInfoParameters = htmlParserParameters;
 		} catch (IllegalArgumentException e) {
-			LOGGER.log(Level.WARNING, e, () -> "Bad content type: " + contentType);
+			LOGGER.log(Level.FINE, e, () -> "Bad content type: " + contentType);
 		}
 
 		// Extract indexable data
@@ -91,7 +91,7 @@ public class ExtractorIndexer {
 			}
 
 		} catch (WebApplicationException | ServerException e) {
-			LOGGER.log(Level.WARNING, "Parsing failed with " + contentType + " on " + currentCrawl.getUri(), e);
+			LOGGER.log(Level.FINE, "Parsing failed with " + contentType + " on " + currentCrawl.getUri(), e);
 		}
 
 	}

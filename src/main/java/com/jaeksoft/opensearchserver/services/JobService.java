@@ -19,6 +19,7 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.TaskExecutionRecord;
 import com.jaeksoft.opensearchserver.model.TaskRecord;
+import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.LoggerUtils;
 
 import javax.ws.rs.WebApplicationException;
@@ -97,7 +98,8 @@ public class JobService implements Closeable {
 			} catch (Exception e) {
 				LOGGER.log(Level.WARNING, e,
 						() -> "Error on task: " + taskRecord.taskId + " - account: " + taskRecord.accountId);
-				tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR, "Error: " + e.getMessage());
+				tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR,
+						"Error: " + ExceptionUtils.getMessage(e));
 			}
 		}
 
