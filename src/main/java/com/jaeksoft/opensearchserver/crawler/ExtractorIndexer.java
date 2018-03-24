@@ -16,6 +16,8 @@
 
 package com.jaeksoft.opensearchserver.crawler;
 
+import com.jaeksoft.opensearchserver.crawler.web.semantic.OpenGraphExtractor;
+import com.jaeksoft.opensearchserver.crawler.web.semantic.SchemaOrgExtractor;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.qwazr.crawler.web.WebCurrentCrawl;
@@ -47,8 +49,11 @@ public class ExtractorIndexer {
 	ExtractorIndexer(ExtractorServiceInterface extractorService) throws URISyntaxException {
 		this.extractorService = extractorService;
 		htmlParserParameters = new UriInfoImpl(new URI("http://localhost:9090"), UriBuilder.fromPath("")
-				.queryParam("xpath_name", "script_ldjson")
-				.queryParam("xpath", LinkUtils.urlEncode("//script[@type='application/ld+json']"))
+				.queryParam("xpath_name", SchemaOrgExtractor.SELECTOR_NAME, OpenGraphExtractor.SELECTOR_NAME_PROPERTY,
+						OpenGraphExtractor.SELECTOR_NAME_CONTENT)
+				.queryParam("xpath", LinkUtils.urlEncode(SchemaOrgExtractor.SELECTOR_XPATH),
+						LinkUtils.urlEncode(OpenGraphExtractor.SELECTOR_XPATH_PROPERTY),
+						LinkUtils.urlEncode(OpenGraphExtractor.SELECTOR_XPATH_CONTENT))
 				.queryParam("title", "1")
 				.queryParam("content", "1")
 				.build());
@@ -81,7 +86,8 @@ public class ExtractorIndexer {
 					final Object contentLang = fields.get("lang_detection");
 					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang, Language.en));
 				});
-				SchemaOrgExtractor.extract(parserResult, urlBuilder);
+				if (!SchemaOrgExtractor.extract(parserResult, urlBuilder))
+					OpenGraphExtractor.extract(parserResult, urlBuilder);
 			}
 
 		} catch (WebApplicationException | ServerException e) {

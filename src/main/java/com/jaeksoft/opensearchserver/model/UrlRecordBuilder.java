@@ -312,7 +312,7 @@ public abstract class UrlRecordBuilder<R extends UrlRecord, T extends UrlRecordB
 	}
 
 	public T schemaOrgType(final String schemaOrgType) {
-		this.schemaOrgType = schemaOrgType;
+		this.schemaOrgType = schemaOrgType == null ? null : schemaOrgType.toLowerCase();
 		return me();
 	}
 

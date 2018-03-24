@@ -55,13 +55,19 @@ public class SearchService {
 	protected final BooleanQuery.BooleanClause indexedStatus = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
 			new IntDocValuesExactQuery("indexStatus", IndexStatus.INDEXED.code));
 
+	// TODO EK: Check that semantic feature normalizes using lowercase
 	protected final BooleanQuery.BooleanClause newsFilter = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
 			BooleanQuery.of(false, null)
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "article"))
 					.should(new SortedDocValuesExactQuery("schemaOrgType", "Article"))
 					.should(new SortedDocValuesExactQuery("schemaOrgType", "NewsArticle"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "newsarticle"))
 					.should(new SortedDocValuesExactQuery("schemaOrgType", "Blog"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "blog"))
 					.should(new SortedDocValuesExactQuery("schemaOrgType", "Report"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "report"))
 					.should(new SortedDocValuesExactQuery("schemaOrgType", "TechArticle"))
+					.should(new SortedDocValuesExactQuery("schemaOrgType", "techarticle"))
 					.build());
 
 	// Optimization: They are per thread singleton
