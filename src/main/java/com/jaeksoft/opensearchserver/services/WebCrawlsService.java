@@ -19,8 +19,10 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
 import com.qwazr.store.StoreScript;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.store.StoreWalkResult;
 import com.qwazr.utils.StringUtils;
 
+import javax.ws.rs.core.GenericType;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +34,9 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 	private final static String WEB_CRAWLS_DIRECTORY = "web_crawls";
 
 	public WebCrawlsService(final StoreServiceInterface storeService) {
-		super(storeService, WEB_CRAWLS_DIRECTORY, WebCrawlRecord.class);
+		super(storeService, WEB_CRAWLS_DIRECTORY, WebCrawlRecord.class,
+				new GenericType<StoreWalkResult<WebCrawlRecord>>() {
+				});
 	}
 
 	@Override

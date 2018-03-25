@@ -24,6 +24,7 @@ import com.qwazr.utils.ObjectMappers;
 import com.qwazr.utils.concurrent.ThreadUtils;
 
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.GenericType;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,11 +49,14 @@ public abstract class StoreService<T> {
 	private final StoreServiceInterface storeService;
 	private final String directory;
 	private final Class<T> recordClass;
+	private final GenericType<StoreWalkResult<T>> genericType;
 
-	StoreService(final StoreServiceInterface storeService, final String directory, final Class<T> recordClass) {
+	StoreService(final StoreServiceInterface storeService, final String directory, final Class<T> recordClass,
+			final GenericType<StoreWalkResult<T>> genericType) {
 		this.storeService = storeService;
 		this.directory = directory;
 		this.recordClass = recordClass;
+		this.genericType = genericType;
 	}
 
 	private String getRecordPath(final String subDirectory, final String storeName) {
@@ -163,9 +167,9 @@ public abstract class StoreService<T> {
 				() -> storeService.createProcess(storeSchema, directoryPath, 1, script.getName(), variables), 404);
 		if (processId == null)
 			return 0;
-		StoreWalkResult result;
+		StoreWalkResult<T> result;
 		for (; ; ) {
-			result = storeService.getProcess(storeSchema, processId);
+			result = storeService.getProcess(storeSchema, processId, genericType);
 			if (result == null)
 				return 0;
 			if (result.finalTime != null)
@@ -173,8 +177,8 @@ public abstract class StoreService<T> {
 			ThreadUtils.sleep(100, TimeUnit.MICROSECONDS);
 		}
 		if (result.resultObjects != null)
-			for (final Object o : result.resultObjects)
-				collector.accept(recordClass.cast(o));
+			for (final T record : result.resultObjects)
+				collector.accept(record);
 		return result.resultCount == null ? 0 : result.resultCount.intValue();
 	}
 
