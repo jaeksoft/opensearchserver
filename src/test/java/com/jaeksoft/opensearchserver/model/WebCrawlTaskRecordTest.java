@@ -27,7 +27,7 @@ public class WebCrawlTaskRecordTest {
 
 	@Test
 	public void serializationDeserializationTest() throws IOException {
-		final WebCrawlRecord taskRecord1 = WebCrawlsServiceTest.createNewCrawlRecord();
+		final WebCrawlRecord taskRecord1 = WebCrawlsServiceTest.createNewCrawlRecord("test");
 		final String taskRecordString = ObjectMappers.JSON.writeValueAsString(taskRecord1);
 		final WebCrawlRecord taskRecord2 = ObjectMappers.JSON.readValue(taskRecordString, WebCrawlRecord.class);
 		Assert.assertEquals(taskRecord1, taskRecord2);

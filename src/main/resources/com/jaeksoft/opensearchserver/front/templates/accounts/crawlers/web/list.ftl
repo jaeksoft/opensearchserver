@@ -33,6 +33,18 @@
         </ol>
     </nav>
 </div>
+<div class="container">
+    <form>
+        <input type="hidden" name="rows" value="${rows?c}">
+        <div class="input-group mb-3">
+            <input type="text" name="filter" class="form-control" placeholder="name & url filter"
+                   aria-label="name & url filter" value="${filter!?html}">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
 <#if webCrawlRecords?has_content>
 <div class="container">
     <form method="post">
@@ -57,7 +69,7 @@
            <th>
                <div class="form-check">
                    <#assign idx = (start!0) + webCrawlRecord?index + 1>
-                   <input class="form-check-input" type="checkbox" name="c"
+                   <input class="form-check-input checkBoxClass" type="checkbox" name="c"
                           id="chk${idx?c}" value="${webCrawlRecord.uuid?html}">
                    <label class="form-check-label" for="chk${idx?c}">${idx?c}</label>
                </div>
@@ -107,6 +119,7 @@
         <form>
             <#if rows?has_content>
             <input type="hidden" name="rows" value="${rows?c}">
+             <input type="hidden" name="filter" value="${filter!?html}">
             </#if>
             <#include '../../../includes/paging.ftl'>
         </form>

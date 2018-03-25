@@ -40,55 +40,83 @@ public class WebCrawlsServiceTest extends BaseTest {
 			WebCrawlRecord... expectedRecords) {
 		Assert.assertEquals(expectedTotalCount, totalCount);
 		Assert.assertEquals(expectedRecords.length, records.size());
-		int i = 0;
-		for (WebCrawlRecord record : expectedRecords) {
-			Assert.assertEquals(record, records.get(i++));
-			Assert.assertEquals(record, webCrawlsService.read(getAccountId(), record.getUuid()));
-		}
+		for (WebCrawlRecord record : expectedRecords)
+			Assert.assertTrue(records.contains(record));
 	}
 
 	@Test
 	public void getEmptyList() {
 		List<WebCrawlRecord> crawlRecords = new ArrayList<>();
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, crawlRecords), crawlRecords, 0);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, null, crawlRecords::add),
+				crawlRecords, 0);
 	}
 
-	public static WebCrawlRecord createNewCrawlRecord() {
+	public static WebCrawlRecord createNewCrawlRecord(String name) {
 		final WebCrawlDefinition crawlDefinition =
 				WebCrawlDefinition.of().setEntryUrl("http://www.opensearchserver.com").build();
-		return WebCrawlRecord.of().name("test").crawlDefinition(crawlDefinition).build();
+		return WebCrawlRecord.of().name(name).crawlDefinition(crawlDefinition).build();
 	}
 
 	@Test
-	public void globalTest() {
-		// Save one record
-		final WebCrawlRecord crawlRecord1 = createNewCrawlRecord();
+	public void saveOneRecord() {
+		final WebCrawlRecord crawlRecord1 = createNewCrawlRecord("test1");
 		webCrawlsService.save(getAccountId(), crawlRecord1);
-
 		final List<WebCrawlRecord> crawlRecords = new ArrayList<>();
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, crawlRecords), crawlRecords, 1,
-				crawlRecord1);
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, null, crawlRecords::add),
+				crawlRecords, 1, crawlRecord1);
+	}
 
-		// Save a second new record
-		crawlRecords.clear();
-		;
-		final WebCrawlRecord crawlRecord2 = createNewCrawlRecord();
-		webCrawlsService.save(getAccountId(), crawlRecord2);
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, crawlRecords), crawlRecords, 2,
-				crawlRecord1, crawlRecord2);
-		crawlRecords.clear();
-
-		// Update the first one
-		crawlRecords.clear();
+	List<WebCrawlRecord> createAndSaveTwoRecords() {
+		final WebCrawlRecord crawlRecord1 = createNewCrawlRecord("test1");
 		webCrawlsService.save(getAccountId(), crawlRecord1);
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, crawlRecords), crawlRecords, 2,
+		final WebCrawlRecord crawlRecord2 = createNewCrawlRecord("test2");
+		webCrawlsService.save(getAccountId(), crawlRecord2);
+		final List<WebCrawlRecord> records = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, null, records::add), records, 2,
 				crawlRecord1, crawlRecord2);
+		return records;
+	}
 
-		// Remove the first one
-		crawlRecords.clear();
-		webCrawlsService.remove(getAccountId(), crawlRecord1.getUuid());
-		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, crawlRecords), crawlRecords, 1,
-				crawlRecord2);
+	@Test
+	public void saveTwoRecords() {
+		createAndSaveTwoRecords();
+	}
+
+	@Test
+	public void updateOneRecord() {
+		final List<WebCrawlRecord> records1 = createAndSaveTwoRecords();
+
+		webCrawlsService.save(getAccountId(), records1.get(0));
+		final List<WebCrawlRecord> records2 = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, null, records2::add), records2, 2,
+				records1.get(0), records1.get(1));
+
+		Assert.assertArrayEquals(records1.toArray(), records2.toArray());
+	}
+
+	@Test
+	public void removeOneRecord() {
+		List<WebCrawlRecord> records1 = createAndSaveTwoRecords();
+		final List<WebCrawlRecord> records2 = new ArrayList<>();
+		webCrawlsService.remove(getAccountId(), records1.get(0).getUuid());
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, null, records2::add), records2, 1,
+				records1.get(1));
+	}
+
+	@Test
+	public void pagingStart1Rows10() {
+		final List<WebCrawlRecord> records1 = createAndSaveTwoRecords();
+		final List<WebCrawlRecord> records2 = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 1, 10, null, records2::add), records2, 2,
+				records1.get(1));
+	}
+
+	@Test
+	public void pagingStart0Rows1() {
+		final List<WebCrawlRecord> records1 = createAndSaveTwoRecords();
+		final List<WebCrawlRecord> records2 = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 1, null, records2::add), records2, 2,
+				records1.get(0));
 	}
 
 }

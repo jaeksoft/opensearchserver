@@ -155,13 +155,15 @@ public class WebCrawlListTransaction extends AccountTransaction {
 	protected void doGet() throws IOException, ServletException {
 		final int start = getRequestParameter("start", 0, 0, null);
 		final int rows = getRequestParameter("rows", 25, 10, 100);
-
+		final String filter = request.getParameter("filter");
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount = webCrawlsService.collect(accountRecord.getId(), start, rows, webCrawlRecords);
+		final int totalCount =
+				webCrawlsService.collect(accountRecord.getId(), start, rows, filter, webCrawlRecords::add);
 
 		request.setAttribute("webCrawlRecords", webCrawlRecords);
 		request.setAttribute("start", start);
 		request.setAttribute("rows", rows);
+		request.setAttribute("filter", filter);
 		request.setAttribute("totalCount", totalCount);
 		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
 		request.setAttribute("paging", new Paging((long) totalCount, start, rows, 10));

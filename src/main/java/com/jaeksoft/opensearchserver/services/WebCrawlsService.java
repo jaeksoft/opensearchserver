@@ -17,11 +17,15 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.WebCrawlRecord;
+import com.qwazr.store.StoreScript;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.utils.StringUtils;
 
-import java.io.IOException;
-import java.util.Collection;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 
@@ -44,13 +48,50 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 		return super.read(accountId.toString(), null, webCrawlUuid.toString());
 	}
 
-	public int collect(final UUID accountId, final int start, final int rows,
-			final Collection<WebCrawlRecord> recordCollector) {
-		return super.collect(accountId.toString(), null, start, rows, null, recordCollector);
+	final static String VAR_START = "start";
+	final static String VAR_ROWS = "rows";
+	final static String VAR_FILTER = "filter";
+
+	public int collect(final UUID accountId, final int start, final int rows, final String filter,
+			final Consumer<WebCrawlRecord> recordCollector) {
+		final Map<String, Object> variables = new HashMap<>();
+		variables.put(VAR_START, start);
+		variables.put(VAR_ROWS, rows);
+		if (!StringUtils.isBlank(filter))
+			variables.put(VAR_FILTER, filter.toLowerCase());
+		return super.collect(accountId.toString(), null, Filter.class, variables, r -> {
+			if (r != WebCrawlRecord.NULL && r != WebCrawlRecord.EMPTY)
+				recordCollector.accept(r);
+		});
 	}
 
 	public void remove(final UUID accountId, UUID webCrawlUuid) {
 		super.remove(accountId.toString(), null, webCrawlUuid.toString());
 	}
 
+	public static class Filter extends StoreScript<WebCrawlRecord> {
+
+		@Override
+		protected WebCrawlRecord run(final File file, final String path, final Integer dirCount,
+				final Integer fileCount, final Integer resultSize, final Map<String, ?> variables) throws Exception {
+			if (!file.isFile())
+				return null;
+			final Integer start = (Integer) variables.get(VAR_START);
+			final Integer rows = (Integer) variables.get(VAR_ROWS);
+			final String filter = (String) variables.get(VAR_FILTER);
+			final WebCrawlRecord record = readRecord(file, WebCrawlRecord.class);
+			if (filter != null) {
+				final boolean found = (record.name != null && record.name.toLowerCase().contains(filter)) ||
+						(record.crawlDefinition != null && record.crawlDefinition.entryUrl != null &&
+								record.crawlDefinition.entryUrl.contains(filter));
+				if (!found)
+					return null;
+			}
+			if (resultSize < start)
+				return WebCrawlRecord.NULL;
+			if (resultSize >= start + rows)
+				return WebCrawlRecord.EMPTY;
+			return record;
+		}
+	}
 }

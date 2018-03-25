@@ -17,25 +17,27 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.qwazr.server.client.ErrorWrapper;
-import com.qwazr.store.StoreFileResult;
+import com.qwazr.store.StoreScript;
 import com.qwazr.store.StoreServiceInterface;
+import com.qwazr.store.StoreWalkResult;
 import com.qwazr.utils.ObjectMappers;
-import com.qwazr.utils.StringUtils;
+import com.qwazr.utils.concurrent.ThreadUtils;
 
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.WebApplicationException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -99,29 +101,18 @@ public abstract class StoreService<T> {
 		return ErrorWrapper.bypass(() -> {
 			try (final InputStream fileInput = storeService.getFile(storeSchema,
 					getRecordPath(subDirectory, storeName))) {
-				try (final BufferedInputStream bufInput = new BufferedInputStream(fileInput)) {
-					try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
-						return ObjectMappers.JSON.readValue(compressedInput, recordClass);
-					}
-				}
+				return readRecord(fileInput, recordClass);
 			} catch (IOException e) {
 				throw new InternalServerErrorException(e);
 			}
 		}, 404);
 	}
 
-	/**
-	 * Read the record list with paging parameters
-	 *
-	 * @param start     pagination start (can be null)
-	 * @param rows      pagination end (can be null)
-	 * @param filter    an optional filter
-	 * @param collector the record collector
-	 * @return the total number of records found, and the paginated records as a list
-	 */
+/*
 	protected int collect(final String storeSchema, final String subDirectory, Integer start, Integer rows,
-			final Function<String, Boolean> filter, final Collection<T> collector) {
+			final Consumer<T> collector) {
 		try {
+
 			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
 			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;
 			if (files == null)
@@ -131,22 +122,22 @@ public abstract class StoreService<T> {
 			if (start != null) {
 				while (start-- > 0 && iterator.hasNext()) {
 					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-					if (filter != null && !filter.apply(baseName))
+					if (fileNameFilter != null && !fileNameFilter.apply(baseName))
 						continue;
 					count++;
 				}
 			}
 			while ((rows == null || rows-- > 0) && iterator.hasNext()) {
 				final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-				if (filter != null && !filter.apply(baseName))
+				if (fileNameFilter != null && !fileNameFilter.apply(baseName))
 					continue;
 				count++;
 				if (collector != null)
-					collector.add(read(storeSchema, subDirectory, baseName));
+					collector.accept(read(storeSchema, subDirectory, baseName));
 			}
 			while (iterator.hasNext()) {
 				final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-				if (filter == null || filter.apply(baseName))
+				if (fileNameFilter == null || fileNameFilter.apply(baseName))
 					count++;
 			}
 			return count;
@@ -155,6 +146,37 @@ public abstract class StoreService<T> {
 				return 0;
 			throw e;
 		}
+	}
+	*/
+
+	/**
+	 * Read the record list with paging parameters
+	 *
+	 * @param collector the record collector
+	 * @return the total number of records found, and the paginated records as a list
+	 */
+	protected int collect(final String storeSchema, final String subDirectory,
+			final Class<? extends StoreScript> script, final Map<String, Object> variables,
+			final Consumer<T> collector) {
+		final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
+		final UUID processId = ErrorWrapper.bypass(
+				() -> storeService.createProcess(storeSchema, directoryPath, 1, script.getName(), variables), 404);
+		if (processId == null)
+			return 0;
+		StoreWalkResult result;
+		for (; ; ) {
+			result = storeService.getProcess(storeSchema, processId);
+			if (result == null)
+				return 0;
+			if (result.finalTime != null)
+				break;
+			ThreadUtils.sleep(100, TimeUnit.MICROSECONDS);
+		}
+		if (result.results == null)
+			return 0;
+		for (final Object o : result.results.keySet())
+			collector.accept(recordClass.cast(o));
+		return result.resultCount == null ? 0 : result.resultCount.intValue();
 	}
 
 	/**
@@ -166,4 +188,17 @@ public abstract class StoreService<T> {
 		storeService.deleteFile(storeSchema, getRecordPath(subDirectory, storeName));
 	}
 
+	protected static <T> T readRecord(final InputStream inputStream, final Class<T> recordClass) throws IOException {
+		try (final BufferedInputStream bufInput = new BufferedInputStream(inputStream)) {
+			try (final GZIPInputStream compressedInput = new GZIPInputStream(bufInput)) {
+				return ObjectMappers.JSON.readValue(compressedInput, recordClass);
+			}
+		}
+	}
+
+	protected static <T> T readRecord(final File file, final Class<T> recordClass) throws IOException {
+		try (final FileInputStream fileInput = new FileInputStream(file)) {
+			return readRecord(fileInput, recordClass);
+		}
+	}
 }
