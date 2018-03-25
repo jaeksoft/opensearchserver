@@ -139,7 +139,6 @@ public class WebCrawlRecord {
 
 	}
 
-	public static WebCrawlRecord NULL = new WebCrawlRecord(new UUID(0, 0), null, null, null);
 	public static WebCrawlRecord EMPTY = new WebCrawlRecord(null, null, null, null);
 
 }

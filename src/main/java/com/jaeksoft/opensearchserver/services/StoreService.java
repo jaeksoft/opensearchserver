@@ -173,7 +173,7 @@ public abstract class StoreService<T> {
 			ThreadUtils.sleep(100, TimeUnit.MICROSECONDS);
 		}
 		if (result.results != null)
-			for (final Object o : result.results.keySet())
+			for (final Object o : result.results)
 				collector.accept(recordClass.cast(o));
 		return result.resultCount == null ? 0 : result.resultCount.intValue();
 	}
