@@ -172,8 +172,8 @@ public abstract class StoreService<T> {
 				break;
 			ThreadUtils.sleep(100, TimeUnit.MICROSECONDS);
 		}
-		if (result.results != null)
-			for (final Object o : result.results)
+		if (result.resultObjects != null)
+			for (final Object o : result.resultObjects)
 				collector.accept(recordClass.cast(o));
 		return result.resultCount == null ? 0 : result.resultCount.intValue();
 	}
