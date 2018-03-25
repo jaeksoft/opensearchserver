@@ -119,4 +119,30 @@ public class WebCrawlsServiceTest extends BaseTest {
 				records1.get(0));
 	}
 
+	@Test
+	public void pagingStartFilters() {
+
+		final WebCrawlRecord record1 = createNewCrawlRecord("test1");
+		webCrawlsService.save(getAccountId(), record1);
+		final WebCrawlRecord record2 = createNewCrawlRecord("test2");
+		webCrawlsService.save(getAccountId(), record2);
+
+		final List<WebCrawlRecord> records = new ArrayList<>();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, "test1", records::add), records, 1,
+				record1);
+
+		records.clear();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, "test2", records::add), records, 1,
+				record2);
+
+		records.clear();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, "open", records::add), records, 2,
+				record1, record2);
+
+		records.clear();
+		checkWebCrawlRecordsResult(webCrawlsService.collect(getAccountId(), 0, 10, "fsmlfsmdflksmdfl", records::add),
+				records, 0);
+
+	}
+
 }
