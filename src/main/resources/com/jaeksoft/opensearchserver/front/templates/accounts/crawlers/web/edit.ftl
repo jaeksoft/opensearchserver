@@ -58,7 +58,7 @@
                     <div class="form-group col-md-3">
                         <label for="maxUrlNumber">Max URL number</label>
                         <input type="number" id="maxUrlNumber" class="form-control" name="maxUrlNumber"
-                               value="${webCrawlRecord.crawlDefinition.maxUrlNumber!?c}">
+                               value="<#if webCrawlRecord.crawlDefinition.maxUrlNumber??>${webCrawlRecord.crawlDefinition.maxUrlNumber?c}</#if>">
                         <small>The maximum number of crawled URL</small>
                     </div>
                 </div>

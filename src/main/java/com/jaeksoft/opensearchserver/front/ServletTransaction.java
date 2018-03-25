@@ -36,8 +36,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,15 +90,16 @@ public abstract class ServletTransaction {
 	/**
 	 * Returns the parameter value from the HTTP request or the default value.
 	 *
-	 * @param parameterName the name of the parameter
-	 * @param defaultValue  a default value (can be null)
-	 * @param minValue      the minimum value (can be null)
-	 * @param maxValue      the maximum value (can be null)
+	 * @param requestParameterName the request name of the parameter
+	 * @param sessionParameterName the session name of the parameter
+	 * @param defaultValue         a default value (can be null)
+	 * @param minValue             the minimum value (can be null)
+	 * @param maxValue             the maximum value (can be null)
 	 * @return the value of the given parameter
 	 */
-	protected Integer getRequestParameter(final String parameterName, final Integer defaultValue,
-			final Integer minValue, final Integer maxValue) {
-		final String stringValue = request.getParameter(parameterName);
+	protected Integer getRequestParameter(final String requestParameterName, String sessionParameterName,
+			final Integer defaultValue, final Integer minValue, final Integer maxValue) {
+		final String stringValue = getParameter(requestParameterName, sessionParameterName);
 		if (StringUtils.isBlank(stringValue))
 			return defaultValue;
 		final Integer value = Integer.parseInt(stringValue);
@@ -109,6 +108,11 @@ public abstract class ServletTransaction {
 		if (maxValue != null && value > maxValue)
 			return maxValue;
 		return value;
+	}
+
+	protected Integer getRequestParameter(final String requestParameterName, final Integer defaultValue,
+			final Integer minValue, final Integer maxValue) {
+		return getRequestParameter(requestParameterName, null, defaultValue, minValue, maxValue);
 	}
 
 	/**
@@ -128,20 +132,20 @@ public abstract class ServletTransaction {
 	/**
 	 * Returns the parameter value from the HTTP request or the value provided by the supplier
 	 *
-	 * @param parameterName the name of the parameter
-	 * @param converter     convert the string to the value
-	 * @param defaultValue  a default value supplier
+	 * @param requestParameterName the request name of the parameter
+	 * @param sessionParameterName the session name of the parameter
 	 * @return the value of the given parameter
 	 */
-	protected <T> T getRequestParameter(final String parameterName, final Function<String, T> converter,
-			final Supplier<T> defaultValue) {
-		final String value = request.getParameter(parameterName);
-		if (StringUtils.isBlank(value))
-			if (defaultValue == null)
-				return null;
-			else
-				return defaultValue.get();
-		return converter.apply(value);
+	protected String getParameter(final String requestParameterName, String sessionParameterName) {
+		if (requestParameterName != null) {
+			final String value = request.getParameter(requestParameterName);
+			if (value != null) {
+				if (sessionParameterName != null)
+					session.setAttribute(sessionParameterName, value);
+				return value;
+			}
+		}
+		return sessionParameterName != null ? (String) session.getAttribute(sessionParameterName) : null;
 	}
 
 	/**

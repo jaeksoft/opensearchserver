@@ -64,7 +64,7 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 		if (!StringUtils.isBlank(filter))
 			variables.put(VAR_FILTER, filter.toLowerCase());
 		return super.collect(accountId.toString(), null, Filter.class, variables, r -> {
-			if (r != WebCrawlRecord.EMPTY)
+			if (!r.equals(WebCrawlRecord.EMPTY))
 				recordCollector.accept(r);
 		});
 	}

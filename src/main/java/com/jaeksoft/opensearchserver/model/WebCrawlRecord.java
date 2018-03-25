@@ -77,6 +77,11 @@ public class WebCrawlRecord {
 	}
 
 	@Override
+	public int hashCode() {
+		return uuid == null ? 0 : uuid.hashCode();
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof WebCrawlRecord))
 			return false;

@@ -153,9 +153,9 @@ public class WebCrawlListTransaction extends AccountTransaction {
 
 	@Override
 	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0, 0, null);
-		final int rows = getRequestParameter("rows", 25, 10, 100);
-		final String filter = request.getParameter("filter");
+		final int start = getRequestParameter("start", "crawlStart", 0, 0, null);
+		final int rows = getRequestParameter("rows", "crawlRows", 25, 10, 100);
+		final String filter = getParameter("filter", "crawlFilter");
 		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
 		final int totalCount =
 				webCrawlsService.collect(accountRecord.getId(), start, rows, filter, webCrawlRecords::add);
