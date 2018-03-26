@@ -86,8 +86,8 @@ public class ExtractorIndexer {
 					final Object contentLang = fields.get("lang_detection");
 					urlBuilder.contentObject(fields.get("content"), Language.find(contentLang, Language.en));
 				});
-				if (!SchemaOrgExtractor.extract(parserResult, urlBuilder))
-					OpenGraphExtractor.extract(parserResult, urlBuilder);
+				SchemaOrgExtractor.extract(parserResult, urlBuilder);
+				OpenGraphExtractor.extract(parserResult, urlBuilder);
 			}
 
 		} catch (WebApplicationException | ServerException e) {
