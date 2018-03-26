@@ -77,7 +77,8 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 
 		@Override
 		protected WebCrawlRecord run(final File file, final String path, final Integer dirCount,
-				final Integer fileCount, final Integer resultSize, final Map<String, ?> variables) throws Exception {
+				final Integer fileCount, final Integer resultsSize, final Long resultsCount,
+				final Map<String, ?> variables) throws Exception {
 			if (!file.isFile())
 				return null;
 			final Integer start = (Integer) variables.get(VAR_START);
@@ -91,7 +92,7 @@ public class WebCrawlsService extends StoreService<WebCrawlRecord> {
 				if (!found)
 					return null;
 			}
-			return resultSize < start || resultSize >= start + rows ? WebCrawlRecord.EMPTY : record;
+			return resultsCount < start || resultsCount >= start + rows ? WebCrawlRecord.EMPTY : record;
 		}
 	}
 }

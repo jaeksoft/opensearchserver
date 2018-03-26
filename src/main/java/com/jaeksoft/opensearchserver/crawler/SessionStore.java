@@ -17,6 +17,7 @@
 package com.jaeksoft.opensearchserver.crawler;
 
 import com.jaeksoft.opensearchserver.model.CrawlStatus;
+import com.jaeksoft.opensearchserver.model.IndexStatus;
 import com.jaeksoft.opensearchserver.model.UrlRecord;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.qwazr.utils.FileUtils;
@@ -87,8 +88,10 @@ public class SessionStore implements Closeable {
 		if (indexService.exists(link))
 			indexQueue.update(uri, linkBuilder.build());
 		else
-			indexQueue.post(uri,
-					linkBuilder.hostAndUrlStore(null).lastModificationTime(System.currentTimeMillis()).build());
+			indexQueue.post(uri, linkBuilder.indexStatus(IndexStatus.UNKNOWN)
+					.hostAndUrlStore(null)
+					.lastModificationTime(System.currentTimeMillis())
+					.build());
 	}
 
 	public void index(final URL indexServiceUrl, final String accountId, final String indexName)

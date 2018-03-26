@@ -382,8 +382,8 @@ public class UrlRecord {
 			this.crawlUuidLeast = builder.crawlUuid.getLeastSignificantBits();
 		}
 		this.taskCreationTime = builder.taskCreationTime;
-		this.crawlStatus = builder.crawlStatus == null ? CrawlStatus.UNKNOWN.code : builder.crawlStatus.code;
-		this.indexStatus = builder.indexStatus == null ? IndexStatus.UNKNOWN.code : builder.indexStatus.code;
+		this.crawlStatus = builder.crawlStatus == null ? null : builder.crawlStatus.code;
+		this.indexStatus = builder.indexStatus == null ? null : builder.indexStatus.code;
 
 		this.schemaOrgType = builder.schemaOrgType;
 		this.imageUri = builder.imageUri == null ? null : builder.imageUri.toString();
