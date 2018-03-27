@@ -77,6 +77,7 @@ public class SearchTransaction extends ServletTransaction {
 		} catch (WebApplicationException e) {
 			addMessage(null, e);
 		}
+		response.addHeader("Access-Control-Allow-Origin", "*");
 		super.doGet();
 	}
 

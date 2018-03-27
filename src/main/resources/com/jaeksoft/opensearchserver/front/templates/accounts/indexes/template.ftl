@@ -55,7 +55,8 @@
             </div>
             <div class="col-md-3"></div>
             <div class="col-md-2">
-                <a href="/search/${account.name?url}/${indexName?url}" target="_blank" class="btn btn-info btn-block">View</a>
+                <a href="/accounts/${account.name?url}/indexes/${indexName?url}/view"
+                   class="btn btn-info btn-block">View</a>
             </div>
             <div class="col-md-3"></div>
             <div class="form-group col-md-2">

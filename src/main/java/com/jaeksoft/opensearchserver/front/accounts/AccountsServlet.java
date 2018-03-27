@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.front.ServletTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexesTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.InfosTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.TemplateTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.indexes.ViewTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskListTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskPlanningTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskStatusTransaction;
@@ -80,6 +81,8 @@ public class AccountsServlet extends BaseServlet {
 				return new InfosTransaction(components, accountRecord, indexName, request, response);
 			case "template":
 				return new TemplateTransaction(components, accountRecord, indexName, request, response);
+			case "view":
+				return new ViewTransaction(components, accountRecord, indexName, request, response);
 			}
 		}
 		return null;

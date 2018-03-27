@@ -52,7 +52,8 @@
                 <a href="/accounts/${account.name?url}/indexes/${index!?url}/template"
                    class=" btn btn-sm btn-secondary">Template</a>
                 &nbsp;
-                <a href="/search/${account.name?url}/${index!?url}" class=" btn btn-sm btn-primary">View</a>
+                <a href="/accounts/${account.name?url}//indexes/${index!?url}/view"
+                   class="btn btn-sm btn-primary">View</a>
             </td>
         </tr>
         </#list>
