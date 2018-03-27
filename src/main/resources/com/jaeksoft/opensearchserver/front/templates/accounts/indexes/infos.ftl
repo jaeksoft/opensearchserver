@@ -29,9 +29,12 @@
             <li class="breadcrumb-item"><a href="/accounts">Accounts</a></li>
             <li class="breadcrumb-item"><a href="/accounts/${account.name?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item"><a href="/accounts/${account.name?url}/indexes">Indexes</a></li>
-            <li class="breadcrumb-item active" aria-current="page">${indexName!?html}</li>
+            <li class="breadcrumb-item">${indexName!?html}</li>
+            <li class="breadcrumb-item active" aria-current="page">infos</li>
         </ol>
     </nav>
+</div>
+<div class="container">
     <div class="row">
         <div class="col-md-4">
             <div class="card">
@@ -52,6 +55,8 @@
         </div>
     </div>
     <br/>
+</div>
+<div class="container">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Index deletion</h5>

@@ -112,47 +112,6 @@ public abstract class StoreService<T> {
 		}, 404);
 	}
 
-/*
-	protected int collect(final String storeSchema, final String subDirectory, Integer start, Integer rows,
-			final Consumer<T> collector) {
-		try {
-
-			final String directoryPath = subDirectory == null ? directory : directory + '/' + subDirectory;
-			final Map<String, StoreFileResult> files = storeService.getDirectory(storeSchema, directoryPath).files;
-			if (files == null)
-				return 0;
-			final Iterator<String> iterator = files.keySet().iterator();
-			int count = 0;
-			if (start != null) {
-				while (start-- > 0 && iterator.hasNext()) {
-					final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-					if (fileNameFilter != null && !fileNameFilter.apply(baseName))
-						continue;
-					count++;
-				}
-			}
-			while ((rows == null || rows-- > 0) && iterator.hasNext()) {
-				final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-				if (fileNameFilter != null && !fileNameFilter.apply(baseName))
-					continue;
-				count++;
-				if (collector != null)
-					collector.accept(read(storeSchema, subDirectory, baseName));
-			}
-			while (iterator.hasNext()) {
-				final String baseName = StringUtils.removeEnd(iterator.next(), JSON_GZ_SUFFIX);
-				if (fileNameFilter == null || fileNameFilter.apply(baseName))
-					count++;
-			}
-			return count;
-		} catch (WebApplicationException e) {
-			if (e.getResponse().getStatus() == 404)
-				return 0;
-			throw e;
-		}
-	}
-	*/
-
 	/**
 	 * Read the record list with paging parameters
 	 *

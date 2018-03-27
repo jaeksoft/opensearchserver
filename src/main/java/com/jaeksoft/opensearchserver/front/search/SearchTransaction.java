@@ -34,14 +34,15 @@ import java.io.IOException;
 
 public class SearchTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "search/home.ftl";
+	private final static String TEMPLATE = "main.ftl";
 
 	private final IndexService indexService;
 	private final SearchService searchService;
 
 	public SearchTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
 			final HttpServletRequest request, final HttpServletResponse response) {
-		super(components, request, response, false);
+		super(components.getTemplatesService().getFreeMarkerTool(accountRecord.getId(), indexName), request, response,
+				false);
 		this.indexService = components.getIndexesService().getIndex(accountRecord.id, indexName);
 		if (indexService == null)
 			throw new NotFoundException("Index not found: " + indexName);

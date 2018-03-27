@@ -95,6 +95,11 @@
                 <version>1.1.1</version>
             </dependency>
             <dependency>
+                <groupId>org.webjars.npm</groupId>
+                <artifactId>ace-builds</artifactId>
+                <version>1.3.1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
                 <version>1.1.7.1</version>
@@ -224,6 +229,10 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>open-iconic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>ace-builds</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

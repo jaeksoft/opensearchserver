@@ -24,8 +24,6 @@ import com.qwazr.database.annotations.TableRequestResultRecords;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 public class AccountsTransaction extends ServletTransaction {
@@ -34,7 +32,7 @@ public class AccountsTransaction extends ServletTransaction {
 
 	AccountsTransaction(final Components components, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(components, request, response, true);
+		super(components.getFreemarkerTool(), request, response, true);
 		final TableRequestResultRecords<PermissionRecord> permissions =
 				components.getPermissionsService().getPermissionsByUser(userRecord.getId(), 0, 1000);
 		final Map<AccountRecord, PermissionRecord> results =

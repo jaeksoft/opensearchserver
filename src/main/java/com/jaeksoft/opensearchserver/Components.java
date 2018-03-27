@@ -25,6 +25,7 @@ import com.jaeksoft.opensearchserver.services.SearchService;
 import com.jaeksoft.opensearchserver.services.TaskExecutionService;
 import com.jaeksoft.opensearchserver.services.TaskProcessor;
 import com.jaeksoft.opensearchserver.services.TasksService;
+import com.jaeksoft.opensearchserver.services.TemplatesService;
 import com.jaeksoft.opensearchserver.services.UsersService;
 import com.jaeksoft.opensearchserver.services.WebCrawlProcessor;
 import com.jaeksoft.opensearchserver.services.WebCrawlsService;
@@ -78,6 +79,7 @@ public class Components implements Closeable {
 	private volatile IndexManager indexManager;
 	private volatile IndexServiceInterface indexService;
 	private volatile IndexesService indexesService;
+	private volatile TemplatesService templatesService;
 	private volatile SearchService searchService;
 
 	private volatile WebCrawlerManager webCrawlerManager;
@@ -168,6 +170,14 @@ public class Components implements Closeable {
 		if (indexesService == null)
 			indexesService = new IndexesService(getIndexService());
 		return indexesService;
+	}
+
+	public synchronized TemplatesService getTemplatesService() {
+		if (templatesService == null) {
+			templatesService = new TemplatesService(getStoreService());
+			closing.add(templatesService);
+		}
+		return templatesService;
 	}
 
 	public synchronized SearchService getSearchService() {
@@ -302,7 +312,7 @@ public class Components implements Closeable {
 		if (jobService == null) {
 			jobService =
 					new JobService(getConfigService(), getAccountsService(), getTasksService(), getIndexesService(),
-							getTaskExecutionService());
+							getTemplatesService(), getTaskExecutionService());
 			closing.add(jobService);
 		}
 		return jobService;

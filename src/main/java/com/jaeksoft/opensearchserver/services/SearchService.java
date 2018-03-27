@@ -24,12 +24,13 @@ import com.qwazr.search.function.MultiValuedLongFieldSource;
 import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.index.QueryDefinition;
+import com.qwazr.search.query.AbstractQueryParser;
 import com.qwazr.search.query.BooleanQuery;
 import com.qwazr.search.query.CustomScoreQuery;
 import com.qwazr.search.query.FunctionQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
-import com.qwazr.search.query.MultiFieldQueryParser;
 import com.qwazr.search.query.QueryParserOperator;
+import com.qwazr.search.query.SimpleQueryParser;
 import com.qwazr.search.query.SortedDocValuesExactQuery;
 import com.qwazr.utils.StringUtils;
 import org.apache.lucene.index.LeafReaderContext;
@@ -71,7 +72,7 @@ public class SearchService {
 					.build());
 
 	// Optimization: They are per thread singleton
-	private final ThreadLocal<Map<Language, MultiFieldQueryParser.Builder>> queryParserSupplier;
+	private final ThreadLocal<Map<Language, AbstractQueryParser.AbstractBuilder>> queryParserSupplier;
 	private final ThreadLocal<QueryBuilder> queryBuilderSupplier;
 	private final ThreadLocal<BooleanQuery.Builder> booleanQueryBuilderSupplier;
 
@@ -86,9 +87,9 @@ public class SearchService {
 		booleanQueryBuilderSupplier = ThreadLocal.withInitial(BooleanQuery::of);
 	}
 
-	protected MultiFieldQueryParser.Builder getQueryParser(final Language language) {
+	protected AbstractQueryParser.AbstractBuilder getQueryParser(final Language language) {
 		return queryParserSupplier.get()
-				.computeIfAbsent(language, lang -> MultiFieldQueryParser.of()
+				.computeIfAbsent(language, lang -> SimpleQueryParser.of()
 						.setDefaultOperator(QueryParserOperator.and)
 						.addField("urlLike", "title", lang.title, "description", lang.description, "content",
 								lang.content, "full", lang.full)
@@ -113,13 +114,13 @@ public class SearchService {
 
 	public SearchResults search(final IndexService indexService, final Language lang, final String keywords,
 			final int start, final int rows,
-			final Function<MultiFieldQueryParser, CustomScoreQuery> customScoreQueryFunction,
+			final Function<AbstractQueryParser, CustomScoreQuery> customScoreQueryFunction,
 			final BooleanQuery.BooleanClause... filters) {
 
 		if (StringUtils.isBlank(keywords))
 			return null;
 
-		final MultiFieldQueryParser fullTextQuery = getQueryParser(lang).setQueryString(keywords).build();
+		final AbstractQueryParser fullTextQuery = getQueryParser(lang).setQueryString(keywords).build();
 
 		final BooleanQuery booleanQuery = getBooleanQueryBuilder().setClauses(
 				new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, customScoreQueryFunction.apply(fullTextQuery)))
@@ -139,7 +140,7 @@ public class SearchService {
 		if (StringUtils.isBlank(keywords))
 			return null;
 
-		final MultiFieldQueryParser fullTextQuery = getQueryParser(lang).setQueryString(keywords).build();
+		final AbstractQueryParser fullTextQuery = getQueryParser(lang).setQueryString(keywords).build();
 
 		final BooleanQuery booleanQuery = getBooleanQueryBuilder().setClause(
 				new BooleanQuery.BooleanClause(BooleanQuery.Occur.must, fullTextQuery)).addClauses(filters).build();

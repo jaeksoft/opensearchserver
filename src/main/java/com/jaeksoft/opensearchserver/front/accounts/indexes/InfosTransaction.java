@@ -30,14 +30,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class IndexTransaction extends AccountTransaction {
+public class InfosTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/indexes/index.ftl";
+	private final static String TEMPLATE = "accounts/indexes/infos.ftl";
 
 	private final IndexesService indexesService;
 	private final String indexName;
 
-	public IndexTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
+	public InfosTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
 			final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 		this.indexesService = components.getIndexesService();

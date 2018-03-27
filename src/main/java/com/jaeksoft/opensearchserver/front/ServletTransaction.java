@@ -15,7 +15,6 @@
  */
 package com.jaeksoft.opensearchserver.front;
 
-import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.ExceptionUtils;
@@ -49,9 +48,9 @@ public abstract class ServletTransaction {
 	protected final HttpSession session;
 	protected final UserRecord userRecord;
 
-	protected ServletTransaction(final Components components, final HttpServletRequest request,
+	protected ServletTransaction(final FreeMarkerTool freemarker, final HttpServletRequest request,
 			final HttpServletResponse response, boolean requireLoggedUser) {
-		this.freemarker = components.getFreemarkerTool();
+		this.freemarker = freemarker;
 		this.request = request;
 		this.response = response;
 		this.session = request.getSession();

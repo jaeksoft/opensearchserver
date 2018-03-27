@@ -44,7 +44,7 @@ public class SigninServlet extends BaseServlet {
 	class Transaction extends ServletTransaction {
 
 		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
-			super(components, request, response, false);
+			super(components.getFreemarkerTool(), request, response, false);
 		}
 
 		@Override

@@ -46,7 +46,11 @@
         <tr>
             <th>${index!?html}</th>
             <td align="right">
-                <a href="/accounts/${account.name?url}/indexes/${index!?url}" class=" btn btn-sm btn-info">Edit</a>
+                <a href="/accounts/${account.name?url}/indexes/${index!?url}/infos"
+                   class=" btn btn-sm btn-info">Infos</a>
+                &nbsp;
+                <a href="/accounts/${account.name?url}/indexes/${index!?url}/template"
+                   class=" btn btn-sm btn-secondary">Template</a>
                 &nbsp;
                 <a href="/search/${account.name?url}/${index!?url}" class=" btn btn-sm btn-primary">View</a>
             </td>

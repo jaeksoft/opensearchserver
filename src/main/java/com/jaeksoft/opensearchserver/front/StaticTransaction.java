@@ -27,7 +27,7 @@ public class StaticTransaction extends ServletTransaction {
 
 	public StaticTransaction(final Components components, final String template, final HttpServletRequest request,
 			final HttpServletResponse response, final boolean requireLoggedUser) {
-		super(components, request, response, requireLoggedUser);
+		super(components.getFreemarkerTool(), request, response, requireLoggedUser);
 		this.template = template;
 	}
 

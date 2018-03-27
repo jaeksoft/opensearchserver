@@ -50,7 +50,7 @@ public class AdminUserTransaction extends ServletTransaction {
 
 	AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(components, request, response, false);
+		super(components.getFreemarkerTool(), request, response, false);
 		this.usersService = components.getUsersService();
 		this.accountsService = components.getAccountsService();
 		this.permissionsService = components.getPermissionsService();

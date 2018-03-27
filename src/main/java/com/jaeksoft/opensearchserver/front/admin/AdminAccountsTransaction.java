@@ -35,7 +35,7 @@ public class AdminAccountsTransaction extends ServletTransaction {
 
 	AdminAccountsTransaction(final Components components, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(components, request, response, false);
+		super(components.getFreemarkerTool(), request, response, false);
 		accountsService = components.getAccountsService();
 	}
 

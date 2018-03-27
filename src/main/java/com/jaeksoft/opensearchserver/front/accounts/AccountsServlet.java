@@ -19,8 +19,9 @@ package com.jaeksoft.opensearchserver.front.accounts;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.BaseServlet;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
-import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.indexes.IndexesTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.indexes.InfosTransaction;
+import com.jaeksoft.opensearchserver.front.accounts.indexes.TemplateTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskListTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskPlanningTransaction;
 import com.jaeksoft.opensearchserver.front.accounts.tasks.TaskStatusTransaction;
@@ -71,9 +72,15 @@ public class AccountsServlet extends BaseServlet {
 			final HttpServletRequest request, final HttpServletResponse response) {
 		if (pathParts.length == 2)
 			return new IndexesTransaction(components, accountRecord, request, response);
-		if (pathParts.length == 3) {
+		if (pathParts.length == 4) {
 			final String indexName = pathParts[2];
-			return new IndexTransaction(components, accountRecord, indexName, request, response);
+			final String panel = pathParts[3];
+			switch (panel) {
+			case "infos":
+				return new InfosTransaction(components, accountRecord, indexName, request, response);
+			case "template":
+				return new TemplateTransaction(components, accountRecord, indexName, request, response);
+			}
 		}
 		return null;
 	}

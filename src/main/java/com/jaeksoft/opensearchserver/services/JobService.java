@@ -42,16 +42,18 @@ public class JobService implements Closeable {
 	private final TaskExecutionService taskExecutionService;
 	private final TasksService tasksService;
 	private final IndexesService indexesService;
+	private final TemplatesService templatesService;
 
 	public JobService(final ConfigService configService, final AccountsService accountsService,
 			final TasksService tasksService, final IndexesService indexesService,
-			final TaskExecutionService taskExecutionService) {
+			final TemplatesService templatesService, final TaskExecutionService taskExecutionService) {
 		this.configService = configService;
 		this.accountsService = accountsService;
 		this.tasksService = tasksService;
 		this.indexesService = indexesService;
+		this.templatesService = templatesService;
 		this.taskExecutionService = taskExecutionService;
-		scheduler = Executors.newScheduledThreadPool(2);
+		scheduler = Executors.newScheduledThreadPool(3);
 	}
 
 	@Override
@@ -125,11 +127,16 @@ public class JobService implements Closeable {
 	}
 
 	void startExpireIndex() {
-		scheduler.scheduleWithFixedDelay(indexesService::removeExpired, 0, 1, TimeUnit.MINUTES);
+		scheduler.scheduleWithFixedDelay(indexesService::removeExpired, 10, 1, TimeUnit.MINUTES);
+	}
+
+	void startExpireTemplates() {
+		scheduler.scheduleWithFixedDelay(templatesService::removeExpired, 20, 1, TimeUnit.MINUTES);
 	}
 
 	public void startTasks() {
 		startAccountTaskRun();
 		startExpireIndex();
+		startExpireTemplates();
 	}
 }

@@ -35,7 +35,7 @@ public class AdminUsersTransaction extends ServletTransaction {
 
 	AdminUsersTransaction(final Components components, final HttpServletRequest request,
 			final HttpServletResponse response) {
-		super(components, request, response, false);
+		super(components.getFreemarkerTool(), request, response, false);
 		usersService = components.getUsersService();
 	}
 
