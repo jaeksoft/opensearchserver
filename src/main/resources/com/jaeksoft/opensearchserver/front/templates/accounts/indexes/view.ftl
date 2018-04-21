@@ -46,25 +46,26 @@
             <small><pre><code class="html" id="oss-html">&lt;!-- head (by default our template uses Boostrap) --&gt;
 &lt;link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"&gt;
-
+&lt;script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"&gt;&lt;/script&gt;
 &lt;!-- body ( the div #oss will be filled by jquey using ajax ) --&gt;
 &lt;div id="oss"&gt;&lt;/div&gt;
-&lt;script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"&gt;&lt;/script&gt;
-&lt;script&gt;$("#oss").load("/search/${account.name?url}/${indexName?url}"+location.search);&lt;/script&gt;</code></pre>
+&lt;script&gt;$('#oss').load('/search/${account.name?url}/${indexName?url}'+location.search);&lt;/script&gt;</code></pre>
             </small>
         </div>
     </div>
     <br/>
     <div id="oss">
+        <#include '../../search/form.ftl'>
     </div>
 <#include '../../includes/foot.ftl'>
     <script src="/webjars/clipboard/2.0.0/dist/clipboard.min.js"></script>
     <script src="/webjars/highlightjs/9.12.0/highlight.pack.js"></script>
     <script>
-        hljs.initHighlightingOnLoad();
-        new ClipboardJS('button.btn');
-        $("#oss").load("/search/${account.name?url}/${indexName?url}" + location.search);
+        $(function () {
+            hljs.initHighlightingOnLoad();
+            new ClipboardJS('button.btn');
+        });
     </script>
 </body>
 </html>

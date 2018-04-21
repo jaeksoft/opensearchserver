@@ -46,7 +46,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class TemplatesService implements Closeable {
 
-	public final static String MAIN_TEMPLATE = "main.ftl";
+	public final static String RESULT_TEMPLATE = "result.ftl";
 
 	private final static String TEMPLATES_DIRECTORY = "templates";
 
@@ -155,7 +155,7 @@ public class TemplatesService implements Closeable {
 				final Response response =
 						ErrorWrapper.bypass(() -> storeService.headFile(accountSchema, templatePath), 404);
 				if (response == null)
-					return MAIN_TEMPLATE.equals(name) ? DEFAULT_MAIN_TEMPLATE_SOURCE : null;
+					return RESULT_TEMPLATE.equals(name) ? DEFAULT_RESULT_TEMPLATE_SOURCE : null;
 				final String type = response.getHeaderString("X-QWAZR-Store-Type");
 				if (!"FILE".equals(type))
 					return null;
@@ -186,8 +186,8 @@ public class TemplatesService implements Closeable {
 		public Reader getReader(Object templateSource, String encoding) throws IOException {
 			try {
 				final TemplateSource template = (TemplateSource) templateSource;
-				if (template == DEFAULT_MAIN_TEMPLATE_SOURCE)
-					return new StringReader(DEFAULT_MAIN_TEMPLATE_CONTENT);
+				if (template == DEFAULT_RESULT_TEMPLATE_SOURCE)
+					return new StringReader(DEFAULT_RESULT_TEMPLATE_CONTENT);
 				return new InputStreamReader(new GZIPInputStream(
 						new BufferedInputStream(storeService.getFile(accountSchema, template.templatePath))), encoding);
 			} catch (WebApplicationException e) {
@@ -201,20 +201,20 @@ public class TemplatesService implements Closeable {
 
 	}
 
-	private static final String DEFAULT_MAIN_TEMPLATE_CONTENT;
+	private static final String DEFAULT_RESULT_TEMPLATE_CONTENT;
 
 	static {
 		try {
 			try (final InputStream input = TemplatesService.class.getResourceAsStream(
-					"/com/jaeksoft/opensearchserver/front/templates/search/" + MAIN_TEMPLATE)) {
-				DEFAULT_MAIN_TEMPLATE_CONTENT = IOUtils.toString(input, StandardCharsets.UTF_8);
+					"/com/jaeksoft/opensearchserver/front/templates/search/" + RESULT_TEMPLATE)) {
+				DEFAULT_RESULT_TEMPLATE_CONTENT = IOUtils.toString(input, StandardCharsets.UTF_8);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private static final TemplateSource DEFAULT_MAIN_TEMPLATE_SOURCE = new TemplateSource(null, null);
+	private static final TemplateSource DEFAULT_RESULT_TEMPLATE_SOURCE = new TemplateSource(null, null);
 
 	static private class TemplateSource {
 

@@ -41,13 +41,13 @@ public class TemplateTransaction extends AccountTransaction {
 		this.indexName = indexName;
 	}
 
-	public void revertDefault() throws IOException {
-		templatesService.deleteTemplateSource(accountRecord.getId(), indexName, TemplatesService.MAIN_TEMPLATE);
+	public void revertDefault() {
+		templatesService.deleteTemplateSource(accountRecord.getId(), indexName, TemplatesService.RESULT_TEMPLATE);
 		addMessage(Message.Css.success, null, "Template reverted");
 	}
 
 	public void template() throws IOException {
-		templatesService.setTemplateSource(accountRecord.getId(), indexName, TemplatesService.MAIN_TEMPLATE,
+		templatesService.setTemplateSource(accountRecord.getId(), indexName, TemplatesService.RESULT_TEMPLATE,
 				request.getParameter("editor"));
 		addMessage(Message.Css.success, null, "Template saved");
 	}
@@ -61,7 +61,7 @@ public class TemplateTransaction extends AccountTransaction {
 	public void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
 		request.setAttribute("htmlTemplate",
-				templatesService.getTemplateSource(accountRecord.getId(), indexName, TemplatesService.MAIN_TEMPLATE));
+				templatesService.getTemplateSource(accountRecord.getId(), indexName, TemplatesService.RESULT_TEMPLATE));
 		super.doGet();
 	}
 

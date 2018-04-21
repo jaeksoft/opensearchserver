@@ -175,7 +175,7 @@ public abstract class ServletTransaction {
 	 * @throws IOException
 	 * @throws ServletException
 	 */
-	final void doPost() throws IOException {
+	protected void doPost() throws IOException, ServletException {
 		final String action = request.getParameter("action");
 		if (StringUtils.isBlank(action)) {
 			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);

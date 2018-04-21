@@ -34,7 +34,8 @@ import java.io.IOException;
 
 public class SearchTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "main.ftl";
+	private final static String RESULT_TEMPLATE = "result.ftl";
+	private final static String FORM_TEMPLATE = "form.ftl";
 
 	private final IndexService indexService;
 	private final SearchService searchService;
@@ -51,24 +52,41 @@ public class SearchTransaction extends ServletTransaction {
 		request.setAttribute("indexName", indexName);
 	}
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
+	class Parameters {
+
+		final String keywords;
+		final String lang;
+		final Language language;
+		final int start;
+		final int rows;
+
+		Parameters() {
+			start = getRequestParameter("start", 0, 0, null);
+			rows = getRequestParameter("rows", 10, 10, 100);
+			keywords = request.getParameter("keywords");
+			lang = request.getParameter("lang");
+			language = Language.findByName(lang, Language.en);
+			request.setAttribute("lang", language.name());
+			request.setAttribute("keywords", keywords);
+			request.setAttribute("start", start);
+			request.setAttribute("rows", rows);
+		}
 	}
 
 	@Override
 	public void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0, 0, null);
-		final int rows = getRequestParameter("rows", 10, 10, 100);
-		final String keywords = request.getParameter("keywords");
-		final String lang = request.getParameter("lang");
-		final Language language = Language.findByName(lang, Language.en);
-		request.setAttribute("lang", language.name());
+		new Parameters();
+		doTemplate(FORM_TEMPLATE);
+	}
+
+	@Override
+	public void doPost() throws IOException, ServletException {
 		try {
-			if (!StringUtils.isBlank(keywords)) {
-				final SearchResults results = searchService.webSearch(indexService, language, keywords, start, rows);
-				request.setAttribute("rows", rows);
-				request.setAttribute("keywords", keywords);
+			final Parameters parameters = new Parameters();
+			if (!StringUtils.isBlank(parameters.keywords)) {
+				final SearchResults results =
+						searchService.webSearch(indexService, parameters.language, parameters.keywords,
+								parameters.start, parameters.rows);
 				request.setAttribute("numDocs", results.getNumDocs());
 				request.setAttribute("totalTime", results.getTotalTime());
 				request.setAttribute("results", results.getResults());
@@ -78,7 +96,7 @@ public class SearchTransaction extends ServletTransaction {
 			addMessage(null, e);
 		}
 		response.addHeader("Access-Control-Allow-Origin", "*");
-		super.doGet();
+		doTemplate(RESULT_TEMPLATE);
 	}
 
 }

@@ -1,9 +1,11 @@
-$('button#cancel').on('click', function (e) {
-    e.preventDefault();
-    window.history.back();
-    return false;
-});
-$(document).ready(function () {
+$(function () {
+
+    $('button#cancel').on('click', function (e) {
+        e.preventDefault();
+        window.history.back();
+        return false;
+    });
+
     $("#checkBoxCheckAll").click(function () {
         $(".checkBoxClass").prop('checked', $(this).prop('checked'));
     });
