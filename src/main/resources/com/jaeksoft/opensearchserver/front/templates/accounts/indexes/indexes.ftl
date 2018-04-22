@@ -49,10 +49,10 @@
                 <a href="/accounts/${account.name?url}/indexes/${index!?url}/infos"
                    class=" btn btn-sm btn-info">Infos</a>
                 &nbsp;
-                <a href="/accounts/${account.name?url}/indexes/${index!?url}/template"
-                   class=" btn btn-sm btn-secondary">Template</a>
+                <a href="/accounts/${account.name?url}/indexes/${index!?url}/templates/form.ftl"
+                   class=" btn btn-sm btn-secondary">Templates</a>
                 &nbsp;
-                <a href="/accounts/${account.name?url}//indexes/${index!?url}/view"
+                <a href="/accounts/${account.name?url}/indexes/${index!?url}/view"
                    class="btn btn-sm btn-primary">View</a>
             </td>
         </tr>

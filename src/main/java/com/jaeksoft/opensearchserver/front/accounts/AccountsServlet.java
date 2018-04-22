@@ -31,7 +31,6 @@ import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlListTransac
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlTasksTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.qwazr.utils.StringUtils;
-import freemarker.template.TemplateException;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -80,12 +79,11 @@ public class AccountsServlet extends BaseServlet {
 			switch (panel) {
 			case "infos":
 				return new InfosTransaction(components, accountRecord, indexName, request, response);
-			case "template":
-				return new TemplateTransaction(components, accountRecord, indexName, request, response);
 			case "view":
 				return new ViewTransaction(components, accountRecord, indexName, request, response);
 			}
-		}
+		} else if (pathParts.length == 5 && "templates".equals(pathParts[3]))
+			return new TemplateTransaction(components, accountRecord, pathParts[2], pathParts[4], request, response);
 		return null;
 	}
 

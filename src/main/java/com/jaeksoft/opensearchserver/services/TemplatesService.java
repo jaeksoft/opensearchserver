@@ -36,8 +36,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -45,8 +49,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class TemplatesService implements Closeable {
-
-	public final static String RESULT_TEMPLATE = "result.ftl";
 
 	private final static String TEMPLATES_DIRECTORY = "templates";
 
@@ -155,11 +157,11 @@ public class TemplatesService implements Closeable {
 				final Response response =
 						ErrorWrapper.bypass(() -> storeService.headFile(accountSchema, templatePath), 404);
 				if (response == null)
-					return RESULT_TEMPLATE.equals(name) ? DEFAULT_RESULT_TEMPLATE_SOURCE : null;
+					return DEFAULT_TEMPLATE_CONTENT.get(name);
 				final String type = response.getHeaderString("X-QWAZR-Store-Type");
 				if (!"FILE".equals(type))
 					return null;
-				return new TemplateSource(templatePath, response.getLastModified());
+				return new TemplateSource(templatePath, response.getLastModified(), null);
 			} catch (WebApplicationException e) {
 				throw new IOException(e);
 			}
@@ -186,8 +188,8 @@ public class TemplatesService implements Closeable {
 		public Reader getReader(Object templateSource, String encoding) throws IOException {
 			try {
 				final TemplateSource template = (TemplateSource) templateSource;
-				if (template == DEFAULT_RESULT_TEMPLATE_SOURCE)
-					return new StringReader(DEFAULT_RESULT_TEMPLATE_CONTENT);
+				if (template.defaultContent != null)
+					return new StringReader(template.defaultContent);
 				return new InputStreamReader(new GZIPInputStream(
 						new BufferedInputStream(storeService.getFile(accountSchema, template.templatePath))), encoding);
 			} catch (WebApplicationException e) {
@@ -201,29 +203,44 @@ public class TemplatesService implements Closeable {
 
 	}
 
-	private static final String DEFAULT_RESULT_TEMPLATE_CONTENT;
+	private final static String[] TEMPLATES_NAMES = { "form", "result" };
+	private final static Map<String, String> TEMPLATES;
+	private final static Map<String, TemplateSource> DEFAULT_TEMPLATE_CONTENT;
 
 	static {
+		final Map<String, String> namesMap = new LinkedHashMap<>();
+		final Map<String, TemplateSource> templatesMap = new HashMap<>();
 		try {
-			try (final InputStream input = TemplatesService.class.getResourceAsStream(
-					"/com/jaeksoft/opensearchserver/front/templates/search/" + RESULT_TEMPLATE)) {
-				DEFAULT_RESULT_TEMPLATE_CONTENT = IOUtils.toString(input, StandardCharsets.UTF_8);
+			for (final String templateName : TEMPLATES_NAMES) {
+				final String templatePath = templateName + ".ftl";
+				namesMap.put(templatePath, templateName);
+				try (final InputStream input = TemplatesService.class.getResourceAsStream(
+						"/com/jaeksoft/opensearchserver/front/templates/search/" + templatePath)) {
+					templatesMap.put(templatePath,
+							new TemplateSource(null, null, IOUtils.toString(input, StandardCharsets.UTF_8)));
+				}
 			}
+			TEMPLATES = Collections.unmodifiableMap(namesMap);
+			DEFAULT_TEMPLATE_CONTENT = Collections.unmodifiableMap(templatesMap);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private static final TemplateSource DEFAULT_RESULT_TEMPLATE_SOURCE = new TemplateSource(null, null);
+	public Map<String, String> getTemplateNames() {
+		return TEMPLATES;
+	}
 
 	static private class TemplateSource {
 
 		private final String templatePath;
 		private final long lastModified;
+		private final String defaultContent;
 
-		TemplateSource(final String templatePath, final Date lastModified) {
+		TemplateSource(final String templatePath, final Date lastModified, final String defaultContent) {
 			this.templatePath = templatePath;
 			this.lastModified = lastModified == null ? 0 : lastModified.getTime();
+			this.defaultContent = defaultContent;
 		}
 	}
 

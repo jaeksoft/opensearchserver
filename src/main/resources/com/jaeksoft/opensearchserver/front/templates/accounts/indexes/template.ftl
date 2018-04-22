@@ -38,9 +38,22 @@
             <li class="breadcrumb-item"><a href="/accounts/${account.name?url}">${account.name?html}</a></li>
             <li class="breadcrumb-item"><a href="/accounts/${account.name?url}/indexes">Indexes</a></li>
             <li class="breadcrumb-item">${indexName!?html}</li>
-            <li class="breadcrumb-item active" aria-current="page">template</li>
+            <li class="breadcrumb-item">Templates</li>
+            <li class="breadcrumb-item active" aria-current="page">${templatePath}</li>
         </ol>
     </nav>
+</div>
+<div class="container-fluid">
+    <ul class="nav nav-pills nav-fill">
+        <#list templates as tempPath, tempName>
+            <#assign active = tempPath == templatePath>
+            <li class="nav-item">
+                <a class="nav-link<#if active> active</#if>"
+                   href="/accounts/${account.name?url}/indexes/${indexName!?url}/templates/${tempPath?url}">${tempName?capitalize}</a>
+            </li>
+        </#list>
+    </ul>
+    <br/>
 </div>
 <div class="container-fluid">
     <form id="formEditor" method="post">

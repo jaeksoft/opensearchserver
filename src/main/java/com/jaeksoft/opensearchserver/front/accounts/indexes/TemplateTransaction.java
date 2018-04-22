@@ -25,6 +25,7 @@ import com.jaeksoft.opensearchserver.services.TemplatesService;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 
 public class TemplateTransaction extends AccountTransaction {
@@ -33,21 +34,25 @@ public class TemplateTransaction extends AccountTransaction {
 
 	private final TemplatesService templatesService;
 	private final String indexName;
+	private final String templatePath;
 
 	public TemplateTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
-			final HttpServletRequest request, final HttpServletResponse response) {
+			final String templatePath, final HttpServletRequest request, final HttpServletResponse response) {
 		super(components, accountRecord, request, response);
 		this.templatesService = components.getTemplatesService();
 		this.indexName = indexName;
+		this.templatePath = templatePath;
+		if (!this.templatesService.getTemplateNames().containsKey(templatePath))
+			throw new NotFoundException("Template not found: " + templatePath);
 	}
 
 	public void revertDefault() {
-		templatesService.deleteTemplateSource(accountRecord.getId(), indexName, TemplatesService.RESULT_TEMPLATE);
+		templatesService.deleteTemplateSource(accountRecord.getId(), indexName, templatePath);
 		addMessage(Message.Css.success, null, "Template reverted");
 	}
 
 	public void template() throws IOException {
-		templatesService.setTemplateSource(accountRecord.getId(), indexName, TemplatesService.RESULT_TEMPLATE,
+		templatesService.setTemplateSource(accountRecord.getId(), indexName, templatePath,
 				request.getParameter("editor"));
 		addMessage(Message.Css.success, null, "Template saved");
 	}
@@ -59,9 +64,11 @@ public class TemplateTransaction extends AccountTransaction {
 
 	@Override
 	public void doGet() throws IOException, ServletException {
+		request.setAttribute("templates", templatesService.getTemplateNames());
 		request.setAttribute("indexName", indexName);
+		request.setAttribute("templatePath", templatePath);
 		request.setAttribute("htmlTemplate",
-				templatesService.getTemplateSource(accountRecord.getId(), indexName, TemplatesService.RESULT_TEMPLATE));
+				templatesService.getTemplateSource(accountRecord.getId(), indexName, templatePath));
 		super.doGet();
 	}
 

@@ -21,29 +21,27 @@ import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import freemarker.template.TemplateException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ViewTransaction extends AccountTransaction {
 
 	private final static String TEMPLATE = "accounts/indexes/view.ftl";
 
-	private final String indexName;
-	private final String htmlCode;
-
 	public ViewTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
 			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		super(components, accountRecord, request, response);
-		this.indexName = indexName;
 		try {
 			final Map data = new HashMap<>();
 			data.put("account", accountRecord);
 			data.put("indexName", indexName);
-			this.htmlCode = components.getFreemarkerTool().template("accounts/indexes/includes/view_example.ftl", data);
+			final String htmlCode =
+					components.getFreemarkerTool().template("accounts/indexes/includes/view_example.ftl", data);
+			request.setAttribute("indexName", indexName);
+			request.setAttribute("htmlCode", htmlCode);
 		} catch (TemplateException e) {
 			throw new IOException(e);
 		}
@@ -52,13 +50,6 @@ public class ViewTransaction extends AccountTransaction {
 	@Override
 	protected String getTemplate() {
 		return TEMPLATE;
-	}
-
-	@Override
-	public void doGet() throws IOException, ServletException {
-		request.setAttribute("indexName", indexName);
-		request.setAttribute("htmlCode", htmlCode);
-		super.doGet();
 	}
 
 }
