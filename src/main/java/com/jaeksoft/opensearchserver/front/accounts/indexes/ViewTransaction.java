@@ -19,27 +19,34 @@ package com.jaeksoft.opensearchserver.front.accounts.indexes;
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
-import com.jaeksoft.opensearchserver.services.IndexService;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.qwazr.search.index.IndexStatus;
+import freemarker.template.TemplateException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
 
 public class ViewTransaction extends AccountTransaction {
 
 	private final static String TEMPLATE = "accounts/indexes/view.ftl";
 
-	private final IndexesService indexesService;
 	private final String indexName;
+	private final String htmlCode;
 
 	public ViewTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
-			final HttpServletRequest request, final HttpServletResponse response) {
+			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		super(components, accountRecord, request, response);
-		this.indexesService = components.getIndexesService();
 		this.indexName = indexName;
+		try {
+			final Map data = new HashMap<>();
+			data.put("account", accountRecord);
+			data.put("indexName", indexName);
+			this.htmlCode = components.getFreemarkerTool().template("accounts/indexes/includes/view_example.ftl", data);
+		} catch (TemplateException e) {
+			throw new IOException(e);
+		}
 	}
 
 	@Override
@@ -50,8 +57,7 @@ public class ViewTransaction extends AccountTransaction {
 	@Override
 	public void doGet() throws IOException, ServletException {
 		request.setAttribute("indexName", indexName);
-		final IndexService indexService = indexesService.getIndex(accountRecord.id, indexName);
-		final IndexStatus status = indexService.getIndexStatus();
+		request.setAttribute("htmlCode", htmlCode);
 		super.doGet();
 	}
 

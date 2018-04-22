@@ -31,6 +31,7 @@ import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlListTransac
 import com.jaeksoft.opensearchserver.front.accounts.webcrawl.WebCrawlTasksTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.qwazr.utils.StringUtils;
+import freemarker.template.TemplateException;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -70,7 +71,7 @@ public class AccountsServlet extends BaseServlet {
 	}
 
 	private ServletTransaction doIndexes(final AccountRecord accountRecord, final String[] pathParts,
-			final HttpServletRequest request, final HttpServletResponse response) {
+			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
 		if (pathParts.length == 2)
 			return new IndexesTransaction(components, accountRecord, request, response);
 		if (pathParts.length == 4) {

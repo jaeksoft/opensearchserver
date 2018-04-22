@@ -43,14 +43,8 @@
                 <button class="btn btn-sm btn-secondary float-right" data-clipboard-target="#oss-html">Copy</button>
                 Copy the following code, and paste it into the search page in your site
             </p>
-            <small><pre><code class="html" id="oss-html">&lt;!-- head (by default our template uses Boostrap) --&gt;
-&lt;link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"&gt;
-&lt;script src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"&gt;&lt;/script&gt;
-&lt;!-- body ( the div #oss will be filled by jquey using ajax ) --&gt;
-&lt;div id="oss"&gt;&lt;/div&gt;
-&lt;script&gt;$('#oss').load('/search/${account.name?url}/${indexName?url}'+location.search);&lt;/script&gt;</code></pre>
+            <small>
+                <pre><code class="html" id="oss-html">${htmlCode!?html}</code></pre>
             </small>
         </div>
     </div>
