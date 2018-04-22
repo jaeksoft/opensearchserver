@@ -53,7 +53,7 @@ public class ServerTest {
 
 		// Check if the webjars are loaded
 		final String css = client.target("http://localhost:9090")
-				.path("/webjars/bootstrap/4.0.0/css/bootstrap.min.css")
+				.path("/webjars/bootstrap/4.1.0/css/bootstrap.min.css")
 				.request("text/css")
 				.get(String.class);
 		Assert.assertTrue(css.contains("bootstrap"));
