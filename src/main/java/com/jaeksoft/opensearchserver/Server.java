@@ -37,7 +37,7 @@ public class Server extends Components {
 	private final GenericServer server;
 
 	private Server(final ServerConfiguration configuration) throws IOException {
-		super(configuration.dataDirectory.toPath());
+		super(configuration.dataDirectory);
 
 		final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
 		final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())

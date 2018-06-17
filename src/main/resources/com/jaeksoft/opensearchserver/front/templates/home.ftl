@@ -26,7 +26,7 @@
 <div class="container">
     <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Welcome to OpenSearchServer</h4>
+            <h4 class="card-title">Welcome to OpenSearchServer 2.0 Alpha</h4>
         </div>
     </div>
 </div>

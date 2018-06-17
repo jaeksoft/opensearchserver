@@ -219,7 +219,7 @@ public class Components implements Closeable {
 
 	private synchronized ScriptManager getScriptManager() {
 		if (scriptManager == null)
-			scriptManager = new ScriptManager(getExecutorService(), dataDirectory.toFile());
+			scriptManager = new ScriptManager(getExecutorService(), dataDirectory);
 		return scriptManager;
 	}
 
