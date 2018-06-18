@@ -18,27 +18,27 @@ package com.jaeksoft.opensearchserver.crawler.web;
 
 import com.qwazr.utils.StringUtils;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class WebAfterSession extends WebAbstractEvent {
 
-	@Override
-	public boolean run(final EventContext context) throws Exception {
+    @Override
+    public boolean run(final EventContext context) throws Exception {
 
-		final URL indexServiceUrl = toUrl(context.crawlSession.getVariable(INDEX_SERVICE_URL, String.class));
-		final String accountId = context.crawlSession.getVariable(ACCOUNT_ID, String.class);
-		final String indexName = context.crawlSession.getVariable(INDEX_NAME, String.class);
+        final URI indexServiceUri = toUri(context.crawlSession.getVariable(INDEX_SERVICE_URL, String.class));
+        final String accountId = context.crawlSession.getVariable(ACCOUNT_ID, String.class);
+        final String indexName = context.crawlSession.getVariable(INDEX_NAME, String.class);
 
-		try {
-			context.sessionStore.index(indexServiceUrl, accountId, indexName);
-		} finally {
-			context.sessionStore.close();
-		}
-		return true;
-	}
+        try {
+            context.sessionStore.index(indexServiceUri, accountId, indexName);
+        } finally {
+            context.sessionStore.close();
+        }
+        return true;
+    }
 
-	private static URL toUrl(final String url) throws MalformedURLException {
-		return StringUtils.isBlank(url) ? null : new URL(url);
-	}
+    private static URI toUri(final String uri) throws URISyntaxException {
+        return StringUtils.isBlank(uri) ? null : new URI(uri);
+    }
 }

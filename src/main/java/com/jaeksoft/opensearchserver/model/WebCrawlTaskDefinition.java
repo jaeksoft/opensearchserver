@@ -28,39 +28,44 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
-		getterVisibility = JsonAutoDetect.Visibility.NONE,
-		setterVisibility = JsonAutoDetect.Visibility.NONE,
-		creatorVisibility = JsonAutoDetect.Visibility.NONE)
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeName(WebCrawlTaskDefinition.TYPE)
 public class WebCrawlTaskDefinition extends CrawlTaskDefinition<WebCrawlDefinition> {
 
-	public final static String TYPE = "web";
+    public final static String TYPE = "web";
 
-	public final Boolean deleteOlderSession;
+    public final Boolean deleteOlderSession;
 
-	@JsonCreator
-	WebCrawlTaskDefinition(@JsonProperty("id") UUID id, @JsonProperty("indexUuid") UUID indexUuid,
-			@JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition,
-			@JsonProperty("deleteOlderSession") Boolean deleteOlderSession) {
-		super(id, TYPE, indexUuid, crawlDefinition);
-		this.deleteOlderSession = deleteOlderSession;
-	}
+    @JsonCreator
+    WebCrawlTaskDefinition(@JsonProperty("id") UUID id, @JsonProperty("indexUuid") UUID indexUuid,
+        @JsonProperty("crawlDefinition") WebCrawlDefinition crawlDefinition,
+        @JsonProperty("deleteOlderSession") Boolean deleteOlderSession) {
+        super(id, TYPE, indexUuid, crawlDefinition);
+        this.deleteOlderSession = deleteOlderSession;
+    }
 
-	public WebCrawlTaskDefinition(final WebCrawlRecord webCrawlRecord, final UUID indexUuid) {
-		this(webCrawlRecord.getUuid(), indexUuid, webCrawlRecord.getCrawlDefinition(),
-				webCrawlRecord.isDeleteOlderSession());
-	}
+    public WebCrawlTaskDefinition(final WebCrawlRecord webCrawlRecord, final UUID indexUuid) {
+        this(webCrawlRecord.getUuid(), indexUuid, webCrawlRecord.getCrawlDefinition(),
+            webCrawlRecord.isDeleteOlderSession());
+    }
 
-	public boolean getDeleteOlderSession() {
-		return deleteOlderSession == null || deleteOlderSession;
-	}
+    public boolean getDeleteOlderSession() {
+        return deleteOlderSession == null || deleteOlderSession;
+    }
 
-	@Override
-	public boolean equals(final Object o) {
-		return super.equals(o) &&
-				(o == this || Objects.equals(deleteOlderSession, ((WebCrawlTaskDefinition) o).deleteOlderSession));
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type, indexUuid, deleteOlderSession);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return super.equals(o) &&
+            (o == this || Objects.equals(deleteOlderSession, ((WebCrawlTaskDefinition) o).deleteOlderSession));
+    }
 
 }

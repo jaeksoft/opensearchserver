@@ -30,8 +30,8 @@ import com.qwazr.extractor.ExtractorServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
 import com.qwazr.server.RemoteService;
 
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -39,92 +39,93 @@ import java.util.UUID;
 
 public class CrawlerComponents implements CrawlerContext {
 
-	private static volatile Map<URL, Map<String, IndexService>> localIndexServices;
+    private static volatile Map<URI, Map<String, IndexService>> localIndexServices;
 
-	private static volatile Components localComponents;
+    private static volatile Components localComponents;
 
-	public static synchronized void setLocalComponents(final Components localComponents) {
-		CrawlerComponents.localComponents = localComponents;
-	}
+    public static synchronized void setLocalComponents(final Components localComponents) {
+        CrawlerComponents.localComponents = localComponents;
+    }
 
-	public static synchronized IndexService getIndexService(final URL indexServiceUrl, final String accountId,
-			final String indexName) {
-		if (indexServiceUrl == null)
-			return Objects.requireNonNull(localComponents, "No local components available")
-					.getIndexesService()
-					.getIndex(accountId, indexName);
-		if (localIndexServices == null)
-			localIndexServices = new HashMap<>();
-		final Map<String, IndexService> indexServices =
-				localIndexServices.computeIfAbsent(indexServiceUrl, r -> new HashMap<>());
-		return indexServices.computeIfAbsent(accountId, s -> {
-			try {
-				final RemoteService remote = RemoteService.of(indexServiceUrl.toURI()).build();
-				final IndexSingleClient client = new IndexSingleClient(remote);
-				return new IndexService(client, accountId, indexName);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(
-						"Error while creating the IndexService for " + indexServiceUrl + " / " + accountId + " / " +
-								indexName, e);
-			}
-		});
-	}
+    public static synchronized IndexService getIndexService(final URI indexServiceUri, final String accountId,
+        final String indexName) {
+        if (indexServiceUri == null)
+            return Objects.requireNonNull(localComponents, "No local components available")
+                .getIndexesService()
+                .getIndex(accountId, indexName);
+        if (localIndexServices == null)
+            localIndexServices = new HashMap<>();
+        final Map<String, IndexService> indexServices =
+            localIndexServices.computeIfAbsent(indexServiceUri, r -> new HashMap<>());
+        return indexServices.computeIfAbsent(accountId, s -> {
+            try {
+                final RemoteService remote = RemoteService.of(indexServiceUri).build();
+                final IndexSingleClient client = new IndexSingleClient(remote);
+                return new IndexService(client, accountId, indexName);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(
+                    "Error while creating the IndexService for " + indexServiceUri + " / " + accountId + " / " +
+                        indexName, e);
+            }
+        });
+    }
 
-	private static volatile ExtractorManager extractorManager;
-	private static volatile ExtractorServiceInterface extractorService;
+    private static volatile ExtractorManager extractorManager;
+    private static volatile ExtractorServiceInterface extractorService;
 
-	private static ExtractorServiceInterface getExtractorService() {
-		if (extractorService != null)
-			return extractorService;
-		synchronized (CrawlerComponents.class) {
-			if (extractorManager == null) {
-				extractorManager = new ExtractorManager();
-				extractorManager.registerServices();
-			}
-			extractorService = extractorManager.getService();
-			return extractorService;
-		}
-	}
+    private static ExtractorServiceInterface getExtractorService() {
+        if (extractorService != null)
+            return extractorService;
+        synchronized (CrawlerComponents.class) {
+            if (extractorService == null) {
+                if (extractorManager == null) {
+                    extractorManager = new ExtractorManager();
+                    extractorManager.registerServices();
+                }
+                extractorService = extractorManager.getService();
+            }
+            return extractorService;
+        }
+    }
 
-	private static volatile ExtractorIndexer extractorIndexer;
+    private static volatile ExtractorIndexer extractorIndexer;
 
-	public static ExtractorIndexer getExtractorIndexer() {
-		if (extractorIndexer != null)
-			return extractorIndexer;
-		synchronized (CrawlerComponents.class) {
-			if (extractorIndexer == null) {
-				try {
-					extractorIndexer = new ExtractorIndexer(getExtractorService());
-				} catch (URISyntaxException e) {
-					throw new RuntimeException("Error while creating the ExtractorIndexer", e);
-				}
-			}
-			return extractorIndexer;
-		}
-	}
+    public static ExtractorIndexer getExtractorIndexer() {
+        if (extractorIndexer != null)
+            return extractorIndexer;
+        synchronized (CrawlerComponents.class) {
+            if (extractorIndexer == null) {
+                try {
+                    extractorIndexer = new ExtractorIndexer(getExtractorService());
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException("Error while creating the ExtractorIndexer", e);
+                }
+            }
+            return extractorIndexer;
+        }
+    }
 
-	public static WebCrawlDefinition buildCrawl(final String accountId, final String indexName, final UUID crawlUuid,
-			final Long sessionTimeId, final ConfigService configService,
-			final WebCrawlDefinition.Builder crawlBuilder) {
+    public static WebCrawlDefinition buildCrawl(final String accountId, final String indexName, final UUID crawlUuid,
+        final Long sessionTimeId, final ConfigService configService, final WebCrawlDefinition.Builder crawlBuilder) {
 
-		// Set the event
-		crawlBuilder.script(EventEnum.before_session, ScriptDefinition.of(WebBeforeSession.class).build()).
-				script(EventEnum.after_session, ScriptDefinition.of(WebAfterSession.class).build()).
-				script(EventEnum.after_crawl, ScriptDefinition.of(WebAfterCrawl.class).build());
+        // Set the event
+        crawlBuilder.script(EventEnum.before_session, ScriptDefinition.of(WebBeforeSession.class).build()).
+            script(EventEnum.after_session, ScriptDefinition.of(WebAfterSession.class).build()).
+            script(EventEnum.after_crawl, ScriptDefinition.of(WebAfterCrawl.class).build());
 
-		crawlBuilder.variable(ACCOUNT_ID, accountId)
-				.variable(INDEX_NAME, indexName)
-				.variable(CRAWL_UUID, crawlUuid.toString())
-				.variable(SESSION_TIME_ID, sessionTimeId.toString());
+        crawlBuilder.variable(ACCOUNT_ID, accountId)
+            .variable(INDEX_NAME, indexName)
+            .variable(CRAWL_UUID, crawlUuid.toString())
+            .variable(SESSION_TIME_ID, sessionTimeId.toString());
 
-		if (configService != null) {
-			if (configService.getIndexServiceUri() != null)
-				crawlBuilder.variable(INDEX_SERVICE_URL, configService.getIndexServiceUri().toString());
+        if (configService != null) {
+            if (configService.getIndexServiceUri() != null)
+                crawlBuilder.variable(INDEX_SERVICE_URL, configService.getIndexServiceUri().toString());
 
-			if (configService.getStoreServiceUri() != null)
-				crawlBuilder.variable(STORE_SERVICE_URL, configService.getStoreServiceUri().toString());
-		}
+            if (configService.getStoreServiceUri() != null)
+                crawlBuilder.variable(STORE_SERVICE_URL, configService.getStoreServiceUri().toString());
+        }
 
-		return crawlBuilder.build();
-	}
+        return crawlBuilder.build();
+    }
 }

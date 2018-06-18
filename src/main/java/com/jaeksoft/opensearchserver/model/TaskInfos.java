@@ -25,30 +25,37 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Objects;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
-		getterVisibility = JsonAutoDetect.Visibility.NONE,
-		setterVisibility = JsonAutoDetect.Visibility.NONE,
-		creatorVisibility = JsonAutoDetect.Visibility.NONE)
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({ @JsonSubTypes.Type(CrawlTaskInfos.class) })
 public abstract class TaskInfos {
 
-	public final String type;
+    public final String type;
 
-	TaskInfos(final String type) {
-		this.type = type;
-	}
+    TaskInfos(final String type) {
+        this.type = type;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public boolean equals(final Object o) {
-		if (o == null || (!(o instanceof TaskInfos)))
-			return false;
-		final TaskInfos t = (TaskInfos) o;
-		return Objects.equals(type, t.type);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(type);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if ((!(o instanceof TaskInfos)))
+            return false;
+        if (o == this)
+            return true;
+        final TaskInfos t = (TaskInfos) o;
+        return Objects.equals(type, t.type);
+    }
 }

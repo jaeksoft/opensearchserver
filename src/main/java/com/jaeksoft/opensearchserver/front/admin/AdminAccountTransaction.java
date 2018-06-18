@@ -28,6 +28,7 @@ import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.UsersService;
 import com.qwazr.database.annotations.TableRequestResultRecords;
+import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,93 +39,95 @@ import java.util.Map;
 
 public class AdminAccountTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "admin/account.ftl";
+    private final static String TEMPLATE = "admin/account.ftl";
 
-	private final UsersService usersService;
-	private final AccountsService accountsService;
-	private final PermissionsService permissionsService;
+    private final UsersService usersService;
+    private final AccountsService accountsService;
+    private final PermissionsService permissionsService;
 
-	private final AccountRecord accountRecord;
+    private final AccountRecord accountRecord;
 
-	AdminAccountTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response) {
-		super(components.getFreemarkerTool(), request, response, false);
-		this.usersService = components.getUsersService();
-		this.accountsService = components.getAccountsService();
-		this.permissionsService = components.getPermissionsService();
-		this.accountRecord = accountRecord;
-	}
+    AdminAccountTransaction(final Components components, final AccountRecord accountRecord,
+        final HttpServletRequest request, final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), request, response, false);
+        this.usersService = components.getUsersService();
+        this.accountsService = components.getAccountsService();
+        this.permissionsService = components.getPermissionsService();
+        this.accountRecord = accountRecord;
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	private UserRecord getExistingRecordByEmail() {
-		final String userEmail = request.getParameter("userEmail");
-		final UserRecord userRecord = usersService.getUserByEmail(userEmail);
-		if (userEmail == null)
-			throw new NotAcceptableException("User not found: " + userEmail);
-		return userRecord;
-	}
+    private UserRecord getExistingRecordByEmail() {
+        final String userEmail = request.getParameter("userEmail");
+        if (StringUtils.isBlank(userEmail))
+            return null;
+        final UserRecord userRecord = usersService.getUserByEmail(userEmail);
+        if (userRecord == null)
+            throw new NotAcceptableException("User not found: " + userEmail);
+        return userRecord;
+    }
 
-	public void setPermission() {
-		final UserRecord userRecord = getExistingRecordByEmail();
-		final String levelName = request.getParameter("level");
-		final PermissionLevel level = PermissionLevel.resolve(levelName);
-		if (level == null)
-			throw new NotAcceptableException("Unknown level: " + levelName);
-		if (permissionsService.setPermission(userRecord.getId(), accountRecord.getId(), level))
-			addMessage(Message.Css.success, "Permission added", null);
-	}
+    public void setPermission() {
+        final UserRecord userRecord = getExistingRecordByEmail();
+        final String levelName = request.getParameter("level");
+        final PermissionLevel level = PermissionLevel.resolve(levelName);
+        if (level == null)
+            throw new NotAcceptableException("Unknown level: " + levelName);
+        if (permissionsService.setPermission(userRecord.getId(), accountRecord.getId(), level))
+            addMessage(Message.Css.success, "Permission added", null);
+    }
 
-	public void removePermission() {
-		final UserRecord userRecord = getExistingRecordByEmail();
-		if (permissionsService.removePermission(userRecord.getId(), accountRecord.getId()))
-			addMessage(Message.Css.success, "Permission removed", null);
-	}
+    public void removePermission() {
+        final UserRecord userRecord = getExistingRecordByEmail();
+        if (permissionsService.removePermission(userRecord.getId(), accountRecord.getId()))
+            addMessage(Message.Css.success, "Permission removed", null);
+    }
 
-	public void updateStatus() {
-		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
-		if (accountsService.update(accountRecord.getId(), builder -> builder.status(status)))
-			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
-		else
-			addMessage(Message.Css.warning, "Nothing to update", null);
-	}
+    public void updateStatus() {
+        final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
+        if (accountsService.update(accountRecord.getId(), builder -> builder.status(status)))
+            addMessage(Message.Css.success, "Status updated", "Status set to " + status);
+        else
+            addMessage(Message.Css.warning, "Nothing to update", null);
+    }
 
-	public String updateName() {
-		final String accountName = request.getParameter("accountName");
-		if (accountsService.update(accountRecord.getId(), builder -> builder.name(accountName)))
-			addMessage(Message.Css.success, "Name updated", "Name set to " + accountName);
-		else
-			addMessage(Message.Css.warning, "Nothing to update", null);
-		return "/admin/accounts/" + accountsService.getExistingAccount(accountRecord.getId()).getName();
-	}
+    public String updateName() {
+        final String accountName = request.getParameter("accountName");
+        if (accountsService.update(accountRecord.getId(), builder -> builder.name(accountName)))
+            addMessage(Message.Css.success, "Name updated", "Name set to " + accountName);
+        else
+            addMessage(Message.Css.warning, "Nothing to update", null);
+        return "/admin/accounts/" + accountsService.getExistingAccount(accountRecord.getId()).getName();
+    }
 
-	public void setLimits() {
-		final int crawlNumberLimit = getRequestParameter("crawlNumberLimit", 0, 0, null);
-		final int tasksNumberLimit = getRequestParameter("tasksNumberLimit", 0, 0, null);
-		final int indexNumberLimit = getRequestParameter("indexNumberLimit", 0, 0, null);
-		final int recordNumberLimit = getRequestParameter("recordNumberLimit", 0, 0, null);
-		final int storageLimit = getRequestParameter("storageLimit", 0, 0, null) * 1024 * 1024;
-		if (accountsService.update(accountRecord.getId(), b -> b.crawlNumberLimit(crawlNumberLimit)
-				.tasksNumberLimit(tasksNumberLimit)
-				.indexNumberLimit(indexNumberLimit)
-				.recordNumberLimit(recordNumberLimit)
-				.storageLimit(storageLimit)))
-			addMessage(Message.Css.success, "Limits updated", null);
-		else
-			addMessage(Message.Css.warning, "Nothing to update", null);
-	}
+    public void setLimits() {
+        final int crawlNumberLimit = getRequestParameter("crawlNumberLimit", 0, 0, null);
+        final int tasksNumberLimit = getRequestParameter("tasksNumberLimit", 0, 0, null);
+        final int indexNumberLimit = getRequestParameter("indexNumberLimit", 0, 0, null);
+        final int recordNumberLimit = getRequestParameter("recordNumberLimit", 0, 0, null);
+        final int storageLimit = getRequestParameter("storageLimit", 0, 0, null) * 1024 * 1024;
+        if (accountsService.update(accountRecord.getId(), b -> b.crawlNumberLimit(crawlNumberLimit)
+            .tasksNumberLimit(tasksNumberLimit)
+            .indexNumberLimit(indexNumberLimit)
+            .recordNumberLimit(recordNumberLimit)
+            .storageLimit(storageLimit)))
+            addMessage(Message.Css.success, "Limits updated", null);
+        else
+            addMessage(Message.Css.warning, "Nothing to update", null);
+    }
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		final TableRequestResultRecords<PermissionRecord> permissions =
-				permissionsService.getPermissionsByAccount(accountRecord.getId(), 0, 1000);
-		final Map<UserRecord, PermissionRecord> users = usersService.getUsersByIds(permissions);
-		request.setAttribute("accountRecord", accountRecord);
-		request.setAttribute("users", users);
-		super.doGet();
-	}
+    @Override
+    protected void doGet() throws IOException, ServletException {
+        final TableRequestResultRecords<PermissionRecord> permissions =
+            permissionsService.getPermissionsByAccount(accountRecord.getId(), 0, 1000);
+        final Map<UserRecord, PermissionRecord> users = usersService.getUsersByIds(permissions);
+        request.setAttribute("accountRecord", accountRecord);
+        request.setAttribute("users", users);
+        super.doGet();
+    }
 
 }

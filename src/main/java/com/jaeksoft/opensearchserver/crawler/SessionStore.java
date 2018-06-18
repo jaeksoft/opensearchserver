@@ -29,7 +29,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -39,82 +38,82 @@ import java.util.UUID;
 
 public class SessionStore implements Closeable {
 
-	public final UUID crawlUuid;
-	public final Long taskCreationTime;
-	private final Path tempDirectory;
-	private final Map<String, UUID> uris;
-	private final PatriciaTrie<Integer> newLinks;
+    public final UUID crawlUuid;
+    public final long taskCreationTime;
+    private final Path tempDirectory;
+    private final Map<String, UUID> uris;
+    private final PatriciaTrie<Integer> newLinks;
 
-	public SessionStore(final UUID crawlUuid, final Long taskCreationTime) throws IOException {
-		this.crawlUuid = crawlUuid;
-		this.taskCreationTime = taskCreationTime;
-		tempDirectory = Files.createTempDirectory("oss-session-store");
-		uris = new LinkedHashMap<>();
-		newLinks = new PatriciaTrie<>();
+    public SessionStore(final UUID crawlUuid, final long taskCreationTime) throws IOException {
+        this.crawlUuid = crawlUuid;
+        this.taskCreationTime = taskCreationTime;
+        tempDirectory = Files.createTempDirectory("oss-session-store");
+        uris = new LinkedHashMap<>();
+        newLinks = new PatriciaTrie<>();
 
-	}
+    }
 
-	private File getFile(UUID uuid) {
-		return tempDirectory.resolve(uuid.toString() + ".json").toFile();
-	}
+    private File getFile(UUID uuid) {
+        return tempDirectory.resolve(uuid.toString() + ".json").toFile();
+    }
 
-	public void saveCrawl(final URI uri, final UrlRecord urlRecord) throws IOException {
-		final String uriString = uri.toString();
-		final UUID uuid = uris.computeIfAbsent(uriString, u -> HashUtils.newTimeBasedUUID());
-		newLinks.remove(uriString);
-		ObjectMappers.JSON.writeValue(getFile(uuid), urlRecord);
-	}
+    public void saveCrawl(final URI uri, final UrlRecord urlRecord) throws IOException {
+        final String uriString = uri.toString();
+        final UUID uuid = uris.computeIfAbsent(uriString, u -> HashUtils.newTimeBasedUUID());
+        newLinks.remove(uriString);
+        ObjectMappers.JSON.writeValue(getFile(uuid), urlRecord);
+    }
 
-	public void saveNewLinks(final Collection<URI> links, int depth) {
-		if (newLinks == null)
-			return;
-		links.forEach(uri -> {
-			final String uriString = uri.toString();
-			if (!uris.containsKey(uriString))
-				newLinks.putIfAbsent(uriString, depth);
-		});
-	}
+    public void saveNewLinks(final Collection<URI> links, int depth) {
+        if (newLinks == null)
+            return;
+        links.forEach(uri -> {
+            final String uriString = uri.toString();
+            if (!uris.containsKey(uriString))
+                newLinks.putIfAbsent(uriString, depth);
+        });
+    }
 
-	private void indexNewLink(final IndexService indexService, final IndexQueue indexQueue, final String link,
-			final Integer depth) throws Exception {
-		if (indexService.isAlreadyCrawled(link, crawlUuid, taskCreationTime))
-			return;
-		final URI uri = URI.create(link);
-		final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
-				.crawlStatus(CrawlStatus.UNKNOWN)
-				.crawlUuid(crawlUuid)
-				.taskCreationTime(taskCreationTime)
-				.depth(depth);
-		if (indexService.exists(link))
-			indexQueue.update(uri, linkBuilder.build());
-		else
-			indexQueue.post(uri, linkBuilder.indexStatus(IndexStatus.UNKNOWN)
-					.hostAndUrlStore(null)
-					.lastModificationTime(System.currentTimeMillis())
-					.build());
-	}
+    private void indexLink(final IndexService indexService, final IndexQueue indexQueue, final String link,
+        final Integer depth) throws Exception {
+        if (indexService.isAlreadyCrawled(link, crawlUuid, taskCreationTime))
+            return;
+        final URI uri = URI.create(link);
+        final UrlRecord.Builder linkBuilder = UrlRecord.of(uri)
+            .crawlStatus(CrawlStatus.UNKNOWN)
+            .crawlUuid(crawlUuid)
+            .taskCreationTime(taskCreationTime)
+            .depth(depth);
+        if (indexService.exists(link))
+            indexQueue.update(uri, linkBuilder.build());
+        else
+            indexQueue.post(uri, linkBuilder.indexStatus(IndexStatus.UNKNOWN)
+                .hostAndUrlStore(null)
+                .lastModificationTime(System.currentTimeMillis())
+                .build());
+    }
 
-	public void index(final URL indexServiceUrl, final String accountId, final String indexName)
-			throws IOException, InterruptedException {
-		final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUrl, accountId, indexName);
-		try (final IndexQueue indexQueue = new IndexQueue(indexService, 20, 100, 60)) {
-			for (UUID uuid : uris.values()) {
-				final UrlRecord urlRecord = ObjectMappers.JSON.readValue(getFile(uuid), UrlRecord.class);
-				indexQueue.post(URI.create(urlRecord.url), urlRecord);
-			}
-			newLinks.forEach((link, depth) -> {
-				try {
-					indexNewLink(indexService, indexQueue, link, depth);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-		}
-	}
+    public void index(final URI indexServiceUri, final String accountId, final String indexName)
+        throws IOException, InterruptedException {
+        final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUri, accountId, indexName);
+        try (final IndexQueue indexQueue = new IndexQueue(indexService, 20, 100, 60)) {
+            for (UUID uuid : uris.values()) {
+                final UrlRecord urlRecord = ObjectMappers.JSON.readValue(getFile(uuid), UrlRecord.class);
+                indexQueue.post(URI.create(urlRecord.url), urlRecord);
+            }
+            newLinks.forEach((link, depth) -> {
+                try {
+                    indexLink(indexService, indexQueue, link, depth);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+    }
 
-	@Override
-	public void close() throws IOException {
-		FileUtils.deleteDirectory(tempDirectory);
-	}
+    @Override
+    public void close() throws IOException {
+        FileUtils.deleteDirectory(tempDirectory);
+    }
 
 }

@@ -23,46 +23,47 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URL;
 
 @WebServlet("/signin")
 public class SigninServlet extends BaseServlet {
 
-	private final Components components;
+    private final Components components;
 
-	private final static String TEMPLATE = "signin.ftl";
+    private final static String TEMPLATE = "signin.ftl";
 
-	public SigninServlet(final Components components) {
-		this.components = components;
-	}
+    public SigninServlet(final Components components) {
+        this.components = components;
+    }
 
-	@Override
-	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) {
-		return new Transaction(request, response);
-	}
+    @Override
+    protected ServletTransaction getServletTransaction(final HttpServletRequest request,
+        final HttpServletResponse response) {
+        return new Transaction(request, response);
+    }
 
-	class Transaction extends ServletTransaction {
+    class Transaction extends ServletTransaction {
 
-		Transaction(final HttpServletRequest request, final HttpServletResponse response) {
-			super(components.getFreemarkerTool(), request, response, false);
-		}
+        Transaction(final HttpServletRequest request, final HttpServletResponse response) {
+            super(components.getFreemarkerTool(), request, response, false);
+        }
 
-		@Override
-		protected String getTemplate() {
-			return TEMPLATE;
-		}
+        @Override
+        protected String getTemplate() {
+            return TEMPLATE;
+        }
 
-		public void signin() throws ServletException, IOException {
-			request.login(request.getParameter("email"), request.getParameter("current-pwd"));
-			final String url = request.getParameter("url");
-			if (request.getUserPrincipal() != null) {
-				addMessage(Message.Css.success, "Welcome Back !", null);
-				response.sendRedirect(StringUtils.isBlank(url) ? "/accounts" : url);
-				return;
-			}
-			request.setAttribute("url", url);
-			doGet();
-		}
+        public void signin() throws ServletException, IOException {
+            request.login(request.getParameter("email"), request.getParameter("current-pwd"));
+            final String url = request.getParameter("url");
+            if (request.getUserPrincipal() != null) {
+                addMessage(Message.Css.success, "Welcome Back !", null);
+                response.sendRedirect(StringUtils.isBlank(url) ? "/accounts" : new URL(url).toString());
+                return;
+            }
+            request.setAttribute("url", url);
+            doGet();
+        }
 
-	}
+    }
 }

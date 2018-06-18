@@ -21,108 +21,110 @@ import com.qwazr.database.annotations.TableColumn;
 import com.qwazr.database.model.ColumnDefinition;
 import com.qwazr.database.model.TableDefinition;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Table("permissions")
 public class PermissionRecord {
 
-	@TableColumn(name = TableDefinition.ID_COLUMN_NAME)
-	public final String id;
+    @TableColumn(name = TableDefinition.ID_COLUMN_NAME)
+    public final String id;
 
-	@TableColumn(name = "level", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
-	private final Integer level;
+    @TableColumn(name = "level", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
+    private final Integer level;
 
-	@TableColumn(name = "userId", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
-	private final String userId;
+    @TableColumn(name = "userId", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
+    private final String userId;
 
-	@TableColumn(name = "accountId", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
-	private final String accountId;
+    @TableColumn(name = "accountId", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
+    private final String accountId;
 
-	private volatile UUID userUuid;
-	private volatile UUID accountUuid;
+    private volatile UUID userUuid;
+    private volatile UUID accountUuid;
 
-	public PermissionRecord() {
-		id = null;
-		level = null;
-		userId = null;
-		accountId = null;
-	}
+    public PermissionRecord() {
+        id = null;
+        level = null;
+        userId = null;
+        accountId = null;
+    }
 
-	private PermissionRecord(final Builder builder) {
-		id = builder.userUuid + "_" + builder.accountUuid;
-		level = builder.level == null ? null : builder.level.value;
-		userId = Objects.requireNonNull(builder.userUuid, "The userID is null").toString();
-		accountId = Objects.requireNonNull(builder.accountUuid, "The accountID is null").toString();
-	}
+    private PermissionRecord(final Builder builder) {
+        id = builder.userUuid + "_" + builder.accountUuid;
+        level = builder.level == null ? null : builder.level.value;
+        userId = Objects.requireNonNull(builder.userUuid, "The userID is null").toString();
+        accountId = Objects.requireNonNull(builder.accountUuid, "The accountID is null").toString();
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null || !(o instanceof PermissionRecord))
-			return false;
-		if (o == this)
-			return true;
-		final PermissionRecord r = (PermissionRecord) o;
-		return Objects.equals(id, r.id) && Objects.equals(level, r.level) && Objects.equals(userId, r.userId) &&
-				Objects.equals(accountId, r.accountId);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, level, userId, accountId);
+    }
 
-	public synchronized UUID getUserId() {
-		if (userUuid != null)
-			return userUuid;
-		return userUuid = userId == null ? null : UUID.fromString(userId);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof PermissionRecord))
+            return false;
+        if (o == this)
+            return true;
+        final PermissionRecord r = (PermissionRecord) o;
+        return Objects.equals(id, r.id) && Objects.equals(level, r.level) && Objects.equals(userId, r.userId) &&
+            Objects.equals(accountId, r.accountId);
+    }
 
-	public synchronized UUID getAccountId() {
-		if (accountUuid != null)
-			return accountUuid;
-		return accountUuid = accountId == null ? null : UUID.fromString(accountId);
-	}
+    public synchronized UUID getUserId() {
+        if (userUuid != null)
+            return userUuid;
+        return userUuid = userId == null ? null : UUID.fromString(userId);
+    }
 
-	public PermissionLevel getLevel() {
-		return PermissionLevel.resolve(level);
-	}
+    public synchronized UUID getAccountId() {
+        if (accountUuid != null)
+            return accountUuid;
+        return accountUuid = accountId == null ? null : UUID.fromString(accountId);
+    }
 
-	public Builder from() {
-		return new Builder(this);
-	}
+    public PermissionLevel getLevel() {
+        return PermissionLevel.resolve(level);
+    }
 
-	public static Builder of(UUID userId, UUID accountId) {
-		return new Builder(Objects.requireNonNull(userId, "The userID is null"),
-				Objects.requireNonNull(accountId, "The accountID is null"));
-	}
+    public Builder from() {
+        return new Builder(this);
+    }
 
-	public static class Builder {
+    public static Builder of(UUID userId, UUID accountId) {
+        return new Builder(Objects.requireNonNull(userId, "The userID is null"),
+            Objects.requireNonNull(accountId, "The accountID is null"));
+    }
 
-		private PermissionLevel level;
+    public static class Builder {
 
-		private final UUID userUuid;
+        private PermissionLevel level;
 
-		private final UUID accountUuid;
+        private final UUID userUuid;
 
-		private Builder(final UUID userUuid, final UUID accountUuid) {
-			this.userUuid = userUuid;
-			this.accountUuid = accountUuid;
-		}
+        private final UUID accountUuid;
 
-		private Builder(final PermissionRecord permission) {
-			userUuid = permission.getUserId();
-			accountUuid = permission.getAccountId();
-			level = PermissionLevel.resolve(permission.level);
-		}
+        private Builder(final UUID userUuid, final UUID accountUuid) {
+            this.userUuid = userUuid;
+            this.accountUuid = accountUuid;
+        }
 
-		public Builder level(final PermissionLevel level) {
-			this.level = level;
-			return this;
-		}
+        private Builder(final PermissionRecord permission) {
+            userUuid = permission.getUserId();
+            accountUuid = permission.getAccountId();
+            level = PermissionLevel.resolve(permission.level);
+        }
 
-		public PermissionRecord build() {
-			return new PermissionRecord(this);
-		}
+        public Builder level(final PermissionLevel level) {
+            this.level = level;
+            return this;
+        }
 
-	}
+        public PermissionRecord build() {
+            return new PermissionRecord(this);
+        }
+
+    }
 
 }

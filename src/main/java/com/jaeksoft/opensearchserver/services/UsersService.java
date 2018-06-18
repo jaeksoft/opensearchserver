@@ -52,184 +52,181 @@ import java.util.logging.Logger;
 
 public class UsersService extends BaseTableService<UserRecord> implements IdentityManager {
 
-	private final static Logger LOGGER = LoggerUtils.getLogger(UsersService.class);
+    private final static Logger LOGGER = LoggerUtils.getLogger(UsersService.class);
 
-	private final ConfigService configService;
+    private final ConfigService configService;
 
-	public UsersService(final ConfigService configService, final TableServiceInterface tableServiceInterface)
-			throws NoSuchMethodException, URISyntaxException {
-		super(tableServiceInterface, UserRecord.class);
-		this.configService = configService;
-	}
+    public UsersService(final ConfigService configService, final TableServiceInterface tableServiceInterface)
+        throws NoSuchMethodException, URISyntaxException {
+        super(tableServiceInterface, UserRecord.class);
+        this.configService = configService;
+    }
 
-	@Override
-	public Account verify(Account account) {
-		try {
-			return new UserAccount(getUserById(((UserAccount) account).userRecord.getId()));
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Account verify failed for " + account, e);
-			return null;
-		}
-	}
+    @Override
+    public Account verify(Account account) {
+        try {
+            return new UserAccount(getUserById(((UserAccount) account).userRecord.getId()));
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Account verify failed for " + account, e);
+            return null;
+        }
+    }
 
-	public Integer getUserCount() {
-		return tableService.getTableStatus().getNumRows();
-	}
+    public Integer getUserCount() {
+        return tableService.getTableStatus().getNumRows();
+    }
 
-	/**
-	 * User login
-	 *
-	 * @param email         the email address of the user
-	 * @param clearPassword the clear password
-	 * @return
-	 */
-	private UserRecord login(final String email, final String clearPassword) {
-		if (email == null || clearPassword == null)
-			return null;
-		final UserRecord user = getUserByEmail(email);
-		if (user != null && user.getStatus() == ActiveStatus.ENABLED &&
-				user.matchPassword(configService.getApplicationSalt(), clearPassword))
-			return user;
-		ThreadUtils.sleep(2, TimeUnit.SECONDS);
-		throw new NotAuthorizedException("Authentication failure");
-	}
+    /**
+     * User login
+     *
+     * @param email         the email address of the user
+     * @param clearPassword the clear password
+     * @return
+     */
+    private UserRecord login(final String email, final String clearPassword) {
+        if (email == null || clearPassword == null)
+            return null;
+        final UserRecord user = getUserByEmail(email);
+        if (user != null && user.getStatus() == ActiveStatus.ENABLED &&
+            user.matchPassword(configService.getApplicationSalt(), clearPassword))
+            return user;
+        ThreadUtils.sleep(2, TimeUnit.SECONDS);
+        throw new NotAuthorizedException("Authentication failure");
+    }
 
-	@Override
-	public Account verify(final String email, final Credential credential) {
-		if (StringUtils.isBlank(email) || credential == null)
-			return null;
-		if (!(credential instanceof PasswordCredential))
-			return null;
-		final String password = new String(((PasswordCredential) credential).getPassword());
-		if (StringUtils.isBlank(password))
-			return null;
-		try {
-			return new UserAccount(login(email, password));
-		} catch (NotAuthorizedException e) {
-			return null;
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, "Account verify failed for " + email, e);
-			return null;
-		}
-	}
+    @Override
+    public Account verify(final String email, final Credential credential) {
+        if (StringUtils.isBlank(email) || credential == null)
+            return null;
+        if (!(credential instanceof PasswordCredential))
+            return null;
+        final String password = new String(((PasswordCredential) credential).getPassword());
+        if (StringUtils.isBlank(password))
+            return null;
+        try {
+            return new UserAccount(login(email, password));
+        } catch (NotAuthorizedException e) {
+            return null;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Account verify failed for " + email, e);
+            return null;
+        }
+    }
 
-	public UserRecord verify(final String email, final String clearPassword) {
-		final UserAccount account = (UserAccount) verify(email, new PasswordCredential(clearPassword.toCharArray()));
-		return account == null ? null : account.getPrincipal();
-	}
+    public UserRecord verify(final String email, final String clearPassword) {
+        final UserAccount account = (UserAccount) verify(email, new PasswordCredential(clearPassword.toCharArray()));
+        return account == null ? null : account.getPrincipal();
+    }
 
-	@Override
-	public Account verify(Credential credential) {
-		return null;
-	}
+    @Override
+    public Account verify(Credential credential) {
+        return null;
+    }
 
-	public UserRecord getUserById(final UUID id) {
-		try {
-			return tableService.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), columnsSet);
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get user by id", e);
-		}
-	}
+    public UserRecord getUserById(final UUID id) {
+        try {
+            return tableService.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), columnsSet);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get user by id", e);
+        }
+    }
 
-	public Map<UserRecord, PermissionRecord> getUsersByIds(
-			final TableRequestResultRecords<PermissionRecord> permissions) {
-		try {
-			if (permissions == null || permissions.records == null)
-				return Collections.emptyMap();
-			final Set<String> idSet = new LinkedHashSet<>();
-			permissions.records.forEach(permission -> idSet.add(permission.getUserId().toString()));
-			final List<UserRecord> userList = tableService.getRows(columnsSet, idSet);
-			if (userList == null || userList.isEmpty())
-				return Collections.emptyMap();
-			final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
-			final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
-			userList.forEach(account -> results.put(account, permissionsIterator.next()));
-			return results;
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get users by ids", e);
-		}
-	}
+    public Map<UserRecord, PermissionRecord> getUsersByIds(
+        final TableRequestResultRecords<PermissionRecord> permissions) {
+        try {
+            if (permissions == null || permissions.records == null)
+                return Collections.emptyMap();
+            final Set<String> idSet = new LinkedHashSet<>();
+            permissions.records.forEach(permission -> idSet.add(permission.getUserId().toString()));
+            final List<UserRecord> userList = tableService.getRows(columnsSet, idSet);
+            if (userList == null || userList.isEmpty())
+                return Collections.emptyMap();
+            final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
+            final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
+            userList.forEach(account -> results.put(account, permissionsIterator.next()));
+            return results;
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get users by ids", e);
+        }
+    }
 
-	public UserRecord getUserByEmail(final String email) {
-		try {
-			final TableRequestResultRecords<UserRecord> result = tableService.queryRows(TableRequest.from(0, 1)
-					.column(columnsArray)
-					.query(new TableQuery.StringTerm("email", email))
-					.build());
-			return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get user by email", e);
-		}
-	}
+    public UserRecord getUserByEmail(final String email) {
+        try {
+            final TableRequestResultRecords<UserRecord> result = tableService.queryRows(
+                TableRequest.from(0, 1).column(columnsArray).query(new TableQuery.StringTerm("email", email)).build());
+            return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get user by email", e);
+        }
+    }
 
-	public TableRequestResultRecords<UserRecord> getUsers(final int start, final int rows) {
-		try {
-			return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get user list", e);
-		}
-	}
+    public TableRequestResultRecords<UserRecord> getUsers(final int start, final int rows) {
+        try {
+            return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get user list", e);
+        }
+    }
 
-	public synchronized UUID createUser(final String userEmail) {
-		final UserRecord existingUser = getUserByEmail(userEmail);
-		if (existingUser != null)
-			return existingUser.getId();
-		final UserRecord newUser = UserRecord.of().email(userEmail).build();
-		tableService.upsertRow(newUser.id, newUser);
-		return newUser.getId();
-	}
+    public synchronized UUID createUser(final String userEmail) {
+        final UserRecord existingUser = getUserByEmail(userEmail);
+        if (existingUser != null)
+            return existingUser.getId();
+        final UserRecord newUser = UserRecord.of().email(userEmail).build();
+        tableService.upsertRow(newUser.id, newUser);
+        return newUser.getId();
+    }
 
-	public final static String PASSWORD_STRENGTH_MESSAGE =
-			"The password must contains at least 8 characters, one digit, one lowercase character, and one uppercase character.";
+    public final static String PASSWORD_STRENGTH_MESSAGE =
+        "The password must contains at least 8 characters, one digit, one lowercase character, and one uppercase character.";
 
-	public static boolean checkPasswordStrength(final String password) {
-		return (!StringUtils.isBlank(password) && !StringUtils.isAnyBlank(password) && password.length() >= 8 &&
-				StringUtils.anyLowercase(password) && StringUtils.anyUpperCase(password) &&
-				StringUtils.anyDigit(password));
-	}
+    public static boolean checkPasswordStrength(final String password) {
+        return (!StringUtils.isBlank(password) && !StringUtils.isAnyBlank(password) && password.length() >= 8 &&
+            StringUtils.anyLowercase(password) && StringUtils.anyUpperCase(password) && StringUtils.anyDigit(password));
+    }
 
-	private UserRecord getExistingUser(final UUID userId) {
-		final UserRecord user = getUserById(userId);
-		if (user == null)
-			throw new NotFoundException("User not found: " + userId);
-		return user;
-	}
+    private UserRecord getExistingUser(final UUID userId) {
+        final UserRecord user = getUserById(userId);
+        if (user == null)
+            throw new NotFoundException("User not found: " + userId);
+        return user;
+    }
 
-	public void resetPassword(final UUID userId, final String newPassword) {
-		final UserRecord oldUser = getExistingUser(userId);
-		if (!checkPasswordStrength(newPassword))
-			throw new NotAcceptableException(PASSWORD_STRENGTH_MESSAGE);
-		final UserRecord newUser = UserRecord.of(oldUser).password(configService.applicationSalt, newPassword).build();
-		tableService.upsertRow(newUser.id, newUser);
-	}
+    public void resetPassword(final UUID userId, final String newPassword) {
+        final UserRecord oldUser = getExistingUser(userId);
+        if (!checkPasswordStrength(newPassword))
+            throw new NotAcceptableException(PASSWORD_STRENGTH_MESSAGE);
+        final UserRecord newUser = UserRecord.of(oldUser).password(configService.applicationSalt, newPassword).build();
+        tableService.upsertRow(newUser.id, newUser);
+    }
 
-	public boolean updateStatus(final UUID userId, final ActiveStatus status) {
-		final UserRecord oldUser = getExistingUser(userId);
-		if (oldUser.getStatus() != null && oldUser.getStatus() == status)
-			return false;
-		final UserRecord newUser = UserRecord.of(oldUser).status(status).build();
-		tableService.upsertRow(newUser.id, newUser);
-		return true;
-	}
+    public boolean updateStatus(final UUID userId, final ActiveStatus status) {
+        final UserRecord oldUser = getExistingUser(userId);
+        if (oldUser.getStatus() != null && oldUser.getStatus() == status)
+            return false;
+        final UserRecord newUser = UserRecord.of(oldUser).status(status).build();
+        tableService.upsertRow(newUser.id, newUser);
+        return true;
+    }
 
-	public class UserAccount implements Account {
+    public static class UserAccount implements Account {
 
-		private final UserRecord userRecord;
+        private final UserRecord userRecord;
 
-		private UserAccount(final UserRecord userRecord) {
-			this.userRecord = userRecord;
-		}
+        private UserAccount(final UserRecord userRecord) {
+            this.userRecord = userRecord;
+        }
 
-		@Override
-		public UserRecord getPrincipal() {
-			return userRecord;
-		}
+        @Override
+        public UserRecord getPrincipal() {
+            return userRecord;
+        }
 
-		@Override
-		public Set<String> getRoles() {
-			return Collections.emptySet();
+        @Override
+        public Set<String> getRoles() {
+            return Collections.emptySet();
 
-		}
+        }
 
-	}
+    }
 }

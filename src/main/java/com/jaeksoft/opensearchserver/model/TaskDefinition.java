@@ -26,40 +26,45 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
-		getterVisibility = JsonAutoDetect.Visibility.NONE,
-		setterVisibility = JsonAutoDetect.Visibility.NONE,
-		creatorVisibility = JsonAutoDetect.Visibility.NONE)
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.NONE,
+    creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({ @JsonSubTypes.Type(WebCrawlTaskDefinition.class) })
 public abstract class TaskDefinition {
 
-	public final UUID id;
+    public final UUID id;
 
-	public final String type;
+    public final String type;
 
-	TaskDefinition(final UUID id, final String type) {
-		this.id = id;
-		this.type = type;
-	}
+    TaskDefinition(final UUID id, final String type) {
+        this.id = id;
+        this.type = type;
+    }
 
-	public UUID getId() {
-		return id;
-	}
+    public UUID getId() {
+        return id;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public abstract String getTaskId();
+    public abstract String getTaskId();
 
-	@Override
-	public boolean equals(final Object o) {
-		if (o == null || (!(o instanceof TaskDefinition)))
-			return false;
-		final TaskDefinition t = (TaskDefinition) o;
-		return Objects.equals(id, t.id) && Objects.equals(type, t.type);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if ((!(o instanceof TaskDefinition)))
+            return false;
+        final TaskDefinition t = (TaskDefinition) o;
+        return Objects.equals(id, t.id) && Objects.equals(type, t.type);
+    }
 
 }

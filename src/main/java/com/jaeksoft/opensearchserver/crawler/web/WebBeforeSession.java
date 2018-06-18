@@ -25,21 +25,21 @@ import java.util.logging.Logger;
 
 public class WebBeforeSession extends WebAbstractEvent {
 
-	private final static Logger LOGGER = LoggerUtils.getLogger(WebBeforeSession.class);
+    private final static Logger LOGGER = LoggerUtils.getLogger(WebBeforeSession.class);
 
-	@Override
-	public boolean run(final EventContext context) throws Exception {
+    @Override
+    public boolean run(final EventContext context) throws Exception {
 
-		final WebCrawlDefinition crawlDefinition = context.crawlSession.getCrawlDefinition();
-		LOGGER.info("Crawl entry: " + crawlDefinition.entryUrl + " - URLs: " +
-				(crawlDefinition.urls == null ? 0 : crawlDefinition.urls.size()));
+        final WebCrawlDefinition crawlDefinition = context.crawlSession.getCrawlDefinition();
+        LOGGER.info("Crawl entry: " + crawlDefinition.entryUrl + " - URLs: " +
+            (crawlDefinition.urls == null ? 0 : crawlDefinition.urls.size()));
 
-		final String crawlUuid = context.crawlSession.getVariable(CRAWL_UUID, String.class);
-		final String taskCreationTime = context.crawlSession.getVariable(SESSION_TIME_ID, String.class);
-		context.crawlSession.setAttribute(SESSION_STORE,
-				new SessionStore(UUID.fromString(crawlUuid), Long.valueOf(taskCreationTime)), SessionStore.class);
+        final String crawlUuid = context.crawlSession.getVariable(CRAWL_UUID, String.class);
+        final String taskCreationTime = context.crawlSession.getVariable(SESSION_TIME_ID, String.class);
+        context.crawlSession.setAttribute(SESSION_STORE,
+            new SessionStore(UUID.fromString(crawlUuid), Long.parseLong(taskCreationTime)), SessionStore.class);
 
-		return true;
-	}
+        return true;
+    }
 
 }

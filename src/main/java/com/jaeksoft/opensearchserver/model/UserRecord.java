@@ -35,133 +35,138 @@ import java.util.UUID;
 @Table("users")
 public class UserRecord implements Principal {
 
-	@TableColumn(name = TableDefinition.ID_COLUMN_NAME)
-	public final String id;
+    @TableColumn(name = TableDefinition.ID_COLUMN_NAME)
+    public final String id;
 
-	private volatile UUID uuid;
+    private volatile UUID uuid;
 
-	@TableColumn(name = "status", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
-	private final Integer status;
+    @TableColumn(name = "status", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
+    private final Integer status;
 
-	@TableColumn(name = "name", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
-	private final String name;
+    @TableColumn(name = "name", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
+    private final String name;
 
-	@TableColumn(name = "email", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
-	private final String email;
+    @TableColumn(name = "email", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
+    private final String email;
 
-	@TableColumn(name = "password", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
-	private final String password;
+    @TableColumn(name = "password", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
+    private final String password;
 
-	public UserRecord() {
-		id = email = name = password = null;
-		status = 0;
-	}
+    public UserRecord() {
+        id = email = name = password = null;
+        status = 0;
+    }
 
-	private UserRecord(final Builder builder) {
-		id = builder.uuid == null ? null : builder.uuid.toString();
-		status = builder.status == null ? null : builder.status.value;
-		name = builder.name;
-		email = builder.email;
-		password = builder.password;
-	}
+    private UserRecord(final Builder builder) {
+        id = builder.uuid == null ? null : builder.uuid.toString();
+        status = builder.status == null ? null : builder.status.value;
+        name = builder.name;
+        email = builder.email;
+        password = builder.password;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null || !(o instanceof UserRecord))
-			return false;
-		if (o == this)
-			return true;
-		final UserRecord u = (UserRecord) o;
-		return Objects.equals(id, u.id) && Objects.equals(email, u.email) && Objects.equals(name, u.name) &&
-				Objects.equals(password, u.password) && Objects.equals(status, u.status);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, name, password, status);
+    }
 
-	public boolean matchPassword(final String appSalt, final String clearPassword) {
-		return !StringUtils.isBlank(password) && !StringUtils.isBlank(clearPassword) &&
-				password.equals(digestPassword(appSalt, id, clearPassword));
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof UserRecord))
+            return false;
+        if (o == this)
+            return true;
+        final UserRecord u = (UserRecord) o;
+        return Objects.equals(id, u.id) && Objects.equals(email, u.email) && Objects.equals(name, u.name) &&
+            Objects.equals(password, u.password) && Objects.equals(status, u.status);
+    }
 
-	public synchronized UUID getId() {
-		if (uuid != null)
-			return uuid;
-		return uuid = id == null ? null : UUID.fromString(id);
-	}
+    public boolean matchPassword(final String appSalt, final String clearPassword) {
+        return !StringUtils.isBlank(password) && !StringUtils.isBlank(clearPassword) &&
+            password.equals(digestPassword(appSalt, id, clearPassword));
+    }
 
-	public Long getCreationTime() {
-		return HashUtils.getTimeFromUUID(UUID.fromString(id));
-	}
+    public synchronized UUID getId() {
+        if (uuid != null)
+            return uuid;
+        return uuid = id == null ? null : UUID.fromString(id);
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public Long getCreationTime() {
+        return HashUtils.getTimeFromUUID(UUID.fromString(id));
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public ActiveStatus getStatus() {
-		return ActiveStatus.resolve(status);
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	private static String digestPassword(final String appSalt, String id, String clearPassword) {
-		return new HmacUtils(HmacAlgorithms.HMAC_SHA_512, clearPassword + id + appSalt).hmacHex(clearPassword);
-	}
+    public ActiveStatus getStatus() {
+        return ActiveStatus.resolve(status);
+    }
 
-	public static Builder of(UserRecord user) {
-		return new Builder(user);
-	}
+    private static String digestPassword(final String appSalt, String id, String clearPassword) {
+        return new HmacUtils(HmacAlgorithms.HMAC_SHA_512, clearPassword + id + appSalt).hmacHex(clearPassword);
+    }
 
-	public static Builder of() {
-		return new Builder();
-	}
+    public static Builder of(UserRecord user) {
+        return new Builder(user);
+    }
 
-	public static class Builder {
+    public static Builder of() {
+        return new Builder();
+    }
 
-		private UUID uuid;
+    public static class Builder {
 
-		private ActiveStatus status;
+        private UUID uuid;
 
-		private String name;
+        private ActiveStatus status;
 
-		private String email;
+        private String name;
 
-		private String password;
+        private String email;
 
-		private Builder() {
-			uuid = HashUtils.newTimeBasedUUID();
-		}
+        private String password;
 
-		private Builder(final UserRecord user) {
-			uuid = user.getId();
-			status = user.getStatus();
-			email = user.email;
-			password = user.password;
-		}
+        private Builder() {
+            uuid = HashUtils.newTimeBasedUUID();
+        }
 
-		public Builder email(final String email) {
-			this.email = email;
-			return this;
-		}
+        private Builder(final UserRecord user) {
+            uuid = user.getId();
+            status = user.getStatus();
+            email = user.email;
+            password = user.password;
+        }
 
-		public Builder name(final String name) {
-			this.name = name;
-			return this;
-		}
+        public Builder email(final String email) {
+            this.email = email;
+            return this;
+        }
 
-		public Builder status(final ActiveStatus status) {
-			this.status = status;
-			return this;
-		}
+        public Builder name(final String name) {
+            this.name = name;
+            return this;
+        }
 
-		public Builder password(final String appSalt, final String clearPassword) {
-			this.password = digestPassword(appSalt, uuid.toString(), clearPassword);
-			return this;
-		}
+        public Builder status(final ActiveStatus status) {
+            this.status = status;
+            return this;
+        }
 
-		public UserRecord build() {
-			return new UserRecord(this);
-		}
+        public Builder password(final String appSalt, final String clearPassword) {
+            this.password = digestPassword(appSalt, uuid.toString(), clearPassword);
+            return this;
+        }
 
-	}
+        public UserRecord build() {
+            return new UserRecord(this);
+        }
+
+    }
 }

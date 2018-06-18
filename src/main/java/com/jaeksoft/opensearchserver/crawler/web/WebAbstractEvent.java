@@ -26,26 +26,26 @@ import java.util.Map;
 
 public abstract class WebAbstractEvent extends WebCrawlScriptEvent implements CrawlerContext {
 
-	protected abstract boolean run(final EventContext context) throws Exception;
+    protected abstract boolean run(final EventContext context) throws Exception;
 
-	@Override
-	protected final boolean run(final WebCrawlSession session, final WebCurrentCrawl crawl,
-			final Map<String, ?> variables) throws Exception {
-		return run(new EventContext(session, crawl));
-	}
+    @Override
+    protected final boolean run(final WebCrawlSession session, final WebCurrentCrawl crawl,
+        final Map<String, ?> variables) throws Exception {
+        return run(new EventContext(session, crawl));
+    }
 
-	public class EventContext {
+    public static class EventContext {
 
-		final WebCrawlSession crawlSession;
-		final WebCurrentCrawl currentCrawl;
-		final SessionStore sessionStore;
+        final WebCrawlSession crawlSession;
+        final WebCurrentCrawl currentCrawl;
+        final SessionStore sessionStore;
 
-		private EventContext(final WebCrawlSession crawlSession, final WebCurrentCrawl currentCrawl) {
-			this.crawlSession = crawlSession;
-			this.currentCrawl = currentCrawl;
-			sessionStore = crawlSession.getAttribute(SESSION_STORE, SessionStore.class);
-		}
+        private EventContext(final WebCrawlSession crawlSession, final WebCurrentCrawl currentCrawl) {
+            this.crawlSession = crawlSession;
+            this.currentCrawl = currentCrawl;
+            sessionStore = crawlSession.getAttribute(SESSION_STORE, SessionStore.class);
+        }
 
-	}
+    }
 
 }
