@@ -82,7 +82,7 @@
     <br/>
 </div>
 <#include '../../includes/foot.ftl'>
-<script src="/webjars/ace-builds/1.3.1/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/webjars/ace-builds/1.3.3/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/xcode");
