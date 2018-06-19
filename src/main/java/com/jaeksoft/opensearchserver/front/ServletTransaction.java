@@ -33,7 +33,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -187,18 +187,25 @@ public abstract class ServletTransaction {
             final Object redirect = method.invoke(this);
             if (!response.isCommitted())
                 sendRedirect(redirect == null ? null : redirect.toString());
-        } catch (ReflectiveOperationException | WebApplicationException e) {
-            addMessage("Action failed: " + action, e);
-            sendRedirect(null);
+        } catch (ReflectiveOperationException | WebApplicationException | URISyntaxException e) {
+            final String msg = "Action failed: " + action;
+            addMessage(msg, e);
+            LOGGER.log(Level.WARNING, msg, e);
+            try {
+                sendRedirect(null);
+            } catch (URISyntaxException e1) {
+                LOGGER.log(Level.SEVERE, "Self Redirect failed", e1);
+            }
         }
     }
 
     /**
      * Redirect to the given URL. If redirect is null, it redirects to the current URL
      *
-     * @throws IOException if any I/O error occurs
+     * @throws IOException        if any I/O error occurs
+     * @throws URISyntaxException if the redirection is not a valid URI
      */
-    private void sendRedirect(String redirect) throws IOException {
+    private void sendRedirect(String redirect) throws IOException, URISyntaxException {
         if (redirect == null) {
             final String queryString = request.getQueryString();
             final StringBuffer urlBuilder = request.getRequestURL();
@@ -208,7 +215,7 @@ public abstract class ServletTransaction {
             }
             redirect = urlBuilder.toString();
         }
-        response.sendRedirect(new URL(redirect).toString());
+        response.sendRedirect(new URI(redirect).toString());
     }
 
     /**
@@ -216,7 +223,7 @@ public abstract class ServletTransaction {
      *
      * @param templatePath the path to the freemarker template
      * @throws IOException      if any I/O exception occurs
-     * @throws ServletException if any templace exception occurs
+     * @throws ServletException if any template exception occurs
      */
     protected void doTemplate(String templatePath) throws IOException, ServletException {
         try {
