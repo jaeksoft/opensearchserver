@@ -29,27 +29,27 @@ import java.util.Map;
 
 public class ViewTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/indexes/view.ftl";
+    private final static String TEMPLATE = "accounts/indexes/view.ftl";
 
-	public ViewTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
-			final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-		super(components, accountRecord, request, response);
-		try {
-			final Map data = new HashMap<>();
-			data.put("account", accountRecord);
-			data.put("indexName", indexName);
-			final String htmlCode =
-					components.getFreemarkerTool().template("accounts/indexes/includes/view_example.ftl", data);
-			request.setAttribute("indexName", indexName);
-			request.setAttribute("htmlCode", htmlCode);
-		} catch (TemplateException e) {
-			throw new IOException(e);
-		}
-	}
+    public ViewTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
+        final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+        super(components, accountRecord, request, response);
+        try {
+            final Map<String, Object> data = new HashMap<>();
+            data.put("account", accountRecord);
+            data.put("indexName", indexName);
+            final String htmlCode =
+                components.getFreemarkerTool().template("accounts/indexes/includes/view_example.ftl", data);
+            request.setAttribute("indexName", indexName);
+            request.setAttribute("htmlCode", htmlCode);
+        } catch (TemplateException e) {
+            throw new IOException(e);
+        }
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
 }

@@ -30,21 +30,21 @@ import javax.ws.rs.NotFoundException;
 @WebServlet("/search/*")
 public class SearchServlet extends BaseServlet {
 
-	final Components components;
+    private final Components components;
 
-	public SearchServlet(final Components components) {
-		this.components = components;
-	}
+    public SearchServlet(final Components components) {
+        this.components = components;
+    }
 
-	@Override
-	protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) {
-		final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
-		if (pathParts == null || pathParts.length == 0)
-			throw new NotFoundException();
-		final AccountRecord accountRecord = components.getAccountsService().findExistingAccount(pathParts[0]);
-		if (pathParts.length == 2)
-			return new SearchTransaction(components, accountRecord, pathParts[1], request, response);
-		return null;
-	}
+    @Override
+    protected ServletTransaction getServletTransaction(final HttpServletRequest request,
+        final HttpServletResponse response) {
+        final String[] pathParts = StringUtils.split(request.getPathInfo(), '/');
+        if (pathParts == null || pathParts.length == 0)
+            throw new NotFoundException();
+        final AccountRecord accountRecord = components.getAccountsService().findExistingAccount(pathParts[0]);
+        if (pathParts.length == 2)
+            return new SearchTransaction(components, accountRecord, pathParts[1], request, response);
+        return null;
+    }
 }

@@ -52,6 +52,11 @@
     <div id="oss">
         <#include '../../search/form.ftl'>
     </div>
+    <script>
+        $(function () {
+            $('#oss').load('/search/${account.name?url}/${indexName?url}' + location.search);
+        });
+    </script>
 <#include '../../includes/foot.ftl'>
     <script src="/webjars/clipboard/2.0.0/dist/clipboard.min.js"></script>
     <script src="/webjars/highlightjs/9.12.0/highlight.pack.js"></script>

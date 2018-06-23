@@ -37,37 +37,40 @@
 <#-- Pagination -->
 <#if paging?has_content>
 <div class="container">
-    <form>
-        <input type="hidden" name="keywords" value="${keywords?html}">
-        <input type="hidden" name="lang" value="${lang?html}">
-        <#if rows?has_content><input type="hidden" name="rows" value="${rows?c}"></#if>
-        <nav aria-label="Pagination">
-            <ul class="pagination justify-content-center">
-                <#if paging.prev?has_content>
-                <li class="page-item">
-                    <button class="page-link" type="submit" name="start" value="${paging.prev.start?c}">
-                        Previous
+    <#if rows?has_content><input type="hidden" name="rows" value="${rows?c}"></#if>
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            <#if paging.prev?has_content>
+            <li class="page-item">
+                <button class="page-link" value="${paging.prev.start?c}">
+                    Previous
+                </button>
+            </li>
+            </#if>
+            <#if paging.pages??>
+                <#list paging.pages as page>
+                <li class="page-item<#if page.current> active</#if>">
+                    <button class="page-link" value="${page.start?c}">
+                        ${page.number?c}
                     </button>
                 </li>
-                </#if>
-                <#if paging.pages??>
-                    <#list paging.pages as page>
-                    <li class="page-item<#if page.current> active</#if>">
-                        <button class="page-link" type="submit" name="start" value="${page.start?c}">
-                            ${page.number?c}
-                        </button>
-                    </li>
-                    </#list>
-                </#if>
-                <#if paging.next?has_content>
-                <li class="page-item">
-                    <button class="page-link" type="submit" name="start" value="${paging.next.start?c}">
-                        Next
-                    </button>
-                </li>
-                </#if>
-            </ul>
-        </nav>
-    </form>
+                </#list>
+            </#if>
+            <#if paging.next?has_content>
+            <li class="page-item">
+                <button class="page-link" value="${paging.next.start?c}">
+                    Next
+                </button>
+            </li>
+            </#if>
+        </ul>
+    </nav>
 </div>
+<script>
+    $(function () {
+        $('button.page-link').on('click', function (e) {
+            opensearchserver.search($(this).val());
+        });
+    });
+</script>
 </#if>
