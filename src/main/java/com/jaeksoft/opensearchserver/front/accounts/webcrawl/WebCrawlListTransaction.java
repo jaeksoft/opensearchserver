@@ -46,127 +46,125 @@ import java.util.function.BiFunction;
 
 public class WebCrawlListTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/crawlers/web/list.ftl";
+    private final static String TEMPLATE = "accounts/crawlers/web/list.ftl";
 
-	private final WebCrawlsService webCrawlsService;
-	private final IndexesService indexesService;
-	private final TasksService tasksService;
+    private final WebCrawlsService webCrawlsService;
+    private final IndexesService indexesService;
+    private final TasksService tasksService;
 
-	public WebCrawlListTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response) {
-		super(components, accountRecord, request, response);
-		webCrawlsService = components.getWebCrawlsService();
-		tasksService = components.getTasksService();
-		indexesService = components.getIndexesService();
-	}
+    public WebCrawlListTransaction(final Components components, final AccountRecord accountRecord,
+        final HttpServletRequest request, final HttpServletResponse response) {
+        super(components, accountRecord, request, response);
+        webCrawlsService = components.getWebCrawlsService();
+        tasksService = components.getTasksService();
+        indexesService = components.getIndexesService();
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	public void create() throws IOException, URISyntaxException {
-		final String crawlName = request.getParameter("crawlName");
-		final String entryUrl = request.getParameter("entryUrl");
-		final Integer maxDepth = getRequestParameter("maxDepth", null, null, null);
-		final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null, null, null);
+    public void create() throws IOException, URISyntaxException {
+        final String crawlName = request.getParameter("crawlName");
+        final String entryUrl = request.getParameter("entryUrl");
+        final Integer maxDepth = getRequestParameter("maxDepth", null, null, null);
+        final Integer maxUrlNumber = getRequestParameter("maxUrlNumber", null, null, null);
 
-		// Extract the URLs
-		final Set<URI> uriSet = new LinkedHashSet<>();
-		try (final BufferedReader reader = new BufferedReader(new StringReader(entryUrl))) {
-			String urlLine;
-			while ((urlLine = reader.readLine()) != null) {
-				urlLine = urlLine.trim();
-				if (StringUtils.isBlank(urlLine))
-					continue;
-				uriSet.add(new URI(urlLine).normalize());
-			}
-		}
+        // Extract the URLs
+        final Set<URI> uriSet = new LinkedHashSet<>();
+        try (final BufferedReader reader = new BufferedReader(new StringReader(entryUrl))) {
+            String urlLine;
+            while ((urlLine = reader.readLine()) != null) {
+                urlLine = urlLine.trim();
+                if (StringUtils.isBlank(urlLine))
+                    continue;
+                uriSet.add(new URI(urlLine).normalize());
+            }
+        }
 
-		int count = 0;
-		for (final URI uri : uriSet) {
-			final WebCrawlDefinition.Builder webCrawlDefBuilder = WebCrawlDefinition.of()
-					.setEntryUrl(uri.toString())
-					.setMaxDepth(maxDepth)
-					.setMaxUrlNumber(maxUrlNumber);
-			final String name;
-			if (crawlName == null || crawlName.isEmpty())
-				name = uri.getHost();
-			else
-				name = crawlName + (count == 0 ? StringUtils.EMPTY : count);
-			count++;
-			webCrawlsService.save(accountRecord.getId(),
-					WebCrawlRecord.of().name(name).crawlDefinition(webCrawlDefBuilder.build()).build());
-		}
-	}
+        int count = 0;
+        for (final URI uri : uriSet) {
+            final WebCrawlDefinition.Builder webCrawlDefBuilder =
+                WebCrawlDefinition.of().setEntryUrl(uri.toString()).setMaxDepth(maxDepth).setMaxUrlNumber(maxUrlNumber);
+            final String name;
+            if (crawlName == null || crawlName.isEmpty())
+                name = uri.getHost();
+            else
+                name = crawlName + (count == 0 ? StringUtils.EMPTY : count);
+            count++;
+            webCrawlsService.save(accountRecord.getId(),
+                WebCrawlRecord.of().name(name).crawlDefinition(webCrawlDefBuilder.build()).build());
+        }
+    }
 
-	private Integer forEachCrawl(final BiFunction<WebCrawlTaskDefinition, TaskRecord, Boolean> crawlAction) {
-		final String index = request.getParameter("index");
-		final String[] crawls = request.getParameterValues("c");
-		if (crawls == null || crawls.length == 0) {
-			addMessage(Message.Css.warning, "Nothing to do !", "Please select one or more crawl(s)");
-			return null;
-		}
-		final UUID indexUuid =
-				UUID.fromString(indexesService.getIndex(accountRecord.id, index).getIndexStatus().index_uuid);
+    private Integer forEachCrawl(final BiFunction<WebCrawlTaskDefinition, TaskRecord, Boolean> crawlAction) {
+        final String index = request.getParameter("index");
+        final String[] crawls = request.getParameterValues("c");
+        if (crawls == null || crawls.length == 0) {
+            addMessage(Message.Css.warning, "Nothing to do !", "Please select one or more crawl(s)");
+            return null;
+        }
+        final UUID indexUuid =
+            UUID.fromString(indexesService.getIndex(accountRecord.id, index).getIndexStatus().indexUuid);
 
-		int count = 0;
-		for (String crawlId : crawls) {
-			final WebCrawlRecord webCrawlRecord =
-					webCrawlsService.read(accountRecord.getId(), UUID.fromString(crawlId));
-			final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
-			final TaskRecord taskRecord = tasksService.getTask(webCrawlTask.getTaskId());
-			if (crawlAction.apply(webCrawlTask, taskRecord))
-				count++;
-		}
-		return count;
-	}
+        int count = 0;
+        for (String crawlId : crawls) {
+            final WebCrawlRecord webCrawlRecord =
+                webCrawlsService.read(accountRecord.getId(), UUID.fromString(crawlId));
+            final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
+            final TaskRecord taskRecord = tasksService.getTask(webCrawlTask.getTaskId());
+            if (crawlAction.apply(webCrawlTask, taskRecord))
+                count++;
+        }
+        return count;
+    }
 
-	public void activate() {
-		final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> {
-			if (taskRecord == null) {
-				tasksService.createTask(TaskRecord.of(accountRecord.getId())
-						.definition(webCrawlTask)
-						.status(TaskRecord.Status.ACTIVE, "Activated by the user")
-						.build());
-				return true;
-			}
-			return tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE, "Activated by the user");
-		});
-		if (count != null)
-			addMessage(Message.Css.success, "Activate Crawl", count + " crawl(s) activated");
-	}
+    public void activate() {
+        final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> {
+            if (taskRecord == null) {
+                tasksService.createTask(TaskRecord.of(accountRecord.getId())
+                    .definition(webCrawlTask)
+                    .status(TaskRecord.Status.ACTIVE, "Activated by the user")
+                    .build());
+                return true;
+            }
+            return tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.ACTIVE, "Activated by the user");
+        });
+        if (count != null)
+            addMessage(Message.Css.success, "Activate Crawl", count + " crawl(s) activated");
+    }
 
-	public void pause() {
-		final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> taskRecord != null &&
-				tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED, "Paused by the user"));
-		if (count != null)
-			addMessage(Message.Css.success, "Pause Crawl", count + " crawl(s) paused");
-	}
+    public void pause() {
+        final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> taskRecord != null &&
+            tasksService.updateStatus(taskRecord.getTaskId(), TaskRecord.Status.PAUSED, "Paused by the user"));
+        if (count != null)
+            addMessage(Message.Css.success, "Pause Crawl", count + " crawl(s) paused");
+    }
 
-	public void stop() {
-		final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> taskRecord != null &&
-				tasksService.removeTask(taskRecord.getTaskId(), "Stopped by the user"));
-		if (count != null)
-			addMessage(Message.Css.success, "Stop Crawl", count + " crawl(s) stopped");
-	}
+    public void stop() {
+        final Integer count = forEachCrawl((webCrawlTask, taskRecord) -> taskRecord != null &&
+            tasksService.removeTask(taskRecord.getTaskId(), "Stopped by the user"));
+        if (count != null)
+            addMessage(Message.Css.success, "Stop Crawl", count + " crawl(s) stopped");
+    }
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", "crawlStart", 0, 0, null);
-		final int rows = getRequestParameter("rows", "crawlRows", 25, 10, 100);
-		final String filter = getParameter("filter", "crawlFilter");
-		final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
-		final int totalCount =
-				webCrawlsService.collect(accountRecord.getId(), start, rows, filter, webCrawlRecords::add);
+    @Override
+    protected void doGet() throws IOException, ServletException {
+        final int start = getRequestParameter("start", "crawlStart", 0, 0, null);
+        final int rows = getRequestParameter("rows", "crawlRows", 25, 10, 100);
+        final String filter = getParameter("filter", "crawlFilter");
+        final List<WebCrawlRecord> webCrawlRecords = new ArrayList<>();
+        final int totalCount =
+            webCrawlsService.collect(accountRecord.getId(), start, rows, filter, webCrawlRecords::add);
 
-		request.setAttribute("webCrawlRecords", webCrawlRecords);
-		request.setAttribute("start", start);
-		request.setAttribute("rows", rows);
-		request.setAttribute("filter", filter);
-		request.setAttribute("totalCount", totalCount);
-		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
-		request.setAttribute("paging", new Paging((long) totalCount, start, rows, 10));
-		super.doGet();
-	}
+        request.setAttribute("webCrawlRecords", webCrawlRecords);
+        request.setAttribute("start", start);
+        request.setAttribute("rows", rows);
+        request.setAttribute("filter", filter);
+        request.setAttribute("totalCount", totalCount);
+        request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
+        request.setAttribute("paging", new Paging((long) totalCount, start, rows, 10));
+        super.doGet();
+    }
 }

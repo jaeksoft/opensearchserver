@@ -32,46 +32,46 @@ import java.io.IOException;
 
 public class InfosTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/indexes/infos.ftl";
+    private final static String TEMPLATE = "accounts/indexes/infos.ftl";
 
-	private final IndexesService indexesService;
-	private final String indexName;
+    private final IndexesService indexesService;
+    private final String indexName;
 
-	public InfosTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
-			final HttpServletRequest request, final HttpServletResponse response) {
-		super(components, accountRecord, request, response);
-		this.indexesService = components.getIndexesService();
-		this.indexName = indexName;
-	}
+    public InfosTransaction(final Components components, final AccountRecord accountRecord, final String indexName,
+        final HttpServletRequest request, final HttpServletResponse response) {
+        super(components, accountRecord, request, response);
+        this.indexesService = components.getIndexesService();
+        this.indexName = indexName;
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	public String delete() {
-		final String indexName = request.getParameter("indexName");
-		if (StringUtils.isBlank(indexName))
-			return null;
-		if (indexName.equals(this.indexName)) {
-			indexesService.deleteIndex(accountRecord.id, indexName);
-			addMessage(Message.Css.success, null, "Index \"" + indexName + "\" deleted");
-			return StringUtils.EMPTY;
-		}
-		addMessage(Message.Css.warning, null, "Please confirm the name of the index to delete");
-		return null;
-	}
+    public String delete() {
+        final String indexName = request.getParameter("indexName");
+        if (StringUtils.isBlank(indexName))
+            return null;
+        if (indexName.equals(this.indexName)) {
+            indexesService.deleteIndex(accountRecord.id, indexName);
+            addMessage(Message.Css.success, null, "Index \"" + indexName + "\" deleted");
+            return StringUtils.EMPTY;
+        }
+        addMessage(Message.Css.warning, null, "Please confirm the name of the index to delete");
+        return null;
+    }
 
-	@Override
-	public void doGet() throws IOException, ServletException {
-		request.setAttribute("indexName", indexName);
-		final IndexService indexService = indexesService.getIndex(accountRecord.id, indexName);
-		final IndexStatus status = indexService.getIndexStatus();
-		request.setAttribute("indexSize", status.segments_size);
-		request.setAttribute("indexCount", status.num_docs);
-		request.setAttribute("crawlStatusCount", indexService.getCrawlStatusCount(null, null));
-		request.setAttribute("indexStatusCount", indexService.getIndexStatusCount(null, null));
-		super.doGet();
-	}
+    @Override
+    public void doGet() throws IOException, ServletException {
+        request.setAttribute("indexName", indexName);
+        final IndexService indexService = indexesService.getIndex(accountRecord.id, indexName);
+        final IndexStatus status = indexService.getIndexStatus();
+        request.setAttribute("indexSize", status.segmentsSize);
+        request.setAttribute("indexCount", status.numDocs);
+        request.setAttribute("crawlStatusCount", indexService.getCrawlStatusCount(null, null));
+        request.setAttribute("indexStatusCount", indexService.getIndexStatusCount(null, null));
+        super.doGet();
+    }
 
 }

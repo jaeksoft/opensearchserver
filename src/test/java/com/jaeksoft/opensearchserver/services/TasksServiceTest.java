@@ -34,77 +34,77 @@ import java.util.UUID;
 
 public class TasksServiceTest extends BaseTest {
 
-	private TasksService tasksService;
+    private TasksService tasksService;
 
-	@Before
-	public void setup() throws IOException {
-		tasksService = getTasksService();
-	}
+    @Before
+    public void setup() throws IOException {
+        tasksService = getTasksService();
+    }
 
-	private void checkResult(long totalCount, List<TaskRecord> records, int expectedResults,
-			TaskRecord... expectedRecords) {
-		Assert.assertNotNull(records);
-		Assert.assertEquals(expectedResults, totalCount);
-		Assert.assertEquals(expectedRecords.length, records.size());
-	}
+    private void checkResult(long totalCount, List<TaskRecord> records, int expectedResults,
+        TaskRecord... expectedRecords) {
+        Assert.assertNotNull(records);
+        Assert.assertEquals(expectedResults, totalCount);
+        Assert.assertEquals(expectedRecords.length, records.size());
+    }
 
-	@Test
-	public void emptyList() {
-		List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 0);
-	}
+    @Test
+    public void emptyList() {
+        List<TaskRecord> records = new ArrayList<>();
+        checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 0);
+    }
 
-	/**
-	 * Create a new WebCrawlTaskRecord
-	 *
-	 * @param indexName
-	 * @param taskName
-	 * @param urlCrawl
-	 * @param maxDepth
-	 * @return
-	 * @throws IOException
-	 */
-	TaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth) throws IOException {
-		final IndexesService indexesService = getIndexesService();
-		indexesService.createIndex(getAccountId().toString(), indexName);
-		final IndexService indexService = indexesService.getIndex(getAccountId().toString(), indexName);
+    /**
+     * Create a new WebCrawlTaskRecord
+     *
+     * @param indexName
+     * @param taskName
+     * @param urlCrawl
+     * @param maxDepth
+     * @return
+     * @throws IOException
+     */
+    TaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth) throws IOException {
+        final IndexesService indexesService = getIndexesService();
+        indexesService.createIndex(getAccountId().toString(), indexName);
+        final IndexService indexService = indexesService.getIndex(getAccountId().toString(), indexName);
 
-		final WebCrawlRecord webCrawlRecord = WebCrawlRecord.of()
-				.name(taskName)
-				.crawlDefinition(WebCrawlDefinition.of().setEntryUrl(urlCrawl).setMaxDepth(maxDepth).build())
-				.build();
+        final WebCrawlRecord webCrawlRecord = WebCrawlRecord.of()
+            .name(taskName)
+            .crawlDefinition(WebCrawlDefinition.of().setEntryUrl(urlCrawl).setMaxDepth(maxDepth).build())
+            .build();
 
-		final UUID indexUuid = UUID.fromString(indexService.getIndexStatus().index_uuid);
+        final UUID indexUuid = UUID.fromString(indexService.getIndexStatus().indexUuid);
 
-		final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
+        final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
 
-		return TaskRecord.of(getAccountId())
-				.definition(webCrawlTask)
-				.status(TaskRecord.Status.PAUSED, "Paused by the user")
-				.build();
-	}
+        return TaskRecord.of(getAccountId())
+            .definition(webCrawlTask)
+            .status(TaskRecord.Status.PAUSED, "Paused by the user")
+            .build();
+    }
 
-	@Test
-	public void createTask() throws IOException {
+    @Test
+    public void createTask() throws IOException {
 
-		final TaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
+        final TaskRecord taskRecord = createWebCrawlTask("index", "test", "http://www.opensearchserver.com", 3);
 
-		// Create a new task
-		tasksService.createTask(taskRecord);
+        // Create a new task
+        tasksService.createTask(taskRecord);
 
-		final TaskRecord getTaskRecord = tasksService.getTask(taskRecord.getTaskId());
-		Assert.assertEquals(taskRecord, getTaskRecord);
+        final TaskRecord getTaskRecord = tasksService.getTask(taskRecord.getTaskId());
+        Assert.assertEquals(taskRecord, getTaskRecord);
 
-		final List<TaskRecord> records = new ArrayList<>();
-		checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 1, taskRecord);
+        final List<TaskRecord> records = new ArrayList<>();
+        checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 1, taskRecord);
 
-		Assert.assertNull(tasksService.getTask(UUID.randomUUID().toString()));
+        Assert.assertNull(tasksService.getTask(UUID.randomUUID().toString()));
 
-	}
+    }
 
-	@Test(expected = NotFoundException.class)
-	public void updateUnknownTask() {
-		tasksService.updateStatus(RandomUtils.alphanumeric(8), TaskRecord.Status.PAUSED, "Paused by the user");
-	}
+    @Test(expected = NotFoundException.class)
+    public void updateUnknownTask() {
+        tasksService.updateStatus(RandomUtils.alphanumeric(8), TaskRecord.Status.PAUSED, "Paused by the user");
+    }
 
 }
