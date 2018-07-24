@@ -58,7 +58,7 @@
         });
     </script>
 <#include '../../includes/foot.ftl'>
-    <script src="/webjars/clipboard/2.0.0/dist/clipboard.min.js"></script>
+    <script src="/webjars/clipboard/2.0.1/dist/clipboard.min.js"></script>
     <script src="/webjars/highlightjs/9.12.0/highlight.pack.js"></script>
     <script>
         $(function () {
