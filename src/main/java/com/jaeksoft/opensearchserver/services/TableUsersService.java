@@ -134,18 +134,18 @@ public class TableUsersService extends BaseTableService<TableUserRecord> impleme
         }
     }
 
-    public Map<UserRecord, PermissionRecord> getUsersByIds(
-        final TableRequestResultRecords<PermissionRecord> permissions) {
+    @Override
+    public Map<UserRecord, PermissionRecord> getUsersByIds(final List<PermissionRecord> permissions) {
         try {
-            if (permissions == null || permissions.records == null)
+            if (permissions == null || permissions.isEmpty())
                 return Collections.emptyMap();
             final Set<String> idSet = new LinkedHashSet<>();
-            permissions.records.forEach(permission -> idSet.add(permission.getUserId().toString()));
+            permissions.forEach(permission -> idSet.add(permission.getUserId().toString()));
             final List<TableUserRecord> userList = tableService.getRows(columnsSet, idSet);
             if (userList == null || userList.isEmpty())
                 return Collections.emptyMap();
             final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
-            final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
+            final Iterator<PermissionRecord> permissionsIterator = permissions.iterator();
             userList.forEach(account -> results.put(account, permissionsIterator.next()));
             return results;
         } catch (IOException | ReflectiveOperationException e) {

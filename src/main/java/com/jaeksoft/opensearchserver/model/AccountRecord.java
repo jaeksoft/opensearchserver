@@ -16,6 +16,10 @@
 
 package com.jaeksoft.opensearchserver.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.qwazr.database.annotations.Table;
 import com.qwazr.database.annotations.TableColumn;
 import com.qwazr.database.model.ColumnDefinition;
@@ -29,31 +33,45 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table("accounts")
+@JsonAutoDetect(creatorVisibility = JsonAutoDetect.Visibility.NONE,
+    fieldVisibility = JsonAutoDetect.Visibility.NONE,
+    setterVisibility = JsonAutoDetect.Visibility.NONE,
+    getterVisibility = JsonAutoDetect.Visibility.NONE,
+    isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class AccountRecord {
 
     @TableColumn(name = TableDefinition.ID_COLUMN_NAME)
     public final String id;
 
+    @JsonProperty
     private volatile UUID uuid;
 
+    @JsonProperty
     @TableColumn(name = "status", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.INTEGER)
     private final Integer status;
 
+    @JsonProperty
     @TableColumn(name = "name", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
     private final String name;
 
+    @JsonProperty
     @TableColumn(name = "indexNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
     private final Integer indexNumberLimit;
 
+    @JsonProperty
     @TableColumn(name = "recordNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
     private final Long recordNumberLimit;
 
+    @JsonProperty
     @TableColumn(name = "storageLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.LONG)
     private final Long storageLimit;
 
+    @JsonProperty
     @TableColumn(name = "crawlNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
     private final Integer crawlNumberLimit;
 
+    @JsonProperty
     @TableColumn(name = "tasksNumberLimit", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
     private final Integer tasksNumberLimit;
 
@@ -62,6 +80,23 @@ public class AccountRecord {
         status = null;
         indexNumberLimit = crawlNumberLimit = tasksNumberLimit = null;
         storageLimit = recordNumberLimit = null;
+    }
+
+    @JsonCreator
+    private AccountRecord(@JsonProperty("uuid") UUID uuid, @JsonProperty("status") Integer status,
+        @JsonProperty("name") String name, @JsonProperty("indexNumberLimit") Integer indexNumberLimit,
+        @JsonProperty("recordNumberLimit") Long recordNumberLimit, @JsonProperty("storageLimit") Long storageLimit,
+        @JsonProperty("crawlNumberLimit") Integer crawlNumberLimit,
+        @JsonProperty("tasksNumberLimit") Integer tasksNumberLimit) {
+        this.id = uuid.toString();
+        this.uuid = uuid;
+        this.status = status;
+        this.name = name;
+        this.indexNumberLimit = indexNumberLimit;
+        this.recordNumberLimit = recordNumberLimit;
+        this.storageLimit = storageLimit;
+        this.crawlNumberLimit = crawlNumberLimit;
+        this.tasksNumberLimit = tasksNumberLimit;
     }
 
     private AccountRecord(final Builder builder) {

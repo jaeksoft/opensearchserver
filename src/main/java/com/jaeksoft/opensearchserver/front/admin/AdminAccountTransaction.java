@@ -27,7 +27,6 @@ import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.jaeksoft.opensearchserver.services.UsersService;
-import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -35,6 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotAcceptableException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class AdminAccountTransaction extends ServletTransaction {
@@ -122,8 +123,8 @@ public class AdminAccountTransaction extends ServletTransaction {
 
     @Override
     protected void doGet() throws IOException, ServletException {
-        final TableRequestResultRecords<PermissionRecord> permissions =
-            permissionsService.getPermissionsByAccount(accountRecord.getId(), 0, 1000);
+        final List<PermissionRecord> permissions = new ArrayList<>();
+        permissionsService.getPermissionsByAccount(accountRecord.getId(), 0, 1000, permissions::add);
         final Map<UserRecord, PermissionRecord> users = usersService.getUsersByIds(permissions);
         request.setAttribute("accountRecord", accountRecord);
         request.setAttribute("users", users);

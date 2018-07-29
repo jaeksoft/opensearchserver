@@ -19,12 +19,15 @@ import com.jaeksoft.opensearchserver.front.HomeServlet;
 import com.jaeksoft.opensearchserver.front.LogoutServlet;
 import com.jaeksoft.opensearchserver.front.SigninServlet;
 import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
+import com.jaeksoft.opensearchserver.front.admin.AdminAccountsService;
 import com.jaeksoft.opensearchserver.front.admin.AdminAccountsServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminHomeServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminUsersServlet;
 import com.jaeksoft.opensearchserver.front.search.SearchServlet;
+import com.qwazr.server.ApplicationBuilder;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
+import com.qwazr.server.RestApplication;
 import com.qwazr.server.configuration.ServerConfiguration;
 import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.webapps.WebappManager;
@@ -34,55 +37,58 @@ import java.util.logging.Logger;
 
 public class Server extends Components {
 
-	private final GenericServer server;
+    private final GenericServer server;
 
-	private Server(final ServerConfiguration configuration) throws IOException {
-		super(configuration.dataDirectory);
+    private Server(final ServerConfiguration configuration) throws IOException {
+        super(configuration.dataDirectory);
 
-		final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
-		final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
-				.registerDefaultFaviconServlet()
-				.registerWebjars()
-				.registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
-				.registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
-				.registerJavaServlet(SearchServlet.class, () -> new SearchServlet(this))
-				.registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
-				.registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
-				.registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this))
-				.registerJavaServlet(AdminHomeServlet.class, () -> new AdminHomeServlet(this))
-				.registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this))
-				.registerJavaServlet(AdminAccountsServlet.class, () -> new AdminAccountsServlet(this));
-		serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService))
-				.webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"));
-		webAppBuilder.build();
-		server = serverBuilder.build();
-		getJobService().startTasks();
-	}
+        final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
+        final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
+            .registerDefaultFaviconServlet()
+            .registerWebjars()
+            .registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
+            .registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
+            .registerJavaServlet(SearchServlet.class, () -> new SearchServlet(this))
+            .registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
+            .registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
+            .registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this))
+            .registerJavaServlet(AdminHomeServlet.class, () -> new AdminHomeServlet(this))
+            .registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this))
+            .registerJavaServlet(AdminAccountsServlet.class, () -> new AdminAccountsServlet(this))
+            .registerJaxRsResources(ApplicationBuilder.of("/admin/ws/*")
+                .classes(RestApplication.WithAuth.JSON_CLASSES)
+                .singletons(new AdminAccountsService(getAccountsService(), getPermissionsService())), true, true);
+        serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService))
+            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"));
+        webAppBuilder.build();
+        server = serverBuilder.build();
+        getJobService().startTasks();
+    }
 
-	@Override
-	public void close() {
-		server.stopAll();
-		super.close();
-	}
+    @Override
+    public void close() {
+        server.stopAll();
+        super.close();
+    }
 
-	private static volatile Server instance;
+    private static volatile Server instance;
 
-	public static Server getInstance() {
-		return instance;
-	}
+    public static Server getInstance() {
+        return instance;
+    }
 
-	public static synchronized void main(final String... args) throws Exception {
-		if (instance != null)
-			throw new Exception("The instance has already be started");
-		instance = new Server(new ServerConfiguration(args));
-		instance.server.start(true);
-	}
+    public static synchronized void main(final String... args) throws Exception {
+        if (instance != null)
+            throw new Exception("The instance has already be started");
+        instance = new Server(new ServerConfiguration(args));
+        instance.server.start(true);
+    }
 
-	public static synchronized void stop() {
-		if (instance == null)
-			return;
-		instance.close();
-		instance = null;
-	}
+    public static synchronized void stop() {
+        if (instance == null)
+            return;
+        instance.close();
+        instance = null;
+    }
 
 }

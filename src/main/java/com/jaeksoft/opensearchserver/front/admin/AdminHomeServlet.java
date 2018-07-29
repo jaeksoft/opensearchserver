@@ -28,16 +28,16 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/admin")
 public class AdminHomeServlet extends BaseServlet {
 
-	private final static String TEMPLATE = "admin/home.ftl";
+    private final static String TEMPLATE = "admin/home.ftl";
 
-	private final Components components;
+    private final Components components;
 
-	public AdminHomeServlet(final Components components) {
-		this.components = components;
-	}
+    public AdminHomeServlet(final Components components) {
+        this.components = components;
+    }
 
-	@Override
-	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
-		return new StaticTransaction(components, TEMPLATE, request, response, false);
-	}
+    @Override
+    protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
+        return new StaticTransaction(components, TEMPLATE, request, response, false);
+    }
 }

@@ -29,6 +29,7 @@ import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class PermissionsService extends BaseTableService<PermissionRecord> {
 
@@ -49,14 +50,20 @@ public class PermissionsService extends BaseTableService<PermissionRecord> {
         }
     }
 
-    public TableRequestResultRecords<PermissionRecord> getPermissionsByAccount(final UUID accountId, final int start,
-        final int rows) {
+    public int getPermissionsByAccount(final UUID accountId, final int start, final int rows,
+        final Consumer<PermissionRecord> permissions) {
         try {
-            return tableService.queryRows(TableRequest.from(start, rows)
-                .column(columnsArray)
-                .query(new TableQuery.StringTerm("accountId",
-                    Objects.requireNonNull(accountId, "The accountID is null)").toString()))
-                .build());
+            final TableRequestResultRecords<PermissionRecord> results = tableService.queryRows(
+                TableRequest.from(start, rows)
+                    .column(columnsArray)
+                    .query(new TableQuery.StringTerm("accountId",
+                        Objects.requireNonNull(accountId, "The accountID is null)").toString()))
+                    .build());
+            if (results == null || results.count == null)
+                return 0;
+            if (results.records != null && permissions != null)
+                results.records.forEach(permissions::accept);
+            return results.count.intValue();
         } catch (IOException | ReflectiveOperationException e) {
             throw new InternalServerErrorException("Cannot get permissions for account " + accountId, e);
         }

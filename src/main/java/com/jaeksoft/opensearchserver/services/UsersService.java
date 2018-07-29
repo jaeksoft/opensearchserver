@@ -19,13 +19,13 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
-import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.utils.StringUtils;
 import io.undertow.security.idm.Account;
 import io.undertow.security.idm.IdentityManager;
 
 import javax.ws.rs.NotSupportedException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -97,7 +97,7 @@ public interface UsersService extends IdentityManager {
         throw new NotSupportedException("This user implementation does not support user list retrieval.");
     }
 
-    default Map<UserRecord, PermissionRecord> getUsersByIds(TableRequestResultRecords<PermissionRecord> permissions) {
+    default Map<UserRecord, PermissionRecord> getUsersByIds(List<PermissionRecord> permissions) {
         throw new NotSupportedException("This user implementation does not support user permission retrieval.");
     }
 
