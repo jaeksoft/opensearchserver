@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminAccountsService;
 import com.jaeksoft.opensearchserver.front.admin.AdminAccountsServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminHomeServlet;
+import com.jaeksoft.opensearchserver.front.admin.AdminServiceServlet;
 import com.jaeksoft.opensearchserver.front.admin.AdminUsersServlet;
 import com.jaeksoft.opensearchserver.front.search.SearchServlet;
 import com.qwazr.server.ApplicationBuilder;
@@ -55,6 +56,7 @@ public class Server extends Components {
             .registerJavaServlet(AdminHomeServlet.class, () -> new AdminHomeServlet(this))
             .registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this))
             .registerJavaServlet(AdminAccountsServlet.class, () -> new AdminAccountsServlet(this))
+            .registerJavaServlet(AdminServiceServlet.class, () -> new AdminServiceServlet(this))
             .registerJaxRsResources(ApplicationBuilder.of("/admin/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
                 .singletons(new AdminAccountsService(getAccountsService(), getPermissionsService())), true, true);

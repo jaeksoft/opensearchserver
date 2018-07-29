@@ -232,6 +232,7 @@
         </dependency>
         <!-- End Qwazr -->
 
+        <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
@@ -252,6 +253,13 @@
             <groupId>org.webjars.npm</groupId>
             <artifactId>clipboard</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>3.17.4</version>
+        </dependency>
+        <!-- End WebJars -->
+
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
