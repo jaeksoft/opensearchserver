@@ -18,44 +18,28 @@
 <head>
     <meta charset="UTF-8">
     <title>User - OpenSearchServer</title>
-    <#include '../includes/head.ftl'>
     <link rel="stylesheet" href="/webjars/swagger-ui/3.17.4/swagger-ui.css">
     <script src="/webjars/swagger-ui/3.17.4/swagger-ui-bundle.js"></script>
-    <script src="/webjars/swagger-ui/3.17.4/swagger-ui-standalone-preset.js"></script>
 </head>
 <body>
-<#include '../includes/nav.ftl'>
-<#include '../includes/messages.ftl'>
-<div class="container">
-    <nav aria-label="breadcrumb" role="navigation">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Service</li>
-        </ol>
-    </nav>
-</div>
-<div class="container">
-    <div id="swagger-ui"></div>
-    <script>
-        window.onload = function () {
-            // Build a system
-            const ui = SwaggerUIBundle({
-                url: "/admin/ws/swagger.json",
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                    SwaggerUIBundle.plugins.DownloadUrl
-                ],
-                layout: "StandaloneLayout"
-            })
-            window.ui = ui
-        }
-    </script>
-</div>
-<#include '../includes/foot.ftl'>
+<div id="swagger-ui"></div>
+<script>
+    window.onload = function () {
+        // Build a system
+        const ui = SwaggerUIBundle({
+            url: "/admin/ws/swagger.json",
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+            ],
+            plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "BaseLayout"
+        })
+        window.ui = ui
+    }
+</script>
 </body>
 </html>
