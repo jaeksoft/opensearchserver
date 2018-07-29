@@ -36,10 +36,8 @@ import javax.ws.rs.NotSupportedException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,15 +50,12 @@ public class JwtUsersService implements UsersService {
     private final String sharedSecret;
     private final URI jwtUri;
 
-    private final Map<UUID, UserAccount> userAccounts;
-
     public JwtUsersService(ConfigService configService) throws KeyLengthException {
         sharedSecret =
             Objects.requireNonNull(configService.getOss2JwtKey(), "The oss2JwtKey configuration parameter is missing.");
         jwtUri =
             Objects.requireNonNull(configService.getOss2JwtUrl(), "The oss2JwtUrl configuration parameter is missing.");
         signer = new MACSigner(sharedSecret);
-        userAccounts = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -80,9 +75,7 @@ public class JwtUsersService implements UsersService {
 
     @Override
     public Account verify(Account account) {
-        if (!(account instanceof UserAccount))
-            return null;
-        return userAccounts.get(((UserAccount) account).getPrincipal().getId());
+        return account;
     }
 
     @Override
@@ -112,9 +105,7 @@ public class JwtUsersService implements UsersService {
             if (StringUtils.isBlank(id))
                 return null;
 
-            final UserAccount userAccount = new UserAccount(new JwtUserRecord(UUID.fromString(id), name, email));
-            userAccounts.put(userAccount.getPrincipal().getId(), userAccount);
-            return userAccount;
+            return new UserAccount(new JwtUserRecord(UUID.fromString(id), name, email));
         } catch (ParseException | JOSEException | IllegalArgumentException e) {
             LOGGER.log(Level.WARNING, e, e::getMessage);
             return null;
