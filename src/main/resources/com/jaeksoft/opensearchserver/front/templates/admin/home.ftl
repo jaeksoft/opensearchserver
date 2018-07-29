@@ -32,7 +32,7 @@
 </div>
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Accounts</h5>
@@ -41,12 +41,21 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Users</h5>
                     <p class="card-text">Manage users</p>
                     <a href="/admin/users" class="btn btn-primary">Users</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Web Service</h5>
+                    <p class="card-text">JSON API</p>
+                    <a href="/admin/service" class="btn btn-primary">Web API</a>
                 </div>
             </div>
         </div>
