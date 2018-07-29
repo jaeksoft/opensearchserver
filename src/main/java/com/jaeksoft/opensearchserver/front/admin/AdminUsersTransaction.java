@@ -18,6 +18,7 @@ package com.jaeksoft.opensearchserver.front.admin;
 
 import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.front.ServletTransaction;
+import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.jaeksoft.opensearchserver.services.UsersService;
 import com.qwazr.utils.StringUtils;
 
@@ -25,38 +26,42 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class AdminUsersTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "admin/users.ftl";
+    private final static String TEMPLATE = "admin/users.ftl";
 
-	private final UsersService usersService;
+    private final UsersService usersService;
 
-	AdminUsersTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(components.getFreemarkerTool(), request, response, false);
-		usersService = components.getUsersService();
-	}
+    AdminUsersTransaction(final Components components, final HttpServletRequest request,
+        final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), request, response, false);
+        usersService = components.getUsersService();
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	public String create() {
-		final String userEmail = request.getParameter("userEmail");
-		if (!StringUtils.isBlank(userEmail)) {
-			final UUID userId = usersService.createUser(userEmail);
-			return "/admin/users/" + userId;
-		}
-		return null;
-	}
+    public String create() {
+        final String userEmail = request.getParameter("userEmail");
+        if (!StringUtils.isBlank(userEmail)) {
+            final UUID userId = usersService.createUser(userEmail);
+            return "/admin/users/" + userId;
+        }
+        return null;
+    }
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0, null, null);
-		request.setAttribute("users", usersService.getUsers(start, 20));
-		super.doGet();
-	}
+    @Override
+    protected void doGet() throws IOException, ServletException {
+        final int start = getRequestParameter("start", 0, null, null);
+        final List<UserRecord> users = new ArrayList<>();
+        request.setAttribute("count", usersService.getUsers(start, 20, users::add));
+        request.setAttribute("users", users);
+        super.doGet();
+    }
 }

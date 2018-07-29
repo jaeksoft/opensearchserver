@@ -16,157 +16,27 @@
 
 package com.jaeksoft.opensearchserver.model;
 
-import com.qwazr.database.annotations.Table;
-import com.qwazr.database.annotations.TableColumn;
-import com.qwazr.database.model.ColumnDefinition;
-import com.qwazr.database.model.TableDefinition;
-import com.qwazr.utils.HashUtils;
-import com.qwazr.utils.StringUtils;
-import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.apache.commons.codec.digest.HmacUtils;
-
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
-@Table("users")
-public class UserRecord implements Principal {
+public interface UserRecord extends Principal {
 
-    @TableColumn(name = TableDefinition.ID_COLUMN_NAME)
-    public final String id;
+    /**
+     * @return the unique ID of the user.
+     */
+    UUID getId();
 
-    private volatile UUID uuid;
+    /**
+     * @return true if the user is activated, false if not.
+     */
+    ActiveStatus getStatus();
 
-    @TableColumn(name = "status", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.INTEGER)
-    private final Integer status;
-
-    @TableColumn(name = "name", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
-    private final String name;
-
-    @TableColumn(name = "email", mode = ColumnDefinition.Mode.INDEXED, type = ColumnDefinition.Type.STRING)
-    private final String email;
-
-    @TableColumn(name = "password", mode = ColumnDefinition.Mode.STORED, type = ColumnDefinition.Type.STRING)
-    private final String password;
-
-    public UserRecord() {
-        id = email = name = password = null;
-        status = 0;
-    }
-
-    private UserRecord(final Builder builder) {
-        id = builder.uuid == null ? null : builder.uuid.toString();
-        status = builder.status == null ? null : builder.status.value;
-        name = builder.name;
-        email = builder.email;
-        password = builder.password;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, email, name, password, status);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof UserRecord))
-            return false;
-        if (o == this)
-            return true;
-        final UserRecord u = (UserRecord) o;
-        return Objects.equals(id, u.id) && Objects.equals(email, u.email) && Objects.equals(name, u.name) &&
-            Objects.equals(password, u.password) && Objects.equals(status, u.status);
-    }
-
-    public boolean matchPassword(final String appSalt, final String clearPassword) {
-        return !StringUtils.isBlank(password) && !StringUtils.isBlank(clearPassword) &&
-            password.equals(digestPassword(appSalt, id, clearPassword));
-    }
-
-    public synchronized UUID getId() {
-        if (uuid != null)
-            return uuid;
-        return uuid = id == null ? null : UUID.fromString(id);
-    }
-
-    public Long getCreationTime() {
-        return HashUtils.getTimeFromUUID(UUID.fromString(id));
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    public ActiveStatus getStatus() {
-        return ActiveStatus.resolve(status);
-    }
-
-    private static String digestPassword(final String appSalt, String id, String clearPassword) {
-        return new HmacUtils(HmacAlgorithms.HMAC_SHA_512, clearPassword + id + appSalt).hmacHex(clearPassword);
-    }
-
-    public static Builder of(UserRecord user) {
-        return new Builder(user);
-    }
-
-    public static Builder of() {
-        return new Builder();
-    }
-
-    public static class Builder {
-
-        private UUID uuid;
-
-        private ActiveStatus status;
-
-        private String name;
-
-        private String email;
-
-        private String password;
-
-        private Builder() {
-            uuid = HashUtils.newTimeBasedUUID();
-        }
-
-        private Builder(final UserRecord user) {
-            uuid = user.getId();
-            status = user.getStatus();
-            email = user.email;
-            password = user.password;
-        }
-
-        public Builder email(final String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder name(final String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder status(final ActiveStatus status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder password(final String appSalt, final String clearPassword) {
-            this.password = digestPassword(appSalt, uuid.toString(), clearPassword);
-            return this;
-        }
-
-        public UserRecord build() {
-            return new UserRecord(this);
-        }
-
-    }
+    /**
+     * Try to match the password
+     *
+     * @param applicationSalt
+     * @param clearPassword
+     * @return true if the password matches
+     */
+    boolean matchPassword(String applicationSalt, String clearPassword);
 }

@@ -19,214 +19,91 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
-import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.TableRequestResultRecords;
-import com.qwazr.database.model.TableQuery;
-import com.qwazr.database.model.TableRequest;
-import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.StringUtils;
-import com.qwazr.utils.concurrent.ThreadUtils;
-import io.undertow.security.idm.Account;
-import io.undertow.security.idm.Credential;
 import io.undertow.security.idm.IdentityManager;
-import io.undertow.security.idm.PasswordCredential;
 
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAcceptableException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
+import javax.ws.rs.NotSupportedException;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.function.Consumer;
 
-public class UsersService extends BaseTableService<UserRecord> implements IdentityManager {
+/**
+ * This interface describe a user service. This service is in charge of handling signing.
+ */
+public interface UsersService extends IdentityManager {
 
-    private final static Logger LOGGER = LoggerUtils.getLogger(UsersService.class);
-
-    private final ConfigService configService;
-
-    public UsersService(final ConfigService configService, final TableServiceInterface tableServiceInterface)
-        throws NoSuchMethodException, URISyntaxException {
-        super(tableServiceInterface, UserRecord.class);
-        this.configService = configService;
-    }
-
-    @Override
-    public Account verify(Account account) {
-        try {
-            return new UserAccount(getUserById(((UserAccount) account).userRecord.getId()));
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Account verify failed for " + account, e);
-            return null;
-        }
-    }
-
-    public Integer getUserCount() {
-        return tableService.getTableStatus().getNumRows();
+    /**
+     * Set a new password.
+     *
+     * @param userId        the ID of the user to update
+     * @param clearPassword the clear password
+     */
+    default void setPassword(UUID userId, String clearPassword) {
+        throw new NotSupportedException("This user implementation does not support password changes.");
     }
 
     /**
-     * User login
-     *
-     * @param email         the email address of the user
-     * @param clearPassword the clear password
-     * @return
+     * @param userId the ID of the user
+     * @param status the status of the user
+     * @return true if the status has been updated
      */
-    private UserRecord login(final String email, final String clearPassword) {
-        if (email == null || clearPassword == null)
-            return null;
-        final UserRecord user = getUserByEmail(email);
-        if (user != null && user.getStatus() == ActiveStatus.ENABLED &&
-            user.matchPassword(configService.getApplicationSalt(), clearPassword))
-            return user;
-        ThreadUtils.sleep(2, TimeUnit.SECONDS);
-        throw new NotAuthorizedException("Authentication failure");
+    default boolean updateStatus(UUID userId, ActiveStatus status) {
+        throw new NotSupportedException("This user implementation does not support status changes.");
     }
 
-    @Override
-    public Account verify(final String email, final Credential credential) {
-        if (StringUtils.isBlank(email) || credential == null)
-            return null;
-        if (!(credential instanceof PasswordCredential))
-            return null;
-        final String password = new String(((PasswordCredential) credential).getPassword());
-        if (StringUtils.isBlank(password))
-            return null;
-        try {
-            return new UserAccount(login(email, password));
-        } catch (NotAuthorizedException e) {
-            return null;
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Account verify failed for " + email, e);
-            return null;
-        }
+    /**
+     * Get a user record by its id
+     *
+     * @param userId the ID of the user
+     * @return a User record
+     */
+    default UserRecord getUserById(UUID userId) {
+        throw new NotSupportedException("This user implementation does not support user retrieval.");
     }
 
-    public UserRecord verify(final String email, final String clearPassword) {
-        final UserAccount account = (UserAccount) verify(email, new PasswordCredential(clearPassword.toCharArray()));
-        return account == null ? null : account.getPrincipal();
+    /**
+     * Get a user record by its email address
+     *
+     * @param userEmail the ID of the user
+     * @return a User record
+     */
+    default UserRecord getUserByEmail(String userEmail) {
+        throw new NotSupportedException("This user implementation does not support user retrieval.");
     }
 
-    @Override
-    public Account verify(Credential credential) {
-        return null;
+    /**
+     * Creates a new user and returns its ID.
+     *
+     * @param userEmail the email of the new user
+     * @return a new user ID
+     */
+    default UUID createUser(String userEmail) {
+        throw new NotSupportedException("This user implementation does not support user creation.");
     }
 
-    public UserRecord getUserById(final UUID id) {
-        try {
-            return tableService.getRow(Objects.requireNonNull(id, "The user UUID is null").toString(), columnsSet);
-        } catch (IOException | ReflectiveOperationException e) {
-            throw new InternalServerErrorException("Cannot get user by id", e);
-        }
+    /**
+     * Return a user list with paging feature.
+     *
+     * @param start
+     * @param rows
+     * @param collector
+     * @return the total number of users
+     */
+    default int getUsers(final int start, final int rows, Consumer<UserRecord> collector) {
+        throw new NotSupportedException("This user implementation does not support user list retrieval.");
     }
 
-    public Map<UserRecord, PermissionRecord> getUsersByIds(
-        final TableRequestResultRecords<PermissionRecord> permissions) {
-        try {
-            if (permissions == null || permissions.records == null)
-                return Collections.emptyMap();
-            final Set<String> idSet = new LinkedHashSet<>();
-            permissions.records.forEach(permission -> idSet.add(permission.getUserId().toString()));
-            final List<UserRecord> userList = tableService.getRows(columnsSet, idSet);
-            if (userList == null || userList.isEmpty())
-                return Collections.emptyMap();
-            final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
-            final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
-            userList.forEach(account -> results.put(account, permissionsIterator.next()));
-            return results;
-        } catch (IOException | ReflectiveOperationException e) {
-            throw new InternalServerErrorException("Cannot get users by ids", e);
-        }
+    default Map<UserRecord, PermissionRecord> getUsersByIds(TableRequestResultRecords<PermissionRecord> permissions) {
+        throw new NotSupportedException("This user implementation does not support user permission retrieval.");
     }
 
-    public UserRecord getUserByEmail(final String email) {
-        try {
-            final TableRequestResultRecords<UserRecord> result = tableService.queryRows(
-                TableRequest.from(0, 1).column(columnsArray).query(new TableQuery.StringTerm("email", email)).build());
-            return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
-        } catch (IOException | ReflectiveOperationException e) {
-            throw new InternalServerErrorException("Cannot get user by email", e);
-        }
-    }
-
-    public TableRequestResultRecords<UserRecord> getUsers(final int start, final int rows) {
-        try {
-            return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
-        } catch (IOException | ReflectiveOperationException e) {
-            throw new InternalServerErrorException("Cannot get user list", e);
-        }
-    }
-
-    public synchronized UUID createUser(final String userEmail) {
-        final UserRecord existingUser = getUserByEmail(userEmail);
-        if (existingUser != null)
-            return existingUser.getId();
-        final UserRecord newUser = UserRecord.of().email(userEmail).build();
-        tableService.upsertRow(newUser.id, newUser);
-        return newUser.getId();
-    }
-
-    public final static String PASSWORD_STRENGTH_MESSAGE =
+    String PASSWORD_STRENGTH_MESSAGE =
         "The password must contains at least 8 characters, one digit, one lowercase character, and one uppercase character.";
 
-    public static boolean checkPasswordStrength(final String password) {
+    static boolean checkPasswordStrength(final String password) {
         return (!StringUtils.isBlank(password) && !StringUtils.isAnyBlank(password) && password.length() >= 8 &&
             StringUtils.anyLowercase(password) && StringUtils.anyUpperCase(password) && StringUtils.anyDigit(password));
     }
 
-    private UserRecord getExistingUser(final UUID userId) {
-        final UserRecord user = getUserById(userId);
-        if (user == null)
-            throw new NotFoundException("User not found: " + userId);
-        return user;
-    }
-
-    public void resetPassword(final UUID userId, final String newPassword) {
-        final UserRecord oldUser = getExistingUser(userId);
-        if (!checkPasswordStrength(newPassword))
-            throw new NotAcceptableException(PASSWORD_STRENGTH_MESSAGE);
-        final UserRecord newUser = UserRecord.of(oldUser).password(configService.applicationSalt, newPassword).build();
-        tableService.upsertRow(newUser.id, newUser);
-    }
-
-    public boolean updateStatus(final UUID userId, final ActiveStatus status) {
-        final UserRecord oldUser = getExistingUser(userId);
-        if (oldUser.getStatus() != null && oldUser.getStatus() == status)
-            return false;
-        final UserRecord newUser = UserRecord.of(oldUser).status(status).build();
-        tableService.upsertRow(newUser.id, newUser);
-        return true;
-    }
-
-    public static class UserAccount implements Account {
-
-        private final UserRecord userRecord;
-
-        private UserAccount(final UserRecord userRecord) {
-            this.userRecord = userRecord;
-        }
-
-        @Override
-        public UserRecord getPrincipal() {
-            return userRecord;
-        }
-
-        @Override
-        public Set<String> getRoles() {
-            return Collections.emptySet();
-
-        }
-
-    }
 }

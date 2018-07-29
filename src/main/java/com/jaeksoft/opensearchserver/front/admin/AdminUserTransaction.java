@@ -40,87 +40,88 @@ import java.util.UUID;
 
 public class AdminUserTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "admin/user.ftl";
+    private final static String TEMPLATE = "admin/user.ftl";
 
-	private final UsersService usersService;
-	private final AccountsService accountsService;
-	private final PermissionsService permissionsService;
+    private final UsersService usersService;
+    private final AccountsService accountsService;
+    private final PermissionsService permissionsService;
 
-	private final UUID userId;
+    private final UUID userId;
 
-	AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(components.getFreemarkerTool(), request, response, false);
-		this.usersService = components.getUsersService();
-		this.accountsService = components.getAccountsService();
-		this.permissionsService = components.getPermissionsService();
-		this.userId = userId;
-	}
+    AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
+        final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), request, response, false);
+        this.usersService = components.getUsersService();
+        this.accountsService = components.getAccountsService();
+        this.permissionsService = components.getPermissionsService();
+        this.userId = userId;
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	public void updatePassword() {
-		final String password1 = request.getParameter("password1");
-		final String password2 = request.getParameter("password2");
-		usersService.resetPassword(userId, password1);
-		if (!password1.equals(password2))
-			addMessage(Message.Css.danger, "Error", "The passwords do not match");
-		else
-			addMessage(Message.Css.success, "Password updated!", null);
-	}
+    public void updatePassword() {
+        final String password1 = request.getParameter("password1");
+        final String password2 = request.getParameter("password2");
+        if (!password1.equals(password2))
+            addMessage(Message.Css.danger, "Error", "The passwords do not match");
+        else {
+            usersService.setPassword(userId, password1);
+            addMessage(Message.Css.success, "Password updated!", null);
+        }
+    }
 
-	private AccountRecord getExistingAccountByName() {
-		final String accountName = request.getParameter("accountName");
-		final AccountRecord accountRecord = accountsService.getAccountByName(accountName);
-		if (accountRecord == null)
-			throw new NotAcceptableException("Account not found: " + accountName);
-		return accountRecord;
-	}
+    private AccountRecord getExistingAccountByName() {
+        final String accountName = request.getParameter("accountName");
+        final AccountRecord accountRecord = accountsService.getAccountByName(accountName);
+        if (accountRecord == null)
+            throw new NotAcceptableException("Account not found: " + accountName);
+        return accountRecord;
+    }
 
-	public void setPermission() {
-		final AccountRecord accountRecord = getExistingAccountByName();
-		final String levelName = request.getParameter("level");
-		final PermissionLevel level = PermissionLevel.resolve(levelName);
-		if (level == null)
-			throw new NotAcceptableException("Unknown level: " + levelName);
-		if (permissionsService.setPermission(userId, accountRecord.getId(), level))
-			addMessage(Message.Css.success, "Permission added", null);
-	}
+    public void setPermission() {
+        final AccountRecord accountRecord = getExistingAccountByName();
+        final String levelName = request.getParameter("level");
+        final PermissionLevel level = PermissionLevel.resolve(levelName);
+        if (level == null)
+            throw new NotAcceptableException("Unknown level: " + levelName);
+        if (permissionsService.setPermission(userId, accountRecord.getId(), level))
+            addMessage(Message.Css.success, "Permission added", null);
+    }
 
-	private AccountRecord getExistingAccountById() {
-		final String accountId = request.getParameter("accountId");
-		final AccountRecord accountRecord = accountsService.getAccountById(UUID.fromString(accountId));
-		if (accountRecord == null)
-			throw new NotAcceptableException("Account not found: " + accountId);
-		return accountRecord;
-	}
+    private AccountRecord getExistingAccountById() {
+        final String accountId = request.getParameter("accountId");
+        final AccountRecord accountRecord = accountsService.getAccountById(UUID.fromString(accountId));
+        if (accountRecord == null)
+            throw new NotAcceptableException("Account not found: " + accountId);
+        return accountRecord;
+    }
 
-	public void removePermission() {
-		final AccountRecord accountRecord = getExistingAccountById();
-		if (permissionsService.removePermission(userId, accountRecord.getId()))
-			addMessage(Message.Css.success, "Permission removed", null);
-	}
+    public void removePermission() {
+        final AccountRecord accountRecord = getExistingAccountById();
+        if (permissionsService.removePermission(userId, accountRecord.getId()))
+            addMessage(Message.Css.success, "Permission removed", null);
+    }
 
-	public void updateStatus() {
-		final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
-		if (usersService.updateStatus(userId, status))
-			addMessage(Message.Css.success, "Status updated", "Status set to " + status);
-	}
+    public void updateStatus() {
+        final ActiveStatus status = ActiveStatus.resolve(request.getParameter("status"));
+        if (usersService.updateStatus(userId, status))
+            addMessage(Message.Css.success, "Status updated", "Status set to " + status);
+    }
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		final UserRecord userRecord = usersService.getUserById(userId);
-		if (userRecord == null)
-			throw new NotFoundException("User not found");
-		final TableRequestResultRecords<PermissionRecord> permissions =
-				permissionsService.getPermissionsByUser(userRecord.getId(), 0, 1000);
-		final Map<AccountRecord, PermissionRecord> accounts = accountsService.getAccountsByIds(permissions);
-		request.setAttribute("accounts", accounts);
-		request.setAttribute("userRecord", userRecord);
-		super.doGet();
-	}
+    @Override
+    protected void doGet() throws IOException, ServletException {
+        final UserRecord userRecord = usersService.getUserById(userId);
+        if (userRecord == null)
+            throw new NotFoundException("User not found");
+        final TableRequestResultRecords<PermissionRecord> permissions =
+            permissionsService.getPermissionsByUser(userRecord.getId(), 0, 1000);
+        final Map<AccountRecord, PermissionRecord> accounts = accountsService.getAccountsByIds(permissions);
+        request.setAttribute("accounts", accounts);
+        request.setAttribute("userRecord", userRecord);
+        super.doGet();
+    }
 
 }

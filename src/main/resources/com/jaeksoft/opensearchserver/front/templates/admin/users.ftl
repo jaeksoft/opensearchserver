@@ -31,10 +31,9 @@
         </ol>
     </nav>
 </div>
-<#if users?has_content>
-    <div class="container">
-        <h3>${users.count!0} user(s)</h3>
-    <#if users.records?has_content>
+<div class="container">
+    <h3>${count!0} user(s)</h3>
+    <#if users?has_content>
         <table class="table table-hover">
             <thead class="thead-dark">
             <tr>
@@ -45,7 +44,7 @@
             </tr>
             </thead>
             <tbody>
-        <#list users.records as user>
+        <#list users as user>
         <tr>
             <td>${user.id?html}</td>
             <td>${user.email?html}</td>
@@ -58,8 +57,7 @@
             </tbody>
         </table>
     </#if>
-    </div>
-</#if>
+</div>
 <div class="container">
     <form method="post">
         <div class="input-group">

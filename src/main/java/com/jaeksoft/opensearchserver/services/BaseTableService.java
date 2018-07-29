@@ -19,22 +19,21 @@ package com.jaeksoft.opensearchserver.services;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.AnnotatedTableService;
 
-import java.net.URISyntaxException;
 import java.util.Set;
 
 class BaseTableService<T> {
 
-	AnnotatedTableService<T> tableService;
+    AnnotatedTableService<T> tableService;
 
-	final Set<String> columnsSet;
-	final String[] columnsArray;
+    final Set<String> columnsSet;
+    final String[] columnsArray;
 
-	BaseTableService(final TableServiceInterface tableServiceInterface, final Class<T> recordClass)
-			throws NoSuchMethodException, URISyntaxException {
-		tableService = new AnnotatedTableService<>(tableServiceInterface, recordClass);
-		tableService.createUpdateTable();
-		tableService.createUpdateFields();
-		columnsSet = this.tableService.getColumns().keySet();
-		columnsArray = columnsSet.toArray(new String[columnsSet.size()]);
-	}
+    BaseTableService(final TableServiceInterface tableServiceInterface, final Class<T> recordClass)
+        throws NoSuchMethodException {
+        tableService = new AnnotatedTableService<>(tableServiceInterface, recordClass);
+        tableService.createUpdateTable();
+        tableService.createUpdateFields();
+        columnsSet = this.tableService.getColumns().keySet();
+        columnsArray = columnsSet.toArray(new String[columnsSet.size()]);
+    }
 }
