@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.Components;
+import com.jaeksoft.opensearchserver.services.UsersService;
 import com.qwazr.utils.StringUtils;
 
 import javax.servlet.ServletException;
@@ -39,12 +40,16 @@ public class SigninServlet extends BaseServlet {
     @Override
     protected ServletTransaction getServletTransaction(final HttpServletRequest request,
         final HttpServletResponse response) {
-        return new Transaction(request, response);
+        final UsersService usersService = components.getUsersService();
+        if (usersService.isSingleSignOn())
+            return new SsoTransaction(usersService.getSingleSignOnRedirectUrl(), request, response);
+        else
+            return new FormTransaction(request, response);
     }
 
-    class Transaction extends ServletTransaction {
+    private class FormTransaction extends ServletTransaction {
 
-        Transaction(final HttpServletRequest request, final HttpServletResponse response) {
+        private FormTransaction(final HttpServletRequest request, final HttpServletResponse response) {
             super(components.getFreemarkerTool(), request, response, false);
         }
 
@@ -64,6 +69,28 @@ public class SigninServlet extends BaseServlet {
             request.setAttribute("url", url);
             doGet();
         }
+    }
 
+    private class SsoTransaction extends ServletTransaction {
+
+        final String ssoRedirect;
+
+        private SsoTransaction(final String ssoRedirect, HttpServletRequest request, HttpServletResponse response) {
+            super(null, request, response, false);
+            this.ssoRedirect = ssoRedirect;
+        }
+
+        protected void doGet() throws IOException, ServletException {
+            final String jwt = request.getParameter("jwt");
+            if (!StringUtils.isBlank(jwt)) {
+                request.login(request.getParameter("jwt"), StringUtils.EMPTY);
+            }
+            if (request.getUserPrincipal() != null) {
+                final String url = request.getParameter("url");
+                response.sendRedirect(StringUtils.isBlank(url) ? "/accounts" : new URL(url).toString());
+                return;
+            }
+            response.sendRedirect(ssoRedirect);
+        }
     }
 }

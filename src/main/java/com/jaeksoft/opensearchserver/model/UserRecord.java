@@ -32,6 +32,11 @@ public interface UserRecord extends Principal {
     ActiveStatus getStatus();
 
     /**
+     * @return the email address of the user
+     */
+    String getEmail();
+
+    /**
      * Try to match the password
      *
      * @param applicationSalt

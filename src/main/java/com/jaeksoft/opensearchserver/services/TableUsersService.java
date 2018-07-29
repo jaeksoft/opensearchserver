@@ -65,7 +65,9 @@ public class TableUsersService extends BaseTableService<TableUserRecord> impleme
     @Override
     public Account verify(Account account) {
         try {
-            return new UserAccount(getUserById(((UserAccount) account).userRecord.getId()));
+            if (!(account instanceof UserAccount))
+                return null;
+            return new UserAccount(getUserById(((UserAccount) account).getPrincipal().getId()));
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Account verify failed for " + account, e);
             return null;
@@ -151,6 +153,11 @@ public class TableUsersService extends BaseTableService<TableUserRecord> impleme
         }
     }
 
+    @Override
+    public boolean isSingleSignOn() {
+        return false;
+    }
+
     public TableUserRecord getUserByEmail(final String email) {
         try {
             final TableRequestResultRecords<TableUserRecord> result = tableService.queryRows(
@@ -210,23 +217,4 @@ public class TableUsersService extends BaseTableService<TableUserRecord> impleme
         return true;
     }
 
-    public static class UserAccount implements Account {
-
-        private final UserRecord userRecord;
-
-        private UserAccount(final UserRecord userRecord) {
-            this.userRecord = userRecord;
-        }
-
-        @Override
-        public UserRecord getPrincipal() {
-            return userRecord;
-        }
-
-        @Override
-        public Set<String> getRoles() {
-            return Collections.emptySet();
-        }
-
-    }
 }

@@ -16,15 +16,51 @@
 
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.ActiveStatus;
 import com.jaeksoft.opensearchserver.model.UserRecord;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.qwazr.utils.LoggerUtils;
+import com.qwazr.utils.StringUtils;
+import com.qwazr.utils.concurrent.ThreadUtils;
 import io.undertow.security.idm.Account;
 import io.undertow.security.idm.Credential;
 
+import javax.ws.rs.NotSupportedException;
+import java.net.URI;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JwtUsersService implements UsersService {
 
-    public JwtUsersService(ConfigService configService) {
+    private final static Logger LOGGER = LoggerUtils.getLogger(JwtUsersService.class);
+
+    private final JWSSigner signer;
+    private final String sharedSecret;
+    private final URI jwtUri;
+
+    private final Map<UUID, UserAccount> userAccounts;
+
+    public JwtUsersService(ConfigService configService) throws KeyLengthException {
+        sharedSecret =
+            Objects.requireNonNull(configService.getOss2JwtKey(), "The oss2JwtKey configuration parameter is missing.");
+        jwtUri =
+            Objects.requireNonNull(configService.getOss2JwtUrl(), "The oss2JwtUrl configuration parameter is missing.");
+        signer = new MACSigner(sharedSecret);
+        userAccounts = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -33,17 +69,99 @@ public class JwtUsersService implements UsersService {
     }
 
     @Override
-    public Account verify(Account account) {
-        return null;
+    public boolean isSingleSignOn() {
+        return true;
     }
 
     @Override
-    public Account verify(String id, Credential credential) {
-        return null;
+    public String getSingleSignOnRedirectUrl() {
+        return jwtUri.toString();
+    }
+
+    @Override
+    public Account verify(Account account) {
+        if (!(account instanceof UserAccount))
+            return null;
+        return userAccounts.get(((UserAccount) account).getPrincipal().getId());
+    }
+
+    @Override
+    public Account verify(String token, Credential credential) {
+        if (StringUtils.isBlank(token))
+            return null;
+        try {
+
+            final SignedJWT signedJWT = SignedJWT.parse(token);
+
+            final JWSVerifier verifier = new MACVerifier(sharedSecret);
+
+            if (!signedJWT.verify(verifier)) {
+                ThreadUtils.sleep(2, TimeUnit.SECONDS);
+                return null;
+            }
+
+            final JWTClaimsSet claimsSet = signedJWT.getJWTClaimsSet();
+
+            final Date expirationTime = claimsSet.getExpirationTime();
+            if (expirationTime == null || new Date().after(expirationTime))
+                return null;
+
+            final String email = claimsSet.getStringClaim("email");
+            final String name = claimsSet.getStringClaim("name");
+            final String id = claimsSet.getStringClaim("id");
+            if (StringUtils.isBlank(id))
+                return null;
+
+            final UserAccount userAccount = new UserAccount(new JwtUserRecord(UUID.fromString(id), name, email));
+            userAccounts.put(userAccount.getPrincipal().getId(), userAccount);
+            return userAccount;
+        } catch (ParseException | JOSEException | IllegalArgumentException e) {
+            LOGGER.log(Level.WARNING, e, e::getMessage);
+            return null;
+        }
     }
 
     @Override
     public Account verify(Credential credential) {
         return null;
+    }
+
+    private class JwtUserRecord implements UserRecord {
+
+        private final UUID id;
+        private final String name;
+        private final String email;
+
+        private JwtUserRecord(UUID id, String name, String email) {
+            this.id = id;
+            this.name = name;
+            this.email = email;
+        }
+
+        @Override
+        public UUID getId() {
+            return id;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getEmail() {
+            return email;
+        }
+
+        @Override
+        public ActiveStatus getStatus() {
+            return ActiveStatus.ENABLED;
+        }
+
+        @Override
+        public boolean matchPassword(String applicationSalt, String clearPassword) {
+            throw new NotSupportedException("Matching password is not supported.");
+        }
+
     }
 }

@@ -54,7 +54,6 @@ import com.qwazr.utils.concurrent.SupplierEx;
 import javax.ws.rs.InternalServerErrorException;
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -298,7 +297,7 @@ public class Components implements Closeable {
         if (permissionsService == null) {
             try {
                 permissionsService = new PermissionsService(getTableService());
-            } catch (NoSuchMethodException | URISyntaxException e) {
+            } catch (NoSuchMethodException e) {
                 throw new InternalServerErrorException(e);
             }
         }

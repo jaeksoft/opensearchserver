@@ -27,76 +27,74 @@ import com.qwazr.server.ServerException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.UUID;
 
 public class PermissionsService extends BaseTableService<PermissionRecord> {
 
-	public PermissionsService(final TableServiceInterface tableServiceInterface)
-			throws NoSuchMethodException, URISyntaxException {
-		super(tableServiceInterface, PermissionRecord.class);
-	}
+    public PermissionsService(final TableServiceInterface tableServiceInterface) throws NoSuchMethodException {
+        super(tableServiceInterface, PermissionRecord.class);
+    }
 
-	public TableRequestResultRecords<PermissionRecord> getPermissionsByUser(final UUID userId, final int start,
-			final int rows) {
-		try {
-			return tableService.queryRows(TableRequest.from(start, rows)
-					.column(columnsArray)
-					.query(new TableQuery.StringTerm("userId",
-							Objects.requireNonNull(userId, "The userID is null)").toString()))
-					.build());
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get permissions for user " + userId, e);
-		}
-	}
+    public TableRequestResultRecords<PermissionRecord> getPermissionsByUser(final UUID userId, final int start,
+        final int rows) {
+        try {
+            return tableService.queryRows(TableRequest.from(start, rows)
+                .column(columnsArray)
+                .query(new TableQuery.StringTerm("userId",
+                    Objects.requireNonNull(userId, "The userID is null)").toString()))
+                .build());
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get permissions for user " + userId, e);
+        }
+    }
 
-	public TableRequestResultRecords<PermissionRecord> getPermissionsByAccount(final UUID accountId, final int start,
-			final int rows) {
-		try {
-			return tableService.queryRows(TableRequest.from(start, rows)
-					.column(columnsArray)
-					.query(new TableQuery.StringTerm("accountId",
-							Objects.requireNonNull(accountId, "The accountID is null)").toString()))
-					.build());
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get permissions for account " + accountId, e);
-		}
-	}
+    public TableRequestResultRecords<PermissionRecord> getPermissionsByAccount(final UUID accountId, final int start,
+        final int rows) {
+        try {
+            return tableService.queryRows(TableRequest.from(start, rows)
+                .column(columnsArray)
+                .query(new TableQuery.StringTerm("accountId",
+                    Objects.requireNonNull(accountId, "The accountID is null)").toString()))
+                .build());
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get permissions for account " + accountId, e);
+        }
+    }
 
-	public PermissionRecord getPermission(final UUID userId, final UUID accountId) {
-		try {
-			final PermissionRecord permissionFinder = PermissionRecord.of(userId, accountId).build();
-			return tableService.getRow(permissionFinder.id, columnsSet);
-		} catch (ServerException e) {
-			if (e.getStatusCode() == 404)
-				return null;
-			throw e;
-		} catch (WebApplicationException e) {
-			if (e.getResponse().getStatus() == 404)
-				return null;
-			throw e;
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get permission: " + e.getMessage(), e);
-		}
-	}
+    public PermissionRecord getPermission(final UUID userId, final UUID accountId) {
+        try {
+            final PermissionRecord permissionFinder = PermissionRecord.of(userId, accountId).build();
+            return tableService.getRow(permissionFinder.id, columnsSet);
+        } catch (ServerException e) {
+            if (e.getStatusCode() == 404)
+                return null;
+            throw e;
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404)
+                return null;
+            throw e;
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get permission: " + e.getMessage(), e);
+        }
+    }
 
-	public boolean setPermission(final UUID userId, final UUID accountId, final PermissionLevel level) {
-		final PermissionRecord existingPermission = getPermission(userId, accountId);
-		if (existingPermission != null && existingPermission.getLevel() == level)
-			return false;
-		final PermissionRecord newPermission = PermissionRecord.of(userId, accountId).level(level).build();
-		tableService.upsertRow(newPermission.id, newPermission);
-		return true;
-	}
+    public boolean setPermission(final UUID userId, final UUID accountId, final PermissionLevel level) {
+        final PermissionRecord existingPermission = getPermission(userId, accountId);
+        if (existingPermission != null && existingPermission.getLevel() == level)
+            return false;
+        final PermissionRecord newPermission = PermissionRecord.of(userId, accountId).level(level).build();
+        tableService.upsertRow(newPermission.id, newPermission);
+        return true;
+    }
 
-	public boolean removePermission(final UUID userId, final UUID accountId) {
-		final PermissionRecord existingPermission = getPermission(userId, accountId);
-		if (existingPermission == null)
-			return false;
-		final PermissionRecord permission = PermissionRecord.of(userId, accountId).build();
-		tableService.deleteRow(permission.id);
-		return true;
-	}
+    public boolean removePermission(final UUID userId, final UUID accountId) {
+        final PermissionRecord existingPermission = getPermission(userId, accountId);
+        if (existingPermission == null)
+            return false;
+        final PermissionRecord permission = PermissionRecord.of(userId, accountId).build();
+        tableService.deleteRow(permission.id);
+        return true;
+    }
 
 }

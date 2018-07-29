@@ -21,10 +21,13 @@ import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.utils.StringUtils;
+import io.undertow.security.idm.Account;
 import io.undertow.security.idm.IdentityManager;
 
 import javax.ws.rs.NotSupportedException;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -98,6 +101,12 @@ public interface UsersService extends IdentityManager {
         throw new NotSupportedException("This user implementation does not support user permission retrieval.");
     }
 
+    boolean isSingleSignOn();
+
+    default String getSingleSignOnRedirectUrl() {
+        throw new NotSupportedException("This user implementation does not support SingleSignOn redirection.");
+    }
+
     String PASSWORD_STRENGTH_MESSAGE =
         "The password must contains at least 8 characters, one digit, one lowercase character, and one uppercase character.";
 
@@ -106,4 +115,23 @@ public interface UsersService extends IdentityManager {
             StringUtils.anyLowercase(password) && StringUtils.anyUpperCase(password) && StringUtils.anyDigit(password));
     }
 
+    class UserAccount implements Account {
+
+        private final UserRecord userRecord;
+
+        UserAccount(final UserRecord userRecord) {
+            this.userRecord = userRecord;
+        }
+
+        @Override
+        public UserRecord getPrincipal() {
+            return userRecord;
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return Collections.emptySet();
+        }
+
+    }
 }
