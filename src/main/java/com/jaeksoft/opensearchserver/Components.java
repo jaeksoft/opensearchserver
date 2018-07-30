@@ -194,7 +194,8 @@ public class Components implements Closeable {
 
     private synchronized WebCrawlProcessor getWebCrawlProcessor() {
         if (webCrawlProcessor == null)
-            webCrawlProcessor = new WebCrawlProcessor(getConfigService(), getWebCrawlerService(), getIndexesService());
+            webCrawlProcessor = new WebCrawlProcessor(getConfigService(), getWebCrawlerService(), getIndexesService(),
+                getAccountsService());
         return webCrawlProcessor;
 
     }

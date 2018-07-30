@@ -18,14 +18,15 @@ package com.jaeksoft.opensearchserver.crawler;
 
 public interface CrawlerContext {
 
-	// Script variables
-	String ACCOUNT_ID = "accountId";
-	String INDEX_NAME = "indexName";
-	String CRAWL_UUID = "crawlUuid";
-	String SESSION_TIME_ID = "sessionTimeId";
-	String INDEX_SERVICE_URL = "indexServiceUrl";
-	String STORE_SERVICE_URL = "storeServiceUrl";
+    // Script variables
+    String ACCOUNT_ID = "accountId";
+    String MAX_RECORDS_NUMBER = "maxRecordsNumber";
+    String INDEX_NAME = "indexName";
+    String CRAWL_UUID = "crawlUuid";
+    String SESSION_TIME_ID = "sessionTimeId";
+    String INDEX_SERVICE_URL = "indexServiceUrl";
+    String STORE_SERVICE_URL = "storeServiceUrl";
 
-	// Attributes
-	String SESSION_STORE = "sessionStore";
+    // Attributes
+    String SESSION_STORE = "sessionStore";
 }

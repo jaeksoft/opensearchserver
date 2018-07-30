@@ -51,7 +51,7 @@ public class TasksServiceTest extends BaseTest {
     @Test
     public void emptyList() {
         List<TaskRecord> records = new ArrayList<>();
-        checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 0);
+        checkResult(tasksService.collectTasksByAccount(getAccount().getId(), 0, 25, records), records, 0);
     }
 
     /**
@@ -66,8 +66,8 @@ public class TasksServiceTest extends BaseTest {
      */
     TaskRecord createWebCrawlTask(String indexName, String taskName, String urlCrawl, int maxDepth) throws IOException {
         final IndexesService indexesService = getIndexesService();
-        indexesService.createIndex(getAccountId().toString(), indexName);
-        final IndexService indexService = indexesService.getIndex(getAccountId().toString(), indexName);
+        indexesService.createIndex(getAccount(), indexName);
+        final IndexService indexService = indexesService.getIndex(getAccount().getId().toString(), indexName);
 
         final WebCrawlRecord webCrawlRecord = WebCrawlRecord.of()
             .name(taskName)
@@ -78,7 +78,7 @@ public class TasksServiceTest extends BaseTest {
 
         final WebCrawlTaskDefinition webCrawlTask = new WebCrawlTaskDefinition(webCrawlRecord, indexUuid);
 
-        return TaskRecord.of(getAccountId())
+        return TaskRecord.of(getAccount().getId())
             .definition(webCrawlTask)
             .status(TaskRecord.Status.PAUSED, "Paused by the user")
             .build();
@@ -96,7 +96,7 @@ public class TasksServiceTest extends BaseTest {
         Assert.assertEquals(taskRecord, getTaskRecord);
 
         final List<TaskRecord> records = new ArrayList<>();
-        checkResult(tasksService.collectTasksByAccount(getAccountId(), 0, 25, records), records, 1, taskRecord);
+        checkResult(tasksService.collectTasksByAccount(getAccount().getId(), 0, 25, records), records, 1, taskRecord);
 
         Assert.assertNull(tasksService.getTask(UUID.randomUUID().toString()));
 

@@ -31,6 +31,7 @@ import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.LongDocValuesExactQuery;
 import com.qwazr.search.query.TermQuery;
 
+import javax.ws.rs.NotAcceptableException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -112,8 +113,15 @@ public class IndexService extends UsableService {
         return result != null && result.total_hits != null && result.total_hits > 0;
     }
 
-    public void postDocuments(final Collection<UrlRecord> values) throws IOException, InterruptedException {
+    private void checkMaxRecordsLimit(final int newRecordsSize, final long maxRecordsLimit) {
+        if (maxRecordsLimit > 0 && getIndexStatus().numDocs + newRecordsSize > maxRecordsLimit)
+            throw new NotAcceptableException("The maximum number of records has been reached: " + maxRecordsLimit);
+    }
+
+    public void postDocuments(final Collection<UrlRecord> values, final long maxRecordsLimit)
+        throws IOException, InterruptedException {
         updateLastUse();
+        checkMaxRecordsLimit(values.size(), maxRecordsLimit);
         service.postDocuments(values);
     }
 

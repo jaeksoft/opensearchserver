@@ -93,10 +93,10 @@ public class SessionStore implements Closeable {
                 .build());
     }
 
-    public void index(final URI indexServiceUri, final String accountId, final String indexName)
-        throws IOException, InterruptedException {
+    public void index(final URI indexServiceUri, final String accountId, final Long maxRecordsNumber,
+        final String indexName) throws IOException, InterruptedException {
         final IndexService indexService = CrawlerComponents.getIndexService(indexServiceUri, accountId, indexName);
-        try (final IndexQueue indexQueue = new IndexQueue(indexService, 20, 100, 60)) {
+        try (final IndexQueue indexQueue = new IndexQueue(indexService, 20, 100, 60, maxRecordsNumber)) {
             for (UUID uuid : uris.values()) {
                 final UrlRecord urlRecord = ObjectMappers.JSON.readValue(getFile(uuid), UrlRecord.class);
                 indexQueue.post(URI.create(urlRecord.url), urlRecord);

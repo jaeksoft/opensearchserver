@@ -15,10 +15,12 @@
  */
 package com.jaeksoft.opensearchserver.services;
 
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.server.client.ErrorWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.ws.rs.NotAcceptableException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,62 +34,65 @@ import java.util.concurrent.TimeUnit;
 
 public class IndexesService {
 
-	private final IndexServiceInterface indexService;
-	private final ConcurrentHashMap<Pair<String, String>, IndexService> indexes;
+    private final IndexServiceInterface indexService;
+    private final ConcurrentHashMap<Pair<String, String>, IndexService> indexes;
 
-	public IndexesService(final IndexServiceInterface indexService) {
-		this.indexService = indexService;
-		indexes = new ConcurrentHashMap<>();
-	}
+    public IndexesService(final IndexServiceInterface indexService) {
+        this.indexService = indexService;
+        indexes = new ConcurrentHashMap<>();
+    }
 
-	public Set<String> getIndexes(final String accountId) {
-		final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
-		return indexMap == null ? null : indexMap.keySet();
-	}
+    public Set<String> getIndexes(final String accountId) {
+        final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
+        return indexMap == null ? null : indexMap.keySet();
+    }
 
-	public void createIndex(final String accountId, final String indexName) {
-		indexService.createUpdateSchema(accountId);
-		indexService.createUpdateIndex(accountId, indexName);
-	}
+    public void createIndex(final AccountRecord account, final String indexName) {
+        indexService.createUpdateSchema(account.id);
+        final int indexNumberLimit = account.getIndexNumberLimit();
+        if (indexNumberLimit > 0 && indexService.getIndexes(account.id).size() >= indexNumberLimit)
+            throw new NotAcceptableException("You maximum number of index is reached: " + indexNumberLimit);
+        indexService.createUpdateIndex(account.id, indexName);
+    }
 
-	public void deleteIndex(final String accountId, final String indexName) {
-		indexService.deleteIndex(accountId, indexName);
-		indexes.remove(Pair.of(accountId, indexName));
-	}
+    public void deleteIndex(final String accountId, final String indexName) {
+        indexService.deleteIndex(accountId, indexName);
+        indexes.remove(Pair.of(accountId, indexName));
+    }
 
-	public IndexService getIndex(final String accountId, final String indexName) {
-		return indexes.computeIfAbsent(Pair.of(accountId, indexName), in -> {
-			try {
-				return new IndexService(indexService, accountId, indexName);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
+    public IndexService getIndex(final String accountId, final String indexName) {
+        return indexes.computeIfAbsent(Pair.of(accountId, indexName), in -> {
+            try {
+                return new IndexService(indexService, accountId, indexName);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
-	public Map<UUID, String> getIndexNameResolver(final String accountId) {
-		final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
-		if (indexMap == null)
-			return Collections.emptyMap();
-		final Map<UUID, String> indexReverseMap = new HashMap<>();
-		indexMap.forEach((name, uuid) -> indexReverseMap.put(uuid, name));
-		return indexReverseMap;
-	}
+    public Map<UUID, String> getIndexNameResolver(final String accountId) {
+        final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
+        if (indexMap == null)
+            return Collections.emptyMap();
+        final Map<UUID, String> indexReverseMap = new HashMap<>();
+        indexMap.forEach((name, uuid) -> indexReverseMap.put(uuid, name));
+        return indexReverseMap;
+    }
 
-	/**
-	 * Remove expired service (not used since 5 minutes)
-	 *
-	 * @return the number of evicted services
-	 */
-	public synchronized int removeExpired() {
-		final List<Pair<String, String>> expiredServices = new ArrayList<>();
-		final long refTime = TimeUnit.MINUTES.toMillis(5);
-		indexes.forEach((k, v) -> {
-			if (v.hasExpired(refTime))
-				expiredServices.add(k);
-		});
-		expiredServices.forEach(indexes::remove);
-		return expiredServices.size();
-	}
+    /**
+     * Remove expired service (not used since 5 minutes)
+     *
+     * @return the number of evicted services
+     */
+    public synchronized int removeExpired() {
+        final List<Pair<String, String>> expiredServices = new ArrayList<>();
+        final long refTime = TimeUnit.MINUTES.toMillis(5);
+        indexes.forEach((k, v) -> {
+            if (v.hasExpired(refTime))
+                expiredServices.add(k);
+        });
+        expiredServices.forEach(indexes::remove);
+        return expiredServices.size();
+    }
 
 }

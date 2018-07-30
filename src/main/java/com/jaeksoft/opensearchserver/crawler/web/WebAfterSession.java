@@ -28,10 +28,12 @@ public class WebAfterSession extends WebAbstractEvent {
 
         final URI indexServiceUri = toUri(context.crawlSession.getVariable(INDEX_SERVICE_URL, String.class));
         final String accountId = context.crawlSession.getVariable(ACCOUNT_ID, String.class);
+        final Long maxRecordsNumber =
+            Long.parseLong(context.crawlSession.getVariable(MAX_RECORDS_NUMBER, String.class));
         final String indexName = context.crawlSession.getVariable(INDEX_NAME, String.class);
 
         try {
-            context.sessionStore.index(indexServiceUri, accountId, indexName);
+            context.sessionStore.index(indexServiceUri, accountId, maxRecordsNumber, indexName);
         } finally {
             context.sessionStore.close();
         }

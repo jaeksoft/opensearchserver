@@ -20,6 +20,7 @@ import com.jaeksoft.opensearchserver.Components;
 import com.jaeksoft.opensearchserver.crawler.web.WebAfterCrawl;
 import com.jaeksoft.opensearchserver.crawler.web.WebAfterSession;
 import com.jaeksoft.opensearchserver.crawler.web.WebBeforeSession;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.qwazr.crawler.common.EventEnum;
@@ -47,7 +48,7 @@ public class CrawlerComponents implements CrawlerContext {
         CrawlerComponents.localComponents = localComponents;
     }
 
-    public static synchronized IndexService getIndexService(final URI indexServiceUri, final String accountId,
+    static synchronized IndexService getIndexService(final URI indexServiceUri, final String accountId,
         final String indexName) {
         if (indexServiceUri == null)
             return Objects.requireNonNull(localComponents, "No local components available")
@@ -105,15 +106,17 @@ public class CrawlerComponents implements CrawlerContext {
         }
     }
 
-    public static WebCrawlDefinition buildCrawl(final String accountId, final String indexName, final UUID crawlUuid,
-        final Long sessionTimeId, final ConfigService configService, final WebCrawlDefinition.Builder crawlBuilder) {
+    public static WebCrawlDefinition buildCrawl(final AccountRecord accountRecord, final String indexName,
+        final UUID crawlUuid, final Long sessionTimeId, final ConfigService configService,
+        final WebCrawlDefinition.Builder crawlBuilder) {
 
         // Set the event
         crawlBuilder.script(EventEnum.before_session, ScriptDefinition.of(WebBeforeSession.class).build()).
             script(EventEnum.after_session, ScriptDefinition.of(WebAfterSession.class).build()).
             script(EventEnum.after_crawl, ScriptDefinition.of(WebAfterCrawl.class).build());
 
-        crawlBuilder.variable(ACCOUNT_ID, accountId)
+        crawlBuilder.variable(ACCOUNT_ID, accountRecord.id)
+            .variable(MAX_RECORDS_NUMBER, Long.toString(accountRecord.getRecordNumberLimit()))
             .variable(INDEX_NAME, indexName)
             .variable(CRAWL_UUID, crawlUuid.toString())
             .variable(SESSION_TIME_ID, sessionTimeId.toString());

@@ -46,8 +46,10 @@ public class IndexQueue implements Closeable {
 
     private final Map<URI, UrlRecord> updateBuffer;
 
+    private final long maxRecordsLimit;
+
     IndexQueue(final IndexService indexService, final int postBufferSize, final int updateBufferSize,
-        final int secondsFlushPeriod) {
+        final int secondsFlushPeriod, final long maxRecordsLimit) {
         this.indexService = indexService;
         this.postBufferSize = postBufferSize;
         this.updateBufferSize = updateBufferSize;
@@ -55,6 +57,7 @@ public class IndexQueue implements Closeable {
         this.postBuffer = new LinkedHashMap<>(postBufferSize);
         this.updateBuffer = new LinkedHashMap<>(updateBufferSize);
         this.nextFlush = computeNextFlush();
+        this.maxRecordsLimit = maxRecordsLimit;
     }
 
     private long computeNextFlush() {
@@ -96,7 +99,7 @@ public class IndexQueue implements Closeable {
     private void flushPostBuffer() throws IOException, InterruptedException {
         if (postBuffer.isEmpty())
             return;
-        indexService.postDocuments(postBuffer.values());
+        indexService.postDocuments(postBuffer.values(), maxRecordsLimit);
         postBuffer.clear();
     }
 

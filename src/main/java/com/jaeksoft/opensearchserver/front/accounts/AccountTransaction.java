@@ -26,22 +26,22 @@ import javax.ws.rs.NotAllowedException;
 
 public class AccountTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "accounts/account.ftl";
+    private final static String TEMPLATE = "accounts/account.ftl";
 
-	protected final AccountRecord accountRecord;
+    protected final AccountRecord accountRecord;
 
-	protected AccountTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response) {
-		super(components.getFreemarkerTool(), request, response, true);
-		this.accountRecord = accountRecord;
-		if (components.getPermissionsService().getPermission(userRecord.getId(), accountRecord.getId()) == null)
-			throw new NotAllowedException("Not allowed");
-		request.setAttribute("account", accountRecord);
-	}
+    protected AccountTransaction(final Components components, final AccountRecord accountRecord,
+        final HttpServletRequest request, final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), request, response, true);
+        this.accountRecord = accountRecord;
+        if (components.getPermissionsService().getPermission(userRecord.getId(), accountRecord.getId()) == null)
+            throw new NotAllowedException("Not allowed");
+        request.setAttribute("account", accountRecord);
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
 }

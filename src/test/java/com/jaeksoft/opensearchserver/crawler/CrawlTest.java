@@ -17,6 +17,7 @@
 package com.jaeksoft.opensearchserver.crawler;
 
 import com.jaeksoft.opensearchserver.BaseTest;
+import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
 import com.jaeksoft.opensearchserver.services.IndexService;
@@ -34,50 +35,50 @@ import java.util.UUID;
 
 public class CrawlTest extends BaseTest {
 
-	@Before
-	public void setup() throws IOException {
-		CrawlerComponents.setLocalComponents(getComponents());
-	}
+    @Before
+    public void setup() throws IOException {
+        CrawlerComponents.setLocalComponents(getComponents());
+    }
 
-	@Test
-	public void test() throws IOException, InterruptedException {
+    @Test
+    public void test() throws IOException, InterruptedException {
 
-		final long sessionTimeId = System.currentTimeMillis();
-		final UUID crawlUuid = UUID.randomUUID();
-		final String url = "http://www.opensearchserver.com/documentation/tutorials/functionalities.md";
-		final String indexName = "crawl";
-		final String accountId = getAccountId().toString();
-		final String crawlSessionName = "test";
+        final long sessionTimeId = System.currentTimeMillis();
+        final UUID crawlUuid = UUID.randomUUID();
+        final String url = "http://www.opensearchserver.com/documentation/tutorials/functionalities.md";
+        final String indexName = "crawl";
+        final AccountRecord accountRecord = getAccount();
+        final String crawlSessionName = "test";
 
-		final IndexesService indexesService = getIndexesService();
-		indexesService.createIndex(getAccountId().toString(), indexName);
-		final IndexService indexService = indexesService.getIndex(accountId, indexName);
-		final SearchService searchService = new SearchService();
+        final IndexesService indexesService = getIndexesService();
+        indexesService.createIndex(accountRecord, indexName);
+        final IndexService indexService = indexesService.getIndex(accountRecord.getId().toString(), indexName);
+        final SearchService searchService = new SearchService();
 
-		final WebCrawlDefinition.Builder webCrawl = WebCrawlDefinition.of().setEntryUrl(url).addUrl(url, 1);
+        final WebCrawlDefinition.Builder webCrawl = WebCrawlDefinition.of().setEntryUrl(url).addUrl(url, 1);
 
-		CrawlerComponents.buildCrawl(accountId, indexName, crawlUuid, sessionTimeId, null, webCrawl);
+        CrawlerComponents.buildCrawl(accountRecord, indexName, crawlUuid, sessionTimeId, null, webCrawl);
 
-		final WebCrawlerServiceInterface webCrawlerService = getWebCrawlService();
-		Assert.assertNotNull(webCrawlerService.runSession(crawlSessionName, webCrawl.build()));
+        final WebCrawlerServiceInterface webCrawlerService = getWebCrawlService();
+        Assert.assertNotNull(webCrawlerService.runSession(crawlSessionName, webCrawl.build()));
 
-		for (; ; ) {
-			final WebCrawlStatus status = webCrawlerService.getSession(crawlSessionName);
-			Assert.assertNotNull(status);
-			if (status.endTime != null)
-				break;
-			Thread.sleep(2000);
-		}
+        for (; ; ) {
+            final WebCrawlStatus status = webCrawlerService.getSession(crawlSessionName);
+            Assert.assertNotNull(status);
+            if (status.endTime != null)
+                break;
+            Thread.sleep(2000);
+        }
 
-		Assert.assertTrue(indexService.isAlreadyCrawled(url, crawlUuid, sessionTimeId));
-		final SearchResults results = searchService.webSearch(indexService, Language.en, "frame", 0, 1);
-		Assert.assertNotNull(results);
-		Assert.assertNotNull(results.getResults());
-		Assert.assertEquals(1, results.getResults().size());
+        Assert.assertTrue(indexService.isAlreadyCrawled(url, crawlUuid, sessionTimeId));
+        final SearchResults results = searchService.webSearch(indexService, Language.en, "frame", 0, 1);
+        Assert.assertNotNull(results);
+        Assert.assertNotNull(results.getResults());
+        Assert.assertEquals(1, results.getResults().size());
 
-		final String title = results.getResults().get(0).getTitle();
-		Assert.assertNotNull(title);
-	}
+        final String title = results.getResults().get(0).getTitle();
+        Assert.assertNotNull(title);
+    }
 }
 
 

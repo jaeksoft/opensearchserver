@@ -28,28 +28,28 @@ import javax.servlet.http.HttpServletResponse;
 
 public class IndexesTransaction extends AccountTransaction {
 
-	private final static String TEMPLATE = "accounts/indexes/indexes.ftl";
+    private final static String TEMPLATE = "accounts/indexes/indexes.ftl";
 
-	private final IndexesService indexesService;
+    private final IndexesService indexesService;
 
-	public IndexesTransaction(final Components components, final AccountRecord accountRecord,
-			final HttpServletRequest request, final HttpServletResponse response) {
-		super(components, accountRecord, request, response);
-		this.indexesService = components.getIndexesService();
-		request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
-	}
+    public IndexesTransaction(final Components components, final AccountRecord accountRecord,
+        final HttpServletRequest request, final HttpServletResponse response) {
+        super(components, accountRecord, request, response);
+        this.indexesService = components.getIndexesService();
+        request.setAttribute("indexes", indexesService.getIndexes(accountRecord.id));
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	public void create() {
-		final String indexName = request.getParameter("indexName");
-		if (StringUtils.isBlank(indexName))
-			return;
-		indexesService.createIndex(accountRecord.id, indexName);
-		addMessage(Message.Css.success, "Index created: " + indexName, null);
-	}
+    public void create() {
+        final String indexName = request.getParameter("indexName");
+        if (StringUtils.isBlank(indexName))
+            return;
+        indexesService.createIndex(accountRecord, indexName);
+        addMessage(Message.Css.success, "Index created: " + indexName, null);
+    }
 
 }
