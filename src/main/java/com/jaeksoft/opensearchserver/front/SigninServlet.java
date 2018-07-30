@@ -71,7 +71,7 @@ public class SigninServlet extends BaseServlet {
         }
     }
 
-    private class SsoTransaction extends ServletTransaction {
+    private static class SsoTransaction extends ServletTransaction {
 
         final String ssoRedirect;
 

@@ -60,8 +60,6 @@ public class WebCrawlProcessor extends CrawlProcessor<WebCrawlDefinition, WebCra
         final IndexService indexService = indexesService.getIndex(taskRecord.accountId, indexName);
 
         final AccountRecord accountRecord = accountsService.getExistingAccount(taskRecord.getAccountId());
-        if (accountRecord == null)
-            return null;
 
         final int maxNextCrawl;
         if (webCrawlTask.crawlDefinition.maxUrlNumber != null) {

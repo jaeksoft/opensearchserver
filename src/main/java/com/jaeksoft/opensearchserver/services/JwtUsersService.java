@@ -117,7 +117,7 @@ public class JwtUsersService implements UsersService {
         return null;
     }
 
-    private class JwtUserRecord implements UserRecord {
+    private static class JwtUserRecord implements UserRecord {
 
         private final UUID id;
         private final String name;
