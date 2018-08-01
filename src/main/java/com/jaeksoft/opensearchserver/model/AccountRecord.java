@@ -177,7 +177,11 @@ public class AccountRecord {
     }
 
     public static Builder of() {
-        return new Builder();
+        return new Builder(HashUtils.newTimeBasedUUID());
+    }
+
+    public static Builder of(UUID uuid) {
+        return new Builder(uuid);
     }
 
     public static class Builder {
@@ -198,8 +202,8 @@ public class AccountRecord {
 
         private int tasksNumberLimit;
 
-        private Builder() {
-            uuid = HashUtils.newTimeBasedUUID();
+        private Builder(UUID uuid) {
+            this.uuid = uuid;
         }
 
         private Builder(final AccountRecord account) {

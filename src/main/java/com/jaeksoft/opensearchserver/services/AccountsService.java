@@ -23,6 +23,7 @@ import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.annotations.TableRequestResultRecords;
 import com.qwazr.database.model.TableQuery;
 import com.qwazr.database.model.TableRequest;
+import com.qwazr.utils.HashUtils;
 import com.qwazr.utils.StringUtils;
 import com.qwazr.utils.concurrent.ConsumerEx;
 
@@ -44,143 +45,148 @@ import java.util.function.Consumer;
 
 public class AccountsService extends BaseTableService<AccountRecord> {
 
-	public AccountsService(final TableServiceInterface tableServiceInterface)
-			throws NoSuchMethodException, URISyntaxException {
-		super(tableServiceInterface, AccountRecord.class);
-	}
+    public AccountsService(final TableServiceInterface tableServiceInterface)
+        throws NoSuchMethodException, URISyntaxException {
+        super(tableServiceInterface, AccountRecord.class);
+    }
 
-	public Integer getCount() {
-		return tableService.getTableStatus().getNumRows();
-	}
+    public Integer getCount() {
+        return tableService.getTableStatus().getNumRows();
+    }
 
-	public TableRequestResultRecords<AccountRecord> getAccounts(final int start, final int rows) {
-		try {
-			return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get account list", e);
-		}
-	}
+    public TableRequestResultRecords<AccountRecord> getAccounts(final int start, final int rows) {
+        try {
+            return tableService.queryRows(TableRequest.from(start, rows).column(columnsArray).build());
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get account list", e);
+        }
+    }
 
-	public AccountRecord getAccountById(final UUID accountId) {
-		try {
-			return tableService.getRow(Objects.requireNonNull(accountId, "The account UUID is null").toString(),
-					columnsSet);
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get account by id", e);
-		}
-	}
+    public AccountRecord getAccountById(final UUID accountId) {
+        try {
+            return tableService.getRow(Objects.requireNonNull(accountId, "The account UUID is null").toString(),
+                columnsSet);
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get account by id", e);
+        }
+    }
 
-	public Map<AccountRecord, PermissionRecord> getAccountsByIds(
-			final TableRequestResultRecords<PermissionRecord> permissions) {
-		try {
-			if (permissions == null || permissions.records == null)
-				return Collections.emptyMap();
-			final Set<String> idSet = new LinkedHashSet<>();
-			permissions.records.forEach(permission -> idSet.add(permission.getAccountId().toString()));
-			final List<AccountRecord> accountList = tableService.getRows(columnsSet, idSet);
-			if (accountList == null || accountList.isEmpty())
-				return Collections.emptyMap();
-			final Map<AccountRecord, PermissionRecord> results = new LinkedHashMap<>();
-			final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
-			accountList.forEach(account -> results.put(account, permissionsIterator.next()));
-			return results;
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get account by id", e);
-		}
-	}
+    public Map<AccountRecord, PermissionRecord> getAccountsByIds(
+        final TableRequestResultRecords<PermissionRecord> permissions) {
+        try {
+            if (permissions == null || permissions.records == null)
+                return Collections.emptyMap();
+            final Set<String> idSet = new LinkedHashSet<>();
+            permissions.records.forEach(permission -> idSet.add(permission.getAccountId().toString()));
+            final List<AccountRecord> accountList = tableService.getRows(columnsSet, idSet);
+            if (accountList == null || accountList.isEmpty())
+                return Collections.emptyMap();
+            final Map<AccountRecord, PermissionRecord> results = new LinkedHashMap<>();
+            final Iterator<PermissionRecord> permissionsIterator = permissions.records.iterator();
+            accountList.forEach(account -> results.put(account, permissionsIterator.next()));
+            return results;
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get account by id", e);
+        }
+    }
 
-	public AccountRecord getAccountByName(final String name) {
-		if (StringUtils.isBlank(name))
-			return null;
-		try {
-			final TableRequestResultRecords<AccountRecord> result = tableService.queryRows(TableRequest.from(0, 1)
-					.column(columnsArray)
-					.query(new TableQuery.StringTerm("name", name))
-					.build());
-			return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
-		} catch (IOException | ReflectiveOperationException e) {
-			throw new InternalServerErrorException("Cannot get account by name", e);
-		}
-	}
+    public AccountRecord getAccountByName(final String name) {
+        if (StringUtils.isBlank(name))
+            return null;
+        try {
+            final TableRequestResultRecords<AccountRecord> result = tableService.queryRows(
+                TableRequest.from(0, 1).column(columnsArray).query(new TableQuery.StringTerm("name", name)).build());
+            return result != null && result.count != null && result.count == 1 ? result.records.get(0) : null;
+        } catch (IOException | ReflectiveOperationException e) {
+            throw new InternalServerErrorException("Cannot get account by name", e);
+        }
+    }
 
-	public synchronized UUID createAccount(final String name) {
-		final String validName = AccountRecord.checkValidName(name);
-		final AccountRecord existingAcount = getAccountByName(validName);
-		if (existingAcount != null)
-			throw new NotAcceptableException("This name is already taken");
-		final AccountRecord newAccount = AccountRecord.of().name(validName).build();
-		tableService.upsertRow(newAccount.id, newAccount);
-		return newAccount.getId();
-	}
+    public synchronized void createAccount(final UUID uuid, final String name) {
+        if (getAccountById(uuid) != null)
+            throw new NotAcceptableException("This uuid is already used");
+        final String validName = AccountRecord.checkValidName(name);
+        final AccountRecord existingAcount = getAccountByName(validName);
+        if (existingAcount != null)
+            throw new NotAcceptableException("This name is already taken");
+        final AccountRecord newAccount = AccountRecord.of(uuid).name(validName).build();
+        tableService.upsertRow(newAccount.id, newAccount);
+    }
 
-	public AccountRecord getExistingAccount(final UUID accountId) {
-		final AccountRecord account = getAccountById(accountId);
-		if (account == null)
-			throw new NotFoundException("Account not found: " + accountId);
-		return account;
-	}
+    public synchronized UUID createAccount(final String name) {
+        final UUID uuid = HashUtils.newTimeBasedUUID();
+        createAccount(uuid, name);
+        return uuid;
+    }
 
-	public AccountRecord getExistingAccount(final String accountName) {
-		final AccountRecord account = getAccountByName(accountName);
-		if (account == null)
-			throw new NotFoundException("Account not found: " + accountName);
-		return account;
-	}
+    public AccountRecord getExistingAccount(final UUID accountId) {
+        final AccountRecord account = getAccountById(accountId);
+        if (account == null)
+            throw new NotFoundException("Account not found: " + accountId);
+        return account;
+    }
 
-	public AccountRecord findExistingAccount(String pathPart) {
-		final UUID accountId;
-		try {
-			accountId = UUID.fromString(pathPart);
-		} catch (IllegalArgumentException e) {
-			return getExistingAccount(pathPart);
-		}
-		return getExistingAccount(accountId);
-	}
+    public AccountRecord getExistingAccount(final String accountName) {
+        final AccountRecord account = getAccountByName(accountName);
+        if (account == null)
+            throw new NotFoundException("Account not found: " + accountName);
+        return account;
+    }
 
-	/**
-	 * Update an AccountRecord.
-	 *
-	 * @param accountId
-	 * @param builderConsumer
-	 * @return
-	 */
-	public boolean update(final UUID accountId, final Consumer<AccountRecord.Builder> builderConsumer) {
-		final AccountRecord oldAccount = getExistingAccount(accountId);
-		final AccountRecord.Builder builder = AccountRecord.of(oldAccount);
-		builderConsumer.accept(builder);
-		final AccountRecord newAccount = builder.build();
-		if (!Objects.equals(oldAccount.getName(), newAccount.getName())) {
-			final AccountRecord alreadyExistingAccount = getAccountByName(newAccount.getName());
-			if (alreadyExistingAccount != null && !accountId.equals(alreadyExistingAccount.getId()))
-				throw new NotAcceptableException("This name is already taken");
-		}
-		if (newAccount.equals(oldAccount))
-			return false;
-		tableService.upsertRow(newAccount.id, newAccount);
-		return true;
-	}
+    public AccountRecord findExistingAccount(String pathPart) {
+        final UUID accountId;
+        try {
+            accountId = UUID.fromString(pathPart);
+        } catch (IllegalArgumentException e) {
+            return getExistingAccount(pathPart);
+        }
+        return getExistingAccount(accountId);
+    }
 
-	public TableRequestResultRecords<AccountRecord> getActiveAccounts(final int start, final int rows)
-			throws IOException, ReflectiveOperationException {
-		return tableService.queryRows(TableRequest.from(start, rows)
-				.query(new TableQuery.IntegerTerm("status", ActiveStatus.ENABLED.value))
-				.column(columnsArray)
-				.build());
-	}
+    /**
+     * Update an AccountRecord.
+     *
+     * @param accountId
+     * @param builderConsumer
+     * @return
+     */
+    public boolean update(final UUID accountId, final Consumer<AccountRecord.Builder> builderConsumer) {
+        final AccountRecord oldAccount = getExistingAccount(accountId);
+        final AccountRecord.Builder builder = AccountRecord.of(oldAccount);
+        builderConsumer.accept(builder);
+        final AccountRecord newAccount = builder.build();
+        if (!Objects.equals(oldAccount.getName(), newAccount.getName())) {
+            final AccountRecord alreadyExistingAccount = getAccountByName(newAccount.getName());
+            if (alreadyExistingAccount != null && !accountId.equals(alreadyExistingAccount.getId()))
+                throw new NotAcceptableException("This name is already taken");
+        }
+        if (newAccount.equals(oldAccount))
+            return false;
+        tableService.upsertRow(newAccount.id, newAccount);
+        return true;
+    }
 
-	public int forEachActiveAccount(final ConsumerEx<AccountRecord, Exception> accountConsumer) throws Exception {
-		int start = 0;
-		final int rows = 20;
-		for (; ; ) {
-			final List<AccountRecord> accounts = getActiveAccounts(start, rows).getRecords();
-			if (accounts == null || accounts.isEmpty())
-				break;
-			start += accounts.size();
-			if (accountConsumer != null)
-				for (AccountRecord account : accounts)
-					accountConsumer.accept(account);
-		}
-		return start;
-	}
+    public TableRequestResultRecords<AccountRecord> getActiveAccounts(final int start, final int rows)
+        throws IOException, ReflectiveOperationException {
+        return tableService.queryRows(TableRequest.from(start, rows)
+            .query(new TableQuery.IntegerTerm("status", ActiveStatus.ENABLED.value))
+            .column(columnsArray)
+            .build());
+    }
+
+    public int forEachActiveAccount(final ConsumerEx<AccountRecord, Exception> accountConsumer) throws Exception {
+        int start = 0;
+        final int rows = 20;
+        for (; ; ) {
+            final List<AccountRecord> accounts = getActiveAccounts(start, rows).getRecords();
+            if (accounts == null || accounts.isEmpty())
+                break;
+            start += accounts.size();
+            if (accountConsumer != null)
+                for (AccountRecord account : accounts)
+                    accountConsumer.accept(account);
+        }
+        return start;
+    }
 
 }
