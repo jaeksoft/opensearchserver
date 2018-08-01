@@ -30,6 +30,7 @@ import com.qwazr.utils.concurrent.ConsumerEx;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -68,6 +69,10 @@ public class AccountsService extends BaseTableService<AccountRecord> {
                 columnsSet);
         } catch (IOException | ReflectiveOperationException e) {
             throw new InternalServerErrorException("Cannot get account by id", e);
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 404)
+                return null;
+            throw e;
         }
     }
 
