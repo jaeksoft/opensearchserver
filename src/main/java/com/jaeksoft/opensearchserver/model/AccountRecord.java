@@ -263,9 +263,11 @@ public class AccountRecord {
             throw new NotAcceptableException("The name cannot be empty.");
         name = name.trim().toLowerCase();
         if (name.contains("--"))
-            throw new NotAcceptableException("The name slhould only contains single hyphens.");
+            throw new NotAcceptableException("The name should only contains single hyphens.");
         if (name.length() < 3)
             throw new NotAcceptableException("The name should contains at least 3 characters.");
+        if (name.length() > 48)
+            throw new NotAcceptableException("The maximum length is 48 characters.");
         if (name.startsWith("-") || name.endsWith("-"))
             throw new NotAcceptableException("The name cannot start or end with an hyphen.");
         if (!name.chars().allMatch(value -> CharUtils.isAsciiAlphanumeric((char) value) || '-' == value))
