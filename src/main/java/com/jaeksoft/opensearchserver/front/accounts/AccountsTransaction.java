@@ -28,21 +28,21 @@ import java.util.Map;
 
 public class AccountsTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "accounts/accounts.ftl";
+    private final static String TEMPLATE = "accounts/accounts.ftl";
 
-	AccountsTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(components.getFreemarkerTool(), request, response, true);
-		final TableRequestResultRecords<PermissionRecord> permissions =
-				components.getPermissionsService().getPermissionsByUser(userRecord.getId(), 0, 1000);
-		final Map<AccountRecord, PermissionRecord> results =
-				components.getAccountsService().getAccountsByIds(permissions);
-		request.setAttribute("accounts", results);
-	}
+    AccountsTransaction(final Components components, final HttpServletRequest request,
+        final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), request, response, true);
+        final TableRequestResultRecords<PermissionRecord> permissions =
+            components.getPermissionsService().getPermissionsByUser(userRecord.getId(), 0, 1000);
+        final Map<AccountRecord, PermissionRecord> results =
+            components.getAccountsService().getAccountsByIds(permissions);
+        request.setAttribute("accounts", results);
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
 }

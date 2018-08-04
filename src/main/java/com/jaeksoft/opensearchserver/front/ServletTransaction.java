@@ -70,7 +70,6 @@ public abstract class ServletTransaction {
             requestUrlBuilder.append(queryString);
         }
         final String requestUrl = requestUrlBuilder.toString();
-        addMessage(Message.Css.warning, "Please sign in to be able to see this content", requestUrl);
         throw new RedirectionException(requestUrl, Response.Status.TEMPORARY_REDIRECT,
             URI.create("/signin?url=" + LinkUtils.urlEncode(requestUrl)));
     }

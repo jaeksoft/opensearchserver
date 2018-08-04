@@ -29,34 +29,34 @@ import java.util.UUID;
 
 public class AdminAccountsTransaction extends ServletTransaction {
 
-	private final static String TEMPLATE = "admin/accounts.ftl";
+    private final static String TEMPLATE = "admin/accounts.ftl";
 
-	private final AccountsService accountsService;
+    private final AccountsService accountsService;
 
-	AdminAccountsTransaction(final Components components, final HttpServletRequest request,
-			final HttpServletResponse response) {
-		super(components.getFreemarkerTool(), request, response, false);
-		accountsService = components.getAccountsService();
-	}
+    AdminAccountsTransaction(final Components components, final HttpServletRequest request,
+        final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), request, response, false);
+        accountsService = components.getAccountsService();
+    }
 
-	@Override
-	protected String getTemplate() {
-		return TEMPLATE;
-	}
+    @Override
+    protected String getTemplate() {
+        return TEMPLATE;
+    }
 
-	public String create() {
-		final String accountName = request.getParameter("accountName");
-		if (!StringUtils.isBlank(accountName)) {
-			final UUID accountId = accountsService.createAccount(accountName);
-			return "/admin/accounts/" + accountId;
-		}
-		return null;
-	}
+    public String create() {
+        final String accountName = request.getParameter("accountName");
+        if (!StringUtils.isBlank(accountName)) {
+            final UUID accountId = accountsService.createAccount(accountName);
+            return "/admin/accounts/" + accountId;
+        }
+        return null;
+    }
 
-	@Override
-	protected void doGet() throws IOException, ServletException {
-		final int start = getRequestParameter("start", 0, null, null);
-		request.setAttribute("accounts", accountsService.getAccounts(start, 20));
-		super.doGet();
-	}
+    @Override
+    protected void doGet() throws IOException, ServletException {
+        final int start = getRequestParameter("start", 0, null, null);
+        request.setAttribute("accounts", accountsService.getAccounts(start, 20));
+        super.doGet();
+    }
 }
