@@ -64,7 +64,7 @@
                         Online template editor
                     </li>
                     <li class="list-group-item text-danger"><span class="oi oi-x"></span>
-                        JSON/WebService
+                        Search JSON/WebService
                     </li>
                 </ul>
             </div>
@@ -72,7 +72,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Crawling &amps Indexing</h4>
+                    <h4 class="card-title">Crawling &amp; Indexing</h4>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item text-success"><span class="oi oi-check"></span>
@@ -86,6 +86,9 @@
                     </li>
                     <li class="list-group-item text-danger"><span class="oi oi-x"></span>
                         GitHub project crawling
+                    </li>
+                    <li class="list-group-item text-danger"><span class="oi oi-x"></span>
+                        Indexing JSON/WebService
                     </li>
                 </ul>
             </div>
