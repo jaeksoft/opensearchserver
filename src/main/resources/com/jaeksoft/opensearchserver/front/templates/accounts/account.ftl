@@ -30,6 +30,31 @@
             <li class="breadcrumb-item active" aria-current="page">${account.name?html}</li>
         </ol>
     </nav>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Account overview</h5>
+        </div>
+        <ul>
+            <li>Number of of indexes :
+                <span title="Current number of indexes">${indexCount!0}</span>
+                <#if account.indexNumberLimit?? && account.indexNumberLimit gt 0>
+                /
+                <span title="Maximum number of indexes">${account.indexNumberLimit!}</span>
+                </#if>
+            </li>
+            <li>Number of records per index :
+                <span title="Maximum number of record per index">${account.recordNumberLimit!'unlimited'}</span>
+            </li>
+            <li>Number of crawls :
+                <span title="Current number of crawls">${crawlCount!0}
+                <#if account.indexNumberLimit?? && account.crawlNumberLimit gt 0>
+                    /
+                    <span title="Maximum number of crawls">${account.crawlNumberLimit}</span>
+                </#if>
+            </li>
+        </ul>
+    </div>
+    <br/>
     <div class="row">
         <div class="col-md-4">
             <div class="card">

@@ -37,6 +37,11 @@ public class AccountTransaction extends ServletTransaction {
         if (components.getPermissionsService().getPermission(userRecord.getId(), accountRecord.getId()) == null)
             throw new NotAllowedException("Not allowed");
         request.setAttribute("account", accountRecord);
+        request.setAttribute("indexCount",
+            components.getIndexesService().getIndexes(accountRecord.getId().toString()).size());
+        request.setAttribute("crawlCount",
+            components.getWebCrawlsService().collect(accountRecord.getId(), 0, 0, null, null));
+
     }
 
     @Override
