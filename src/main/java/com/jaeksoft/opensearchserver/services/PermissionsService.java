@@ -69,6 +69,10 @@ public class PermissionsService extends BaseTableService<PermissionRecord> {
         }
     }
 
+    public void deleteAccountPermissions(final UUID accountId) {
+        getPermissionsByAccount(accountId, 0, 100_000, permission -> tableService.deleteRow(permission.id));
+    }
+
     public PermissionRecord getPermission(final UUID userId, final UUID accountId) {
         try {
             final PermissionRecord permissionFinder = PermissionRecord.of(userId, accountId).build();

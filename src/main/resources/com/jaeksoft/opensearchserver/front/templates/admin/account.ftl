@@ -86,11 +86,11 @@
                             <#list users as user,permission>
                             <tr>
                                 <td>${user.id?html}</td>
-                                <td>${user.email?html}</td>
+                                <td>${user.email!?html}</td>
                                 <td>${permission.level?html}</td>
                                 <td>
                                     <form method="post">
-                                        <input type="hidden" name="userEmail" value="${user.email?html}">
+                                        <input type="hidden" name="userEmail" value="${user.email!?html}">
                                         <button class="btn btn-sm btn-danger" type="submit" name="action"
                                                 value="removePermission">Remove
                                         </button>

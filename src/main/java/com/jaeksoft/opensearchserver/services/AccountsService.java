@@ -171,6 +171,10 @@ public class AccountsService extends BaseTableService<AccountRecord> {
         return true;
     }
 
+    public void deleteAccount(final UUID accountId) {
+        tableService.deleteRow(accountId.toString());
+    }
+
     public TableRequestResultRecords<AccountRecord> getActiveAccounts(final int start, final int rows)
         throws IOException, ReflectiveOperationException {
         return tableService.queryRows(TableRequest.from(start, rows)

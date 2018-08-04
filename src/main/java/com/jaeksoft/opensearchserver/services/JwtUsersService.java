@@ -17,6 +17,7 @@
 package com.jaeksoft.opensearchserver.services;
 
 import com.jaeksoft.opensearchserver.model.ActiveStatus;
+import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.model.UserRecord;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSSigner;
@@ -35,7 +36,11 @@ import io.undertow.security.idm.Credential;
 import javax.ws.rs.NotSupportedException;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -60,7 +65,17 @@ public class JwtUsersService implements UsersService {
 
     @Override
     public UserRecord getUserById(UUID userId) {
-        return null;
+        return new JwtUserRecord(userId, null, null);
+    }
+
+    @Override
+    public Map<UserRecord, PermissionRecord> getUsersByIds(List<PermissionRecord> permissions) {
+        if (permissions == null || permissions.isEmpty())
+            return Collections.emptyMap();
+        final Map<UserRecord, PermissionRecord> results = new LinkedHashMap<>();
+        permissions.forEach(
+            permission -> results.put(new JwtUserRecord(permission.getUserId(), null, null), permission));
+        return results;
     }
 
     @Override
