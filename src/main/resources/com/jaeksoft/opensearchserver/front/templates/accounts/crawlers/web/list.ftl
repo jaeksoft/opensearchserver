@@ -48,22 +48,32 @@
 <#if webCrawlRecords?has_content>
 <div class="container">
     <form method="post">
-        <table class="table table-hover">
-            <thead class="thead-dark">
-            <tr>
-                <th>
-                    <div class="form-check">
-                        <input id="checkBoxCheckAll" class="form-check-input position-static" type="checkbox">
-                    </div>
-                </th>
-                <th>Name</th>
-                <th>Entry URL</th>
-                <th>Depth</th>
-                <th>Max</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-light">
+                <tr>
+                    <th colspan="6">${webCrawlRecords?size} crawl(s)
+                        <#if account.crawlNumberLimit gt 0>
+                        <span class="text-muted float-right">Maximum number: ${account.crawlNumberLimit}</span>
+                        </#if>
+                    </th>
+                </tr>
+                </thead>
+                <thead class="thead-dark">
+                <tr>
+                    <th>
+                        <div class="form-check">
+                            <input id="checkBoxCheckAll" class="form-check-input position-static" type="checkbox">
+                        </div>
+                    </th>
+                    <th>Name</th>
+                    <th>Entry URL</th>
+                    <th>Depth</th>
+                    <th>Max</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
        <#list webCrawlRecords as webCrawlRecord>
        <tr>
            <th>
@@ -86,8 +96,9 @@
            </td>
        </tr>
        </#list>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
         <#if indexes?has_content>
         <div class="card">
             <div class="card-body">

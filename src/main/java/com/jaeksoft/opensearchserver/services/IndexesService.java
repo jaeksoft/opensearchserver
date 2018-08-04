@@ -51,7 +51,7 @@ public class IndexesService {
         indexService.createUpdateSchema(account.id);
         final int indexNumberLimit = account.getIndexNumberLimit();
         if (indexNumberLimit > 0 && indexService.getIndexes(account.id).size() >= indexNumberLimit)
-            throw new NotAcceptableException("You maximum number of index is reached: " + indexNumberLimit);
+            throw new NotAcceptableException("You reached the maximum number of index: " + indexNumberLimit);
         indexService.createUpdateIndex(account.id, indexName);
     }
 

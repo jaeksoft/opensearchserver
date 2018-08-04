@@ -34,14 +34,18 @@
 </div>
 <#if indexes?has_content>
     <div class="container">
-        <table class="table table-hover">
-            <thead class="thead-dark">
-            <tr>
-                <th>Index</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th colspan="2">${indexes?size} indexe(s)
+                        <#if account.indexNumberLimit gt 0>
+                        <span class="text-muted float-right">Maximum number: ${account.indexNumberLimit}</span>
+                        </#if>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
         <#list indexes as index>
         <tr>
             <th>${index!?html}</th>
@@ -57,8 +61,9 @@
             </td>
         </tr>
         </#list>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
        <#if paging?has_content>
         <br/>
         <form>

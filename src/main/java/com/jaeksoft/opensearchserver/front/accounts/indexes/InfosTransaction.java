@@ -22,6 +22,7 @@ import com.jaeksoft.opensearchserver.front.accounts.AccountTransaction;
 import com.jaeksoft.opensearchserver.model.AccountRecord;
 import com.jaeksoft.opensearchserver.services.IndexService;
 import com.jaeksoft.opensearchserver.services.IndexesService;
+import com.jaeksoft.opensearchserver.services.PermissionsService;
 import com.qwazr.search.index.IndexStatus;
 import com.qwazr.utils.StringUtils;
 

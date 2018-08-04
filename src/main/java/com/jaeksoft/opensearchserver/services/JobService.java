@@ -120,8 +120,9 @@ public class JobService implements Closeable {
     }
 
     void startAccountTaskRun() {
-        scheduler.scheduleWithFixedDelay(this::checkAccountsTasks, 0, configService.getJobCrawlPeriodSeconds(),
-            TimeUnit.SECONDS);
+        if (configService.getJobCrawlPeriodSeconds() > 0)
+            scheduler.scheduleWithFixedDelay(this::checkAccountsTasks, 0, configService.getJobCrawlPeriodSeconds(),
+                TimeUnit.SECONDS);
     }
 
     void startExpireIndex() {
