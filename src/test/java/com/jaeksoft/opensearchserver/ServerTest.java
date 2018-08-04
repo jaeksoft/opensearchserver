@@ -29,38 +29,38 @@ import java.nio.file.Paths;
 
 public class ServerTest {
 
-	protected static Client client;
+    protected static Client client;
 
-	@BeforeClass
-	public static void setup() throws IOException {
-		client = ClientBuilder.newClient();
-		final Path dataDir = Files.createTempDirectory("server-test-data");
-		System.setProperty("QWAZR_DATA", dataDir.toString());
-		Files.copy(Paths.get("config.properties"), dataDir.resolve("config.properties"));
-	}
+    @BeforeClass
+    public static void setup() throws IOException {
+        client = ClientBuilder.newClient();
+        final Path dataDir = Files.createTempDirectory("server-test-data");
+        System.setProperty("QWAZR_DATA", dataDir.toString());
+        Files.copy(Paths.get("config.properties"), dataDir.resolve("config.properties"));
+    }
 
-	@AfterClass
-	public static void cleanup() {
-		if (client != null)
-			client.close();
-	}
+    @AfterClass
+    public static void cleanup() {
+        if (client != null)
+            client.close();
+    }
 
-	@Test
-	public void startStop() throws Exception {
-		// Start the server
-		Server.main();
-		Assert.assertNotNull(Server.getInstance());
+    @Test
+    public void startStop() throws Exception {
+        // Start the server
+        Server.main();
+        Assert.assertNotNull(Server.getInstance());
 
-		// Check if the webjars are loaded
-		final String css = client.target("http://localhost:9090")
-				.path("/webjars/bootstrap/4.1.1/css/bootstrap.min.css")
-				.request("text/css")
-				.get(String.class);
-		Assert.assertTrue(css.contains("bootstrap"));
+        // Check if the webjars are loaded
+        final String css = client.target("http://localhost:9090")
+            .path("/webjars/bootstrap/4.1.3/css/bootstrap.min.css")
+            .request("text/css")
+            .get(String.class);
+        Assert.assertTrue(css.contains("bootstrap"));
 
-		// Stop the server
-		Server.stop();
-		Assert.assertNull(Server.getInstance());
+        // Stop the server
+        Server.stop();
+        Assert.assertNull(Server.getInstance());
 
-	}
+    }
 }
