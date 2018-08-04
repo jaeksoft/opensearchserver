@@ -88,6 +88,7 @@
        </#list>
             </tbody>
         </table>
+        <#if indexes?has_content>
         <div class="card">
             <div class="card-body">
                 <div class="form-inline">
@@ -113,6 +114,7 @@
                 </div>
             </div>
         </div>
+        </#if>
     </form>
     <#if paging?has_content>
         <br/>
