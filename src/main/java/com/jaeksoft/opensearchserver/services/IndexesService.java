@@ -44,7 +44,7 @@ public class IndexesService {
 
     public Set<String> getIndexes(final String accountId) {
         final Map<String, UUID> indexMap = ErrorWrapper.bypass(() -> indexService.getIndexes(accountId), 404);
-        return indexMap == null ? null : indexMap.keySet();
+        return indexMap == null ? Collections.emptySet() : indexMap.keySet();
     }
 
     public void createIndex(final AccountRecord account, final String indexName) {
