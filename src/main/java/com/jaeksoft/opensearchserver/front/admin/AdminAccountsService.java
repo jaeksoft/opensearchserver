@@ -91,7 +91,7 @@ public class AdminAccountsService {
             .status(record.getStatus()));
     }
 
-    @Path("/{account_qname}/permissions")
+    @Path("/{account_name}/permissions")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get the permission list for one account",
