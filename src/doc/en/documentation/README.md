@@ -1,4 +1,10 @@
-### Welcome to OpenSearchServer!
+### Welcome to OpenSearchServer v1.x !
+
+__This documentation is for OpenSearchServer v1.x__
+
+__If you are looking for the documentation for OpenSearchServer 2.0,
+[it is here](http://docs.opensearchserver.com).__
+
 
 Integrating OpenSearchServer (OSS) as a search engine can be done within minutes.
 
