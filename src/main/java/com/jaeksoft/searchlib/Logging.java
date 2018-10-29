@@ -1,28 +1,36 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2010-2015 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib;
+
+import com.jaeksoft.searchlib.util.ExceptionUtils;
+import com.jaeksoft.searchlib.util.IOUtils;
+import com.jaeksoft.searchlib.web.StartStopListener;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,22 +42,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.Properties;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-
-import com.jaeksoft.searchlib.util.ExceptionUtils;
-import com.jaeksoft.searchlib.util.IOUtils;
-import com.jaeksoft.searchlib.web.StartStopListener;
+import java.util.function.Supplier;
 
 public class Logging {
 
 	private static Logger logger = null;
 
-	public static volatile boolean isDebug = System
-			.getenv("OPENSEARCHSERVER_DEBUG") != null;;
+	public static volatile boolean isDebug = System.getenv("OPENSEARCHSERVER_DEBUG") != null;
+	;
 
 	private static volatile boolean showStackTrace = true;
 
@@ -58,9 +58,7 @@ public class Logging {
 		Properties props = new Properties();
 		FileReader fileReader = null;
 		try {
-			File configLog = new File(
-					StartStopListener.OPENSEARCHSERVER_DATA_FILE,
-					"log4j.properties");
+			File configLog = new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE, "log4j.properties");
 			if (!configLog.exists()) {
 				PropertyConfigurator.configure(getLoggerProperties());
 				return;
@@ -98,8 +96,7 @@ public class Logging {
 		return dirLog.listFiles();
 	}
 
-	private final static Properties getLoggerProperties()
-			throws SearchLibException {
+	private final static Properties getLoggerProperties() throws SearchLibException {
 		File dirLog = getLogDirectory();
 		if (!dirLog.exists())
 			dirLog.mkdir();
@@ -108,18 +105,13 @@ public class Logging {
 			props.put("log4j.rootLogger", "DEBUG, R");
 		else
 			props.put("log4j.rootLogger", "INFO, R");
-		props.put("log4j.appender.R",
-				"org.apache.log4j.DailyRollingFileAppender");
-		props.put("log4j.appender.R.File", new File(
-				StartStopListener.OPENSEARCHSERVER_DATA_FILE, "logs"
-						+ File.separator + "oss.log").getAbsolutePath());
+		props.put("log4j.appender.R", "org.apache.log4j.DailyRollingFileAppender");
+		props.put("log4j.appender.R.File", new File(StartStopListener.OPENSEARCHSERVER_DATA_FILE,
+				"logs" + File.separator + "oss.log").getAbsolutePath());
 		props.put("log4j.appender.R.DatePattern", "'.'yyyy-MM-dd");
 		props.put("log4j.appender.R.layout", "org.apache.log4j.PatternLayout");
-		props.put("log4j.appender.R.layout.ConversionPattern",
-				"%d{HH:mm:ss,SSS} %p: %c - %m%n");
-		props.put(
-				"log4j.logger.org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper",
-				"ERROR");
+		props.put("log4j.appender.R.layout.ConversionPattern", "%d{HH:mm:ss,SSS} %p: %c - %m%n");
+		props.put("log4j.logger.org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper", "ERROR");
 		return props;
 	}
 
@@ -128,8 +120,7 @@ public class Logging {
 		logger = Logger.getRootLogger();
 	}
 
-	private final static boolean noLogger(PrintStream ps, Object msg,
-			Throwable e) {
+	private final static boolean noLogger(PrintStream ps, Object msg, Throwable e) {
 		if (logger != null)
 			return false;
 		if (msg != null)
@@ -207,8 +198,7 @@ public class Logging {
 			return null;
 		for (StackTraceElement element : stackTrace) {
 			String className = element.getClassName();
-			if (className.startsWith("com.jaeksoft.")
-					|| className.startsWith("com.opensearchserver."))
+			if (className.startsWith("com.jaeksoft.") || className.startsWith("com.opensearchserver."))
 				return element.toString();
 		}
 		return null;
@@ -273,8 +263,7 @@ public class Logging {
 		debug(e.getMessage(), e);
 	}
 
-	public final static String readLogs(int lines, String fileName)
-			throws IOException {
+	public final static String readLogs(int lines, String fileName) throws IOException {
 		if (fileName == null)
 			return null;
 		File logFile = new File(getLogDirectory(), fileName);

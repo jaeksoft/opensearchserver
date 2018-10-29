@@ -134,6 +134,9 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 	private CrawlFile crawl(FileInstanceAbstract fileInstance, FileItem fileItem)
 			throws SearchLibException, InterruptedException {
 
+		if (Logging.isDebug)
+			Logging.debug("Crawling file: " + fileInstance.getURI());
+
 		long startTime = System.currentTimeMillis();
 
 		sleepInterval(60000);
@@ -148,14 +151,17 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 
 		crawl.download();
 
-		if (fileItem.getFetchStatus() == FetchStatus.FETCHED && fileItem.getParserStatus() == ParserStatus.PARSED
-				&& fileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
+		if (fileItem.getFetchStatus() == FetchStatus.FETCHED && fileItem.getParserStatus() == ParserStatus.PARSED &&
+				fileItem.getIndexStatus() != IndexStatus.META_NOINDEX) {
 			fileItem.setIndexStatus(IndexStatus.TO_INDEX);
 			currentStats.incParsedCount();
 		} else
 			currentStats.incIgnoredCount();
 
 		fileItem.setTime((int) (System.currentTimeMillis() - startTime));
+
+		if (Logging.isDebug)
+			Logging.debug("File crawled: " + fileInstance.getURI());
 		return crawl;
 	}
 
@@ -178,9 +184,14 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 	private FileInstanceAbstract[] checkDirectory(FileInstanceAbstract fileInstance)
 			throws SearchLibException, URISyntaxException, IOException {
 
+		if (Logging.isDebug)
+			Logging.debug("Check directory: " + fileInstance.getURI());
+
 		// Load directory from Index
 		HashMap<String, FileInfo> indexFileMap = new HashMap<String, FileInfo>();
 		fileManager.getFileInfoList(fileInstance.getURI(), indexFileMap);
+		if (Logging.isDebug)
+			Logging.debug("Check directory returns  " + indexFileMap.size() + " files.");
 
 		boolean withSubDir = filePathItem.isWithSubDir();
 
@@ -207,6 +218,10 @@ public class CrawlFileThread extends CrawlThreadAbstract<CrawlFileThread, CrawlF
 
 	private boolean checkFile(FileItem fileItem)
 			throws UnsupportedEncodingException, SearchLibException, URISyntaxException {
+
+		if (Logging.isDebug)
+			Logging.debug("Check file: " + fileItem.getUri());
+
 		FileInfo oldFileInfo = fileManager.getFileInfo(fileItem.getUri());
 		// The file is a new file
 		if (oldFileInfo == null) {
