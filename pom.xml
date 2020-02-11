@@ -53,7 +53,7 @@
         <repository>
             <id>ice-maven-release</id>
             <name>Ice Maven Release Repository</name>
-            <url>http://anonsvn.icesoft.org/repo/maven2/releases</url>
+            <url>https://anonsvn.icesoft.org/repo/maven2/releases</url>
         </repository>
         <repository>
             <id>snapshots-repo</id>
