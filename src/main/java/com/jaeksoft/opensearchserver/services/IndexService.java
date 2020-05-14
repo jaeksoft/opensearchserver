@@ -61,7 +61,7 @@ public class IndexService extends UsableService {
     public int fillUnknownUrls(int rows, final UUID crawlUuid, final Long taskCreationTime,
         final WebCrawlDefinition.Builder crawlBuilder) {
         updateLastUse();
-        final QueryDefinition queryDef = QueryDefinition.of(BooleanQuery.of(false, null)
+        final QueryDefinition queryDef = QueryDefinition.of(BooleanQuery.of()
             .addClause(BooleanQuery.Occur.filter,
                 new LongDocValuesExactQuery("crawlUuidMost", crawlUuid.getMostSignificantBits()))
             .addClause(BooleanQuery.Occur.filter,
@@ -92,17 +92,17 @@ public class IndexService extends UsableService {
     public boolean isAlreadyCrawled(final String url, final UUID crawlUuid, final Long taskCreationTime) {
         updateLastUse();
         final QueryDefinition queryDef = QueryDefinition.of(
-            addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid, taskCreationTime,
-                BooleanQuery.Occur.filter).filter(new TermQuery(FieldDefinition.ID_FIELD, url)).build()).
+            addCrawlUuidFilter(BooleanQuery.of(), crawlUuid, taskCreationTime, BooleanQuery.Occur.filter).filter(
+                new TermQuery(FieldDefinition.ID_FIELD, url)).build()).
             start(0).rows(0).build();
-        return service.searchQuery(queryDef).total_hits > 0L;
+        return service.searchQuery(queryDef).totalHits > 0L;
     }
 
     public Long deleteOldCrawl(final UUID crawlUuid, final Long taskCreationTime) {
         updateLastUse();
         final QueryDefinition queryDef = QueryDefinition.of(
-            addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid, taskCreationTime,
-                BooleanQuery.Occur.must_not).build()).build();
+            addCrawlUuidFilter(BooleanQuery.of(), crawlUuid, taskCreationTime, BooleanQuery.Occur.must_not).build())
+            .build();
         return service.deleteByQuery(queryDef).getTotalHits();
     }
 
@@ -110,7 +110,7 @@ public class IndexService extends UsableService {
         updateLastUse();
         final QueryDefinition queryDef = QueryDefinition.of(new TermQuery(FieldDefinition.ID_FIELD, url)).build();
         final ResultDefinition result = service.searchQueryWithMap(queryDef);
-        return result != null && result.total_hits != null && result.total_hits > 0;
+        return result != null && result.totalHits > 0;
     }
 
     private void checkMaxRecordsLimit(final int newRecordsSize, final long maxRecordsLimit) {
@@ -141,8 +141,8 @@ public class IndexService extends UsableService {
 
     private <T> void count(T status, AbstractQuery query, Map<T, Long> counterMap) {
         final ResultDefinition result = service.searchQueryWithMap(QueryDefinition.of(query).start(0).rows(0).build());
-        if (result != null && result.total_hits != null && result.total_hits > 0)
-            counterMap.put(status, result.total_hits);
+        if (result != null && result.totalHits > 0)
+            counterMap.put(status, result.totalHits);
     }
 
     public Map<CrawlStatus, Long> getCrawlStatusCount(final UUID crawlUuid, final Long taskCreationTime) {
@@ -151,7 +151,7 @@ public class IndexService extends UsableService {
         for (final CrawlStatus crawlStatus : CrawlStatus.values()) {
             AbstractQuery query = new IntDocValuesExactQuery("crawlStatus", crawlStatus.code);
             if (crawlUuid != null)
-                query = addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid, taskCreationTime,
+                query = addCrawlUuidFilter(BooleanQuery.of(), crawlUuid, taskCreationTime,
                     BooleanQuery.Occur.filter).filter(query).build();
             count(crawlStatus, query, statusMap);
         }
@@ -162,9 +162,9 @@ public class IndexService extends UsableService {
         updateLastUse();
         final Map<IndexStatus, Long> statusMap = new LinkedHashMap<>();
         for (final IndexStatus indexStatus : IndexStatus.values()) {
-            AbstractQuery query = new IntDocValuesExactQuery("indexStatus", indexStatus.code);
+            AbstractQuery<?> query = new IntDocValuesExactQuery("indexStatus", indexStatus.code);
             if (crawlUuid != null)
-                query = addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid, taskCreationTime,
+                query = addCrawlUuidFilter(BooleanQuery.of(), crawlUuid, taskCreationTime,
                     BooleanQuery.Occur.filter).filter(query).build();
             count(indexStatus, query, statusMap);
         }
@@ -174,10 +174,12 @@ public class IndexService extends UsableService {
     public long getCrawledCount(final UUID crawlUuid, final Long taskCreationTime) {
         updateLastUse();
         final QueryDefinition queryDef = QueryDefinition.of(
-            addCrawlUuidFilter(BooleanQuery.of(true, null), crawlUuid, taskCreationTime,
-                BooleanQuery.Occur.filter).build()).start(0).rows(0).build();
+            addCrawlUuidFilter(BooleanQuery.of(), crawlUuid, taskCreationTime, BooleanQuery.Occur.filter).build())
+            .start(0)
+            .rows(0)
+            .build();
         final ResultDefinition result = service.searchQueryWithMap(queryDef);
-        return result != null && result.total_hits != null ? result.total_hits : 0;
+        return result != null ? result.totalHits : 0;
     }
 
 }

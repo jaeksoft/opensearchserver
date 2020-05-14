@@ -32,7 +32,6 @@ import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -46,8 +45,7 @@ import java.util.function.Consumer;
 
 public class AccountsService extends BaseTableService<AccountRecord> {
 
-    public AccountsService(final TableServiceInterface tableServiceInterface)
-        throws NoSuchMethodException, URISyntaxException {
+    public AccountsService(final TableServiceInterface tableServiceInterface) throws NoSuchMethodException {
         super(tableServiceInterface, AccountRecord.class);
     }
 

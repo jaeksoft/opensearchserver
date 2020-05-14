@@ -37,7 +37,7 @@ public class SearchResults {
         final Language language) {
         searchResults = from(results.documents, language);
         totalTime = (double) results.getTimer().totalTime / 1000;
-        numDocs = results.total_hits == null ? Long.valueOf(0) : results.total_hits;
+        numDocs = results.totalHits;
         paging = new Paging(numDocs, start, rows, 10);
     }
 

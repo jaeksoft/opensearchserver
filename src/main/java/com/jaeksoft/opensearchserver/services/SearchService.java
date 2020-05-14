@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,16 +26,13 @@ import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.query.AbstractQueryParser;
 import com.qwazr.search.query.BooleanQuery;
-import com.qwazr.search.query.CustomScoreQuery;
 import com.qwazr.search.query.FunctionQuery;
+import com.qwazr.search.query.FunctionScoreQuery;
 import com.qwazr.search.query.IntDocValuesExactQuery;
 import com.qwazr.search.query.QueryParserOperator;
 import com.qwazr.search.query.SimpleQueryParser;
 import com.qwazr.search.query.SortedDocValuesExactQuery;
 import com.qwazr.utils.StringUtils;
-import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.queries.CustomScoreProvider;
-import org.apache.lucene.search.SortedNumericSelector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,15 +47,15 @@ public class SearchService {
 
     protected final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
 
-    protected final FunctionQuery datePublishedFunctionQuery =
-        new FunctionQuery(new MultiValuedLongFieldSource("datePublished", SortedNumericSelector.Type.MAX));
+    protected final FunctionQuery datePublishedFunctionQuery = new FunctionQuery(
+        new MultiValuedLongFieldSource("datePublished", org.apache.lucene.search.SortedNumericSelector.Type.MAX));
 
     protected final BooleanQuery.BooleanClause indexedStatus = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
         new IntDocValuesExactQuery("indexStatus", IndexStatus.INDEXED.code));
 
     // TODO EK: Check that semantic feature normalizes using lowercase
     protected final BooleanQuery.BooleanClause newsFilter = new BooleanQuery.BooleanClause(BooleanQuery.Occur.filter,
-        BooleanQuery.of(false, null)
+        BooleanQuery.of()
             .should(new SortedDocValuesExactQuery("schemaOrgType", "article"))
             .should(new SortedDocValuesExactQuery("schemaOrgType", "Article"))
             .should(new SortedDocValuesExactQuery("schemaOrgType", "NewsArticle"))
@@ -113,7 +110,8 @@ public class SearchService {
     }
 
     public SearchResults search(final IndexService indexService, final Language lang, final String keywords,
-        final int start, final int rows, final Function<AbstractQueryParser, CustomScoreQuery> customScoreQueryFunction,
+        final int start, final int rows,
+        final Function<AbstractQueryParser, FunctionScoreQuery> customScoreQueryFunction,
         final BooleanQuery.BooleanClause... filters) {
 
         if (StringUtils.isBlank(keywords))
@@ -156,7 +154,7 @@ public class SearchService {
     public SearchResults webSearch(final IndexService indexService, final Language lang, final String keywords,
         final int start, final int rows) {
         return search(indexService, lang, keywords, start, rows,
-            query -> new CustomScoreQuery(query, DepthScore.class.getName(), depthFunctionQuery), indexedStatus);
+            query -> new FunctionScoreQuery(query, DepthScore.class.getName(), depthFunctionQuery), indexedStatus);
     }
 
     public SearchResults newsSearch(final IndexService indexService, final Language lang, final String keywords,
@@ -165,7 +163,7 @@ public class SearchService {
             QueryDefinition.SortEnum.descending_missing_last, indexedStatus, newsFilter);
     }
 
-    public static class DepthScore extends CustomScoreProvider {
+    public static class DepthScore extends Double {
 
         public DepthScore(LeafReaderContext context) {
             super(context);

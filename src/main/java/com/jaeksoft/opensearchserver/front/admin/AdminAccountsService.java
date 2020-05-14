@@ -21,11 +21,10 @@ import com.jaeksoft.opensearchserver.model.PermissionLevel;
 import com.jaeksoft.opensearchserver.model.PermissionRecord;
 import com.jaeksoft.opensearchserver.services.AccountsService;
 import com.jaeksoft.opensearchserver.services.PermissionsService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Contact;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -42,14 +41,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@Api
 @Path("/accounts")
 @RolesAllowed("admin")
-@SwaggerDefinition(basePath = "/admin/ws",
-    schemes = SwaggerDefinition.Scheme.DEFAULT,
-    info = @Info(title = "Accounts administration",
-        version = "v2.0.0",
-        contact = @Contact(url = "/admin", name = "OpenSearchServer administration")))
+@OpenAPIDefinition(info = @Info(title = "Accounts administration",
+    version = "v2.0.0",
+    contact = @Contact(url = "/admin", name = "OpenSearchServer administration")))
 public class AdminAccountsService {
 
     private final AccountsService accountsService;
@@ -63,7 +59,7 @@ public class AdminAccountsService {
     @Path("/{account_name}")
     @POST
     @Produces({ MediaType.TEXT_PLAIN })
-    @ApiOperation(value = "Create a new account", response = UUID.class)
+    @Operation(summary = "Create a new account")
     public UUID createAccount(@PathParam("account_name") String name) {
         return accountsService.createAccount(name);
     }
@@ -71,7 +67,7 @@ public class AdminAccountsService {
     @Path("/{account_name}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Get an account record", response = AccountRecord.class)
+    @Operation(summary = "Get an account record")
     public AccountRecord getAccount(@PathParam("account_name") String name) {
         return accountsService.getExistingAccount(name);
     }
@@ -80,7 +76,7 @@ public class AdminAccountsService {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Update an account record")
+    @Operation(summary = "Update an account record")
     public boolean updateAccount(@PathParam("account_name") String name, final AccountRecord record) {
         final AccountRecord account = accountsService.getExistingAccount(name);
         return accountsService.update(account.getId(), b -> b.crawlNumberLimit(record.getCrawlNumberLimit())
@@ -94,9 +90,7 @@ public class AdminAccountsService {
     @Path("/{account_name}/permissions")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    @ApiOperation(value = "Get the permission list for one account",
-        response = PermissionRecord.class,
-        responseContainer = "List")
+    @Operation(summary = "Get the permission list for one account")
     public List<PermissionRecord> getPermissions(@PathParam("account_name") String name,
         @QueryParam("start") Integer start, @QueryParam("rows") Integer rows) {
         final AccountRecord account = accountsService.getExistingAccount(name);
@@ -109,7 +103,7 @@ public class AdminAccountsService {
     @Path("/{account_name}/permissions/{user_id}/level/{permission_level}")
     @POST
     @Produces({ MediaType.TEXT_PLAIN })
-    @ApiOperation(value = "Set a permission for an account and a user", response = Boolean.class)
+    @Operation(summary = "Set a permission for an account and a user")
     public boolean setPermissions(@PathParam("account_name") String name, @PathParam("user_id") UUID userId,
         @PathParam("permission_level") PermissionLevel level) {
         final AccountRecord account = accountsService.getExistingAccount(name);
