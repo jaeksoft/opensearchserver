@@ -23,16 +23,19 @@ import javax.servlet.http.HttpServletResponse;
 
 public class StaticTransaction extends ServletTransaction {
 
-	private final String template;
+    private final String template;
 
-	public StaticTransaction(final Components components, final String template, final HttpServletRequest request,
-			final HttpServletResponse response, final boolean requireLoggedUser) {
-		super(components.getFreemarkerTool(), request, response, requireLoggedUser);
-		this.template = template;
-	}
+    public StaticTransaction(final Components components,
+                             final String template,
+                             final HttpServletRequest request,
+                             final HttpServletResponse response,
+                             final boolean requireLoggedUser) {
+        super(components.getFreemarkerTool(), components.getConfigService(), request, response, requireLoggedUser);
+        this.template = template;
+    }
 
-	@Override
-	protected String getTemplate() {
-		return template;
-	}
+    @Override
+    protected String getTemplate() {
+        return template;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,117 +16,118 @@
 
 package com.jaeksoft.opensearchserver.services;
 
-import com.google.common.io.Files;
-import com.qwazr.utils.StringUtils;
+import com.qwazr.utils.ConfigService.FileConfigService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Properties;
 
-public class ConfigService {
+public class ConfigService extends FileConfigService<ConfigService.Config> {
 
-    private final static String SERVER_NAME = "serverName";
-    private final static String APPLICATION_SALT = "applicationSalt";
-    private final static String JOB_CRAWL_PERIOD_SECONDS = "jobCrawlPeriodSeconds";
-    private final static String STORE_SERVICE_URI = "storeServiceUri";
-    private final static String INDEX_SERVICE_URI = "indexServiceUri";
-    private final static String TABLE_SERVICE_URI = "tableServiceUri";
-    private final static String CRAWLER_SERVICE_URI = "crawlerServiceUri";
-    private final static String OSS2_JWT_KEY = "oss2JwtKey";
-    private final static String OSS2_JWT_URL = "oss2JwtUrl";
-
-    private final Properties properties;
-    private final String serverName;
-    private final String applicationSalt;
-    private final int jobCrawlPeriodSeconds;
-    private final URI storeServiceUri;
-    private final URI indexServiceUri;
-    private final URI tableServiceUri;
-    private final URI crawlerServiceUri;
-    private final String oss2JwtKey;
-    private final URI oss2JwtUrl;
-
-    public ConfigService(final Path configPropertiesPath) throws IOException, URISyntaxException {
-        properties = new Properties();
-        try (final BufferedReader reader = Files.newReader(configPropertiesPath.toFile(), StandardCharsets.UTF_8)) {
-            properties.load(reader);
-        }
-        serverName = getRequiredProperty(SERVER_NAME);
-        applicationSalt = getRequiredProperty(APPLICATION_SALT);
-        jobCrawlPeriodSeconds = getIntProperty(JOB_CRAWL_PERIOD_SECONDS, 60);
-        storeServiceUri = getUriProperty(STORE_SERVICE_URI);
-        indexServiceUri = getUriProperty(INDEX_SERVICE_URI);
-        tableServiceUri = getUriProperty(TABLE_SERVICE_URI);
-        crawlerServiceUri = getUriProperty(CRAWLER_SERVICE_URI);
-        oss2JwtKey = properties.getProperty(OSS2_JWT_KEY);
-        oss2JwtUrl = getUriProperty(OSS2_JWT_URL);
-    }
-
-    private String getRequiredProperty(String key) {
-        return Objects.requireNonNull(properties.getProperty(key), () -> "Missing config property: " + key);
-    }
-
-    private URI getUriProperty(String key) throws URISyntaxException {
-        final String value = properties.getProperty(key);
-        return StringUtils.isBlank(value) ? null : new URI(value);
-    }
-
-    private Integer getIntProperty(String key, Integer defaultValue) {
-        final String val = properties.getProperty(key);
-        return val == null ? defaultValue : Integer.valueOf(val);
+    public ConfigService(final Path configPath) throws IOException {
+        super(configPath, Config::new);
     }
 
     public String getServerName() {
-        return serverName;
+        return getCurrent().servername;
+    }
+
+    public boolean isProduction() {
+        return getCurrent().isProduction;
     }
 
     public String getApplicationSalt() {
-        return applicationSalt;
-    }
-
-    public int getJobCrawlPeriodSeconds() {
-        return jobCrawlPeriodSeconds;
+        return getCurrent().applicationSalt;
     }
 
     public URI getStoreServiceUri() {
-        return storeServiceUri;
+        return getCurrent().storeServiceUri;
     }
 
     public URI getIndexServiceUri() {
-        return indexServiceUri;
+        return getCurrent().indexServiceUri;
     }
 
     public URI getTableServiceUrl() {
-        return tableServiceUri;
+        return getCurrent().tableServiceUri;
     }
 
     public URI getCrawlerServiceUri() {
-        return crawlerServiceUri;
+        return getCurrent().crawlerServiceUri;
     }
 
-    /**
-     * Note about security: Can only be read by a service from the same package
-     *
-     * @return
-     */
-    String getOss2JwtKey() {
-        return oss2JwtKey;
+    public String getJwtKey() {
+        return getCurrent().jwtKey;
     }
 
-    URI getOss2JwtUrl() {
-        return oss2JwtUrl;
+    public URI getJwtUri() {
+        return getCurrent().jwtUri;
     }
 
-    /**
-     * @return true of a JWT service has been configured
-     */
     public boolean hasJwtSignin() {
-        return !StringUtils.isBlank(oss2JwtKey) && oss2JwtUrl != null;
+        return getJwtKey() != null && getJwtUri() != null;
     }
 
+    public static class Config extends PropertiesConfig {
+
+        private static final String SERVER_NAME = "serverName";
+        private static final String IS_PRODUCTION = "isProduction";
+        private static final String APPLICATION_SALT = "applicationSalt";
+        private static final String STORE_SERVICE_URI = "storeServiceUri";
+        private static final String INDEX_SERVICE_URI = "indexServiceUri";
+        private static final String TABLE_SERVICE_URI = "tableServiceUri";
+        private static final String CRAWLER_SERVICE_URI = "crawlerServiceUri";
+        private static final String JWT_KEY = "jwtKey";
+        private static final String JWT_URI = "jwtUri";
+
+        private final String servername;
+        private final boolean isProduction;
+        private final String applicationSalt;
+        private final URI storeServiceUri;
+        private final URI indexServiceUri;
+        private final URI tableServiceUri;
+        private final URI crawlerServiceUri;
+        private final String jwtKey;
+        private final URI jwtUri;
+
+        public Config(Properties properties, Instant creationTime) {
+            super(properties, creationTime);
+            servername = getStringProperty(SERVER_NAME, () -> "localhost:9090");
+            isProduction = getBooleanProperty(IS_PRODUCTION, () -> Boolean.FALSE);
+            applicationSalt = getStringProperty(APPLICATION_SALT, () -> "oss-salt");
+            storeServiceUri = getUriProperty(STORE_SERVICE_URI, () -> null);
+            indexServiceUri = getUriProperty(INDEX_SERVICE_URI, () -> null);
+            tableServiceUri = getUriProperty(TABLE_SERVICE_URI, () -> null);
+            crawlerServiceUri = getUriProperty(CRAWLER_SERVICE_URI, () -> null);
+            jwtKey = getStringProperty(JWT_KEY, () -> null);
+            jwtUri = getUriProperty(JWT_URI, () -> null);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof Config))
+                return false;
+            if (other == this)
+                return true;
+            final Config o = (Config) other;
+            return Objects.equals(servername, o.servername)
+                && isProduction == o.isProduction
+                && Objects.equals(applicationSalt, o.applicationSalt)
+                && Objects.equals(storeServiceUri, o.storeServiceUri)
+                && Objects.equals(indexServiceUri, o.indexServiceUri)
+                && Objects.equals(tableServiceUri, o.tableServiceUri)
+                && Objects.equals(crawlerServiceUri, o.crawlerServiceUri)
+                && Objects.equals(jwtKey, o.jwtKey)
+                && Objects.equals(jwtUri, o.jwtUri);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(servername, isProduction, applicationSalt, storeServiceUri,
+                indexServiceUri, tableServiceUri, crawlerServiceUri, jwtKey, jwtUri);
+        }
+    }
 }

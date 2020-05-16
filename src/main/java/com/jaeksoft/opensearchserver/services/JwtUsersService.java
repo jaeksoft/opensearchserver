@@ -57,9 +57,9 @@ public class JwtUsersService implements UsersService {
 
     public JwtUsersService(ConfigService configService) throws KeyLengthException {
         sharedSecret =
-            Objects.requireNonNull(configService.getOss2JwtKey(), "The oss2JwtKey configuration parameter is missing.");
+            Objects.requireNonNull(configService.getJwtKey(), "The JwtKey configuration parameter is missing.");
         jwtUri =
-            Objects.requireNonNull(configService.getOss2JwtUrl(), "The oss2JwtUrl configuration parameter is missing.");
+            Objects.requireNonNull(configService.getJwtUri(), "The JwtUri configuration parameter is missing.");
         signer = new MACSigner(sharedSecret);
     }
 

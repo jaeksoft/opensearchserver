@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,19 +38,23 @@ import com.qwazr.database.TableManager;
 import com.qwazr.database.TableServiceInterface;
 import com.qwazr.database.TableSingleClient;
 import com.qwazr.database.store.Tables;
+import com.qwazr.library.AbstractLibrary;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.scripts.ScriptManager;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
+import com.qwazr.server.InFileSessionPersistenceManager;
 import com.qwazr.server.RemoteService;
 import com.qwazr.store.StoreManager;
 import com.qwazr.store.StoreServiceInterface;
 import com.qwazr.store.StoreSingleClient;
-import com.qwazr.utils.ExceptionUtils;
-import com.qwazr.utils.IOUtils;
+import com.qwazr.utils.LoggerUtils;
+import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.SupplierEx;
+import io.undertow.servlet.api.SessionPersistenceManager;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.ws.rs.InternalServerErrorException;
 import java.io.Closeable;
 import java.io.IOException;
@@ -62,304 +66,292 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Components implements Closeable {
 
+    private final static Logger LOGGER = LoggerUtils.getLogger(Components.class);
+
     private final Path dataDirectory;
 
-    private final List<Closeable> closing;
+    private final List<AtomicProvider<?>> providers = new ArrayList<>();
+    private final List<AtomicProvider<?>> providersWithAutoCloseableValue = new ArrayList<>();
 
-    private volatile ExecutorService executorService;
+    private final AtomicProvider<ExecutorService> executorService = new AtomicProvider<>();
 
-    private volatile ConfigService configService;
+    private final AtomicProvider<ConfigService> configService = new AtomicProvider<>();
 
-    private volatile FreeMarkerTool freemarkerTool;
+    private final AtomicProvider<FreeMarkerTool> freemarkerTool = new AtomicProvider<>();
 
-    private volatile ScriptManager scriptManager;
+    private final AtomicProvider<ScriptManager> scriptManager = new AtomicProvider<>();
 
-    private volatile IndexManager indexManager;
-    private volatile IndexServiceInterface indexService;
-    private volatile IndexesService indexesService;
-    private volatile TemplatesService templatesService;
-    private volatile SearchService searchService;
+    private final AtomicProvider<IndexManager> indexManager = new AtomicProvider<>();
+    private final AtomicProvider<IndexServiceInterface> indexService = new AtomicProvider<>();
+    private final AtomicProvider<IndexesService> indexesService = new AtomicProvider<>();
+    private final AtomicProvider<TemplatesService> templatesService = new AtomicProvider<>();
+    private final AtomicProvider<SearchService> searchService = new AtomicProvider<>();
 
-    private volatile WebCrawlerManager webCrawlerManager;
-    private volatile WebCrawlerServiceInterface webCrawlerService;
-    private volatile WebCrawlsService webCrawlsService;
+    private final AtomicProvider<WebCrawlerManager> webCrawlerManager = new AtomicProvider<>();
+    private final AtomicProvider<WebCrawlerServiceInterface> webCrawlerService = new AtomicProvider<>();
+    private final AtomicProvider<WebCrawlsService> webCrawlsService = new AtomicProvider<>();
 
-    private volatile TasksService tasksService;
-    private volatile Map<String, TaskProcessor> tasksProcessors;
-    private volatile WebCrawlProcessor webCrawlProcessor;
-    private volatile TaskExecutionService taskExecutionService;
+    private final AtomicProvider<TasksService> tasksService = new AtomicProvider<>();
+    private final AtomicProvider<Map<String, TaskProcessor<?>>> tasksProcessors = new AtomicProvider<>();
+    private final AtomicProvider<WebCrawlProcessor> webCrawlProcessor = new AtomicProvider<>();
+    private final AtomicProvider<TaskExecutionService> taskExecutionService = new AtomicProvider<>();
 
-    private volatile StoreManager storeManager;
-    private volatile StoreServiceInterface storeService;
+    private final AtomicProvider<StoreManager> storeManager = new AtomicProvider<>();
+    private final AtomicProvider<StoreServiceInterface> storeService = new AtomicProvider<>();
 
-    private volatile TableManager tableManager;
-    private volatile TableServiceInterface tableService;
-    private volatile UsersService usersService;
-    private volatile AccountsService accountsService;
-    private volatile PermissionsService permissionsService;
+    private final AtomicProvider<TableManager> tableManager = new AtomicProvider<>();
+    private final AtomicProvider<TableServiceInterface> tableService = new AtomicProvider<>();
+    private final AtomicProvider<UsersService> usersService = new AtomicProvider<>();
+    private final AtomicProvider<AccountsService> accountsService = new AtomicProvider<>();
+    private final AtomicProvider<PermissionsService> permissionsService = new AtomicProvider<>();
 
-    private volatile JobService jobService;
+    private final AtomicProvider<JobService> jobService = new AtomicProvider<>();
+
+    private final AtomicProvider<SessionPersistenceManager> sessionPersistenceManager = new AtomicProvider<>();
 
     Components(final Path dataDirectory) {
-        this.closing = new ArrayList<>();
         this.dataDirectory = dataDirectory;
         CrawlerComponents.setLocalComponents(this);
     }
 
-    private static <T> T bypass(SupplierEx<T, Exception> supplierEx) {
-        try {
-            return supplierEx.get();
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e);
+    /**
+     * Manage to provide a singleton
+     *
+     * @param <T>
+     */
+    @ThreadSafe
+    private class AtomicProvider<T> implements AutoCloseable {
+
+        private volatile T value;
+
+        private AtomicProvider() {
+            providers.add(this);
+            this.value = null;
+        }
+
+        T get(final SupplierEx<T, Exception> defaultSupplier) {
+            if (value != null)
+                return value;
+            synchronized (this) {
+                if (value != null)
+                    return value;
+                try {
+                    value = defaultSupplier.get();
+                    if (value instanceof AutoCloseable)
+                        providersWithAutoCloseableValue.add(this);
+                    if (value instanceof AbstractLibrary)
+                        ((AbstractLibrary) value).load();
+                }
+                catch (Exception e) {
+                    throw new InternalServerErrorException("Cannot create the component", e);
+                }
+                return value;
+            }
+        }
+
+        void ifPresent(final boolean silentlyLogException, final ConsumerEx<T, Exception> consumer) {
+            synchronized (this) {
+                try {
+                    if (value != null)
+                        consumer.accept(value);
+                }
+                catch (Exception e) {
+                    final String error = "Error while consuming the component: " + value;
+                    if (silentlyLogException)
+                        LOGGER.log(Level.WARNING, error, e);
+                    else
+                        throw new InternalServerErrorException(error, e);
+                }
+            }
+        }
+
+        @Override
+        public void close() {
+            synchronized (this) {
+                if (value != null && value instanceof AutoCloseable) {
+                    try {
+                        ((AutoCloseable) value).close();
+                    }
+                    catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Error while closing the component: " + value, e);
+                    }
+                    value = null;
+                }
+            }
         }
     }
 
-    private synchronized ExecutorService getExecutorService() {
-        if (executorService == null)
-            executorService = Executors.newCachedThreadPool();
-        return executorService;
+    private Path createDataSubDirectoryIfNotExists(final String resolve) throws IOException {
+        final Path directory = dataDirectory.resolve(resolve);
+        if (!Files.exists(directory))
+            Files.createDirectory(directory);
+        return directory;
     }
 
-    private synchronized ConfigService getConfigService() {
-        if (configService == null)
-            configService = bypass(() -> new ConfigService(
-                this.dataDirectory.resolve(System.getProperty("com.opensearchserver.config", "config.properties"))));
-        return configService;
+    private ExecutorService getExecutorService() {
+        return executorService.get(Executors::newCachedThreadPool);
     }
 
-    public synchronized FreeMarkerTool getFreemarkerTool() {
-        if (freemarkerTool == null) {
-            freemarkerTool = FreeMarkerTool.of()
-                .defaultContentType("text/html")
-                .defaultEncoding("UTF-8")
-                .templateLoader(FreeMarkerTool.Loader.Type.resource, "com/jaeksoft/opensearchserver/front/templates/")
-                .build();
-            freemarkerTool.load();
-            closing.add(freemarkerTool);
-        }
-        return freemarkerTool;
+    public ConfigService getConfigService() {
+        return configService.get(() -> new ConfigService(
+            dataDirectory.resolve(System.getProperty("com.opensearchserver.config", "config.properties"))));
     }
 
-    private synchronized IndexManager getIndexManager() {
-        if (indexManager == null) {
-            indexManager = bypass(() -> {
-                final Path indexesDirectory = dataDirectory.resolve(IndexServiceInterface.PATH);
-                if (!Files.exists(indexesDirectory))
-                    Files.createDirectory(indexesDirectory);
-                return new IndexManager(indexesDirectory, getExecutorService());
-            });
-            closing.add(indexManager);
-        }
-        return indexManager;
+    public FreeMarkerTool getFreemarkerTool() {
+        return freemarkerTool.get(() -> FreeMarkerTool.of()
+            .defaultContentType("text/html")
+            .defaultEncoding("UTF-8")
+            .templateLoader(FreeMarkerTool.Loader.Type.resource, "com/jaeksoft/opensearchserver/front/templates/")
+            .build());
     }
 
-    private synchronized IndexServiceInterface getIndexService() {
-        if (indexService == null) {
+    private IndexManager getIndexManager() {
+        return indexManager.get(() -> new IndexManager(createDataSubDirectoryIfNotExists(IndexServiceInterface.PATH),
+            getExecutorService()));
+    }
+
+    private IndexServiceInterface getIndexService() {
+        return indexService.get(() -> {
             if (getConfigService().getIndexServiceUri() != null)
-                indexService = new IndexSingleClient(RemoteService.of(getConfigService().getIndexServiceUri()).build());
+                return new IndexSingleClient(RemoteService.of(getConfigService().getIndexServiceUri()).build());
             else
-                indexService = getIndexManager().getService();
-        }
-        return indexService;
+                return getIndexManager().getService();
+        });
     }
 
-    public synchronized IndexesService getIndexesService() {
-        if (indexesService == null)
-            indexesService = new IndexesService(getIndexService());
-        return indexesService;
+    public IndexesService getIndexesService() {
+        return indexesService.get(() -> new IndexesService(getIndexService()));
     }
 
-    public synchronized TemplatesService getTemplatesService() {
-        if (templatesService == null) {
-            templatesService = new TemplatesService(getStoreService());
-            closing.add(templatesService);
-        }
-        return templatesService;
+    public TemplatesService getTemplatesService() {
+        return templatesService.get(() -> new TemplatesService(getStoreService()));
     }
 
-    public synchronized SearchService getSearchService() {
-        if (searchService == null)
-            searchService = new SearchService();
-        return searchService;
+    public SearchService getSearchService() {
+        return searchService.get(SearchService::new);
     }
 
-    public synchronized WebCrawlsService getWebCrawlsService() {
-        if (webCrawlsService == null)
-            webCrawlsService = new WebCrawlsService(getStoreService());
-        return webCrawlsService;
+    public WebCrawlsService getWebCrawlsService() {
+        return webCrawlsService.get(() -> new WebCrawlsService(getStoreService()));
     }
 
-    private synchronized WebCrawlProcessor getWebCrawlProcessor() {
-        if (webCrawlProcessor == null)
-            webCrawlProcessor = new WebCrawlProcessor(getConfigService(), getWebCrawlerService(), getIndexesService(),
-                getAccountsService());
-        return webCrawlProcessor;
-
+    private WebCrawlProcessor getWebCrawlProcessor() {
+        return webCrawlProcessor.get(
+            () -> new WebCrawlProcessor(getConfigService(), getWebCrawlerService(), getIndexesService(),
+                getAccountsService()));
     }
 
-    private synchronized Map<String, TaskProcessor> getProcessors() {
-        if (tasksProcessors == null)
-            tasksProcessors = TaskProcessor.of().register(getWebCrawlProcessor()).build();
-        return tasksProcessors;
+    private Map<String, TaskProcessor<?>> getProcessors() {
+        return tasksProcessors.get(() -> TaskProcessor.of().register(getWebCrawlProcessor()).build());
     }
 
-    public synchronized TasksService getTasksService() {
-        if (tasksService == null)
-            tasksService = bypass(() -> new TasksService(getTableService(), getTaskExecutionService()));
-        return tasksService;
+    public TasksService getTasksService() {
+        return tasksService.get(() -> new TasksService(getTableService(), getTaskExecutionService()));
     }
 
-    public synchronized TaskExecutionService getTaskExecutionService() {
-        if (taskExecutionService == null)
-            taskExecutionService = bypass(() -> new TaskExecutionService(getTableService(), getProcessors()));
-        return taskExecutionService;
+    public TaskExecutionService getTaskExecutionService() {
+        return taskExecutionService.get(() -> new TaskExecutionService(getTableService(), getProcessors()));
     }
 
-    private synchronized ScriptManager getScriptManager() {
-        if (scriptManager == null)
-            scriptManager = new ScriptManager(getExecutorService(), dataDirectory);
-        return scriptManager;
+    private ScriptManager getScriptManager() {
+        return scriptManager.get(() -> new ScriptManager(getExecutorService(), dataDirectory));
     }
 
-    private synchronized WebCrawlerManager getWebCrawlerManager() {
-        if (webCrawlerManager == null)
-            webCrawlerManager = new WebCrawlerManager("localhost", getScriptManager(), getExecutorService());
-        return webCrawlerManager;
+    private WebCrawlerManager getWebCrawlerManager() {
+        return webCrawlerManager.get(
+            () -> new WebCrawlerManager("localhost", getScriptManager(), getExecutorService()));
     }
 
-    protected synchronized WebCrawlerServiceInterface getWebCrawlerService() {
-        if (webCrawlerService == null) {
+    protected WebCrawlerServiceInterface getWebCrawlerService() {
+        return webCrawlerService.get(() -> {
             if (getConfigService().getCrawlerServiceUri() != null)
-                webCrawlerService =
-                    new WebCrawlerSingleClient(RemoteService.of(getConfigService().getCrawlerServiceUri()).build());
+                return new WebCrawlerSingleClient(RemoteService.of(getConfigService().getCrawlerServiceUri()).build());
             else
-                webCrawlerService = getWebCrawlerManager().getService();
-        }
-        return webCrawlerService;
+                return getWebCrawlerManager().getService();
+        });
     }
 
-    private synchronized StoreManager getStoreManager() {
-        if (storeManager == null) {
-            storeManager = bypass(() -> {
-                final Path storeDirectory = dataDirectory.resolve(StoreServiceInterface.SERVICE_NAME);
-                if (!Files.exists(storeDirectory))
-                    Files.createDirectory(storeDirectory);
-                return new StoreManager(getExecutorService(), getScriptManager(), storeDirectory);
-            });
-            closing.add(storeManager);
-        }
-        return storeManager;
+    private StoreManager getStoreManager() {
+        return storeManager.get(() -> new StoreManager(getExecutorService(), getScriptManager(),
+            createDataSubDirectoryIfNotExists(StoreServiceInterface.SERVICE_NAME)));
     }
 
-    synchronized StoreServiceInterface getStoreService() {
-        if (storeService == null) {
+    StoreServiceInterface getStoreService() {
+        return storeService.get(() -> {
             if (getConfigService().getStoreServiceUri() != null)
-                storeService = new StoreSingleClient(RemoteService.of(getConfigService().getStoreServiceUri()).build());
+                return new StoreSingleClient(RemoteService.of(getConfigService().getStoreServiceUri()).build());
             else
-                storeService = getStoreManager().getService();
-        }
-        return storeService;
+                return getStoreManager().getService();
+        });
     }
 
-    private synchronized TableManager getTableManager() {
-        if (tableManager == null) {
-            try {
-                tableManager = new TableManager(getExecutorService(), TableManager.checkTablesDirectory(dataDirectory));
-            } catch (IOException e) {
-                throw new InternalServerErrorException(e);
-            }
+    private TableManager getTableManager() {
+        return tableManager.get(() -> {
             Runtime.getRuntime().addShutdownHook(new Thread(Tables::closeAll));
-        }
-        return tableManager;
+            return new TableManager(getExecutorService(), TableManager.checkTablesDirectory(dataDirectory));
+        });
     }
 
-    private synchronized TableServiceInterface getTableService() {
-        if (tableService == null) {
+    private TableServiceInterface getTableService() {
+        return tableService.get(() -> {
             if (getConfigService().getTableServiceUrl() != null)
-                tableService = new TableSingleClient(RemoteService.of(getConfigService().getTableServiceUrl()).build());
+                return new TableSingleClient(RemoteService.of(getConfigService().getTableServiceUrl()).build());
             else
-                tableService = getTableManager().getService();
-        }
-        return tableService;
+                return getTableManager().getService();
+        });
     }
 
-    public synchronized UsersService getUsersService() {
-        if (usersService == null)
-            usersService = bypass(() -> configService.hasJwtSignin() ?
-                new JwtUsersService(getConfigService()) :
-                new TableUsersService(getConfigService(), getTableService()));
-        return usersService;
+    public UsersService getUsersService() {
+        return usersService.get(() -> getConfigService().hasJwtSignin() ?
+            new JwtUsersService(getConfigService()) :
+            new TableUsersService(getConfigService(), getTableService()));
     }
 
-    public synchronized PermissionsService getPermissionsService() {
-        if (permissionsService == null) {
-            try {
-                permissionsService = new PermissionsService(getTableService());
-            } catch (NoSuchMethodException e) {
-                throw new InternalServerErrorException(e);
-            }
-        }
-        return permissionsService;
+    public PermissionsService getPermissionsService() {
+        return permissionsService.get(() -> new PermissionsService(getTableService()));
     }
 
-    public synchronized AccountsService getAccountsService() {
-        if (accountsService == null)
-            accountsService = bypass(() -> new AccountsService(getTableService()));
-        return accountsService;
+    public AccountsService getAccountsService() {
+        return accountsService.get(() -> new AccountsService(getTableService()));
     }
 
-    public synchronized JobService getJobService() {
-        if (jobService == null) {
-            jobService =
-                new JobService(getConfigService(), getAccountsService(), getTasksService(), getIndexesService(),
-                    getTemplatesService(), getTaskExecutionService());
-            closing.add(jobService);
-        }
-        return jobService;
+    public JobService getJobService() {
+        return jobService.get(
+            () -> new JobService(getConfigService(), getAccountsService(), getTasksService(), getIndexesService(),
+                getTemplatesService(), getTaskExecutionService()));
+    }
+
+    public SessionPersistenceManager getSessionPersistenceManager() {
+        return sessionPersistenceManager.get(
+            () -> new InFileSessionPersistenceManager(createDataSubDirectoryIfNotExists("web-sessions")));
     }
 
     @Override
     public synchronized void close() {
 
         // First we shutdown the executorService
-        if (executorService != null)
-            executorService.shutdown();
+        executorService.ifPresent(true, ExecutorService::shutdown);
 
         // Then we close components in reverse order
-        int i = closing.size();
+        int i = providersWithAutoCloseableValue.size();
         while (i > 0)
-            IOUtils.closeQuietly(closing.get(--i));
+            providersWithAutoCloseableValue.get(--i).close();
 
-        // Let's wait for all threads to be done
-        if (executorService != null) {
-            ExceptionUtils.bypass(() -> executorService.awaitTermination(1, TimeUnit.MINUTES));
-            executorService.shutdownNow();
-            executorService = null;
-        }
+        // Let's wait 5 minutes for all threads to be done
+        executorService.ifPresent(true, executor -> executor.awaitTermination(5, TimeUnit.MINUTES));
+
+        // Second chance shutdown
+        executorService.ifPresent(true, ExecutorService::shutdownNow);
+
+        // Closing/resetting every providers
+        providers.forEach(AtomicProvider::close);
 
         Tables.closeAll();
-
-        // Set the singletons back to null
-        scriptManager = null;
-
-        indexManager = null;
-        indexService = null;
-        indexesService = null;
-
-        webCrawlerManager = null;
-        webCrawlerService = null;
-        webCrawlsService = null;
-
-        tasksService = null;
-        taskExecutionService = null;
-        tasksProcessors = null;
-        webCrawlProcessor = null;
-
-        storeManager = null;
-        storeService = null;
     }
 
 }

@@ -30,9 +30,10 @@ public class AccountsTransaction extends ServletTransaction {
 
     private final static String TEMPLATE = "accounts/accounts.ftl";
 
-    AccountsTransaction(final Components components, final HttpServletRequest request,
-        final HttpServletResponse response) {
-        super(components.getFreemarkerTool(), request, response, true);
+    AccountsTransaction(final Components components,
+                        final HttpServletRequest request,
+                        final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), components.getConfigService(), request, response, true);
         final TableRequestResultRecords<PermissionRecord> permissions =
             components.getPermissionsService().getPermissionsByUser(userRecord.getId(), 0, 1000);
         final Map<AccountRecord, PermissionRecord> results =

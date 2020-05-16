@@ -48,9 +48,11 @@ public class AdminAccountTransaction extends ServletTransaction {
 
     private final AccountRecord accountRecord;
 
-    AdminAccountTransaction(final Components components, final AccountRecord accountRecord,
-        final HttpServletRequest request, final HttpServletResponse response) {
-        super(components.getFreemarkerTool(), request, response, false);
+    AdminAccountTransaction(final Components components,
+                            final AccountRecord accountRecord,
+                            final HttpServletRequest request,
+                            final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), components.getConfigService(), request, response, false);
         this.usersService = components.getUsersService();
         this.accountsService = components.getAccountsService();
         this.permissionsService = components.getPermissionsService();

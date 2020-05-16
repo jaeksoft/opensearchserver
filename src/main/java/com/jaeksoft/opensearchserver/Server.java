@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,8 @@ public class Server extends Components {
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
                 .singletons(new AdminAccountsService(getAccountsService(), getPermissionsService())), true, true);
         serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService))
-            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"));
+            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
+            .sessionPersistenceManager(getSessionPersistenceManager());
         webAppBuilder.build();
         server = serverBuilder.build();
         getJobService().startTasks();
@@ -69,7 +70,7 @@ public class Server extends Components {
 
     @Override
     public void close() {
-        server.stopAll();
+        server.close();
         super.close();
     }
 

@@ -30,9 +30,11 @@ public class AccountTransaction extends ServletTransaction {
 
     protected final AccountRecord accountRecord;
 
-    protected AccountTransaction(final Components components, final AccountRecord accountRecord,
-        final HttpServletRequest request, final HttpServletResponse response) {
-        super(components.getFreemarkerTool(), request, response, true);
+    protected AccountTransaction(final Components components,
+                                 final AccountRecord accountRecord,
+                                 final HttpServletRequest request,
+                                 final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), components.getConfigService(), request, response, true);
         this.accountRecord = accountRecord;
         if (components.getPermissionsService().getPermission(userRecord.getId(), accountRecord.getId()) == null)
             throw new NotAllowedException("Not allowed");

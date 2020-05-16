@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,61 +26,61 @@ import java.util.Map;
 
 public interface TaskProcessor<S> {
 
-	TaskProcessor DEFAULT = new TaskProcessor() {
-	};
+    TaskProcessor DEFAULT = new TaskProcessor() {
+    };
 
-	default String getType() {
-		throw new NotSupportedException();
-	}
+    default String getType() {
+        throw new NotSupportedException();
+    }
 
-	static NotSupportedException notSupportedException(String taskId) {
-		return new NotSupportedException("Action not supported for this task: " + taskId);
-	}
+    static NotSupportedException notSupportedException(String taskId) {
+        return new NotSupportedException("Action not supported for this task: " + taskId);
+    }
 
-	/**
-	 * Start the next run for this task.
-	 *
-	 * @param taskRecord
-	 */
-	default TaskRecord.Status runSession(final TaskRecord taskRecord) throws Exception {
-		throw notSupportedException(taskRecord.taskId);
-	}
+    /**
+     * Start the next run for this task.
+     *
+     * @param taskRecord
+     */
+    default TaskRecord.Status runSession(final TaskRecord taskRecord) throws Exception {
+        throw notSupportedException(taskRecord.taskId);
+    }
 
-	default boolean isRunning(final String taskId) {
-		throw notSupportedException(taskId);
-	}
+    default boolean isRunning(final String taskId) {
+        throw notSupportedException(taskId);
+    }
 
-	default S getStatus(final String taskId) {
-		throw notSupportedException(taskId);
-	}
+    default S getStatus(final String taskId) {
+        throw notSupportedException(taskId);
+    }
 
-	default void abort(final String taskId) {
-		throw notSupportedException(taskId);
-	}
+    default void abort(final String taskId) {
+        throw notSupportedException(taskId);
+    }
 
-	default TaskInfos getTaskInfos(final TaskRecord taskRecord) {
-		throw notSupportedException(taskRecord.taskId);
-	}
+    default TaskInfos getTaskInfos(final TaskRecord taskRecord) {
+        throw notSupportedException(taskRecord.taskId);
+    }
 
-	static Builder of() {
-		return new Builder();
-	}
+    static Builder of() {
+        return new Builder();
+    }
 
-	class Builder {
+    class Builder {
 
-		final Map<String, TaskProcessor<?>> processorMap;
+        final Map<String, TaskProcessor<?>> processorMap;
 
-		private Builder() {
-			processorMap = new LinkedHashMap<>();
-		}
+        private Builder() {
+            processorMap = new LinkedHashMap<>();
+        }
 
-		public Builder register(final TaskProcessor<?> tasksExecutorService) {
-			processorMap.put(tasksExecutorService.getType(), tasksExecutorService);
-			return this;
-		}
+        public Builder register(final TaskProcessor<?> tasksExecutorService) {
+            processorMap.put(tasksExecutorService.getType(), tasksExecutorService);
+            return this;
+        }
 
-		public Map<String, TaskProcessor> build() {
-			return Collections.unmodifiableMap(processorMap);
-		}
-	}
+        public Map<String, TaskProcessor<?>> build() {
+            return Collections.unmodifiableMap(processorMap);
+        }
+    }
 }

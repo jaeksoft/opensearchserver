@@ -34,6 +34,6 @@ class BaseTableService<T> {
         tableService.createUpdateTable();
         tableService.createUpdateFields();
         columnsSet = this.tableService.getColumns().keySet();
-        columnsArray = columnsSet.toArray(new String[columnsSet.size()]);
+        columnsArray = columnsSet.toArray(new String[0]);
     }
 }

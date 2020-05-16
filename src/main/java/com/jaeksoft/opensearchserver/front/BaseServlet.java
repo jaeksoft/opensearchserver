@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,45 +26,49 @@ import java.io.IOException;
 
 public abstract class BaseServlet extends HttpServlet {
 
-	protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
-			final HttpServletResponse response) throws IOException, ServletException;
+    protected abstract ServletTransaction getServletTransaction(final HttpServletRequest request,
+                                                                final HttpServletResponse response) throws IOException, ServletException;
 
-	private void doTransaction(final HttpServletRequest request, final HttpServletResponse response,
-			final DoMethod doMethod) throws IOException, ServletException {
-		final ServletTransaction transaction;
-		try {
-			transaction = getServletTransaction(request, response);
-		} catch (RedirectionException e) {
-			response.sendRedirect(e.getLocation().toString());
-			return;
-		} catch (NotFoundException e) {
-			response.sendError(404, e.getMessage());
-			return;
-		} catch (InternalServerErrorException e) {
-			response.sendError(500, e.getMessage());
-			return;
-		}
-		if (transaction != null)
-			doMethod.apply(transaction);
-		else
-			response.sendError(404);
-	}
+    private void doTransaction(final HttpServletRequest request,
+                               final HttpServletResponse response,
+                               final DoMethod doMethod) throws IOException, ServletException {
+        final ServletTransaction transaction;
+        try {
+            transaction = getServletTransaction(request, response);
+        }
+        catch (RedirectionException e) {
+            response.sendRedirect(e.getLocation().toString());
+            return;
+        }
+        catch (NotFoundException e) {
+            response.sendError(404, e.getMessage());
+            return;
+        }
+        catch (InternalServerErrorException e) {
+            response.sendError(500, e.getMessage());
+            return;
+        }
+        if (transaction != null)
+            doMethod.apply(transaction);
+        else
+            response.sendError(404);
+    }
 
-	@Override
-	final public void doPost(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		doTransaction(request, response, ServletTransaction::doPost);
-	}
+    @Override
+    final public void doPost(final HttpServletRequest request, final HttpServletResponse response)
+        throws IOException, ServletException {
+        doTransaction(request, response, ServletTransaction::doPost);
+    }
 
-	@Override
-	final public void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws IOException, ServletException {
-		doTransaction(request, response, ServletTransaction::doGet);
-	}
+    @Override
+    final public void doGet(final HttpServletRequest request, final HttpServletResponse response)
+        throws IOException, ServletException {
+        doTransaction(request, response, ServletTransaction::doGet);
+    }
 
-	@FunctionalInterface
-	interface DoMethod {
-		void apply(ServletTransaction transaction) throws IOException, ServletException;
-	}
+    @FunctionalInterface
+    interface DoMethod {
+        void apply(ServletTransaction transaction) throws IOException, ServletException;
+    }
 
 }

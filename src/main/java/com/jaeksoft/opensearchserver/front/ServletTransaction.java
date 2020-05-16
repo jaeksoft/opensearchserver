@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver.front;
 
 import com.jaeksoft.opensearchserver.model.UserRecord;
+import com.jaeksoft.opensearchserver.services.ConfigService;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.utils.LinkUtils;
@@ -44,14 +45,19 @@ public abstract class ServletTransaction {
     private final static Logger LOGGER = LoggerUtils.getLogger(ServletTransaction.class);
 
     private final FreeMarkerTool freemarker;
+    private final ConfigService configService;
     protected final HttpServletRequest request;
     protected final HttpServletResponse response;
     protected final HttpSession session;
     protected final UserRecord userRecord;
 
-    protected ServletTransaction(final FreeMarkerTool freemarker, final HttpServletRequest request,
-        final HttpServletResponse response, boolean requireLoggedUser) {
+    protected ServletTransaction(final FreeMarkerTool freemarker,
+                                 final ConfigService configService,
+                                 final HttpServletRequest request,
+                                 final HttpServletResponse response,
+                                 boolean requireLoggedUser) {
         this.freemarker = freemarker;
+        this.configService = configService;
         this.request = request;
         this.response = response;
         this.session = request.getSession();
@@ -97,7 +103,7 @@ public abstract class ServletTransaction {
      * @return the value of the given parameter
      */
     protected Integer getRequestParameter(final String requestParameterName, String sessionParameterName,
-        final Integer defaultValue, final Integer minValue, final Integer maxValue) {
+                                          final Integer defaultValue, final Integer minValue, final Integer maxValue) {
         final String stringValue = getParameter(requestParameterName, sessionParameterName);
         if (StringUtils.isBlank(stringValue))
             return defaultValue;
@@ -110,7 +116,7 @@ public abstract class ServletTransaction {
     }
 
     protected Integer getRequestParameter(final String requestParameterName, final Integer defaultValue,
-        final Integer minValue, final Integer maxValue) {
+                                          final Integer minValue, final Integer maxValue) {
         return getRequestParameter(requestParameterName, null, defaultValue, minValue, maxValue);
     }
 
@@ -186,13 +192,15 @@ public abstract class ServletTransaction {
             final Object redirect = method.invoke(this);
             if (!response.isCommitted())
                 sendRedirect(redirect == null ? null : redirect.toString());
-        } catch (ReflectiveOperationException | WebApplicationException | URISyntaxException e) {
+        }
+        catch (ReflectiveOperationException | WebApplicationException | URISyntaxException e) {
             final String msg = "Action failed: " + action;
             addMessage(msg, e);
             LOGGER.log(Level.WARNING, msg, e);
             try {
                 sendRedirect(null);
-            } catch (URISyntaxException e1) {
+            }
+            catch (URISyntaxException e1) {
                 LOGGER.log(Level.SEVERE, "Self Redirect failed", e1);
             }
         }
@@ -228,9 +236,11 @@ public abstract class ServletTransaction {
         try {
             final List<Message> messages = getMessages();
             request.setAttribute("messages", messages);
+            request.setAttribute("config", configService);
             freemarker.template(templatePath, request, response);
             messages.clear();
-        } catch (TemplateException e) {
+        }
+        catch (TemplateException e) {
             throw new ServletException(e);
         }
     }

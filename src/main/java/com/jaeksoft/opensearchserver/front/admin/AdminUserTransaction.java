@@ -48,9 +48,11 @@ public class AdminUserTransaction extends ServletTransaction {
 
     private final UUID userId;
 
-    AdminUserTransaction(final Components components, final UUID userId, final HttpServletRequest request,
-        final HttpServletResponse response) {
-        super(components.getFreemarkerTool(), request, response, false);
+    AdminUserTransaction(final Components components,
+                         final UUID userId,
+                         final HttpServletRequest request,
+                         final HttpServletResponse response) {
+        super(components.getFreemarkerTool(), components.getConfigService(), request, response, false);
         this.usersService = components.getUsersService();
         this.accountsService = components.getAccountsService();
         this.permissionsService = components.getPermissionsService();

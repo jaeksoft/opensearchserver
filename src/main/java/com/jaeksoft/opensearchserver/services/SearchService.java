@@ -19,7 +19,7 @@ package com.jaeksoft.opensearchserver.services;
 import com.jaeksoft.opensearchserver.model.IndexStatus;
 import com.jaeksoft.opensearchserver.model.Language;
 import com.jaeksoft.opensearchserver.model.SearchResults;
-import com.qwazr.search.function.IntFieldSource;
+import com.qwazr.search.function.DoubleValuesSource;
 import com.qwazr.search.function.MultiValuedLongFieldSource;
 import com.qwazr.search.index.HighlighterDefinition;
 import com.qwazr.search.index.QueryBuilder;
@@ -45,8 +45,7 @@ public class SearchService {
 
     protected final HighlighterDefinition contentHighlighter = HighlighterDefinition.of().setMaxPassages(5).build();
 
-    protected final FunctionQuery depthFunctionQuery = new FunctionQuery(new IntFieldSource("depth"));
-
+    // Switch to reciprocal function
     protected final FunctionQuery datePublishedFunctionQuery = new FunctionQuery(
         new MultiValuedLongFieldSource("datePublished", org.apache.lucene.search.SortedNumericSelector.Type.MAX));
 
@@ -154,60 +153,13 @@ public class SearchService {
     public SearchResults webSearch(final IndexService indexService, final Language lang, final String keywords,
         final int start, final int rows) {
         return search(indexService, lang, keywords, start, rows,
-            query -> new FunctionScoreQuery(query, DepthScore.class.getName(), depthFunctionQuery), indexedStatus);
+            query -> new FunctionScoreQuery(query, new DoubleValuesSource.IntField("depth")), indexedStatus);
     }
 
     public SearchResults newsSearch(final IndexService indexService, final Language lang, final String keywords,
         final int start, final int rows) {
         return search(indexService, lang, keywords, start, rows, "datePublished",
             QueryDefinition.SortEnum.descending_missing_last, indexedStatus, newsFilter);
-    }
-
-    public static class DepthScore extends Double {
-
-        public DepthScore(LeafReaderContext context) {
-            super(context);
-        }
-
-        public float customScore(int doc, float subQueryScore, float valSrcScore) {
-            switch ((int) valSrcScore) {
-            case 0:
-                return subQueryScore * 2.3f;
-            case 1:
-                return subQueryScore * 1.8f;
-            case 2:
-                return subQueryScore * 1.3f;
-            case 3:
-                return subQueryScore * 1.2f;
-            default:
-                return subQueryScore;
-            }
-        }
-    }
-
-    public static class RecentScore extends CustomScoreProvider {
-
-        private static final float rangeTime = 1000 * 60 * 60 * 24 * 7;
-
-        private final long currentTime = System.currentTimeMillis();
-        private final float pivotTime = currentTime - rangeTime;
-
-        private final static float MAX_BOOST = 3.0f;
-        private final static float RANGE_BOOST = 2.0f;
-
-        public RecentScore(LeafReaderContext context) {
-            super(context);
-        }
-
-        public float customScore(final int doc, final float subQueryScore, final float valSrcScore) {
-            if (valSrcScore == 0 || valSrcScore <= pivotTime)
-                return subQueryScore;
-            final float distanceTime = valSrcScore - pivotTime;
-            if (distanceTime <= 0)
-                return MAX_BOOST * subQueryScore;
-            final float distanceCoef = 1 + RANGE_BOOST * (1 / (float) StrictMath.pow(rangeTime / distanceTime, 2));
-            return distanceCoef * subQueryScore;
-        }
     }
 
 }

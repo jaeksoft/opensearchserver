@@ -45,8 +45,8 @@ public class JobService implements Closeable {
     private final TemplatesService templatesService;
 
     public JobService(final ConfigService configService, final AccountsService accountsService,
-        final TasksService tasksService, final IndexesService indexesService, final TemplatesService templatesService,
-        final TaskExecutionService taskExecutionService) {
+                      final TasksService tasksService, final IndexesService indexesService, final TemplatesService templatesService,
+                      final TaskExecutionService taskExecutionService) {
         this.configService = configService;
         this.accountsService = accountsService;
         this.tasksService = tasksService;
@@ -61,7 +61,8 @@ public class JobService implements Closeable {
         scheduler.shutdown();
         try {
             scheduler.awaitTermination(5, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             throw new IOException(e);
         }
     }
@@ -92,10 +93,12 @@ public class JobService implements Closeable {
                 if (nextStatus == TaskRecord.Status.DONE)
                     // If the task was done, we can plan a new run with a new SessionTimeId
                     tasksService.nextSession(taskRecord.taskId);
-            } catch (WebApplicationException e) {
+            }
+            catch (WebApplicationException e) {
                 LOGGER.log(Level.SEVERE, e,
                     () -> "Error on task: " + taskRecord.taskId + " - account: " + taskRecord.accountId);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 LOGGER.log(Level.WARNING, e,
                     () -> "Error on task: " + taskRecord.taskId + " - account: " + taskRecord.accountId);
                 tasksService.updateStatus(taskRecord.taskId, TaskRecord.Status.ERROR,
@@ -114,14 +117,15 @@ public class JobService implements Closeable {
                 runSessions(account);
             });
             LOGGER.info(count + " tasks checked");
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             LOGGER.log(Level.SEVERE, "CheckAccountTasks failed", e);
         }
     }
 
     void startAccountTaskRun() {
-        if (configService.getJobCrawlPeriodSeconds() > 0)
-            scheduler.scheduleWithFixedDelay(this::checkAccountsTasks, 0, configService.getJobCrawlPeriodSeconds(),
+        if (false) // TODO
+            scheduler.scheduleWithFixedDelay(this::checkAccountsTasks, 0, 60,
                 TimeUnit.SECONDS);
     }
 

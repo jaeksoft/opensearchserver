@@ -39,7 +39,7 @@ public class SigninServlet extends BaseServlet {
 
     @Override
     protected ServletTransaction getServletTransaction(final HttpServletRequest request,
-        final HttpServletResponse response) {
+                                                       final HttpServletResponse response) {
         final UsersService usersService = components.getUsersService();
         if (usersService.isSingleSignOn())
             return new SsoTransaction(usersService.getSingleSignOnRedirectUrl(), request, response);
@@ -50,7 +50,7 @@ public class SigninServlet extends BaseServlet {
     private class FormTransaction extends ServletTransaction {
 
         private FormTransaction(final HttpServletRequest request, final HttpServletResponse response) {
-            super(components.getFreemarkerTool(), request, response, false);
+            super(components.getFreemarkerTool(), components.getConfigService(), request, response, false);
         }
 
         @Override
@@ -76,7 +76,7 @@ public class SigninServlet extends BaseServlet {
         final String ssoRedirect;
 
         private SsoTransaction(final String ssoRedirect, HttpServletRequest request, HttpServletResponse response) {
-            super(null, request, response, false);
+            super(null, null, request, response, false);
             this.ssoRedirect = ssoRedirect;
         }
 

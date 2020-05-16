@@ -6,6 +6,7 @@
 /temp
 .DS_Store
 /.idea
+/data
 /indexes
 /logs
 /store
