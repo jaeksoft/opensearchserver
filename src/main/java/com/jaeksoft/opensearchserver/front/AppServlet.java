@@ -22,19 +22,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("")
-public class HomeServlet extends BaseServlet {
+public class AppServlet extends BaseServlet {
 
-	private final Components components;
+    private final Components components;
 
-	private final static String TEMPLATE = "home.ftl";
+    private final static String TEMPLATE = "app.ftl";
 
-	public HomeServlet(final Components components) {
-		this.components = components;
-	}
+    public AppServlet(final Components components) {
+        this.components = components;
+    }
 
-	@Override
-	protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
-		return new StaticTransaction(components, TEMPLATE, request, response, false);
-	}
+    @Override
+    protected ServletTransaction getServletTransaction(HttpServletRequest request, HttpServletResponse response) {
+        return new StaticTransaction(components, TEMPLATE, request, response, false);
+    }
 
 }

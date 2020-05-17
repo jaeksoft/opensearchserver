@@ -15,7 +15,7 @@
  */
 package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.front.HomeServlet;
+import com.jaeksoft.opensearchserver.front.AppServlet;
 import com.jaeksoft.opensearchserver.front.LogoutServlet;
 import com.jaeksoft.opensearchserver.front.SigninServlet;
 import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
@@ -34,7 +34,10 @@ import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.webapps.WebappManager;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.logging.Logger;
+
+import static com.qwazr.webapps.WebappManager.DEFAULT_EXPIRATION_TIME;
 
 public class Server extends Components {
 
@@ -48,7 +51,7 @@ public class Server extends Components {
             .registerDefaultFaviconServlet()
             .registerWebjars()
             .registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
-            .registerJavaServlet(HomeServlet.class, () -> new HomeServlet(this))
+            .registerJavaServlet(AppServlet.class, () -> new AppServlet(this))
             .registerJavaServlet(SearchServlet.class, () -> new SearchServlet(this))
             .registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
             .registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
@@ -60,6 +63,8 @@ public class Server extends Components {
             .registerJaxRsResources(ApplicationBuilder.of("/admin/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
                 .singletons(new AdminAccountsService(getAccountsService(), getPermissionsService())), true, true);
+        if (!getConfigService().isProduction())
+            webAppBuilder.registerStaticServlet("/jsx/*", Path.of("src", "main", "jsx"), DEFAULT_EXPIRATION_TIME);
         serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService))
             .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
             .sessionPersistenceManager(getSessionPersistenceManager());

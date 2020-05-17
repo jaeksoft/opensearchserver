@@ -12,6 +12,8 @@
 /store
 /table
 /tmp
+/node_modules
+/package-lock.json
 /server
 config.oss2.properties
 opensearchserver.iml

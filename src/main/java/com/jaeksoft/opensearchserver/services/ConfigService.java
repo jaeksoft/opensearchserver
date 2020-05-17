@@ -96,7 +96,7 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
         public Config(Properties properties, Instant creationTime) {
             super(properties, creationTime);
             servername = getStringProperty(SERVER_NAME, () -> "localhost:9090");
-            isProduction = getBooleanProperty(IS_PRODUCTION, () -> Boolean.FALSE);
+            isProduction = getBooleanProperty(IS_PRODUCTION, () -> Boolean.TRUE);
             applicationSalt = getStringProperty(APPLICATION_SALT, () -> "oss-salt");
             storeServiceUri = getUriProperty(STORE_SERVICE_URI, () -> null);
             indexServiceUri = getUriProperty(INDEX_SERVICE_URI, () -> null);
