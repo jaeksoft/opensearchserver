@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,37 @@
  */
 'use strict';
 
-function App() {
-  return /*#__PURE__*/React.createElement(Navbar, null);
-}
+const {
+  useState,
+  useEffect
+} = React;
+
+const useAsyncError = () => {
+  const [_, setError] = React.useState();
+  return React.useCallback(e => {
+    setError(() => {
+      throw e;
+    });
+  }, [setError]);
+};
+
+const useFetch = url => {
+  const [data, setData] = useState(null); // empty array as second argument equivalent to componentDidMount
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch(url);
+      const json = await response.json();
+      setData(json);
+    }
+
+    fetchData();
+  }, [url]);
+  return data;
+};
+
+const App = () => {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Navbar, null), /*#__PURE__*/React.createElement(Schemas, null));
+};
 
 ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('app'));

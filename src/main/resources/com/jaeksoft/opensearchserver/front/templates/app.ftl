@@ -19,11 +19,11 @@
   <head>
     <meta charset="UTF-8">
     <title>OpenSearchServer</title>
-    <#include 'includes/head.ftl'>
+    <#include 'head.ftl'>
   </head>
   <body>
   <div id="app"></div>
-  <#include 'includes/foot.ftl'>
+  <#include 'foot.ftl'>
   </body>
   </html>
 </#compress>

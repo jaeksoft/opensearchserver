@@ -13,22 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 'use strict';
 
-const App = () => {
+const {
+  useState
+} = React;
 
-  return (
-    <div>
-      <Navbar/>
-      <div className={'container-fluid'}>
-        <Schemas/>
-      </div>
-    </div>
-  );
-}
-
-ReactDOM.render(
-  <App/>,
-  document.getElementById('app')
-);
+const Schemas = () => {
+  const [schemas, setSchemas] = useState([]);
+  const throwError = useAsyncError();
+  const result = useFetch('/ws/indexes');
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    name: "new-schema"
+  }), /*#__PURE__*/React.createElement("button", {
+    className: 'btn-primary'
+  }, "Create schema"));
+};

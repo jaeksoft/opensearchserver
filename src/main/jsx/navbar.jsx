@@ -1,6 +1,22 @@
+/*
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ *  <p>
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  <p>
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *  <p>
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 'use strict';
 
-function Navbar() {
+const Navbar = () => {
 
   return (
     <nav className='navbar navbar-expand-lg navbar-light bg-light'>
@@ -16,22 +32,8 @@ function Navbar() {
       </button>
       <div className="collapse navbar-collapse" id="navbarNav">
         <ul className="navbar-nav">
-          <li className="nav-item active">
-            <a className="nav-link">Accounts
-              <span className="sr-only">(current)</span></a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">Admin</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">Sign In</a>
-          </li>
           <li className="nav-item"><a className="nav-link" href="#">Log out</a></li>
         </ul>
       </div>
     </nav>);
 }
-
-
-
-

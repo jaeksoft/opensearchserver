@@ -15,22 +15,11 @@
  */
 package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.front.AppServlet;
-import com.jaeksoft.opensearchserver.front.LogoutServlet;
-import com.jaeksoft.opensearchserver.front.SigninServlet;
-import com.jaeksoft.opensearchserver.front.accounts.AccountsServlet;
-import com.jaeksoft.opensearchserver.front.admin.AdminAccountsService;
-import com.jaeksoft.opensearchserver.front.admin.AdminAccountsServlet;
-import com.jaeksoft.opensearchserver.front.admin.AdminHomeServlet;
-import com.jaeksoft.opensearchserver.front.admin.AdminServiceServlet;
-import com.jaeksoft.opensearchserver.front.admin.AdminUsersServlet;
-import com.jaeksoft.opensearchserver.front.search.SearchServlet;
 import com.qwazr.server.ApplicationBuilder;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.RestApplication;
 import com.qwazr.server.configuration.ServerConfiguration;
-import com.qwazr.utils.ExceptionUtils;
 import com.qwazr.webapps.WebappManager;
 
 import java.io.IOException;
@@ -46,31 +35,23 @@ public class Server extends Components {
     private Server(final ServerConfiguration configuration) throws IOException {
         super(configuration.dataDirectory);
 
-        final GenericServerBuilder serverBuilder = GenericServer.of(configuration);
+        final GenericServerBuilder serverBuilder = GenericServer.of(configuration)
+            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
+            .sessionPersistenceManager(getSessionPersistenceManager());
+        ;
         final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
             .registerDefaultFaviconServlet()
             .registerWebjars()
             .registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
             .registerJavaServlet(AppServlet.class, () -> new AppServlet(this))
-            .registerJavaServlet(SearchServlet.class, () -> new SearchServlet(this))
-            .registerJavaServlet(SigninServlet.class, () -> new SigninServlet(this))
-            .registerJavaServlet(LogoutServlet.class, LogoutServlet::new)
-            .registerJavaServlet(AccountsServlet.class, () -> new AccountsServlet(this))
-            .registerJavaServlet(AdminHomeServlet.class, () -> new AdminHomeServlet(this))
-            .registerJavaServlet(AdminUsersServlet.class, () -> new AdminUsersServlet(this))
-            .registerJavaServlet(AdminAccountsServlet.class, () -> new AdminAccountsServlet(this))
-            .registerJavaServlet(AdminServiceServlet.class, () -> new AdminServiceServlet(this))
-            .registerJaxRsResources(ApplicationBuilder.of("/admin/ws/*")
+            .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
-                .singletons(new AdminAccountsService(getAccountsService(), getPermissionsService())), true, true);
+                .singletons(getIndexService()));
         if (!getConfigService().isProduction())
             webAppBuilder.registerStaticServlet("/jsx/*", Path.of("src", "main", "jsx"), DEFAULT_EXPIRATION_TIME);
-        serverBuilder.identityManagerProvider(realm -> ExceptionUtils.bypass(this::getUsersService))
-            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
-            .sessionPersistenceManager(getSessionPersistenceManager());
+
         webAppBuilder.build();
         server = serverBuilder.build();
-        getJobService().startTasks();
     }
 
     @Override

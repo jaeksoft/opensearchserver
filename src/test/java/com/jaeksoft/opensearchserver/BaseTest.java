@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,11 +16,6 @@
 
 package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.model.AccountRecord;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.TasksService;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
-import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import org.junit.After;
 
 import java.io.IOException;
@@ -31,7 +26,6 @@ import java.nio.file.Paths;
 public class BaseTest {
 
     private Components components;
-    private final AccountRecord accountRecord = AccountRecord.of().build();
 
     protected synchronized Components getComponents() throws IOException {
         if (components == null) {
@@ -40,26 +34,6 @@ public class BaseTest {
             components = new Components(dataDirectory);
         }
         return components;
-    }
-
-    protected AccountRecord getAccount() {
-        return accountRecord;
-    }
-
-    protected WebCrawlerServiceInterface getWebCrawlService() throws IOException {
-        return getComponents().getWebCrawlerService();
-    }
-
-    protected WebCrawlsService getWebCrawlsService() throws IOException {
-        return getComponents().getWebCrawlsService();
-    }
-
-    protected TasksService getTasksService() throws IOException {
-        return getComponents().getTasksService();
-    }
-
-    protected IndexesService getIndexesService() throws IOException {
-        return getComponents().getIndexesService();
     }
 
     @After

@@ -1,6 +1,21 @@
+/*
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ *  <p>
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  <p>
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *  <p>
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 'use strict';
 
-function Navbar() {
+const Navbar = () => {
   return /*#__PURE__*/React.createElement("nav", {
     className: "navbar navbar-expand-lg navbar-light bg-light"
   }, /*#__PURE__*/React.createElement("a", {
@@ -28,25 +43,9 @@ function Navbar() {
   }, /*#__PURE__*/React.createElement("ul", {
     className: "navbar-nav"
   }, /*#__PURE__*/React.createElement("li", {
-    className: "nav-item active"
-  }, /*#__PURE__*/React.createElement("a", {
-    className: "nav-link"
-  }, "Accounts", /*#__PURE__*/React.createElement("span", {
-    className: "sr-only"
-  }, "(current)"))), /*#__PURE__*/React.createElement("li", {
-    className: "nav-item"
-  }, /*#__PURE__*/React.createElement("a", {
-    className: "nav-link",
-    href: "#"
-  }, "Admin")), /*#__PURE__*/React.createElement("li", {
-    className: "nav-item"
-  }, /*#__PURE__*/React.createElement("a", {
-    className: "nav-link",
-    href: "#"
-  }, "Sign In")), /*#__PURE__*/React.createElement("li", {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement("a", {
     className: "nav-link",
     href: "#"
   }, "Log out")))));
-}
+};

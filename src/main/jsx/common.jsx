@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,19 +16,3 @@
 
 'use strict';
 
-const App = () => {
-
-  return (
-    <div>
-      <Navbar/>
-      <div className={'container-fluid'}>
-        <Schemas/>
-      </div>
-    </div>
-  );
-}
-
-ReactDOM.render(
-  <App/>,
-  document.getElementById('app')
-);

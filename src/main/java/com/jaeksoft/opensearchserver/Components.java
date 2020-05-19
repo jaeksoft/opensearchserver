@@ -15,28 +15,9 @@
  */
 package com.jaeksoft.opensearchserver;
 
-import com.jaeksoft.opensearchserver.crawler.CrawlerComponents;
-import com.jaeksoft.opensearchserver.services.AccountsService;
-import com.jaeksoft.opensearchserver.services.ConfigService;
-import com.jaeksoft.opensearchserver.services.IndexesService;
-import com.jaeksoft.opensearchserver.services.JobService;
-import com.jaeksoft.opensearchserver.services.JwtUsersService;
-import com.jaeksoft.opensearchserver.services.PermissionsService;
-import com.jaeksoft.opensearchserver.services.SearchService;
-import com.jaeksoft.opensearchserver.services.TableUsersService;
-import com.jaeksoft.opensearchserver.services.TaskExecutionService;
-import com.jaeksoft.opensearchserver.services.TaskProcessor;
-import com.jaeksoft.opensearchserver.services.TasksService;
-import com.jaeksoft.opensearchserver.services.TemplatesService;
-import com.jaeksoft.opensearchserver.services.UsersService;
-import com.jaeksoft.opensearchserver.services.WebCrawlProcessor;
-import com.jaeksoft.opensearchserver.services.WebCrawlsService;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.crawler.web.WebCrawlerSingleClient;
-import com.qwazr.database.TableManager;
-import com.qwazr.database.TableServiceInterface;
-import com.qwazr.database.TableSingleClient;
 import com.qwazr.database.store.Tables;
 import com.qwazr.library.AbstractLibrary;
 import com.qwazr.library.freemarker.FreeMarkerTool;
@@ -46,9 +27,6 @@ import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
 import com.qwazr.server.InFileSessionPersistenceManager;
 import com.qwazr.server.RemoteService;
-import com.qwazr.store.StoreManager;
-import com.qwazr.store.StoreServiceInterface;
-import com.qwazr.store.StoreSingleClient;
 import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.SupplierEx;
@@ -62,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -88,35 +65,14 @@ public class Components implements Closeable {
 
     private final AtomicProvider<IndexManager> indexManager = new AtomicProvider<>();
     private final AtomicProvider<IndexServiceInterface> indexService = new AtomicProvider<>();
-    private final AtomicProvider<IndexesService> indexesService = new AtomicProvider<>();
-    private final AtomicProvider<TemplatesService> templatesService = new AtomicProvider<>();
-    private final AtomicProvider<SearchService> searchService = new AtomicProvider<>();
 
     private final AtomicProvider<WebCrawlerManager> webCrawlerManager = new AtomicProvider<>();
     private final AtomicProvider<WebCrawlerServiceInterface> webCrawlerService = new AtomicProvider<>();
-    private final AtomicProvider<WebCrawlsService> webCrawlsService = new AtomicProvider<>();
-
-    private final AtomicProvider<TasksService> tasksService = new AtomicProvider<>();
-    private final AtomicProvider<Map<String, TaskProcessor<?>>> tasksProcessors = new AtomicProvider<>();
-    private final AtomicProvider<WebCrawlProcessor> webCrawlProcessor = new AtomicProvider<>();
-    private final AtomicProvider<TaskExecutionService> taskExecutionService = new AtomicProvider<>();
-
-    private final AtomicProvider<StoreManager> storeManager = new AtomicProvider<>();
-    private final AtomicProvider<StoreServiceInterface> storeService = new AtomicProvider<>();
-
-    private final AtomicProvider<TableManager> tableManager = new AtomicProvider<>();
-    private final AtomicProvider<TableServiceInterface> tableService = new AtomicProvider<>();
-    private final AtomicProvider<UsersService> usersService = new AtomicProvider<>();
-    private final AtomicProvider<AccountsService> accountsService = new AtomicProvider<>();
-    private final AtomicProvider<PermissionsService> permissionsService = new AtomicProvider<>();
-
-    private final AtomicProvider<JobService> jobService = new AtomicProvider<>();
 
     private final AtomicProvider<SessionPersistenceManager> sessionPersistenceManager = new AtomicProvider<>();
 
     Components(final Path dataDirectory) {
         this.dataDirectory = dataDirectory;
-        CrawlerComponents.setLocalComponents(this);
     }
 
     /**
@@ -215,47 +171,13 @@ public class Components implements Closeable {
             getExecutorService()));
     }
 
-    private IndexServiceInterface getIndexService() {
+    public IndexServiceInterface getIndexService() {
         return indexService.get(() -> {
             if (getConfigService().getIndexServiceUri() != null)
                 return new IndexSingleClient(RemoteService.of(getConfigService().getIndexServiceUri()).build());
             else
                 return getIndexManager().getService();
         });
-    }
-
-    public IndexesService getIndexesService() {
-        return indexesService.get(() -> new IndexesService(getIndexService()));
-    }
-
-    public TemplatesService getTemplatesService() {
-        return templatesService.get(() -> new TemplatesService(getStoreService()));
-    }
-
-    public SearchService getSearchService() {
-        return searchService.get(SearchService::new);
-    }
-
-    public WebCrawlsService getWebCrawlsService() {
-        return webCrawlsService.get(() -> new WebCrawlsService(getStoreService()));
-    }
-
-    private WebCrawlProcessor getWebCrawlProcessor() {
-        return webCrawlProcessor.get(
-            () -> new WebCrawlProcessor(getConfigService(), getWebCrawlerService(), getIndexesService(),
-                getAccountsService()));
-    }
-
-    private Map<String, TaskProcessor<?>> getProcessors() {
-        return tasksProcessors.get(() -> TaskProcessor.of().register(getWebCrawlProcessor()).build());
-    }
-
-    public TasksService getTasksService() {
-        return tasksService.get(() -> new TasksService(getTableService(), getTaskExecutionService()));
-    }
-
-    public TaskExecutionService getTaskExecutionService() {
-        return taskExecutionService.get(() -> new TaskExecutionService(getTableService(), getProcessors()));
     }
 
     private ScriptManager getScriptManager() {
@@ -274,56 +196,6 @@ public class Components implements Closeable {
             else
                 return getWebCrawlerManager().getService();
         });
-    }
-
-    private StoreManager getStoreManager() {
-        return storeManager.get(() -> new StoreManager(getExecutorService(), getScriptManager(),
-            createDataSubDirectoryIfNotExists(StoreServiceInterface.SERVICE_NAME)));
-    }
-
-    StoreServiceInterface getStoreService() {
-        return storeService.get(() -> {
-            if (getConfigService().getStoreServiceUri() != null)
-                return new StoreSingleClient(RemoteService.of(getConfigService().getStoreServiceUri()).build());
-            else
-                return getStoreManager().getService();
-        });
-    }
-
-    private TableManager getTableManager() {
-        return tableManager.get(() -> {
-            Runtime.getRuntime().addShutdownHook(new Thread(Tables::closeAll));
-            return new TableManager(getExecutorService(), TableManager.checkTablesDirectory(dataDirectory));
-        });
-    }
-
-    private TableServiceInterface getTableService() {
-        return tableService.get(() -> {
-            if (getConfigService().getTableServiceUrl() != null)
-                return new TableSingleClient(RemoteService.of(getConfigService().getTableServiceUrl()).build());
-            else
-                return getTableManager().getService();
-        });
-    }
-
-    public UsersService getUsersService() {
-        return usersService.get(() -> getConfigService().hasJwtSignin() ?
-            new JwtUsersService(getConfigService()) :
-            new TableUsersService(getConfigService(), getTableService()));
-    }
-
-    public PermissionsService getPermissionsService() {
-        return permissionsService.get(() -> new PermissionsService(getTableService()));
-    }
-
-    public AccountsService getAccountsService() {
-        return accountsService.get(() -> new AccountsService(getTableService()));
-    }
-
-    public JobService getJobService() {
-        return jobService.get(
-            () -> new JobService(getConfigService(), getAccountsService(), getTasksService(), getIndexesService(),
-                getTemplatesService(), getTaskExecutionService()));
     }
 
     public SessionPersistenceManager getSessionPersistenceManager() {
