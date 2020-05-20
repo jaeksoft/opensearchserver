@@ -15,18 +15,55 @@
  */
 'use strict';
 
-const {
-  useState
-} = React;
-
-const Schemas = () => {
+function Schemas(props) {
+  const [status, setStatus] = useState(newStatus());
   const [schemas, setSchemas] = useState([]);
-  const throwError = useAsyncError();
-  const result = useFetch('/ws/indexes');
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    name: "new-schema"
-  }), /*#__PURE__*/React.createElement("button", {
-    className: 'btn-primary'
-  }, "Create schema"));
-};
+  const [schemaName, setSchemaName] = useState('');
+  useEffect(() => {
+    doFetchSchemas();
+  }, []);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "bg-dark text-white p-1"
+  }, "SCHEMAS\xA0", /*#__PURE__*/React.createElement(Status, {
+    status: status
+  })), /*#__PURE__*/React.createElement(List, {
+    values: schemas,
+    selectedValue: props.selectedSchema,
+    doSelectValue: value => props.setSelectedSchema(value)
+  }), /*#__PURE__*/React.createElement(CreateDeleteButtons, {
+    name: schemaName,
+    setName: sch => setSchemaName(sch),
+    selectedName: props.selectedSchema,
+    doCreate: sch => doCreateSchema(sch),
+    doDelete: sch => doDeleteSchema(sch)
+  }));
+
+  function doCreateSchema(sch) {
+    setStatus(startTask(status, 'Creating schema ' + sch));
+    fetchJson('/ws/indexes/' + sch, {
+      method: 'POST'
+    }, json => {
+      setStatus(endTask(status, 'Schema created'));
+      doFetchSchemas();
+    }, error => setStatus(endTask(status, null, error)));
+  }
+
+  function doDeleteSchema(sch) {
+    setStatus(startTask(status, 'Deleting schema ' + sch));
+    fetchJson('/ws/indexes/' + sch, {
+      method: 'DELETE'
+    }, json => {
+      props.setSelectedSchema(null);
+      setStatus(endTask(status, 'Schema deleted'));
+      doFetchSchemas();
+    }, error => setStatus(endTask(status, null, error)));
+  }
+
+  function doFetchSchemas() {
+    setStatus(startTask(status, null));
+    fetchJson('/ws/indexes', null, json => {
+      setStatus(endTask(status));
+      setSchemas(json);
+    }, error => setStatus(endTask(status, null, error)));
+  }
+}

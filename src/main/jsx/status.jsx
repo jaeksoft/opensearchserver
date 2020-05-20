@@ -16,11 +16,15 @@
 
 'use strict';
 
-const Spinning = (props) => {
+function newStatus() {
+  return {spinning: false, task: null, error: null}
+}
 
-  if (props.spinning) {
+function Spinning(props) {
+
+  if (props.status && props.status.spinning) {
     return (
-      <div className="spinner-border spinner-border-sm float-right" role="status">
+      <div className="spinner-border spinner-border-sm" role="status">
         <span className="sr-only">Loading...</span>
       </div>
     );
@@ -29,44 +33,57 @@ const Spinning = (props) => {
   }
 }
 
-const Status = (props) => {
+function Status(props) {
 
-  if (props.error && props.status) {
+  if (props.status.error && props.status.task) {
     return (
-      <div className="row">
-        <div className="col-md-6 alert alert-primary" role="alert" title={'Last status'}>
-          <Spinning spinning={props.spinning}/>
-          {props.status}
+      <React.Fragment>
+        <Spinning spinning={props.status.spinning}/>
+        <div className="text-danger float-right">
+          <small>{props.status.task}: {props.status.error}</small>
         </div>
-        <div className="col-md-6 alert alert-danger" role="alert" title={'Last error'}>
-          {props.error}
-        </div>
-      </div>
+      </React.Fragment>
     );
-  } else if (props.error) {
+  } else if (props.status.error) {
     return (
-      <div className="row">
-        <div className="alert alert-danger col-md-12" role="alert" title={'Last error'}>
-          <Spinning spinning={props.spinning}/>
-          {props.error}
+      <React.Fragment>
+        <Spinning spinning={props.status.spinning}/>
+        <div className="text-danger float-right">
+          <small>{props.status.error}</small>
         </div>
-      </div>
+      </React.Fragment>
     );
-  } else if (props.status) {
+  } else if (props.status.task) {
     return (
-      <div className="row">
-        <div className="alert alert-primary col-md-12" role="alert" title={'Last status'}>
-          <Spinning spinning={props.spinning}/>
-          {props.status}
+      <React.Fragment>
+        <Spinning spinning={props.status.spinning}/>
+        <div className="text-success float-right">
+          <small>{props.status.task}</small>
         </div>
-      </div>
+      </React.Fragment>
     );
   } else return (
-    <div className="row">
-      <div className="col-md-12 alert alert-primary" role="alert" title={'Last status'}>
-        <Spinning spinning={props.spinning}/>
-        &nbsp;
-      </div>
-    </div>);
+    <React.Fragment>
+      <Spinning spinning={props.status.spinning}/>
+      &nbsp;
+    </React.Fragment>
+  );
 }
 
+function endTask(status, newTask, newError) {
+  status.spinning = false;
+  if (newTask)
+    status.task = newTask;
+  if (newError)
+    status.error = newError;
+  else if (newTask)
+    status.error = null;
+  return status;
+}
+
+function startTask(status, newTask) {
+  status.spinning = true;
+  if (newTask)
+    status.task = newTask;
+  return status;
+}

@@ -15,37 +15,22 @@
  */
 'use strict';
 
-const {
-  useState,
-  useEffect
-} = React;
-
-const useAsyncError = () => {
-  const [_, setError] = React.useState();
-  return React.useCallback(e => {
-    setError(() => {
-      throw e;
-    });
-  }, [setError]);
-};
-
-const useFetch = url => {
-  const [data, setData] = useState(null); // empty array as second argument equivalent to componentDidMount
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch(url);
-      const json = await response.json();
-      setData(json);
-    }
-
-    fetchData();
-  }, [url]);
-  return data;
-};
-
-const App = () => {
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Navbar, null), /*#__PURE__*/React.createElement(Schemas, null));
-};
+function App() {
+  const [selectedSchema, setSelectedSchema] = useState(null);
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Navbar, null), /*#__PURE__*/React.createElement("div", {
+    className: "container-fluid p-0 m-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-flex"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill"
+  }, /*#__PURE__*/React.createElement(Schemas, {
+    selectedSchema: selectedSchema,
+    setSelectedSchema: setSelectedSchema
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill"
+  }, /*#__PURE__*/React.createElement(Indices, {
+    selectedSchema: selectedSchema
+  })))));
+}
 
 ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('app'));

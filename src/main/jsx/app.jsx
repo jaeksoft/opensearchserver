@@ -16,16 +16,28 @@
 
 'use strict';
 
-const App = () => {
+function App() {
+
+  const [selectedSchema, setSelectedSchema] = useState(null);
 
   return (
-    <div>
+    <React.Fragment>
       <Navbar/>
-      <div className={'container-fluid'}>
-        <Schemas/>
+      <div className="container-fluid p-0 m-0">
+        <div className="d-flex">
+          <div className="shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill">
+            <Schemas selectedSchema={selectedSchema}
+                     setSelectedSchema={setSelectedSchema}
+            />
+          </div>
+          <div className="shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill">
+            <Indices selectedSchema={selectedSchema}/>
+          </div>
+        </div>
       </div>
-    </div>
+    </React.Fragment>
   );
+
 }
 
 ReactDOM.render(

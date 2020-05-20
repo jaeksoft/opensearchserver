@@ -16,13 +16,9 @@
 
 'use strict';
 
-const {useState, useEffect} = React;
+function Schemas(props) {
 
-const Schemas = () => {
-
-  const [lastError, setLastError] = useState(null);
-  const [status, setStatus] = useState(null);
-  const [spinning, setSpinning] = useState(false);
+  const [status, setStatus] = useState(newStatus());
   const [schemas, setSchemas] = useState([]);
   const [schemaName, setSchemaName] = useState('');
 
@@ -31,113 +27,50 @@ const Schemas = () => {
   }, [])
 
   return (
-    <div>
-      <Status error={lastError} status={status} spinning={spinning}/>
-      <div className="card-group">
-        <div className="card">
-          <div className="card-body">
-            <div className="row">
-              <div className="col-md-5">
-                <div className="card-group">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Schemas</h5>
-                    </div>
-                    <ul className="list-group">
-                      {schemas.map(schema => (
-                        <li key={schema} className="list-group-item">
-                          {schema}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="card-body">
-                      <div className="input-group">
-                        <div className=" input-group-prepend">
-                          <button className=" btn btn-primary" type=" button" id=" create-schema"
-                                  onClick={doCreateSchema}>
-                            Create
-                          </button>
-                        </div>
-                        <input type=" text" className=" form-control" placeholder="schema name"
-                               aria-label=" New schema name" aria-describedby=" create-schema"
-                               value={schemaName} onChange={e => setSchemaName(e.target.value)}
-                        />
-                        <div className=" input-group-append">
-                          <button className=" btn btn-danger" type=" button" id="delete-schema"
-                                  onClick={doDeleteSchema}>
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-5">&nbsp;</div>
-            </div>
-          </div>
-        </div>
+    <React.Fragment>
+      <div className="bg-dark text-white p-1">SCHEMAS&nbsp;
+        <Status status={status}/>
       </div>
-    </div>
+      <List values={schemas}
+            selectedValue={props.selectedSchema}
+            doSelectValue={value => props.setSelectedSchema(value)}/>
+      <CreateDeleteButtons
+        name={schemaName}
+        setName={sch => setSchemaName(sch)}
+        selectedName={props.selectedSchema}
+        doCreate={sch => doCreateSchema(sch)}
+        doDelete={sch => doDeleteSchema(sch)}
+      />
+    </React.Fragment>
   );
 
-  function doCreateSchema() {
-    setStatus('Creating schema ' + schemaName);
-    fetch('/ws/indexes/' + schemaName, {method: 'POST'})
-      .then(response => checkErrorJson(response, 'Schema created'))
-      .then(json => doFetchSchemas(), error => endTask(null, error));
+  function doCreateSchema(sch) {
+    setStatus(startTask(status, 'Creating schema ' + sch));
+    fetchJson('/ws/indexes/' + sch, {method: 'POST'},
+      json => {
+        setStatus(endTask(status, 'Schema created'));
+        doFetchSchemas();
+      }, error => setStatus(endTask(status, null, error)));
   }
 
-  function doDeleteSchema() {
-    setStatus('Deleting schema ' + schemaName);
-    fetch('/ws/indexes/' + schemaName, {method: 'DELETE'})
-      .then(response => checkErrorJson(response, 'Schema deleted'))
-      .then(json => doFetchSchemas(), error => endTask(null, error));
+  function doDeleteSchema(sch) {
+    setStatus(startTask(status, 'Deleting schema ' + sch));
+    fetchJson('/ws/indexes/' + sch, {method: 'DELETE'},
+      json => {
+        props.setSelectedSchema(null);
+        setStatus(endTask(status, 'Schema deleted'));
+        doFetchSchemas();
+      }, error => setStatus(endTask(status, null, error)));
   }
 
   function doFetchSchemas() {
-    startTask(null);
-    fetch('/ws/indexes')
-      .then(response => checkErrorJson(response, null))
-      .then(
-        (json) => {
-          endTask(null, null);
-          setSchemas(json);
-        },
-        (error) => endTask(null, error)
-      )
+    setStatus(startTask(status, null));
+    fetchJson('/ws/indexes', null,
+      json => {
+        setStatus(endTask(status));
+        setSchemas(json);
+      },
+      error => setStatus(endTask(status, null, error)));
   }
 
-  function checkErrorJson(response, newSuccessfulStatus) {
-    const jsonPromise = response.json();
-    if (response.ok) {
-      if (newSuccessfulStatus) {
-        setStatus(newSuccessfulStatus);
-        setLastError(null);
-      }
-      return jsonPromise;
-    } else {
-      return jsonPromise.then(errorJson => {
-        const errorMessage = (errorJson && errorJson.message) || response.statusText;
-        setLastError(errorMessage);
-        return null;
-      });
-    }
-  }
-
-  function endTask(newStatus, newError) {
-    setSpinning(false);
-    if (newStatus)
-      setStatus(newStatus);
-    if (newError)
-      setLastError(newError);
-    else if (newStatus)
-      setLastError(null);
-  }
-
-  function startTask(newStatus) {
-    setSpinning(true);
-    if (newStatus)
-      setStatus(newStatus);
-  }
 }
