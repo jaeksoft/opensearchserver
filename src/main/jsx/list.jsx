@@ -19,6 +19,8 @@
  * @returns {*}
  */
 const List = (props) => {
+  if (!props.values)
+    return null;
   const values = Array.isArray(props.values) ? props.values : Object.keys(props.values);
   const listItems = values.map(value => (
     <ListItem key={value}
@@ -28,7 +30,7 @@ const List = (props) => {
     />
   ));
   return (
-    <ul className="list-group-flush p-0 m-0">
+    <ul className="list-group p-1 m-0">
       {listItems}
     </ul>
   );

@@ -17,7 +17,7 @@
 
 const Navbar = () => {
   return /*#__PURE__*/React.createElement("nav", {
-    className: "navbar navbar-dark bg-dark"
+    className: "navbar navbar-light bg-light"
   }, /*#__PURE__*/React.createElement("a", {
     className: "navbar-brand",
     href: "#"
@@ -26,7 +26,9 @@ const Navbar = () => {
     width: "32",
     height: "32",
     className: "d-inline-block align-top",
-    alt: "OpenSearchServer 2.0",
+    alt: "OpenSearchServer",
     loading: "lazy"
-  }), "OpenSearchServer 2.0"));
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "navbar-brand text-secondary"
+  }, /*#__PURE__*/React.createElement("small", null, "OpenSearchServer 2.0")));
 };

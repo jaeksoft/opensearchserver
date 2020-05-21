@@ -56,13 +56,13 @@ function fetchJson(request, init, doJson, doError) {
 function CreateOrDeleteButton(props) {
   if (props.name === props.selectedName) {
     return /*#__PURE__*/React.createElement("button", {
-      className: "btn btn-danger btn-sm shadow-none",
+      className: "btn btn-danger shadow-none",
       type: "button",
       onClick: () => props.doDelete(props.name)
     }, "Delete");
   } else {
     return /*#__PURE__*/React.createElement("button", {
-      className: "btn btn-primary btn-sm shadow-none",
+      className: "btn btn-primary shadow-none",
       type: "button",
       onClick: () => props.doCreate(props.name)
     }, "Create");
@@ -76,9 +76,9 @@ function CreateOrDeleteButton(props) {
  */
 
 
-function CreateDeleteButtons(props) {
+function CreateEditDelete(props) {
   return /*#__PURE__*/React.createElement("div", {
-    className: "input-group input-group-sm p-1"
+    className: "input-group p-1"
   }, /*#__PURE__*/React.createElement("input", {
     type: "text",
     className: "form-control shadow-none",

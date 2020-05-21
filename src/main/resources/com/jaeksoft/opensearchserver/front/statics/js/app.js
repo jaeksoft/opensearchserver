@@ -17,20 +17,35 @@
 
 function App() {
   const [selectedSchema, setSelectedSchema] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedField, setSelectedField] = useState(null);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Navbar, null), /*#__PURE__*/React.createElement("div", {
     className: "container-fluid p-0 m-0"
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-flex"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill"
   }, /*#__PURE__*/React.createElement(Schemas, {
     selectedSchema: selectedSchema,
-    setSelectedSchema: setSelectedSchema
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill"
-  }, /*#__PURE__*/React.createElement(Indices, {
-    selectedSchema: selectedSchema
-  })))));
+    setSelectedSchema: schema => doSetSelectedSchema(schema)
+  }), /*#__PURE__*/React.createElement(Indices, {
+    selectedSchema: selectedSchema,
+    selectedIndex: selectedIndex,
+    setSelectedIndex: index => doSetSelectedIndex(index)
+  }), /*#__PURE__*/React.createElement(Fields, {
+    selectedSchema: selectedSchema,
+    selectedIndex: selectedIndex,
+    selectedField: selectedField,
+    setSelectedField: setSelectedField
+  }))));
+
+  function doSetSelectedSchema(schema) {
+    setSelectedSchema(schema);
+    doSetSelectedIndex(null);
+  }
+
+  function doSetSelectedIndex(index) {
+    setSelectedIndex(index);
+    setSelectedField(null);
+  }
 }
 
 ReactDOM.render( /*#__PURE__*/React.createElement(App, null), document.getElementById('app'));

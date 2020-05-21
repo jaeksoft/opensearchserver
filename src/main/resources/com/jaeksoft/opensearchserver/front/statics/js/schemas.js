@@ -22,20 +22,22 @@ function Schemas(props) {
   useEffect(() => {
     doFetchSchemas();
   }, []);
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "bg-dark text-white p-1"
+  return /*#__PURE__*/React.createElement("div", {
+    className: "border p-0 mt-1 ml-1 bg-light rounded"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-light text-secondary p-1"
   }, "SCHEMAS\xA0", /*#__PURE__*/React.createElement(Status, {
     status: status
-  })), /*#__PURE__*/React.createElement(List, {
-    values: schemas,
-    selectedValue: props.selectedSchema,
-    doSelectValue: value => props.setSelectedSchema(value)
-  }), /*#__PURE__*/React.createElement(CreateDeleteButtons, {
+  })), /*#__PURE__*/React.createElement(CreateEditDelete, {
     name: schemaName,
     setName: sch => setSchemaName(sch),
     selectedName: props.selectedSchema,
     doCreate: sch => doCreateSchema(sch),
     doDelete: sch => doDeleteSchema(sch)
+  }), /*#__PURE__*/React.createElement(List, {
+    values: schemas,
+    selectedValue: props.selectedSchema,
+    doSelectValue: value => props.setSelectedSchema(value)
   }));
 
   function doCreateSchema(sch) {

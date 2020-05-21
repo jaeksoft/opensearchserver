@@ -19,12 +19,12 @@
 const Navbar = () => {
 
   return (
-    <nav className="navbar navbar-dark bg-dark">
+    <nav className="navbar navbar-light bg-light">
       <a className="navbar-brand" href="#">
         <img src="/s/images/oss_logo_32.png" width="32" height="32"
-             className="d-inline-block align-top" alt="OpenSearchServer 2.0" loading="lazy"/>
-        OpenSearchServer 2.0
+             className="d-inline-block align-top" alt="OpenSearchServer" loading="lazy"/>
       </a>
+      <span className="navbar-brand text-secondary"><small>OpenSearchServer 2.0</small></span>
     </nav>
   );
 }

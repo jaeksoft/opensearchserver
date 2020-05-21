@@ -19,7 +19,6 @@
 function Indices(props) {
 
   const [status, setStatus] = useState(newStatus());
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const [indices, setIndices] = useState([]);
   const [indexName, setIndexName] = useState('');
 
@@ -31,21 +30,21 @@ function Indices(props) {
     return null;
 
   return (
-    <React.Fragment>
-      <div className="bg-dark text-white p-1">INDICES
+    <div className="border p-0 mt-1 ml-1 bg-light rounded">
+      <div className="bg-light text-secondary p-1">INDICES
         <Status status={status}/>
       </div>
-      <List values={indices}
-            selectedValue={selectedIndex}
-            doSelectValue={value => setSelectedIndex(value)}/>
-      <CreateDeleteButtons
+      <CreateEditDelete
         name={indexName}
         setName={idx => setIndexName(idx)}
-        selectedName={selectedIndex}
+        selectedName={props.selectedIndex}
         doCreate={idx => doCreateIndex(idx)}
         doDelete={idx => doDeleteIndex(idx)}
       />
-    </React.Fragment>
+      <List values={indices}
+            selectedValue={props.selectedIndex}
+            doSelectValue={value => props.setSelectedIndex(value)}/>
+    </div>
   );
 
   function doCreateIndex(idx) {

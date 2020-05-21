@@ -59,7 +59,7 @@ function CreateOrDeleteButton(props) {
 
   if (props.name === props.selectedName) {
     return (
-      <button className="btn btn-danger btn-sm shadow-none"
+      <button className="btn btn-danger shadow-none"
               type="button"
               onClick={() => props.doDelete(props.name)}>
         Delete
@@ -67,7 +67,7 @@ function CreateOrDeleteButton(props) {
     );
   } else {
     return (
-      <button className="btn btn-primary btn-sm shadow-none"
+      <button className="btn btn-primary shadow-none"
               type="button"
               onClick={() => props.doCreate(props.name)}>
         Create
@@ -82,10 +82,10 @@ function CreateOrDeleteButton(props) {
  * @returns {*}
  * @constructor
  */
-function CreateDeleteButtons(props) {
+function CreateEditDelete(props) {
 
   return (
-    <div className="input-group input-group-sm p-1">
+    <div className="input-group p-1">
       <input type="text" className="form-control shadow-none"
              aria-label="name" aria-describedby="create"
              value={props.name} onChange={e => props.setName(e.target.value)}

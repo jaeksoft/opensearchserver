@@ -19,24 +19,37 @@
 function App() {
 
   const [selectedSchema, setSelectedSchema] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedField, setSelectedField] = useState(null);
 
   return (
     <React.Fragment>
       <Navbar/>
       <div className="container-fluid p-0 m-0">
         <div className="d-flex">
-          <div className="shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill">
-            <Schemas selectedSchema={selectedSchema}
-                     setSelectedSchema={setSelectedSchema}
-            />
-          </div>
-          <div className="shadow p-0 mt-2 ml-2 mr-1 bg-white rounded flex-fill">
-            <Indices selectedSchema={selectedSchema}/>
-          </div>
+          <Schemas selectedSchema={selectedSchema}
+                   setSelectedSchema={schema => doSetSelectedSchema(schema)}/>
+          <Indices selectedSchema={selectedSchema}
+                   selectedIndex={selectedIndex}
+                   setSelectedIndex={index => doSetSelectedIndex(index)}/>
+          <Fields selectedSchema={selectedSchema}
+                  selectedIndex={selectedIndex}
+                  selectedField={selectedField}
+                  setSelectedField={setSelectedField}/>
         </div>
       </div>
     </React.Fragment>
   );
+
+  function doSetSelectedSchema(schema) {
+    setSelectedSchema(schema);
+    doSetSelectedIndex(null);
+  }
+
+  function doSetSelectedIndex(index) {
+    setSelectedIndex(index);
+    setSelectedField(null);
+  }
 
 }
 

@@ -27,21 +27,21 @@ function Schemas(props) {
   }, [])
 
   return (
-    <React.Fragment>
-      <div className="bg-dark text-white p-1">SCHEMAS&nbsp;
+    <div className="border p-0 mt-1 ml-1 bg-light rounded">
+      <div className="bg-light text-secondary p-1">SCHEMAS&nbsp;
         <Status status={status}/>
       </div>
-      <List values={schemas}
-            selectedValue={props.selectedSchema}
-            doSelectValue={value => props.setSelectedSchema(value)}/>
-      <CreateDeleteButtons
+      <CreateEditDelete
         name={schemaName}
         setName={sch => setSchemaName(sch)}
         selectedName={props.selectedSchema}
         doCreate={sch => doCreateSchema(sch)}
         doDelete={sch => doDeleteSchema(sch)}
       />
-    </React.Fragment>
+      <List values={schemas}
+            selectedValue={props.selectedSchema}
+            doSelectValue={value => props.setSelectedSchema(value)}/>
+    </div>
   );
 
   function doCreateSchema(sch) {
