@@ -18,7 +18,9 @@
 
 function Schemas(props) {
 
-  const [status, setStatus] = useState(newStatus());
+  const [task, setTask] = useState(null);
+  const [error, setError] = useState(null);
+  const [spinning, setSpinning] = useState(false);
   const [schemas, setSchemas] = useState([]);
   const [schemaName, setSchemaName] = useState('');
 
@@ -29,7 +31,7 @@ function Schemas(props) {
   return (
     <div className="border p-0 mt-1 ml-1 bg-light rounded">
       <div className="bg-light text-secondary p-1">SCHEMAS&nbsp;
-        <Status status={status}/>
+        <Status task={task} error={error} spinning={spinning}/>
       </div>
       <CreateEditDelete
         name={schemaName}
@@ -45,32 +47,54 @@ function Schemas(props) {
   );
 
   function doCreateSchema(sch) {
-    setStatus(startTask(status, 'Creating schema ' + sch));
+    startTask('Creating schema ' + sch);
     fetchJson('/ws/indexes/' + sch, {method: 'POST'},
       json => {
-        setStatus(endTask(status, 'Schema created'));
+        endTask('Schema created');
+        setSchemaName('');
+        props.setSelectedSchema(sch);
         doFetchSchemas();
-      }, error => setStatus(endTask(status, null, error)));
+      },
+      error => endTask(null, error.message));
   }
 
   function doDeleteSchema(sch) {
-    setStatus(startTask(status, 'Deleting schema ' + sch));
+    startTask('Deleting schema ' + sch);
     fetchJson('/ws/indexes/' + sch, {method: 'DELETE'},
       json => {
         props.setSelectedSchema(null);
-        setStatus(endTask(status, 'Schema deleted'));
+        endTask('Schema deleted');
         doFetchSchemas();
-      }, error => setStatus(endTask(status, null, error)));
+      },
+      error => endTask(null, error.message));
   }
 
   function doFetchSchemas() {
-    setStatus(startTask(status, null));
+    startTask();
     fetchJson('/ws/indexes', null,
       json => {
-        setStatus(endTask(status));
+        endTask();
         setSchemas(json);
       },
-      error => setStatus(endTask(status, null, error)));
+      error => endTask(null, error.message));
+  }
+
+  function startTask(newTask) {
+    setSpinning(true);
+    if (newTask) {
+      setTask(newTask);
+      setError(null);
+    }
+  }
+
+  function endTask(newTask, newError) {
+    setSpinning(false);
+    if (newTask)
+      setTask(newTask);
+    if (newError)
+      setError(newError);
+    else if (newTask)
+      setError(null);
   }
 
 }

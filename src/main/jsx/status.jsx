@@ -16,13 +16,9 @@
 
 'use strict';
 
-function newStatus() {
-  return {spinning: false, task: null, error: null}
-}
-
 function Spinning(props) {
 
-  if (props.status && props.status.spinning) {
+  if (props.spinning) {
     return (
       <div className="spinner-border spinner-border-sm" role="status">
         <span className="sr-only">Loading...</span>
@@ -35,55 +31,37 @@ function Spinning(props) {
 
 function Status(props) {
 
-  if (props.status.error && props.status.task) {
+  if (props.error && props.task) {
     return (
       <React.Fragment>
-        <Spinning spinning={props.status.spinning}/>
+        <Spinning spinning={props.spinning}/>
         <div className="text-danger float-right">
-          <small>{props.status.task}: {props.status.error}</small>
+          <small>{props.task}: {props.error}</small>
         </div>
       </React.Fragment>
     );
-  } else if (props.status.error) {
+  } else if (props.error) {
     return (
       <React.Fragment>
-        <Spinning spinning={props.status.spinning}/>
+        <Spinning spinning={props.spinning}/>
         <div className="text-danger float-right">
-          <small>{props.status.error}</small>
+          <small>{props.error}</small>
         </div>
       </React.Fragment>
     );
-  } else if (props.status.task) {
+  } else if (props.task) {
     return (
       <React.Fragment>
-        <Spinning spinning={props.status.spinning}/>
+        <Spinning spinning={props.spinning}/>
         <div className="text-success float-right">
-          <small>{props.status.task}</small>
+          <small>{props.task}</small>
         </div>
       </React.Fragment>
     );
   } else return (
     <React.Fragment>
-      <Spinning spinning={props.status.spinning}/>
+      <Spinning spinning={props.spinning}/>
       &nbsp;
     </React.Fragment>
   );
-}
-
-function endTask(status, newTask, newError) {
-  status.spinning = false;
-  if (newTask)
-    status.task = newTask;
-  if (newError)
-    status.error = newError;
-  else if (newTask)
-    status.error = null;
-  return status;
-}
-
-function startTask(status, newTask) {
-  status.spinning = true;
-  if (newTask)
-    status.task = newTask;
-  return status;
 }

@@ -27,27 +27,17 @@ const {useState, useEffect} = React;
  * @returns {Promise<String>}
  */
 function fetchJson(request, init, doJson, doError) {
-  return fetch(request, init)
+  fetch(request, init)
+    .then(response => Promise.all([response.ok, response.json()]))
     .then(
-      response => {
-        const jsonPromise = response.json();
-        if (response.ok) {
-          return jsonPromise;
+      ([responseOk, responseJson]) => {
+        if (responseOk) {
+          return doJson(responseJson);
         } else {
-          return jsonPromise.then(
-            errorJson => {
-              const errorMessage = (errorJson && errorJson.message) || response.statusText;
-              doError(errorMessage);
-            });
+          return doError(responseJson.message);
         }
       })
-    .then(
-      json => {
-        doJson(json);
-      },
-      error => {
-        doError(error)
-      });
+    .catch(error => doError(error));
 }
 
 /**
@@ -59,7 +49,7 @@ function CreateOrDeleteButton(props) {
 
   if (props.name === props.selectedName) {
     return (
-      <button className="btn btn-danger shadow-none"
+      <button className="btn btn-danger shadow-none rounded-0"
               type="button"
               onClick={() => props.doDelete(props.name)}>
         Delete
@@ -67,7 +57,7 @@ function CreateOrDeleteButton(props) {
     );
   } else {
     return (
-      <button className="btn btn-primary shadow-none"
+      <button className="btn btn-primary shadow-none rounded-0"
               type="button"
               onClick={() => props.doCreate(props.name)}>
         Create

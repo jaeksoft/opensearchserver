@@ -18,7 +18,9 @@
 
 function Indices(props) {
 
-  const [status, setStatus] = useState(newStatus());
+  const [task, setTask] = useState(null);
+  const [error, setError] = useState(null);
+  const [spinning, setSpinning] = useState(false);
   const [indices, setIndices] = useState([]);
   const [indexName, setIndexName] = useState('');
 
@@ -31,8 +33,8 @@ function Indices(props) {
 
   return (
     <div className="border p-0 mt-1 ml-1 bg-light rounded">
-      <div className="bg-light text-secondary p-1">INDICES
-        <Status status={status}/>
+      <div className="bg-light text-secondary p-1">INDICES&nbsp;
+        <Status task={task} error={error} spinning={spinning}/>
       </div>
       <CreateEditDelete
         name={indexName}
@@ -49,27 +51,33 @@ function Indices(props) {
 
   function doCreateIndex(idx) {
     if (!props.selectedSchema) {
-      setStatus(endTask(status, null, 'Please select a schema'));
+      endTask(null, 'Please select a schema');
       return;
     }
-    setStatus(startTask(status, 'Creating index ' + idx));
+    startTask('Creating index ' + idx);
     fetchJson('/ws/indexes/' + props.selectedSchema + '/' + indexName, {method: 'POST'},
       json => {
-        setStatus(endTask(status, 'Index created'));
+        endTask('Index created');
+        setIndexName('');
+        props.setSelectedIndex(idx);
         doFetchIndices();
-      }, error => setStatus(endTask(status, null, error)));
+      },
+      error => endTask(null, error.message)
+    );
   }
 
   function doDeleteIndex(idx) {
     if (!props.selectedSchema) {
-      return setStatus(endTask(status, null, 'No schema is selecteds'));
+      return endTask(null, 'No schema is selected');
     }
-    setStatus(startTask(status, 'Deleting index ' + idx));
+    startTask('Deleting index ' + idx);
     fetchJson('/ws/indexes/' + props.selectedSchema + '/' + idx, {method: 'DELETE'},
       json => {
-        setStatus(endTask(status, 'index deleted'));
+        props.setSelectedIndex(null);
+        endTask('Index deleted');
         doFetchIndices();
-      }, error => setStatus(endTask(status, null, error)));
+      },
+      error => endTask(null, error));
   }
 
   function doFetchIndices() {
@@ -77,13 +85,30 @@ function Indices(props) {
     if (!schema) {
       return;
     }
-    setStatus(startTask(status));
+    startTask();
     fetchJson('/ws/indexes/' + schema, null,
       json => {
-        setStatus(endTask(status));
+        endTask();
         setIndices(json);
       },
-      error => setStatus(endTask(status, null, error)));
+      error => endTask(null, error.message));
   }
 
+  function startTask(newTask) {
+    setSpinning(true);
+    if (newTask) {
+      setTask(newTask);
+      setError(null);
+    }
+  }
+
+  function endTask(newTask, newError) {
+    setSpinning(false);
+    if (newTask)
+      setTask(newTask);
+    if (newError)
+      setError(newError);
+    else if (newTask)
+      setError(null);
+  }
 }

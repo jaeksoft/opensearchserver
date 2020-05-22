@@ -35,7 +35,7 @@ function App() {
           <Fields selectedSchema={selectedSchema}
                   selectedIndex={selectedIndex}
                   selectedField={selectedField}
-                  setSelectedField={setSelectedField}/>
+                  setSelectedField={field => setSelectedField(field)}/>
         </div>
       </div>
     </React.Fragment>

@@ -18,8 +18,10 @@
 
 function Fields(props) {
 
-  const [status, setStatus] = useState(newStatus());
-  const [fields, setFields] = useState([]);
+  const [task, setTask] = useState(null);
+  const [error, setError] = useState(null);
+  const [spinning, setSpinning] = useState(false);
+  const [fields, setFields] = useState({});
   const [editFieldName, setEditFieldName] = useState('');
 
   useEffect(() => {
@@ -31,17 +33,17 @@ function Fields(props) {
 
   return (
     <div className="border p-0 mt-1 ml-1 bg-light rounded">
-      <div className="bg-light text-secondary p-1">FIELDS
-        <Status status={status}/>
+      <div className="bg-light text-secondary p-1">FIELDS&nbsp;
+        <Status task={task} error={error} spinning={spinning}/>
       </div>
       <FieldCreateEditDelete editFieldName={editFieldName}
                              setEditFieldName={field => setEditFieldName(field)}
                              selectedName={props.selectedField}
-                             doCreateField={idx => doCreateField(idx)}
-                             doDeleteField={idx => doDeleteField(idx)}
+                             doCreateField={(field, properties) => doCreateField(field, properties)}
+                             doDeleteField={field => doDeleteField(field)}
       />
       <List values={fields}
-            selectedValue={props.setSelectedField}
+            selectedValue={props.selectedField}
             doSelectValue={value => props.setSelectedField(value)}/>
     </div>
   );
@@ -52,62 +54,53 @@ function Fields(props) {
     if (!index || !schema) {
       return;
     }
-    setStatus(startTask(status));
+    startTask();
     fetchJson('/ws/indexes/' + schema + '/' + index + '/fields', null,
       json => {
-        setStatus(endTask(status));
+        endTask();
         setFields(json);
       },
-      error => setStatus(endTask(status, null, error)));
+      error => endTask(null, error.message));
   }
 
-  function doCreateField(fieldName) {
-
+  function doCreateField(field, properties) {
+    startTask('Creating field ' + field);
+    fetchJson(
+      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(properties)
+      },
+      json => {
+        endTask('Field created');
+        setEditFieldName('');
+        props.setSelectedField(field);
+        doFetchFields();
+      },
+      error => endTask(null, error));
   }
 
   function doDeleteField(fieldName) {
-
   }
 
-}
+  function startTask(newTask) {
+    setSpinning(true);
+    if (newTask) {
+      setTask(newTask);
+      setError(null);
+    }
+  }
 
-const fieldAttributes = ["index", "stored", "facet", "sort"];
-
-function FieldCreateEditDelete(props) {
-
-  const fieldAttributesCheckboxes = fieldAttributes.map(attribute => (
-    <div className="form-check form-check-inline">
-      <input className="form-check-input" type="checkbox" id="fieldAttr{attribute}" value="{attribute}"/>
-      <label className="form-check-label" htmlFor="fieldAttr{attribute}">{attribute}</label>
-    </div>
-  ));
-
-  return (
-    <React.Fragment>
-      <div className="input-group p-1">
-        <input type="text" className="form-control shadow-none"
-               aria-label="edit field name" aria-describedby="edit field name"
-               value={props.editFieldName} onChange={e => props.setEditFieldName(e.target.value)}
-        />
-        <div className="input-group-append">
-          <select className="custom-select shadow-none">
-            <option value="text">Text</option>
-            <option value="integer">Integer</option>
-            <option value="long">Long</option>
-            <option value="double">Double</option>
-            <option value="float">Float</option>
-          </select>
-          <CreateOrDeleteButton
-            name={props.editFieldName}
-            selectedName={props.selectedField}
-            doDelete={name => props.doDeleteField(name)}
-            doCreate={name => props.doCreateField(name)}
-          />
-        </div>
-      </div>
-      <div className="p-1">
-        {fieldAttributesCheckboxes}
-      </div>
-    </React.Fragment>
-  );
+  function endTask(newTask, newError) {
+    setSpinning(false);
+    if (newTask)
+      setTask(newTask);
+    if (newError)
+      setError(newError);
+    else if (newTask)
+      setError(null);
+  }
 }
