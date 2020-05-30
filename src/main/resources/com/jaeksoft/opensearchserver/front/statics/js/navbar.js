@@ -15,9 +15,9 @@
  */
 'use strict';
 
-const Navbar = () => {
+const Navbar = props => {
   return /*#__PURE__*/React.createElement("nav", {
-    className: "navbar navbar-light bg-light"
+    className: "navbar fixed-top navbar-light navbar-expand bg-light p-0"
   }, /*#__PURE__*/React.createElement("a", {
     className: "navbar-brand",
     href: "#"
@@ -28,7 +28,44 @@ const Navbar = () => {
     className: "d-inline-block align-top",
     alt: "OpenSearchServer",
     loading: "lazy"
-  })), /*#__PURE__*/React.createElement("span", {
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "collapse navbar-collapse"
+  }, /*#__PURE__*/React.createElement("ul", {
+    className: "navbar-nav mr-auto"
+  }, /*#__PURE__*/React.createElement(MenuItem, {
+    selectedView: props.selectedView,
+    setSelectedView: props.setSelectedView,
+    view: "Schema"
+  }), /*#__PURE__*/React.createElement(MenuItem, {
+    selectedView: props.selectedView,
+    setSelectedView: props.setSelectedView,
+    view: "Index"
+  }), /*#__PURE__*/React.createElement(MenuItem, {
+    selectedView: props.selectedView,
+    setSelectedView: props.setSelectedView,
+    view: "Query"
+  }))), /*#__PURE__*/React.createElement("span", {
     className: "navbar-brand text-secondary"
   }, /*#__PURE__*/React.createElement("small", null, "OpenSearchServer 2.0")));
 };
+
+function MenuItem(props) {
+  if (props.selectedView === props.view) {
+    return /*#__PURE__*/React.createElement("li", {
+      className: "nav-item active"
+    }, /*#__PURE__*/React.createElement("a", {
+      className: "nav-link",
+      href: "#"
+    }, props.view, " ", /*#__PURE__*/React.createElement("span", {
+      className: "sr-only"
+    }, "(current)")));
+  } else {
+    return /*#__PURE__*/React.createElement("li", {
+      className: "nav-item"
+    }, /*#__PURE__*/React.createElement("a", {
+      className: "nav-link",
+      onClick: () => props.setSelectedView(props.view),
+      href: "#"
+    }, props.view));
+  }
+}

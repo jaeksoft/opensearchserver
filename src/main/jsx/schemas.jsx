@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 'use strict';
 
-function Schemas(props) {
+function SchemasTable(props) {
 
   const [task, setTask] = useState(null);
   const [error, setError] = useState(null);
@@ -97,4 +97,45 @@ function Schemas(props) {
       setError(null);
   }
 
+}
+
+const SchemaList = (props) => {
+
+  const [spinning, setSpinning] = useState(false);
+  const [schemas, setSchemas] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    doFetchSchemas();
+  }, [])
+
+  const items = schemas.map((schema, i) => (
+    <option key={i} value={schema}>{schema}</option>
+  ));
+
+  return (
+    <React.Fragment>
+      <label className="sr-only" htmlFor={props.id}>Schema :</label>
+      <select id={props.id}
+              className="custom-select"
+              value={props.selectedSchema}
+              onChange={e => props.setSelectedSchema(e.target.value)}>
+        <option value="">Select a schema</option>
+        {items}''
+      </select>
+    </React.Fragment>
+  );
+
+  function doFetchSchemas() {
+    setSpinning(true);
+    fetchJson('/ws/indexes', null,
+      json => {
+        setSpinning(false);
+        setSchemas(json);
+      },
+      error => {
+        setSpinning(false);
+        setError(error.message)
+      });
+  }
 }

@@ -22,15 +22,16 @@
 const List = props => {
   if (!props.values) return null;
   const values = Array.isArray(props.values) ? props.values : Object.keys(props.values);
-  const listItems = values.map(value => /*#__PURE__*/React.createElement(ListItem, {
-    key: value,
+  const listItems = values.map((value, i) => /*#__PURE__*/React.createElement(ListItem, {
+    key: i,
+    s: true,
     value: value,
     selectedValue: props.selectedValue,
     doSelectValue: value => props.doSelectValue(value)
   }));
-  return /*#__PURE__*/React.createElement("ul", {
-    className: "list-group p-1 m-0"
-  }, listItems);
+  return /*#__PURE__*/React.createElement("table", {
+    className: "table table-hover table-sm table-striped"
+  }, /*#__PURE__*/React.createElement("tbody", null, listItems));
 };
 /**
  *
@@ -41,14 +42,17 @@ const List = props => {
 
 const ListItem = props => {
   if (props.selectedValue === props.value) {
-    return /*#__PURE__*/React.createElement("li", {
-      className: "list-group-item active p-1 m-0",
+    return /*#__PURE__*/React.createElement("tr", {
+      className: "table-active",
       onClick: () => props.doSelectValue(props.value)
-    }, props.value);
+    }, /*#__PURE__*/React.createElement("td", {
+      className: "p-1 m-1"
+    }, props.value));
   } else {
-    return /*#__PURE__*/React.createElement("li", {
-      className: "list-group-item p-1 m-0",
+    return /*#__PURE__*/React.createElement("tr", {
       onClick: () => props.doSelectValue(props.value)
-    }, props.value);
+    }, /*#__PURE__*/React.createElement("td", {
+      className: "p-1 m-1"
+    }, props.value));
   }
 };

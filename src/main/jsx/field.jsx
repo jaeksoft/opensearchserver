@@ -23,6 +23,7 @@ function FieldCreateEditDelete(props) {
   const [facet, setFacet] = useState(false);
   const [sort, setSort] = useState(false);
   const [type, setType] = useState('text');
+  const [analyzer, setAnalyzer] = useState('');
 
   function Attribute(props) {
     const keyid = 'attr' + props.attributeKey;
@@ -42,6 +43,36 @@ function FieldCreateEditDelete(props) {
 
   const fieldTypes = ["text", "integer", "long", "double", "float"];
 
+  const analyzers = [
+    '',
+    'lowercase',
+    'ascii',
+    'arabic',
+    'bulgarian',
+    'cjk',
+    'czech',
+    'danish',
+    'dutch',
+    'english',
+    'french',
+    'finnish',
+    'german',
+    'greek',
+    'hindi',
+    'hungarian',
+    'irish',
+    'italian',
+    'lithuanian',
+    'latvian',
+    'norwegian',
+    'polish',
+    'portuguese',
+    'romanian',
+    'russian',
+    'spanish',
+    'swedish',
+    'turkish'];
+
   const fieldTypeOptions = fieldTypes.map(typ => (
       <option key={typ} value={typ}>{typ}</option>
     )
@@ -55,6 +86,19 @@ function FieldCreateEditDelete(props) {
     </select>);
   }
 
+  const analyzerOptions = analyzers.map(alzr => (
+      <option key={alzr} value={alzr}>{alzr}</option>
+    )
+  );
+
+  function Analyzers(props) {
+    return (<select className="custom-select shadow-none rounded-0"
+                    value={props.value}
+                    onChange={e => props.setValue(e.target.value)}>
+      {analyzerOptions}
+    </select>);
+  }
+
   function doCreateField(fieldName) {
     props.doCreateField(fieldName,
       {
@@ -62,7 +106,8 @@ function FieldCreateEditDelete(props) {
         stored: stored,
         index: index,
         facet: facet,
-        sort: sort
+        sort: sort,
+        analyzer: analyzer === "" ? null : analyzer
       });
   }
 
@@ -75,6 +120,7 @@ function FieldCreateEditDelete(props) {
         />
         <div className="input-group-append">
           <Types value={type} setValue={typ => setType(typ)}/>
+          <Analyzers value={analyzer} setValue={alzr => setAnalyzer(alzr)}/>
           <CreateOrDeleteButton
             name={props.editFieldName}
             selectedName={props.selectedField}

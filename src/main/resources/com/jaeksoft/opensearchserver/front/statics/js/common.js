@@ -29,22 +29,13 @@ const {
  */
 
 function fetchJson(request, init, doJson, doError) {
-  return fetch(request, init).then(response => {
-    const jsonPromise = response.json();
-
-    if (response.ok) {
-      return jsonPromise;
+  fetch(request, init).then(response => Promise.all([response.ok, response.json()])).then(([responseOk, responseJson]) => {
+    if (responseOk) {
+      return doJson(responseJson);
     } else {
-      return jsonPromise.then(errorJson => {
-        const errorMessage = errorJson && errorJson.message || response.statusText;
-        doError(errorMessage);
-      });
+      return doError(responseJson.message);
     }
-  }).then(json => {
-    doJson(json);
-  }, error => {
-    doError(error);
-  });
+  }).catch(error => doError(error));
 }
 /**
  *
@@ -56,13 +47,13 @@ function fetchJson(request, init, doJson, doError) {
 function CreateOrDeleteButton(props) {
   if (props.name === props.selectedName) {
     return /*#__PURE__*/React.createElement("button", {
-      className: "btn btn-danger shadow-none",
+      className: "btn btn-danger shadow-none rounded-0",
       type: "button",
       onClick: () => props.doDelete(props.name)
     }, "Delete");
   } else {
     return /*#__PURE__*/React.createElement("button", {
-      className: "btn btn-primary shadow-none",
+      className: "btn btn-primary shadow-none rounded-0",
       type: "button",
       onClick: () => props.doCreate(props.name)
     }, "Create");
@@ -93,3 +84,11 @@ function CreateEditDelete(props) {
     doCreate: name => props.doCreate(name)
   }));
 }
+
+const Badge = props => {
+  if (props.value) return /*#__PURE__*/React.createElement("span", {
+    className: "badge badge-dark"
+  }, props.true);else return /*#__PURE__*/React.createElement("span", {
+    className: "badge badge-light"
+  }, props.false);
+};

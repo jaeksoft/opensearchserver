@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 'use strict';
 
-function Fields(props) {
-  const [status, setStatus] = useState(newStatus());
-  const [fields, setFields] = useState([]);
+function FieldsTable(props) {
+  const [task, setTask] = useState(null);
+  const [error, setError] = useState(null);
+  const [spinning, setSpinning] = useState(false);
+  const [fields, setFields] = useState({});
   const [editFieldName, setEditFieldName] = useState('');
   useEffect(() => {
     doFetchFields();
@@ -27,18 +29,20 @@ function Fields(props) {
     className: "border p-0 mt-1 ml-1 bg-light rounded"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-light text-secondary p-1"
-  }, "FIELDS", /*#__PURE__*/React.createElement(Status, {
-    status: status
+  }, "FIELDS\xA0", /*#__PURE__*/React.createElement(Status, {
+    task: task,
+    error: error,
+    spinning: spinning
   })), /*#__PURE__*/React.createElement(FieldCreateEditDelete, {
     editFieldName: editFieldName,
     setEditFieldName: field => setEditFieldName(field),
-    selectedName: props.selectedField,
-    doCreateField: idx => doCreateField(idx),
-    doDeleteField: idx => doDeleteField(idx)
-  }), /*#__PURE__*/React.createElement(List, {
-    values: fields,
-    selectedValue: props.setSelectedField,
-    doSelectValue: value => props.setSelectedField(value)
+    selectedField: props.selectedField,
+    doCreateField: (field, properties) => doCreateField(field, properties),
+    doDeleteField: field => doDeleteField(field)
+  }), /*#__PURE__*/React.createElement(FieldTable, {
+    fields: fields,
+    selectedField: props.selectedField,
+    doSelectField: value => props.setSelectedField(value)
   }));
 
   function doFetchFields() {
@@ -49,61 +53,114 @@ function Fields(props) {
       return;
     }
 
-    setStatus(startTask(status));
+    startTask();
     fetchJson('/ws/indexes/' + schema + '/' + index + '/fields', null, json => {
-      setStatus(endTask(status));
+      endTask();
       setFields(json);
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error.message));
   }
 
-  function doCreateField(fieldName) {}
+  function doCreateField(field, properties) {
+    startTask('Creating field ' + field);
+    fetchJson('/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(properties)
+    }, json => {
+      endTask('Field created');
+      setEditFieldName('');
+      props.setSelectedField(field);
+      doFetchFields();
+    }, error => endTask(null, error));
+  }
 
-  function doDeleteField(fieldName) {}
+  function doDeleteField(field) {
+    startTask('Deleting field ' + field);
+    fetchJson('/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field, {
+      method: 'DELETE'
+    }, json => {
+      endTask('Field deleted');
+      props.setSelectedField(null);
+      doFetchFields();
+    }, error => endTask(null, error));
+  }
+
+  function startTask(newTask) {
+    setSpinning(true);
+
+    if (newTask) {
+      setTask(newTask);
+      setError(null);
+    }
+  }
+
+  function endTask(newTask, newError) {
+    setSpinning(false);
+    if (newTask) setTask(newTask);
+    if (newError) setError(newError);else if (newTask) setError(null);
+  }
 }
 
-const fieldAttributes = ["index", "stored", "facet", "sort"];
+const FieldTable = props => {
+  const tableRows = Object.keys(props.fields).map((fieldName, i) => /*#__PURE__*/React.createElement(FieldRow, {
+    key: i,
+    fieldName: fieldName,
+    fieldProperties: props.fields[fieldName],
+    selectedField: props.selectedField,
+    doSelectField: name => props.doSelectField(name)
+  }));
+  return /*#__PURE__*/React.createElement("table", {
+    className: "table table-hover table-sm table-striped table-light"
+  }, /*#__PURE__*/React.createElement("thead", {
+    className: "thead-light"
+  }, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Name"), /*#__PURE__*/React.createElement("th", null, "Type"), /*#__PURE__*/React.createElement("th", null, "Analyzer"), /*#__PURE__*/React.createElement("th", null, "Attributes"))), /*#__PURE__*/React.createElement("tbody", null, tableRows));
+};
 
-function FieldCreateEditDelete(props) {
-  const fieldAttributesCheckboxes = fieldAttributes.map(attribute => /*#__PURE__*/React.createElement("div", {
-    className: "form-check form-check-inline"
-  }, /*#__PURE__*/React.createElement("input", {
-    className: "form-check-input",
-    type: "checkbox",
-    id: "fieldAttr{attribute}",
-    value: "{attribute}"
-  }), /*#__PURE__*/React.createElement("label", {
-    className: "form-check-label",
-    htmlFor: "fieldAttr{attribute}"
-  }, attribute)));
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    className: "input-group p-1"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    className: "form-control shadow-none",
-    "aria-label": "edit field name",
-    "aria-describedby": "edit field name",
-    value: props.editFieldName,
-    onChange: e => props.setEditFieldName(e.target.value)
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "input-group-append"
-  }, /*#__PURE__*/React.createElement("select", {
-    className: "custom-select shadow-none"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "text"
-  }, "Text"), /*#__PURE__*/React.createElement("option", {
-    value: "integer"
-  }, "Integer"), /*#__PURE__*/React.createElement("option", {
-    value: "long"
-  }, "Long"), /*#__PURE__*/React.createElement("option", {
-    value: "double"
-  }, "Double"), /*#__PURE__*/React.createElement("option", {
-    value: "float"
-  }, "Float")), /*#__PURE__*/React.createElement(CreateOrDeleteButton, {
-    name: props.editFieldName,
-    selectedName: props.selectedField,
-    doDelete: name => props.doDeleteField(name),
-    doCreate: name => props.doCreateField(name)
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "p-1"
-  }, fieldAttributesCheckboxes));
-}
+const FieldRow = props => {
+  if (props.selectedField === props.fieldName) {
+    return /*#__PURE__*/React.createElement("tr", {
+      className: "table-active",
+      onClick: () => props.doSelectField(props.fieldName)
+    }, /*#__PURE__*/React.createElement(FieldCols, {
+      fieldName: props.fieldName,
+      fieldProperties: props.fieldProperties
+    }));
+  } else {
+    return /*#__PURE__*/React.createElement("tr", {
+      onClick: () => props.doSelectField(props.fieldName)
+    }, /*#__PURE__*/React.createElement(FieldCols, {
+      fieldName: props.fieldName,
+      fieldProperties: props.fieldProperties
+    }));
+  }
+};
+
+const FieldCols = props => {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("td", {
+    className: "p-1 m-0"
+  }, props.fieldName), /*#__PURE__*/React.createElement("td", {
+    className: "p-1 m-0 text-lowercase"
+  }, props.fieldProperties['type']), /*#__PURE__*/React.createElement("td", {
+    className: "p-1 m-0 text-lowercase"
+  }, props.fieldProperties['analyzer']), /*#__PURE__*/React.createElement("td", {
+    className: "p-1 m-0"
+  }, /*#__PURE__*/React.createElement(Badge, {
+    true: "indexed",
+    false: "indexed",
+    value: props.fieldProperties['index']
+  }), /*#__PURE__*/React.createElement(Badge, {
+    true: "stored",
+    false: "stored",
+    value: props.fieldProperties['stored']
+  }), /*#__PURE__*/React.createElement(Badge, {
+    true: "sorted",
+    false: "sorted",
+    value: props.fieldProperties['sort']
+  }), /*#__PURE__*/React.createElement(Badge, {
+    true: "facet",
+    false: "facet",
+    value: props.fieldProperties['facet']
+  })));
+};

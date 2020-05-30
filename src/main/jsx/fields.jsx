@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 'use strict';
 
-function Fields(props) {
+function FieldsTable(props) {
 
   const [task, setTask] = useState(null);
   const [error, setError] = useState(null);
@@ -38,13 +38,13 @@ function Fields(props) {
       </div>
       <FieldCreateEditDelete editFieldName={editFieldName}
                              setEditFieldName={field => setEditFieldName(field)}
-                             selectedName={props.selectedField}
+                             selectedField={props.selectedField}
                              doCreateField={(field, properties) => doCreateField(field, properties)}
                              doDeleteField={field => doDeleteField(field)}
       />
-      <List values={fields}
-            selectedValue={props.selectedField}
-            doSelectValue={value => props.setSelectedField(value)}/>
+      <FieldTable fields={fields}
+                  selectedField={props.selectedField}
+                  doSelectField={value => props.setSelectedField(value)}/>
     </div>
   );
 
@@ -83,7 +83,19 @@ function Fields(props) {
       error => endTask(null, error));
   }
 
-  function doDeleteField(fieldName) {
+  function doDeleteField(field) {
+    startTask('Deleting field ' + field);
+    fetchJson(
+      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
+      {
+        method: 'DELETE'
+      },
+      json => {
+        endTask('Field deleted');
+        props.setSelectedField(null);
+        doFetchFields();
+      },
+      error => endTask(null, error));
   }
 
   function startTask(newTask) {
@@ -103,4 +115,71 @@ function Fields(props) {
     else if (newTask)
       setError(null);
   }
+}
+
+const FieldTable = (props) => {
+
+  const tableRows = Object.keys(props.fields).map((fieldName, i) => (
+    <FieldRow key={i}
+              fieldName={fieldName}
+              fieldProperties={props.fields[fieldName]}
+              selectedField={props.selectedField}
+              doSelectField={name => props.doSelectField(name)}
+    />
+  ));
+  return <table className="table table-hover table-sm table-striped table-light">
+    <thead className="thead-light">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Analyzer</th>
+      <th>Attributes</th>
+    </tr>
+    </thead>
+    <tbody>
+    {tableRows}
+    </tbody>
+  </table>
+}
+
+const FieldRow = (props) => {
+
+  if (props.selectedField === props.fieldName) {
+    return (
+      <tr className="table-active"
+          onClick={() => props.doSelectField(props.fieldName)}>
+        <FieldCols fieldName={props.fieldName}
+                   fieldProperties={props.fieldProperties}/>
+      </tr>
+    );
+  } else {
+    return (
+      <tr onClick={() => props.doSelectField(props.fieldName)}>
+        <FieldCols fieldName={props.fieldName}
+                   fieldProperties={props.fieldProperties}/>
+      </tr>
+    );
+  }
+}
+
+const FieldCols = (props) => {
+  return (
+    <React.Fragment>
+      <td className="p-1 m-0">
+        {props.fieldName}
+      </td>
+      <td className="p-1 m-0 text-lowercase">
+        {props.fieldProperties['type']}
+      </td>
+      <td className="p-1 m-0 text-lowercase">
+        {props.fieldProperties['analyzer']}
+      </td>
+      <td className="p-1 m-0">
+        <Badge true="indexed" false="indexed" value={props.fieldProperties['index']}/>
+        <Badge true="stored" false="stored" value={props.fieldProperties['stored']}/>
+        <Badge true="sorted" false="sorted" value={props.fieldProperties['sort']}/>
+        <Badge true="facet" false="facet" value={props.fieldProperties['facet']}/>
+      </td>
+    </React.Fragment>
+  );
 }

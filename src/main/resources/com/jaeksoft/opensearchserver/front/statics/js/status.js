@@ -15,16 +15,8 @@
  */
 'use strict';
 
-function newStatus() {
-  return {
-    spinning: false,
-    task: null,
-    error: null
-  };
-}
-
 function Spinning(props) {
-  if (props.status && props.status.spinning) {
+  if (props.spinning) {
     return /*#__PURE__*/React.createElement("div", {
       className: "spinner-border spinner-border-sm",
       role: "status"
@@ -37,38 +29,28 @@ function Spinning(props) {
 }
 
 function Status(props) {
-  if (props.status.error && props.status.task) {
+  useEffect(() => {}, [props.error, props.task, props.spinning]);
+  console.log('Update status: ' + props.error + ' ' + props.task);
+
+  if (props.error && props.task) {
     return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Spinning, {
-      spinning: props.status.spinning
+      spinning: props.spinning
     }), /*#__PURE__*/React.createElement("div", {
       className: "text-danger float-right"
-    }, /*#__PURE__*/React.createElement("small", null, props.status.task, ": ", props.status.error)));
-  } else if (props.status.error) {
+    }, /*#__PURE__*/React.createElement("small", null, props.task, ": ", props.error)));
+  } else if (props.error) {
     return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Spinning, {
-      spinning: props.status.spinning
+      spinning: props.spinning
     }), /*#__PURE__*/React.createElement("div", {
       className: "text-danger float-right"
-    }, /*#__PURE__*/React.createElement("small", null, props.status.error)));
-  } else if (props.status.task) {
+    }, /*#__PURE__*/React.createElement("small", null, props.error)));
+  } else if (props.task) {
     return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Spinning, {
-      spinning: props.status.spinning
+      spinning: props.spinning
     }), /*#__PURE__*/React.createElement("div", {
       className: "text-success float-right"
-    }, /*#__PURE__*/React.createElement("small", null, props.status.task)));
+    }, /*#__PURE__*/React.createElement("small", null, props.task)));
   } else return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Spinning, {
-    spinning: props.status.spinning
+    spinning: props.spinning
   }), "\xA0");
-}
-
-function endTask(status, newTask, newError) {
-  status.spinning = false;
-  if (newTask) status.task = newTask;
-  if (newError) status.error = newError;else if (newTask) status.error = null;
-  return status;
-}
-
-function startTask(status, newTask) {
-  status.spinning = true;
-  if (newTask) status.task = newTask;
-  return status;
 }

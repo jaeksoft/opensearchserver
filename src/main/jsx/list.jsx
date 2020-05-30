@@ -22,17 +22,19 @@ const List = (props) => {
   if (!props.values)
     return null;
   const values = Array.isArray(props.values) ? props.values : Object.keys(props.values);
-  const listItems = values.map(value => (
-    <ListItem key={value}
+  const listItems = values.map((value, i) => (
+    <ListItem key={i} s
               value={value}
               selectedValue={props.selectedValue}
               doSelectValue={value => props.doSelectValue(value)}
     />
   ));
   return (
-    <ul className="list-group p-1 m-0">
+    <table className="table table-hover table-sm table-striped">
+      <tbody>
       {listItems}
-    </ul>
+      </tbody>
+    </table>
   );
 }
 
@@ -45,17 +47,16 @@ const ListItem = (props) => {
 
   if (props.selectedValue === props.value) {
     return (
-      <li className="list-group-item active p-1 m-0"
+      <tr className="table-active"
           onClick={() => props.doSelectValue(props.value)}>
-        {props.value}
-      </li>
+        <td className="p-1 m-1">{props.value}</td>
+      </tr>
     );
   } else {
     return (
-      <li className="list-group-item p-1 m-0"
-          onClick={() => props.doSelectValue(props.value)}>
-        {props.value}
-      </li>
+      <tr onClick={() => props.doSelectValue(props.value)}>
+        <td className="p-1 m-1">{props.value}</td>
+      </tr>
     );
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 'use strict';
 
-function Indices(props) {
+function IndicesTable(props) {
 
   const [task, setTask] = useState(null);
   const [error, setError] = useState(null);
@@ -110,5 +110,51 @@ function Indices(props) {
       setError(newError);
     else if (newTask)
       setError(null);
+  }
+}
+
+
+const IndexList = (props) => {
+
+  const [spinning, setSpinning] = useState(false);
+  const [indices, setIndices] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    doFetchIndices();
+  }, [props.selectedSchema])
+
+  const items = Object.keys(indices).map((index, i) => (
+    <option key={i} value={index}>{index}</option>
+  ));
+
+  return (
+    <React.Fragment>
+      <label className="sr-only" htmlFor={props.id}>Index :</label>
+      <select id={props.id}
+              className="custom-select"
+              value={props.selectedIndex}
+              onChange={e => props.setSelectedIndex(e.target.value)}>
+        <option value="">Select an index</option>
+        {items}
+      </select>
+    </React.Fragment>
+  );
+
+  function doFetchIndices() {
+    const schema = props.selectedSchema;
+    if (!schema) {
+      return;
+    }
+    setSpinning(true);
+    fetchJson('/ws/indexes/' + schema, null,
+      json => {
+        setSpinning(false);
+        setIndices(json);
+      },
+      error => {
+        setSpinning(false);
+        setError(error.message)
+      });
   }
 }

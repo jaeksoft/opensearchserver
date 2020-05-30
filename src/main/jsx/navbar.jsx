@@ -16,15 +16,48 @@
 
 'use strict';
 
-const Navbar = () => {
+const Navbar = (props) => {
 
   return (
-    <nav className="navbar navbar-light bg-light">
+    <nav className="navbar fixed-top navbar-light navbar-expand bg-light p-0">
       <a className="navbar-brand" href="#">
         <img src="/s/images/oss_logo_32.png" width="32" height="32"
              className="d-inline-block align-top" alt="OpenSearchServer" loading="lazy"/>
       </a>
+      <div className="collapse navbar-collapse">
+        <ul className="navbar-nav mr-auto">
+          <MenuItem selectedView={props.selectedView}
+                    setSelectedView={props.setSelectedView}
+                    view="Schema"/>
+          <MenuItem selectedView={props.selectedView}
+                    setSelectedView={props.setSelectedView}
+                    view="Index"/>
+          <MenuItem selectedView={props.selectedView}
+                    setSelectedView={props.setSelectedView}
+                    view="Query"/>
+        </ul>
+      </div>
       <span className="navbar-brand text-secondary"><small>OpenSearchServer 2.0</small></span>
     </nav>
   );
+}
+
+function MenuItem(props) {
+
+  if (props.selectedView === props.view) {
+    return (
+      <li className="nav-item active">
+        <a className="nav-link" href="#">{props.view} <span className="sr-only">(current)</span></a>
+      </li>);
+  } else {
+    return (
+      <li className="nav-item">
+        <a className="nav-link"
+           onClick={() => props.setSelectedView(props.view)}
+           href="#">
+          {props.view}
+        </a>
+      </li>
+    );
+  }
 }

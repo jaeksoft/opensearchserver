@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 'use strict';
 
-function Schemas(props) {
-  const [status, setStatus] = useState(newStatus());
+function SchemasTable(props) {
+  const [task, setTask] = useState(null);
+  const [error, setError] = useState(null);
+  const [spinning, setSpinning] = useState(false);
   const [schemas, setSchemas] = useState([]);
   const [schemaName, setSchemaName] = useState('');
   useEffect(() => {
@@ -27,7 +29,9 @@ function Schemas(props) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-light text-secondary p-1"
   }, "SCHEMAS\xA0", /*#__PURE__*/React.createElement(Status, {
-    status: status
+    task: task,
+    error: error,
+    spinning: spinning
   })), /*#__PURE__*/React.createElement(CreateEditDelete, {
     name: schemaName,
     setName: sch => setSchemaName(sch),
@@ -41,31 +45,83 @@ function Schemas(props) {
   }));
 
   function doCreateSchema(sch) {
-    setStatus(startTask(status, 'Creating schema ' + sch));
+    startTask('Creating schema ' + sch);
     fetchJson('/ws/indexes/' + sch, {
       method: 'POST'
     }, json => {
-      setStatus(endTask(status, 'Schema created'));
+      endTask('Schema created');
+      setSchemaName('');
+      props.setSelectedSchema(sch);
       doFetchSchemas();
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error.message));
   }
 
   function doDeleteSchema(sch) {
-    setStatus(startTask(status, 'Deleting schema ' + sch));
+    startTask('Deleting schema ' + sch);
     fetchJson('/ws/indexes/' + sch, {
       method: 'DELETE'
     }, json => {
       props.setSelectedSchema(null);
-      setStatus(endTask(status, 'Schema deleted'));
+      endTask('Schema deleted');
       doFetchSchemas();
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error.message));
   }
 
   function doFetchSchemas() {
-    setStatus(startTask(status, null));
+    startTask();
     fetchJson('/ws/indexes', null, json => {
-      setStatus(endTask(status));
+      endTask();
       setSchemas(json);
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error.message));
+  }
+
+  function startTask(newTask) {
+    setSpinning(true);
+
+    if (newTask) {
+      setTask(newTask);
+      setError(null);
+    }
+  }
+
+  function endTask(newTask, newError) {
+    setSpinning(false);
+    if (newTask) setTask(newTask);
+    if (newError) setError(newError);else if (newTask) setError(null);
   }
 }
+
+const SchemaList = props => {
+  const [spinning, setSpinning] = useState(false);
+  const [schemas, setSchemas] = useState([]);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    doFetchSchemas();
+  }, []);
+  const items = schemas.map((schema, i) => /*#__PURE__*/React.createElement("option", {
+    key: i,
+    value: schema
+  }, schema));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "sr-only",
+    htmlFor: props.id
+  }, "Schema :"), /*#__PURE__*/React.createElement("select", {
+    id: props.id,
+    className: "custom-select",
+    value: props.selectedSchema,
+    onChange: e => props.setSelectedSchema(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Select a schema"), items, "''"));
+
+  function doFetchSchemas() {
+    setSpinning(true);
+    fetchJson('/ws/indexes', null, json => {
+      setSpinning(false);
+      setSchemas(json);
+    }, error => {
+      setSpinning(false);
+      setError(error.message);
+    });
+  }
+};

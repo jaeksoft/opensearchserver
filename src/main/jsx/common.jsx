@@ -89,3 +89,15 @@ function CreateEditDelete(props) {
     </div>
   );
 }
+
+const Badge = (props) => {
+  if (props.value)
+    return (
+      <span className="badge badge-dark">{props.true}</span>
+    );
+  else
+    return (
+      <span className="badge badge-light">{props.false}</span>
+    );
+}
+

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 'use strict';
 
-function Indices(props) {
-  const [status, setStatus] = useState(newStatus());
+function IndicesTable(props) {
+  const [task, setTask] = useState(null);
+  const [error, setError] = useState(null);
+  const [spinning, setSpinning] = useState(false);
   const [indices, setIndices] = useState([]);
   const [indexName, setIndexName] = useState('');
   useEffect(() => {
@@ -27,8 +29,10 @@ function Indices(props) {
     className: "border p-0 mt-1 ml-1 bg-light rounded"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-light text-secondary p-1"
-  }, "INDICES", /*#__PURE__*/React.createElement(Status, {
-    status: status
+  }, "INDICES\xA0", /*#__PURE__*/React.createElement(Status, {
+    task: task,
+    error: error,
+    spinning: spinning
   })), /*#__PURE__*/React.createElement(CreateEditDelete, {
     name: indexName,
     setName: idx => setIndexName(idx),
@@ -43,31 +47,34 @@ function Indices(props) {
 
   function doCreateIndex(idx) {
     if (!props.selectedSchema) {
-      setStatus(endTask(status, null, 'Please select a schema'));
+      endTask(null, 'Please select a schema');
       return;
     }
 
-    setStatus(startTask(status, 'Creating index ' + idx));
+    startTask('Creating index ' + idx);
     fetchJson('/ws/indexes/' + props.selectedSchema + '/' + indexName, {
       method: 'POST'
     }, json => {
-      setStatus(endTask(status, 'Index created'));
+      endTask('Index created');
+      setIndexName('');
+      props.setSelectedIndex(idx);
       doFetchIndices();
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error.message));
   }
 
   function doDeleteIndex(idx) {
     if (!props.selectedSchema) {
-      return setStatus(endTask(status, null, 'No schema is selecteds'));
+      return endTask(null, 'No schema is selected');
     }
 
-    setStatus(startTask(status, 'Deleting index ' + idx));
+    startTask('Deleting index ' + idx);
     fetchJson('/ws/indexes/' + props.selectedSchema + '/' + idx, {
       method: 'DELETE'
     }, json => {
-      setStatus(endTask(status, 'index deleted'));
+      props.setSelectedIndex(null);
+      endTask('Index deleted');
       doFetchIndices();
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error));
   }
 
   function doFetchIndices() {
@@ -77,10 +84,66 @@ function Indices(props) {
       return;
     }
 
-    setStatus(startTask(status));
+    startTask();
     fetchJson('/ws/indexes/' + schema, null, json => {
-      setStatus(endTask(status));
+      endTask();
       setIndices(json);
-    }, error => setStatus(endTask(status, null, error)));
+    }, error => endTask(null, error.message));
+  }
+
+  function startTask(newTask) {
+    setSpinning(true);
+
+    if (newTask) {
+      setTask(newTask);
+      setError(null);
+    }
+  }
+
+  function endTask(newTask, newError) {
+    setSpinning(false);
+    if (newTask) setTask(newTask);
+    if (newError) setError(newError);else if (newTask) setError(null);
   }
 }
+
+const IndexList = props => {
+  const [spinning, setSpinning] = useState(false);
+  const [indices, setIndices] = useState([]);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    doFetchIndices();
+  }, [props.selectedSchema]);
+  const items = Object.keys(indices).map((index, i) => /*#__PURE__*/React.createElement("option", {
+    key: i,
+    value: index
+  }, index));
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("label", {
+    className: "sr-only",
+    htmlFor: props.id
+  }, "Index :"), /*#__PURE__*/React.createElement("select", {
+    id: props.id,
+    className: "custom-select",
+    value: props.selectedIndex,
+    onChange: e => props.setSelectedIndex(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Select an index"), items));
+
+  function doFetchIndices() {
+    const schema = props.selectedSchema;
+
+    if (!schema) {
+      return;
+    }
+
+    setSpinning(true);
+    fetchJson('/ws/indexes/' + schema, null, json => {
+      setSpinning(false);
+      setIndices(json);
+    }, error => {
+      setSpinning(false);
+      setError(error.message);
+    });
+  }
+};

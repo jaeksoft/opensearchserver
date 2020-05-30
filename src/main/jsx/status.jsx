@@ -31,6 +31,11 @@ function Spinning(props) {
 
 function Status(props) {
 
+  useEffect(() => {
+  }, [props.error, props.task, props.spinning])
+
+  console.log('Update status: ' + props.error + ' ' + props.task);
+
   if (props.error && props.task) {
     return (
       <React.Fragment>

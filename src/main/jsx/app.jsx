@@ -16,41 +16,92 @@
 
 'use strict';
 
-function App() {
+const SchemaView = (props) => {
 
-  const [selectedSchema, setSelectedSchema] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [selectedField, setSelectedField] = useState(null);
+  return (
+    <div className="d-flex">
+      <SchemasTable selectedSchema={props.selectedSchema}
+                    setSelectedSchema={props.setSelectedSchema}/>
+      <IndicesTable selectedSchema={props.selectedSchema}
+                    selectedIndex={props.selectedIndex}
+                    setSelectedIndex={props.setSelectedIndex}/>
+      <FieldsTable selectedSchema={props.selectedSchema}
+                   selectedIndex={props.selectedIndex}
+                   selectedField={props.selectedField}
+                   setSelectedField={props.setSelectedField}/>
+    </div>
+  );
+
+}
+
+const View = (props) => {
+
+  switch (props.selectedView) {
+    case 'Schema':
+      return <SchemaView
+        selectedSchema={props.selectedSchema}
+        setSelectedSchema={props.setSelectedSchema}
+        selectedIndex={props.selectedIndex}
+        setSelectedIndex={props.setSelectedIndex}
+        selectedField={props.selectedField}
+        setSelectedField={props.setSelectedField}
+      />;
+    case 'Index':
+      return <Indexview
+        selectedSchema={props.selectedSchema}
+        setSelectedSchema={props.setSelectedSchema}
+        selectedIndex={props.selectedIndex}
+        setSelectedIndex={props.setSelectedIndex}
+        indexJson={props.indexJson}
+        setIndexJson={props.setIndexJson}
+      />
+    case 'Query':
+      return (
+        <p>Query</p>
+      )
+    default:
+      return null;
+  }
+}
+
+const App = () => {
+
+  const [selectedView, setSelectedView] = useState('Schema');
+  const [selectedSchema, setSelectedSchema] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState('');
+  const [selectedField, setSelectedField] = useState('');
+  const [indexJson, setIndexJson] = useState('{}');
 
   return (
     <React.Fragment>
-      <Navbar/>
-      <div className="container-fluid p-0 m-0">
-        <div className="d-flex">
-          <Schemas selectedSchema={selectedSchema}
-                   setSelectedSchema={schema => doSetSelectedSchema(schema)}/>
-          <Indices selectedSchema={selectedSchema}
-                   selectedIndex={selectedIndex}
-                   setSelectedIndex={index => doSetSelectedIndex(index)}/>
-          <Fields selectedSchema={selectedSchema}
-                  selectedIndex={selectedIndex}
-                  selectedField={selectedField}
-                  setSelectedField={field => setSelectedField(field)}/>
-        </div>
+      <div className="container-fluid">
+        <Navbar selectedView={selectedView}
+                setSelectedView={setSelectedView}/>
+      </div>
+      <div className="container-fluid h-100 overflow-auto p-0 m-0">
+        <View selectedView={selectedView}
+              selectedSchema={selectedSchema}
+              setSelectedSchema={doSetSelectedSchema}
+              selectedIndex={selectedIndex}
+              setSelectedIndex={doSetSelectedIndex}
+              selectedField={selectedField}
+              setSelectedField={setSelectedField}
+              indexJson={indexJson}
+              setIndexJson={setIndexJson}
+        />
       </div>
     </React.Fragment>
   );
 
   function doSetSelectedSchema(schema) {
     setSelectedSchema(schema);
-    doSetSelectedIndex(null);
+    doSetSelectedIndex('');
   }
 
   function doSetSelectedIndex(index) {
     setSelectedIndex(index);
-    setSelectedField(null);
+    setSelectedField('');
   }
-
 }
 
 ReactDOM.render(
