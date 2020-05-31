@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class ServerTest {
 
         // Check if the webjars are loaded
         final String css = client.target("http://localhost:9090")
-            .path("/webjars/bootstrap/4.1.3/css/bootstrap.min.css")
+            .path("/webjars/bootstrap/4.5.0/css/bootstrap.min.css")
             .request("text/css")
             .get(String.class);
         Assert.assertTrue(css.contains("bootstrap"));

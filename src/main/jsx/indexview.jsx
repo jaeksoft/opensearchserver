@@ -82,23 +82,16 @@ const Indexview = (props) => {
     var parsedJson = null;
     try {
       parsedJson = parseJson();
+      props.setIndexJson(JSON.stringify(parsedJson, undefined, 2))
     } catch (err) {
       setError(err.message);
       setTask(null);
       setSpinning(false);
       return;
     }
-    var indexPath;
-    if (Array.isArray(parsedJson)) {
-      setTask('Indexing ' + Array.length(parseJson) + ' records...');
-      indexPath = 'docs';
-    } else {
-      setTask('Indexing a record...');
-      indexPath = 'doc';
-    }
 
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/' + indexPath,
+      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json',
       {
         method: 'POST',
         headers: {
@@ -107,7 +100,6 @@ const Indexview = (props) => {
         body: JSON.stringify(parsedJson)
       },
       json => {
-        console.log(json);
         var msg;
         switch (json) {
           case 0:
