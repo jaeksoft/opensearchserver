@@ -15,7 +15,7 @@
  */
 'use strict';
 
-const Indexview = props => {
+const IndexView = props => {
   const [error, setError] = useState(null);
   const [task, setTask] = useState(null);
   const [spinning, setSpinning] = useState(false);
@@ -88,6 +88,7 @@ const Indexview = props => {
 
     try {
       parsedJson = parseJson();
+      props.setIndexJson(JSON.stringify(parsedJson, undefined, 2));
     } catch (err) {
       setError(err.message);
       setTask(null);
@@ -95,24 +96,13 @@ const Indexview = props => {
       return;
     }
 
-    var indexPath;
-
-    if (Array.isArray(parsedJson)) {
-      setTask('Indexing ' + Array.length(parseJson) + ' records...');
-      indexPath = 'docs';
-    } else {
-      setTask('Indexing a record...');
-      indexPath = 'doc';
-    }
-
-    fetchJson('/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/' + indexPath, {
+    fetchJson('/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(parsedJson)
     }, json => {
-      console.log(json);
       var msg;
 
       switch (json) {

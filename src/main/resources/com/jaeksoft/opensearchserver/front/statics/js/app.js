@@ -46,7 +46,7 @@ const View = props => {
       });
 
     case 'Index':
-      return /*#__PURE__*/React.createElement(Indexview, {
+      return /*#__PURE__*/React.createElement(IndexView, {
         selectedSchema: props.selectedSchema,
         setSelectedSchema: props.setSelectedSchema,
         selectedIndex: props.selectedIndex,
@@ -56,7 +56,14 @@ const View = props => {
       });
 
     case 'Query':
-      return /*#__PURE__*/React.createElement("p", null, "Query");
+      return /*#__PURE__*/React.createElement(QueryView, {
+        selectedSchema: props.selectedSchema,
+        setSelectedSchema: props.setSelectedSchema,
+        selectedIndex: props.selectedIndex,
+        setSelectedIndex: props.setSelectedIndex,
+        queryJson: props.queryJson,
+        setQueryJson: props.setQueryJson
+      });
 
     default:
       return null;
@@ -69,6 +76,7 @@ const App = () => {
   const [selectedIndex, setSelectedIndex] = useState('');
   const [selectedField, setSelectedField] = useState('');
   const [indexJson, setIndexJson] = useState('{}');
+  const [queryJson, setQueryJson] = useState(JSON.stringify(JSON.parse('{"query":{"type": "MatchAllDocsQuery"},"returned_fields":["*"]}'), undefined, 2));
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "container-fluid"
   }, /*#__PURE__*/React.createElement(Navbar, {
@@ -85,7 +93,9 @@ const App = () => {
     selectedField: selectedField,
     setSelectedField: setSelectedField,
     indexJson: indexJson,
-    setIndexJson: setIndexJson
+    setIndexJson: setIndexJson,
+    queryJson: queryJson,
+    setQueryJson: setQueryJson
   })));
 
   function doSetSelectedSchema(schema) {
