@@ -39,6 +39,7 @@ public class AppServlet extends HttpServlet {
         field,
         fields,
         indexview,
+        queryview,
         indices,
         list,
         navbar,

@@ -16,23 +16,31 @@
 
 'use strict';
 
-const IndexView = (props) => {
+const QueryView = (props) => {
 
   const [error, setError] = useState(null);
   const [task, setTask] = useState(null);
   const [spinning, setSpinning] = useState(false);
+  const [resultJson, setResultJson] = useState('');
 
   return (
     <div className="p-1 h-100">
       <div className="h-100 d-flex flex-column border bg-light rounded">
-        <div className="bg-light text-secondary p-1">INDEXING&nbsp;
+        <div className="bg-light text-secondary p-1">QUERYING&nbsp;
           <Status task={task} error={error} spinning={spinning}/>
         </div>
         <div className="flex-grow-1 p-1">
-          <textarea className="form-control h-100"
+          <div className="h-100 d-flex">
+          <textarea className="form-control w-50 h-100"
                     style={{resize: 'none'}}
-                    value={props.indexJson}
-                    onChange={e => props.setIndexJson(e.target.value)}/>
+                    value={props.queryJson}
+                    onChange={e => props.setQueryJson(e.target.value)}/>
+            <textarea className="form-control w-50 h-100"
+                      readOnly={true}
+                      style={{resize: 'none'}}
+                      value={resultJson}
+                      onChange={e => props.setIndexJson(e.target.value)}/>
+          </div>
         </div>
         <form className="form-inline pr-1 pb-1">
           <div className="pl-1">
@@ -50,7 +58,7 @@ const IndexView = (props) => {
           </div>
           <div className="pt-1 pl-1">
             <button className="btn btn-primary"
-                    onClick={() => doIndex()}>
+                    onClick={() => doQuery()}>
               Post JSON
             </button>
           </div>
@@ -60,14 +68,14 @@ const IndexView = (props) => {
   )
 
   function parseJson() {
-    const notParsed = props.indexJson;
+    const notParsed = props.queryJson;
     if (notParsed === null || notParsed === '') {
       throw 'Nothing to index';
     }
     return JSON.parse(notParsed);
   }
 
-  function doIndex() {
+  function doQuery() {
     if (props.selectedSchema == null || props.selectedSchema === '') {
       setError('Please select a schema.');
       return;
@@ -82,7 +90,7 @@ const IndexView = (props) => {
     var parsedJson = null;
     try {
       parsedJson = parseJson();
-      props.setIndexJson(JSON.stringify(parsedJson, undefined, 2))
+      props.setQueryJson(JSON.stringify(parsedJson, undefined, 2))
     } catch (err) {
       setError(err.message);
       setTask(null);
@@ -90,8 +98,9 @@ const IndexView = (props) => {
       return;
     }
 
+    setTask('Querying...');
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json',
+      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/search',
       {
         method: 'POST',
         headers: {
@@ -100,22 +109,12 @@ const IndexView = (props) => {
         body: JSON.stringify(parsedJson)
       },
       json => {
-        var msg;
-        switch (json) {
-          case 0:
-            msg = 'Nothing has been indexed.';
-            break;
-          case 1:
-            msg = 'One record has been indexed.';
-            break;
-          default:
-            msg = json + ' records have been indexed.';
-            break;
-        }
-        setTask(msg);
+        setResultJson(JSON.stringify(json, undefined, 2));
+        setTask("Query successful.");
         setSpinning(false);
       },
       error => {
+        setResultJson('');
         setError(error);
         setTask(null);
         setSpinning(false);
