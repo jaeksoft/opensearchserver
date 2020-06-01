@@ -31,11 +31,11 @@ const QueryView = (props) => {
         </div>
         <div className="flex-grow-1 p-1">
           <div className="h-100 d-flex">
-          <textarea className="form-control w-50 h-100"
+          <textarea className="form-control-sm w-50 h-100"
                     style={{resize: 'none'}}
                     value={props.queryJson}
                     onChange={e => props.setQueryJson(e.target.value)}/>
-            <textarea className="form-control w-50 h-100"
+            <textarea className="form-control-sm w-50 h-100"
                       readOnly={true}
                       style={{resize: 'none'}}
                       value={resultJson}

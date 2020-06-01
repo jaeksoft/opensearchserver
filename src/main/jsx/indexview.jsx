@@ -29,7 +29,7 @@ const IndexView = (props) => {
           <Status task={task} error={error} spinning={spinning}/>
         </div>
         <div className="flex-grow-1 p-1">
-          <textarea className="form-control h-100"
+          <textarea className="form-control-sm w-100 h-100"
                     style={{resize: 'none'}}
                     value={props.indexJson}
                     onChange={e => props.setIndexJson(e.target.value)}/>
