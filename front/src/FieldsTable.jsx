@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React, {useState, useEffect} from 'react';
 
-function FieldsTable(props) {
+const FieldsTable = (props) => {
 
   const [task, setTask] = useState(null);
   const [error, setError] = useState(null);
@@ -183,3 +184,5 @@ const FieldCols = (props) => {
     </React.Fragment>
   );
 }
+
+export default hot(FieldsTable);

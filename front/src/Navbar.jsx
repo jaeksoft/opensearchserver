@@ -14,16 +14,14 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React from 'react';
 
 const Navbar = (props) => {
 
   return (
-    <nav className="navbar fixed-top navbar-light navbar-expand bg-light p-0">
-      <a className="navbar-brand" href="#">
-        <img src="/s/images/oss_logo_32.png" width="32" height="32"
-             className="d-inline-block align-top" alt="OpenSearchServer" loading="lazy"/>
-      </a>
+    <nav className="navbar sticky-top navbar-light navbar-expand bg-light p-0">
+      <span className="navbar-brand text-secondary"><small>OpenSearchServer 2.0</small></span>
       <div className="collapse navbar-collapse">
         <ul className="navbar-nav mr-auto">
           <MenuItem selectedView={props.selectedView}
@@ -37,7 +35,6 @@ const Navbar = (props) => {
                     view="Query"/>
         </ul>
       </div>
-      <span className="navbar-brand text-secondary"><small>OpenSearchServer 2.0</small></span>
     </nav>
   );
 }
@@ -61,3 +58,5 @@ function MenuItem(props) {
     );
   }
 }
+
+export default hot(Navbar);

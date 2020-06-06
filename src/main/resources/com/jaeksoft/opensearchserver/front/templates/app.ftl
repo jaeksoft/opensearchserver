@@ -22,7 +22,12 @@
     <#include 'head.ftl'>
   </head>
   <body>
-  <div id="app" class="h-100 pt-5 m-0"/>
+
+  <div id="root" class="h-100 pt-5 m-0"/>
+  <noscript>
+    You need to enable JavaScript to run this app.
+  </noscript>
+
   <#include 'foot.ftl'>
   </body>
   </html>

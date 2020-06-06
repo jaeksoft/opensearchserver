@@ -13,6 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
+import {hot} from 'react-hot-loader/root';
+import React from 'react';
+
 /**
  *
  * @param props values, selectedValue, doSelectValue
@@ -27,6 +31,7 @@ const List = (props) => {
               value={value}
               selectedValue={props.selectedValue}
               doSelectValue={value => props.doSelectValue(value)}
+              doGetKey={value => props.doGetKey(value)}
     />
   ));
   return (
@@ -44,19 +49,20 @@ const List = (props) => {
  * @returns {*}
  */
 const ListItem = (props) => {
-
   if (props.selectedValue === props.value) {
     return (
       <tr className="table-active"
           onClick={() => props.doSelectValue(props.value)}>
-        <td className="p-1 m-1">{props.value}</td>
+        <td className="p-1 m-1">{props.doGetKey(props.value)}</td>
       </tr>
     );
   } else {
     return (
       <tr onClick={() => props.doSelectValue(props.value)}>
-        <td className="p-1 m-1">{props.value}</td>
+        <td className="p-1 m-1">{props.doGetKey(props.value)}</td>
       </tr>
     );
   }
 }
+
+export default hot(List);

@@ -14,60 +14,10 @@
  *  limitations under the License.
  */
 
-'use strict';
-
-const SchemaView = (props) => {
-
-  return (
-    <div className="d-flex">
-      <SchemasTable selectedSchema={props.selectedSchema}
-                    setSelectedSchema={props.setSelectedSchema}/>
-      <IndicesTable selectedSchema={props.selectedSchema}
-                    selectedIndex={props.selectedIndex}
-                    setSelectedIndex={props.setSelectedIndex}/>
-      <FieldsTable selectedSchema={props.selectedSchema}
-                   selectedIndex={props.selectedIndex}
-                   selectedField={props.selectedField}
-                   setSelectedField={props.setSelectedField}/>
-    </div>
-  );
-
-}
-
-const View = (props) => {
-
-  switch (props.selectedView) {
-    case 'Schema':
-      return <SchemaView
-        selectedSchema={props.selectedSchema}
-        setSelectedSchema={props.setSelectedSchema}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        selectedField={props.selectedField}
-        setSelectedField={props.setSelectedField}
-      />;
-    case 'Index':
-      return <IndexView
-        selectedSchema={props.selectedSchema}
-        setSelectedSchema={props.setSelectedSchema}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        indexJson={props.indexJson}
-        setIndexJson={props.setIndexJson}
-      />
-    case 'Query':
-      return <QueryView
-        selectedSchema={props.selectedSchema}
-        setSelectedSchema={props.setSelectedSchema}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        queryJson={props.queryJson}
-        setQueryJson={props.setQueryJson}
-      />
-    default:
-      return null;
-  }
-}
+import {hot} from 'react-hot-loader/root';
+import React, {useState} from 'react';
+import Navbar from "./Navbar";
+import View from "./View";
 
 const App = () => {
 
@@ -75,7 +25,7 @@ const App = () => {
   const [selectedSchema, setSelectedSchema] = useState('');
   const [selectedIndex, setSelectedIndex] = useState('');
   const [selectedField, setSelectedField] = useState('');
-  const [indexJson, setIndexJson] = useState('{}');
+  const [indexJson, setIndexJson] = useState('');
   const [queryJson, setQueryJson] = useState(
     JSON.stringify(
       JSON.parse(
@@ -117,7 +67,4 @@ const App = () => {
   }
 }
 
-ReactDOM.render(
-  <App/>,
-  document.getElementById('app')
-);
+export default hot(App);

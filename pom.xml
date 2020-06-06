@@ -199,7 +199,7 @@
       <groupId>org.webjars.npm</groupId>
       <artifactId>react</artifactId>
     </dependency>
-    <dependency>
+    <dependency> <!-- For dev -->
       <groupId>org.webjars.bower</groupId>
       <artifactId>babel-standalone</artifactId>
       <version>6.14.0</version>

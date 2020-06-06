@@ -14,38 +14,15 @@
  *  limitations under the License.
  */
 
-'use strict';
-
-const {useState, useEffect} = React;
-
-/**
- *
- * @param request
- * @param init
- * @param doJson
- * @param doError
- * @returns {Promise<String>}
- */
-function fetchJson(request, init, doJson, doError) {
-  fetch(request, init)
-    .then(response => Promise.all([response.ok, response.json()]))
-    .then(
-      ([responseOk, responseJson]) => {
-        if (responseOk) {
-          return doJson(responseJson);
-        } else {
-          return doError(responseJson.message);
-        }
-      })
-    .catch(error => doError(error));
-}
+import {hot} from 'react-hot-loader/root';
+import React from 'react';
 
 /**
  *
  * @param props name, selectedName, doDelete, doCreate
  * @returns {*}
  */
-function CreateOrDeleteButton(props) {
+const CreateOrDeleteButton = (props) => {
 
   if (props.name === props.selectedName) {
     return (
@@ -72,7 +49,7 @@ function CreateOrDeleteButton(props) {
  * @returns {*}
  * @constructor
  */
-function CreateEditDelete(props) {
+const CreateEditDelete = (props) => {
 
   return (
     <div className="input-group p-1">
@@ -90,14 +67,5 @@ function CreateEditDelete(props) {
   );
 }
 
-const Badge = (props) => {
-  if (props.value)
-    return (
-      <span className="badge badge-dark">{props.true}</span>
-    );
-  else
-    return (
-      <span className="badge badge-light">{props.false}</span>
-    );
-}
+export default hot(CreateOrDeleteButton, CreateEditDelete);
 

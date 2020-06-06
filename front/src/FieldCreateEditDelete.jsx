@@ -14,9 +14,10 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React from 'react';
 
-function FieldCreateEditDelete(props) {
+const FieldCreateEditDelete = (props) => {
 
   const [index, setIndex] = useState(true);
   const [stored, setStored] = useState(false);
@@ -150,3 +151,5 @@ function FieldCreateEditDelete(props) {
     </React.Fragment>
   );
 }
+
+export default hot(FieldCreateEditDelete);

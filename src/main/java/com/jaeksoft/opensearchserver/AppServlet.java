@@ -34,17 +34,18 @@ public class AppServlet extends HttpServlet {
     private final static String TEMPLATE = "app.ftl";
 
     private enum Jsxs {
-        common,
-        status,
-        field,
-        fields,
-        indexview,
-        queryview,
-        indices,
-        list,
-        navbar,
-        schemas,
-        app
+        Common,
+        Status,
+        Field,
+        Fields,
+        IndexView,
+        QueryView,
+        Indices,
+        List,
+        Navbar,
+        Schemas,
+        App,
+        Index
     }
 
     public AppServlet(final Components components) {

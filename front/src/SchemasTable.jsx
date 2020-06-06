@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,9 +14,14 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React, {useEffect, useState} from 'react';
+import CreateEditDelete from "./CreateEditDelete";
+import Status from "./Status";
+import List from "./List";
+import {fetchJson} from "./fetchJson.js"
 
-function SchemasTable(props) {
+const SchemasTable = (props) => {
 
   const [task, setTask] = useState(null);
   const [error, setError] = useState(null);
@@ -42,7 +47,8 @@ function SchemasTable(props) {
       />
       <List values={schemas}
             selectedValue={props.selectedSchema}
-            doSelectValue={value => props.setSelectedSchema(value)}/>
+            doSelectValue={value => props.setSelectedSchema(value)}
+            doGetKey={value => value}/>
     </div>
   );
 
@@ -71,7 +77,7 @@ function SchemasTable(props) {
 
   function doFetchSchemas() {
     startTask();
-    fetchJson('/ws/indexes', null,
+    fetchJson('http://localhost:9090/ws/indexes', null,
       json => {
         endTask();
         setSchemas(json);
@@ -99,43 +105,4 @@ function SchemasTable(props) {
 
 }
 
-const SchemaList = (props) => {
-
-  const [spinning, setSpinning] = useState(false);
-  const [schemas, setSchemas] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    doFetchSchemas();
-  }, [])
-
-  const items = schemas.map((schema, i) => (
-    <option key={i} value={schema}>{schema}</option>
-  ));
-
-  return (
-    <React.Fragment>
-      <label className="sr-only" htmlFor={props.id}>Schema :</label>
-      <select id={props.id}
-              className="custom-select"
-              value={props.selectedSchema}
-              onChange={e => props.setSelectedSchema(e.target.value)}>
-        <option value="">Select a schema</option>
-        {items}''
-      </select>
-    </React.Fragment>
-  );
-
-  function doFetchSchemas() {
-    setSpinning(true);
-    fetchJson('/ws/indexes', null,
-      json => {
-        setSpinning(false);
-        setSchemas(json);
-      },
-      error => {
-        setSpinning(false);
-        setError(error.message)
-      });
-  }
-}
+export default hot(SchemasTable);

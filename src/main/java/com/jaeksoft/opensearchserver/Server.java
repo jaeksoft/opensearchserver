@@ -16,6 +16,7 @@
 package com.jaeksoft.opensearchserver;
 
 import com.qwazr.server.ApplicationBuilder;
+import com.qwazr.server.CorsFilter;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.RestApplication;
@@ -46,7 +47,7 @@ public class Server extends Components {
             .registerJavaServlet(AppServlet.class, () -> new AppServlet(this))
             .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
-                .singletons(getIndexService()));
+                .singletons(getIndexService(), new CorsFilter()));
         if (!getConfigService().isProduction())
             webAppBuilder.registerStaticServlet("/jsx/*", Path.of("src", "main", "jsx"), DEFAULT_EXPIRATION_TIME);
 

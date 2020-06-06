@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React, {useState, useEffect} from 'react';
 
 function IndicesTable(props) {
 
@@ -45,7 +46,8 @@ function IndicesTable(props) {
       />
       <List values={indices}
             selectedValue={props.selectedIndex}
-            doSelectValue={value => props.setSelectedIndex(value)}/>
+            doSelectValue={value => props.setSelectedIndex(value)}
+            doGetKey={value => value}/>
     </div>
   );
 
@@ -158,3 +160,5 @@ const IndexList = (props) => {
       });
   }
 }
+
+export default hot(IndicesTable);

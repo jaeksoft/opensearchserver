@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React, {useState} from 'react';
 
 const QueryView = (props) => {
 
@@ -31,15 +32,33 @@ const QueryView = (props) => {
         </div>
         <div className="flex-grow-1 p-1">
           <div className="h-100 d-flex">
-          <textarea className="form-control-sm w-50 h-100"
-                    style={{resize: 'none'}}
-                    value={props.queryJson}
-                    onChange={e => props.setQueryJson(e.target.value)}/>
-            <textarea className="form-control-sm w-50 h-100"
-                      readOnly={true}
-                      style={{resize: 'none'}}
-                      value={resultJson}
-                      onChange={e => props.setIndexJson(e.target.value)}/>
+            <div className="w-50 h-100">
+              <div className="h-50">
+                <textarea className="form-control h-100"
+                          style={{resize: 'none'}}
+                          value={props.queryJson}
+                          onChange={e => props.setQueryJson(e.target.value)}/>
+              </div>
+              <div className="h-50">
+                render(
+                <AceEditor
+                  mode="java"
+                  theme="github"
+                  name="UNIQUE_ID_OF_DIV"
+                  editorProps={{$blockScrolling: true}}
+                />,
+                document.getElementById("example")
+                );
+                <p>Example</p>
+              </div>
+            </div>
+            <div className="w-50 h-100">
+              <textarea className="form-control h-100"
+                        readOnly={true}
+                        style={{resize: 'none'}}
+                        value={resultJson}
+                        onChange={e => props.setIndexJson(e.target.value)}/>
+            </div>
           </div>
         </div>
         <form className="form-inline pr-1 pb-1">
@@ -59,7 +78,7 @@ const QueryView = (props) => {
           <div className="pt-1 pl-1">
             <button className="btn btn-primary"
                     onClick={() => doQuery()}>
-              Post JSON
+              QUERY
             </button>
           </div>
         </form>
@@ -121,3 +140,5 @@ const QueryView = (props) => {
       });
   }
 }
+
+export default hot(QueryView);

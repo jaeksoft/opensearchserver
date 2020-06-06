@@ -14,7 +14,8 @@
  *  limitations under the License.
  */
 
-'use strict';
+import {hot} from 'react-hot-loader/root';
+import React, {useEffect} from 'react';
 
 function Spinning(props) {
 
@@ -68,3 +69,5 @@ function Status(props) {
     </React.Fragment>
   );
 }
+
+export default hot(Status);
