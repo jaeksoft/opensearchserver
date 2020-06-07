@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,17 +47,17 @@ public class ServerTest {
     }
 
     @Test
-    public void startStop() throws Exception {
+    public void checkThatTheServerStarts() throws Exception {
         // Start the server
         Server.main();
         Assert.assertNotNull(Server.getInstance());
 
-        // Check if the webjars are loaded
-        final String css = client.target("http://localhost:9090")
-            .path("/webjars/bootstrap/4.5.0/css/bootstrap.min.css")
-            .request("text/css")
-            .get(String.class);
-        Assert.assertTrue(css.contains("bootstrap"));
+        // Check if the favicon is returned
+        try (final Response response  = client.target("http://localhost:9090")
+            .path("/favicon.ico")
+            .request().get()) {
+            Assert.assertEquals(response.getStatus(),  200);
+        }
 
         // Stop the server
         Server.stop();
