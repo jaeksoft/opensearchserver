@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Properties>
+
+        <!-- The logs location is defined by the QWAZR_LOGS environment variable -->
+        <Property name="LogPath">${env:QWAZR_LOGS:-logs}/</Property>
+
+        <!-- The default pattern -->
+        <Property name="SystemPattern">%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx{none}%n</Property>
+
+        <Property name="exceptionFilters">javax.servlet,io.undertow,sun.reflect,java.lang.reflect</Property>
+
+        <!-- The detailled error pattern -->
+        <Property name="ErrorPattern">
+            %d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%xEx{filters(${exceptionFilters})}%n
+        </Property>
+
+        <!-- The header of the Access logs -->
+        <Property name="W3CHeader">
+            #Fields:\tdate\ttime\tc-ip\ts-ip\tcs-method\tcs-uri-stem\tcs-uri-query\tsc-status\tcs(Referer)\tcs(User-Agent)\tcs(bytes)\tsc(bytes)\ttime-taken\tcs(host)%n
+        </Property>
+
+        <!-- The content of the Access logs -->
+        <Property name="W3CLogs">%m%n</Property>
+
+    </Properties>
+
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${SystemPattern}"/>
+        </Console>
+
+        <RollingRandomAccessFile name="ErrorFile" fileName="${LogPath}/error.${hostName}.log"
+                                 filePattern="${LogPath}/error.${hostName}.log.%d{yyyy-MM-dd}.gz">
+            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${ErrorPattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="InfoFile" fileName="${LogPath}/info.${hostName}.log"
+                                 filePattern="${LogPath}/info.${hostName}.log.%d{yyyy-MM-dd}.gz">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${SystemPattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="AccessFile" fileName="${LogPath}/access.${hostName}.log"
+                                 filePattern="${LogPath}/access.${hostName}.log.%d{yyyy-MM-dd}.gz">
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout header="${W3CHeader}" pattern="${W3CLogs}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ErrorFile"/>
+            <AppenderRef ref="InfoFile"/>
+        </Root>
+
+        <!-- The Access logs for the Webapps -->
+        <Logger name="com.qwazr.AccessLogs" level="INFO" additivity="false">
+            <AppenderRef ref="AccessFile"/>
+        </Logger>
+
+        <!-- Default logs level -->
+        <Logger name="com.qwazr" level="WARN"/>
+        <Logger name="com.jaeksoft" level="WARN"/>
+        <Logger name="com.qwazr.server" level="INFO"/>
+
+    </Loggers>
+
+</Configuration>

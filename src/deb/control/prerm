@@ -1,9 +1,0 @@
-#!/bin/sh
-
-if [ -f /etc/init.d/opensearchserver ]; then
-	if which invoke-rc.d >/dev/null 2>&1; then
-		invoke-rc.d opensearchserver stop
-	else
-		/etc/init.d/opensearchserver stop
-	fi
-fi
