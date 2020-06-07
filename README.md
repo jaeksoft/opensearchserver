@@ -5,48 +5,23 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.jaeksoft/opensearchserver/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.jaeksoft/opensearchserver)
 [![Join the chat at https://gitter.im/jaeksoft/opensearchserver](https://badges.gitter.im/jaeksoft/opensearchserver.svg)](https://gitter.im/jaeksoft/opensearchserver)
 
+OpenSearchServer is a powerful, enterprise-class, search engine software based on Lucene.
+Using the web user interface, the crawlers (web, file, database, ...) and the JSON webservice you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Linux/Unix/BSD/Windows.
 
-Copyright Emmanuel Keller / Jaeksoft (2008-2017)
-This software is licensed under the GPL v3.
-
-OpenSearchServer is a powerful, enterprise-class, search engine program. Using the web user interface, the crawlers (web, file, database, ...) and the REST/RESTFul API you will be able to integrate quickly and easily advanced full-text search capabilities in your application. OpenSearchServer runs on Linux/Unix/BSD/Windows.
 
 Quickstart
 ----------
-### One requirement
-You need to have a JAVA 7 (or newer) runtime on your server
+### Docker image
 
-### Download the last ZIP or the TAR.GZ archive:
-http://www.opensearchserver.com/#download
-
-### Deflate the content to get the following files:
-- ```FILE``` opensearchserver.jar -> the main library
-- ```FILE``` README.md -> this file
-- ```DIR``` data -> will contains your index
-- ```DIR``` server -> will contains servers files
-- ```FILE``` start.sh -> Shell to start the server on Unix
-- ```FILE``` start.bat -> Batch to start the server on Windows
-- ```FILE``` NOTICE.txt -> the third-party license informations
-- ```DIR``` LICENSES -> Contains the detailled licenses
-
-### Edit the parameters 
-Optionally, can you change the parameters in the start.sh/start.bat script:
-- The allowed memory size
-- The TCP port (9090 by default)
-
-### Start the server
-```
-cd opensearchserver
-./start.sh
-```
+Not yet there.. coming soon..
 
 ### Go with the interface and/or the API
 http://localhost:9090
 
 Useful links
 ------------
-+ Download binaries: http://www.opensearchserver.com/#download
-+ The documentation: http://www.opensearchserver.com/documentation 
++ Download binaries: https://www.opensearchserver.com/#download
++ The documentation: https://www.opensearchserver.com/documentation 
 + Issues (bugs, enhancements): https://github.com/jaeksoft/opensearchserver/issues
 
 Features
@@ -90,10 +65,24 @@ Features
 - Session parameters removal
 - SQL join and linked files support
 - Screenshot capture
-- Sitemap import
 
 ### General
-- REST API (XML and JSON)
-- Monitoring module
-- Index replication
-- Scheduler for management of periodic tasks
+- JSON web service
+- Index replication and sharding
+- Federated search
+
+License
+-------
+Copyright Emmanuel Keller / Jaeksoft (2008-2020)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
