@@ -56,7 +56,30 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <id>central</id>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
