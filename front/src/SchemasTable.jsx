@@ -54,7 +54,7 @@ const SchemasTable = (props) => {
 
   function doCreateSchema(sch) {
     startTask('Creating schema ' + sch);
-    fetchJson('/ws/indexes/' + sch, {method: 'POST'},
+    fetchJson(props.oss + '/ws/indexes/' + sch, {method: 'POST'},
       json => {
         endTask('Schema created');
         setSchemaName('');
@@ -66,7 +66,7 @@ const SchemasTable = (props) => {
 
   function doDeleteSchema(sch) {
     startTask('Deleting schema ' + sch);
-    fetchJson('/ws/indexes/' + sch, {method: 'DELETE'},
+    fetchJson(props.oss + '/ws/indexes/' + sch, {method: 'DELETE'},
       json => {
         props.setSelectedSchema(null);
         endTask('Schema deleted');
@@ -77,7 +77,7 @@ const SchemasTable = (props) => {
 
   function doFetchSchemas() {
     startTask();
-    fetchJson('http://localhost:9090/ws/indexes', null,
+    fetchJson(props.oss + '/ws/indexes', null,
       json => {
         endTask();
         setSchemas(json);

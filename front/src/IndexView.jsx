@@ -15,10 +15,13 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
+import Status from "./Status";
+import SchemaList from "./SchemasList";
 
 const IndexView = (props) => {
 
+  const oss = useContext(OssContext);
   const [error, setError] = useState(null);
   const [task, setTask] = useState(null);
   const [spinning, setSpinning] = useState(false);
@@ -95,7 +98,7 @@ const IndexView = (props) => {
     setTask('Collecting sample...');
     setSpinning(true);
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json/samples?count=2',
+      oss.url + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json/samples?count=2',
       {method: 'GET'},
       json => {
         props.setIndexJson(JSON.stringify(json, undefined, 2));
@@ -135,7 +138,7 @@ const IndexView = (props) => {
     }
 
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json',
+      oss.url + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json',
       {
         method: 'POST',
         headers: {

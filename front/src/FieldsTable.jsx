@@ -16,6 +16,10 @@
 
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
+import Status from "./Status";
+import FieldCreateEditDelete from "./FieldCreateEditDelete";
+import {fetchJson} from "./fetchJson";
+import Badge from "./Badge";
 
 const FieldsTable = (props) => {
 
@@ -43,7 +47,8 @@ const FieldsTable = (props) => {
                              doCreateField={(field, properties) => doCreateField(field, properties)}
                              doDeleteField={field => doDeleteField(field)}
       />
-      <FieldTable fields={fields}
+      <FieldTable oss={props.oss}
+                  fields={fields}
                   selectedField={props.selectedField}
                   doSelectField={value => props.setSelectedField(value)}/>
     </div>
@@ -56,7 +61,7 @@ const FieldsTable = (props) => {
       return;
     }
     startTask();
-    fetchJson('/ws/indexes/' + schema + '/' + index + '/fields', null,
+    fetchJson(props.oss + '/ws/indexes/' + schema + '/' + index + '/fields', null,
       json => {
         endTask();
         setFields(json);
@@ -67,7 +72,7 @@ const FieldsTable = (props) => {
   function doCreateField(field, properties) {
     startTask('Creating field ' + field);
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
+      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
       {
         method: 'POST',
         headers: {
@@ -87,7 +92,7 @@ const FieldsTable = (props) => {
   function doDeleteField(field) {
     startTask('Deleting field ' + field);
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
+      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
       {
         method: 'DELETE'
       },
@@ -119,6 +124,13 @@ const FieldsTable = (props) => {
 }
 
 const FieldTable = (props) => {
+
+  useEffect(() => {
+  }, [props.fields])
+
+  if (!props.fields) {
+    return null;
+  }
 
   const tableRows = Object.keys(props.fields).map((fieldName, i) => (
     <FieldRow key={i}

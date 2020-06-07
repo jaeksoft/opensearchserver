@@ -33,5 +33,5 @@ export function fetchJson(request, init, doJson, doError) {
           return doError(responseJson.message);
         }
       })
-    .catch(error => doError(error));
+    .catch(error => doError(error.message));
 }

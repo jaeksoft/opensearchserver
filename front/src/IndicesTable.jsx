@@ -16,6 +16,10 @@
 
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
+import Status from "./Status";
+import CreateEditDelete from "./CreateEditDelete";
+import List from "./List";
+import {fetchJson} from "./fetchJson.js"
 
 function IndicesTable(props) {
 
@@ -57,7 +61,9 @@ function IndicesTable(props) {
       return;
     }
     startTask('Creating index ' + idx);
-    fetchJson('/ws/indexes/' + props.selectedSchema + '/' + indexName, {method: 'POST'},
+    fetchJson(
+      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + indexName,
+      {method: 'POST'},
       json => {
         endTask('Index created');
         setIndexName('');
@@ -73,7 +79,7 @@ function IndicesTable(props) {
       return endTask(null, 'No schema is selected');
     }
     startTask('Deleting index ' + idx);
-    fetchJson('/ws/indexes/' + props.selectedSchema + '/' + idx, {method: 'DELETE'},
+    fetchJson(props.oss + '/ws/indexes/' + props.selectedSchema + '/' + idx, {method: 'DELETE'},
       json => {
         props.setSelectedIndex(null);
         endTask('Index deleted');
@@ -88,7 +94,7 @@ function IndicesTable(props) {
       return;
     }
     startTask();
-    fetchJson('/ws/indexes/' + schema, null,
+    fetchJson(props.oss + '/ws/indexes/' + schema, null,
       json => {
         endTask();
         setIndices(json);
@@ -112,52 +118,6 @@ function IndicesTable(props) {
       setError(newError);
     else if (newTask)
       setError(null);
-  }
-}
-
-
-const IndexList = (props) => {
-
-  const [spinning, setSpinning] = useState(false);
-  const [indices, setIndices] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    doFetchIndices();
-  }, [props.selectedSchema])
-
-  const items = Object.keys(indices).map((index, i) => (
-    <option key={i} value={index}>{index}</option>
-  ));
-
-  return (
-    <React.Fragment>
-      <label className="sr-only" htmlFor={props.id}>Index :</label>
-      <select id={props.id}
-              className="custom-select"
-              value={props.selectedIndex}
-              onChange={e => props.setSelectedIndex(e.target.value)}>
-        <option value="">Select an index</option>
-        {items}
-      </select>
-    </React.Fragment>
-  );
-
-  function doFetchIndices() {
-    const schema = props.selectedSchema;
-    if (!schema) {
-      return;
-    }
-    setSpinning(true);
-    fetchJson('/ws/indexes/' + schema, null,
-      json => {
-        setSpinning(false);
-        setIndices(json);
-      },
-      error => {
-        setSpinning(false);
-        setError(error.message)
-      });
   }
 }
 

@@ -39,7 +39,7 @@ public class Server extends Components {
         final GenericServerBuilder serverBuilder = GenericServer.of(configuration)
             .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
             .sessionPersistenceManager(getSessionPersistenceManager());
-        ;
+
         final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
             .registerDefaultFaviconServlet()
             .registerWebjars()
@@ -48,8 +48,6 @@ public class Server extends Components {
             .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
                 .singletons(getIndexService(), new CorsFilter()));
-        if (!getConfigService().isProduction())
-            webAppBuilder.registerStaticServlet("/jsx/*", Path.of("src", "main", "jsx"), DEFAULT_EXPIRATION_TIME);
 
         webAppBuilder.build();
         server = serverBuilder.build();

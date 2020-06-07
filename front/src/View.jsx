@@ -16,33 +16,16 @@
 
 import {hot} from 'react-hot-loader/root';
 import React from 'react';
-import SchemasTable from './SchemasTable';
-import IndicesTable from "./IndicesTable";
-import FieldsTable from "./FieldsTable";
-
-const SchemaView = (props) => {
-
-  return (
-    <div className="d-flex">
-      <SchemasTable selectedSchema={props.selectedSchema}
-                    setSelectedSchema={props.setSelectedSchema}/>
-      <IndicesTable selectedSchema={props.selectedSchema}
-                    selectedIndex={props.selectedIndex}
-                    setSelectedIndex={props.setSelectedIndex}/>
-      <FieldsTable selectedSchema={props.selectedSchema}
-                   selectedIndex={props.selectedIndex}
-                   selectedField={props.selectedField}
-                   setSelectedField={props.setSelectedField}/>
-    </div>
-  );
-
-}
+import SchemaView from "./SchemaView";
+import IndexView from "./IndexView";
+import QueryView from "./QueryView";
 
 const View = (props) => {
 
   switch (props.selectedView) {
     case 'Schema':
       return <SchemaView
+        oss={props.oss}
         selectedSchema={props.selectedSchema}
         setSelectedSchema={props.setSelectedSchema}
         selectedIndex={props.selectedIndex}
@@ -50,8 +33,10 @@ const View = (props) => {
         selectedField={props.selectedField}
         setSelectedField={props.setSelectedField}
       />;
-    case 'Index':
+    case
+    'Index':
       return <IndexView
+        oss={props.oss}
         selectedSchema={props.selectedSchema}
         setSelectedSchema={props.setSelectedSchema}
         selectedIndex={props.selectedIndex}
@@ -61,6 +46,7 @@ const View = (props) => {
       />
     case 'Query':
       return <QueryView
+        oss={props.oss}
         selectedSchema={props.selectedSchema}
         setSelectedSchema={props.setSelectedSchema}
         selectedIndex={props.selectedIndex}

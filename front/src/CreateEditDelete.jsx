@@ -16,32 +16,7 @@
 
 import {hot} from 'react-hot-loader/root';
 import React from 'react';
-
-/**
- *
- * @param props name, selectedName, doDelete, doCreate
- * @returns {*}
- */
-const CreateOrDeleteButton = (props) => {
-
-  if (props.name === props.selectedName) {
-    return (
-      <button className="btn btn-danger shadow-none rounded-0"
-              type="button"
-              onClick={() => props.doDelete(props.name)}>
-        Delete
-      </button>
-    );
-  } else {
-    return (
-      <button className="btn btn-primary shadow-none rounded-0"
-              type="button"
-              onClick={() => props.doCreate(props.name)}>
-        Create
-      </button>
-    );
-  }
-}
+import CreateOrDeleteButton from "./CreateOrDeleteButton";
 
 /**
  *
@@ -67,5 +42,5 @@ const CreateEditDelete = (props) => {
   );
 }
 
-export default hot(CreateOrDeleteButton, CreateEditDelete);
+export default hot(CreateEditDelete);
 
