@@ -74,36 +74,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.webjars.npm</groupId>
-        <artifactId>react-dom</artifactId>
-        <version>16.13.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.npm</groupId>
-        <artifactId>react</artifactId>
-        <version>16.13.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>bootstrap</artifactId>
-        <version>4.5.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging</artifactId>
-        <version>3.2.1.Final</version>
-      </dependency>
-      <dependency>
-        <artifactId>pdfbox</artifactId>
-        <groupId>org.apache.pdfbox</groupId>
-        <version>2.0.11</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-collections4</artifactId>
-        <version>4.2</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -156,22 +126,7 @@
     </dependency>
     <dependency>
       <groupId>com.qwazr</groupId>
-      <artifactId>qwazr-link</artifactId>
-      <version>${qwazr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.qwazr</groupId>
       <artifactId>qwazr-crawlers</artifactId>
-      <version>${qwazr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.qwazr</groupId>
-      <artifactId>qwazr-database</artifactId>
-      <version>${qwazr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.qwazr</groupId>
-      <artifactId>qwazr-store</artifactId>
       <version>${qwazr.version}</version>
     </dependency>
     <dependency>
@@ -189,33 +144,11 @@
     <!-- WebJars -->
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>bootstrap</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>react-dom</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>react</artifactId>
-    </dependency>
-    <dependency> <!-- For dev -->
-      <groupId>org.webjars.bower</groupId>
-      <artifactId>babel-standalone</artifactId>
-      <version>6.14.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
       <artifactId>swagger-ui</artifactId>
       <version>3.25.0</version>
     </dependency>
     <!-- End WebJars -->
 
-    <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>nimbus-jose-jwt</artifactId>
-      <version>6.0</version>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

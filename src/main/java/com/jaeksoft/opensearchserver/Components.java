@@ -18,7 +18,6 @@ package com.jaeksoft.opensearchserver;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.crawler.web.WebCrawlerSingleClient;
-import com.qwazr.database.store.Tables;
 import com.qwazr.library.AbstractLibrary;
 import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.scripts.ScriptManager;
@@ -223,7 +222,6 @@ public class Components implements Closeable {
         // Closing/resetting every providers
         providers.forEach(AtomicProvider::close);
 
-        Tables.closeAll();
     }
 
 }

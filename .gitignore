@@ -16,6 +16,7 @@ node_modules
 package-lock.json
 yarn.lock
 /server
+/web-sessions
 /front/build
 config.oss2.properties
 opensearchserver.iml

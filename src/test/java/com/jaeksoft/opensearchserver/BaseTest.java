@@ -27,15 +27,6 @@ public class BaseTest {
 
     private Components components;
 
-    protected synchronized Components getComponents() throws IOException {
-        if (components == null) {
-            final Path dataDirectory = Files.createTempDirectory("BaseTest");
-            Files.copy(Paths.get("config.properties"), dataDirectory.resolve("config.properties"));
-            components = new Components(dataDirectory);
-        }
-        return components;
-    }
-
     @After
     public synchronized void cleanup() {
         if (components != null) {
