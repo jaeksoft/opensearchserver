@@ -134,20 +134,7 @@
       <artifactId>qwazr-webapps</artifactId>
       <version>${qwazr.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.qwazr</groupId>
-      <artifactId>qwazr-library-freemarker</artifactId>
-      <version>${qwazr.version}</version>
-    </dependency>
     <!-- End Qwazr -->
-
-    <!-- WebJars -->
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>swagger-ui</artifactId>
-      <version>3.25.0</version>
-    </dependency>
-    <!-- End WebJars -->
 
     <dependency>
       <groupId>junit</groupId>

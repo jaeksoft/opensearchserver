@@ -41,10 +41,9 @@ public class Server extends Components {
             .sessionPersistenceManager(getSessionPersistenceManager());
 
         final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
-            .registerDefaultFaviconServlet()
-            .registerWebjars()
-            .registerStaticServlet("/s/*", "com.jaeksoft.opensearchserver.front.statics")
-            .registerJavaServlet(AppServlet.class, () -> new AppServlet(this))
+            .registerCustomFaviconServlet("/com/jaeksoft/opensearchserver/front/favicon.ico")
+            .registerStaticServlet("/assets/*", "com.jaeksoft.opensearchserver.front.assets")
+            .registerStaticResourceServlet("/", "/com/jaeksoft/opensearchserver/front/index.html", DEFAULT_EXPIRATION_TIME)
             .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
                 .singletons(getIndexService(), new CorsFilter()));
