@@ -16,6 +16,13 @@
 
 import {hot} from 'react-hot-loader/root';
 import React, {useState} from 'react';
+import {render} from "react-dom";
+import Status from './Status';
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-github";
+import SchemaList from "./SchemasList";
+import IndexList from "./IndexList";
 
 const QueryView = (props) => {
 
@@ -34,21 +41,16 @@ const QueryView = (props) => {
           <div className="h-100 d-flex">
             <div className="w-50 h-100">
               <div className="h-50">
-                <textarea className="form-control h-100"
-                          style={{resize: 'none'}}
-                          value={props.queryJson}
-                          onChange={e => props.setQueryJson(e.target.value)}/>
+                <AceEditor
+                  mode="json"
+                  theme="github"
+                  editorProps={{$blockScrolling: false}}
+                  value={props.queryJson}
+                  name="queryjson"
+                  onChange={e => props.setQueryJson(e.target.value)}
+                />
               </div>
               <div className="h-50">
-                render(
-                <AceEditor
-                  mode="java"
-                  theme="github"
-                  name="UNIQUE_ID_OF_DIV"
-                  editorProps={{$blockScrolling: true}}
-                />,
-                document.getElementById("example")
-                );
                 <p>Example</p>
               </div>
             </div>
@@ -139,6 +141,7 @@ const QueryView = (props) => {
         setSpinning(false);
       });
   }
+
 }
 
 export default hot(QueryView);

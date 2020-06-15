@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "@neutrinojs/react": "^9.1.0",
+    "@neutrinojs/react": "^9.2.0",
     "@neutrinojs/react-components": "^9.1.0",
-    "neutrino": "^9.1.0",
+    "neutrino": "^9.2.0",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0"
@@ -13,8 +13,10 @@
   },
   "dependencies": {
     "@hot-loader/react-dom": "^16.13.0",
+    "ace-builds": "^1.4.11",
     "bootstrap": "^4.5.0",
     "react": "^16.13.1",
+    "react-ace": "^9.0.0",
     "react-dom": "^16.13.1",
     "react-hot-loader": "^4.12.21"
   }

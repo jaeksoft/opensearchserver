@@ -18,10 +18,11 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect, useContext} from 'react';
 import Status from "./Status";
 import SchemaList from "./SchemasList";
+import IndexList from "./IndexList";
+import {fetchJson} from "./fetchJson.js"
 
 const IndexView = (props) => {
 
-  const oss = useContext(OssContext);
   const [error, setError] = useState(null);
   const [task, setTask] = useState(null);
   const [spinning, setSpinning] = useState(false);
@@ -50,13 +51,15 @@ const IndexView = (props) => {
         </div>
         <form className="form-inline pr-1 pb-1">
           <div className="pl-1">
-            <SchemaList id="selectSchema"
+            <SchemaList oss={props.oss}
+                        id="selectSchema"
                         selectedSchema={props.selectedSchema}
                         setSelectedSchema={props.setSelectedSchema}
             />
           </div>
           <div className="pl-1">
-            <IndexList id="selectIndex"
+            <IndexList oss={props.oss}
+                       id="selectIndex"
                        selectedSchema={props.selectedSchema}
                        selectedIndex={props.selectedIndex}
                        setSelectedIndex={props.setSelectedIndex}
@@ -98,7 +101,7 @@ const IndexView = (props) => {
     setTask('Collecting sample...');
     setSpinning(true);
     fetchJson(
-      oss.url + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json/samples?count=2',
+      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json/samples?count=2',
       {method: 'GET'},
       json => {
         props.setIndexJson(JSON.stringify(json, undefined, 2));

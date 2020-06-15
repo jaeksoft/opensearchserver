@@ -15,7 +15,8 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useEffect,useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import {fetchJson} from "./fetchJson.js"
 
 const SchemaList = (props) => {
 
@@ -46,7 +47,7 @@ const SchemaList = (props) => {
 
   function doFetchSchemas() {
     setSpinning(true);
-    fetchJson('/ws/indexes', null,
+    fetchJson(props.oss + '/ws/indexes', null,
       json => {
         setSpinning(false);
         setSchemas(json);
