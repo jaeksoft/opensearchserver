@@ -47,7 +47,7 @@ public class XPathFilter extends FilterFactory {
 
 	public class XPathTokenFilter extends AbstractTermFilter {
 
-		private XPathExpression xPathExpression = null;
+		private XPathExpression xPathExpression;
 
 		private NodeList tokenList = null;
 

@@ -252,7 +252,7 @@ public class DomUtils {
 	private final static SimpleLock dbfLock = new SimpleLock();
 
 	private static final DocumentBuilderFactory getDocumentBuilderFactory() {
-		DocumentBuilderFactory dbf = null;
+		DocumentBuilderFactory dbf;
 		dbfLock.rl.lock();
 		try {
 			dbf = DocumentBuilderFactory.newInstance();
@@ -290,7 +290,7 @@ public class DomUtils {
 		factory.setFeature(
 				"http://apache.org/xml/features/nonvalidating/load-external-dtd",
 				false);
-		DocumentBuilder db = null;
+		DocumentBuilder db;
 		db = factory.newDocumentBuilder();
 		return db.parse(source);
 	}

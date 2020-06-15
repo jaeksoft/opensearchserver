@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.util.video.VimeoItem;
 public class VimeoTokenFilter extends AbstractTermFilter {
 
 	private int vimeoData;
-	private HttpDownloader httpDownloader = null;
+	private HttpDownloader httpDownloader;
 	private boolean faultTolerant;
 
 	protected VimeoTokenFilter(TokenStream input, int vimeoData,

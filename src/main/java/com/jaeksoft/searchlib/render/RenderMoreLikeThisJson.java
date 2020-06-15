@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.result.ResultMoreLikeThis;
 
 public class RenderMoreLikeThisJson extends
 		AbstractRenderDocumentsJson<MoreLikeThisRequest, ResultMoreLikeThis> {
-	Boolean indent = null;
+	Boolean indent;
 
 	public RenderMoreLikeThisJson(ResultMoreLikeThis result, Boolean indent) {
 		super(result);

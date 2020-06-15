@@ -56,7 +56,7 @@ public class CredentialManager {
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
 	// For better performances, pattern are grouped by hostname in a map
-	private Map<String, List<CredentialItem>> credentialMap = null;
+	private Map<String, List<CredentialItem>> credentialMap;
 
 	private File credentialFile;
 

@@ -149,7 +149,7 @@ public abstract class Config implements ThreadFactory {
 
 	private AutoCompletionManager autoCompletionManager = null;
 
-	private XPathParser xppConfig = null;
+	private XPathParser xppConfig;
 
 	private WebCrawlMaster webCrawlMaster = null;
 
@@ -191,9 +191,9 @@ public abstract class Config implements ThreadFactory {
 
 	private JobList jobList = null;
 
-	protected ConfigFiles configFiles = null;
+	protected ConfigFiles configFiles;
 
-	private String urlManagerClass = null;
+	private String urlManagerClass;
 
 	private LogReportManager logReportManager = null;
 

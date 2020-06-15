@@ -54,7 +54,7 @@ public abstract class AbstractPatternNameValueManager<T extends AbstractPatternN
 	final protected ReadWriteLock rwl = new ReadWriteLock();
 
 	// For better performances, pattern are grouped by hostname in a map
-	private Map<String, List<T>> itemMap = null;
+	private Map<String, List<T>> itemMap;
 
 	private File xmlFile;
 

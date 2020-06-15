@@ -35,15 +35,15 @@ import com.jaeksoft.searchlib.analysis.TokenTerm;
 
 public abstract class AbstractTermFilter extends TokenFilter {
 
-	protected PositionIncrementAttribute posIncrAtt = null;
+	protected PositionIncrementAttribute posIncrAtt;
 
-	protected OffsetAttribute offsetAtt = null;
+	protected OffsetAttribute offsetAtt;
 
-	protected CharTermAttribute termAtt = null;
+	protected CharTermAttribute termAtt;
 
-	protected TypeAttribute typeAtt = null;
+	protected TypeAttribute typeAtt;
 
-	protected FlagsAttribute flagsAtt = null;
+	protected FlagsAttribute flagsAtt;
 
 	protected AbstractTermFilter(TokenStream input) {
 		super(input);

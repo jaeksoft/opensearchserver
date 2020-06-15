@@ -35,7 +35,7 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class CryptFilter extends FilterFactory {
 
-	private class CryptTokenFilter extends AbstractTermFilter {
+	private static class CryptTokenFilter extends AbstractTermFilter {
 
 		private final String salt;
 

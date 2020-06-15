@@ -514,7 +514,7 @@ public class HtmlParser extends Parser {
 							newUrl = LinkUtils.getLink(currentURL, href, urlFilterList, removeFragment);
 						}
 				if (newUrl != null) {
-					ParserFieldEnum field = null;
+					ParserFieldEnum field;
 					if (newUrl.getHost().equalsIgnoreCase(currentURL.getHost())) {
 						if (follow)
 							field = ParserFieldEnum.internal_link;

@@ -32,7 +32,7 @@ import java.io.InputStream;
 public class CachedMemoryStream extends ByteArrayOutputStream implements
 		CachedStreamInterface {
 
-	public class MaxMemoryException extends Exception {
+	public static class MaxMemoryException extends Exception {
 
 		private static final long serialVersionUID = -2377324978314552922L;
 
@@ -49,7 +49,7 @@ public class CachedMemoryStream extends ByteArrayOutputStream implements
 			long maxMemoryCache) throws LimitException, IOException,
 			MaxMemoryException {
 		byte[] buffer = new byte[65536];
-		int bufferSize = 0;
+		int bufferSize;
 		while ((bufferSize = inputStream.read(buffer)) != -1) {
 			write(buffer, 0, bufferSize);
 			limit = checkLimit(limit, bufferSize);

@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class SynonymsImpl implements RestSynonyms, SoapSynonyms {
 
-	private class SynonymsDirectoryImpl extends
+	private static class SynonymsDirectoryImpl extends
 			AbstractDirectoryImpl<String, SynonymsManager> {
 
 		@Override

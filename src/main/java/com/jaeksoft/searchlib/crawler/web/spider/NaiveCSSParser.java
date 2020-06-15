@@ -42,7 +42,7 @@ public class NaiveCSSParser {
 		protected abstract void write(PrintWriter pw);
 	}
 
-	public class CSSProperty {
+	public static class CSSProperty {
 
 		private final String name;
 		private String value;

@@ -38,7 +38,7 @@ public class YouTubeTokenFilter extends AbstractTermFilter {
 
 	private int youtubeData;
 	private boolean faultTolerant;
-	private HttpDownloader httpDownloader = null;
+	private HttpDownloader httpDownloader;
 
 	protected YouTubeTokenFilter(TokenStream input, int youtubeData,
 			HttpDownloader httpDownloader, boolean faultTolerant) {

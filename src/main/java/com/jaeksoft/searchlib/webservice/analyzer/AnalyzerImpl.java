@@ -82,7 +82,7 @@ public class AnalyzerImpl extends CommonServices implements SoapAnalyzer,
 			if (scope == null)
 				scope = FilterScope.QUERY;
 			Analyzer analyzer = getAnalyzer(client, name, lang);
-			CompiledAnalyzer compiledAnalyzer = null;
+			CompiledAnalyzer compiledAnalyzer;
 			switch (scope) {
 			case INDEX:
 				compiledAnalyzer = analyzer.getIndexAnalyzer();

@@ -138,11 +138,11 @@ public class UpdateFormController extends CommonController {
 		getIndexDocument().setLang(lang);
 	}
 
-	public class FieldDocument {
+	public static class FieldDocument {
 
-		private List<FieldValue> fieldValueList;
+		private final List<FieldValue> fieldValueList;
 
-		private String fieldName;
+		private final String fieldName;
 
 		private FieldDocument(FieldContent fieldContent) {
 			fieldName = fieldContent.getField();

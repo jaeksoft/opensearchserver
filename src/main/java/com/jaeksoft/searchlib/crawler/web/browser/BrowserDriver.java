@@ -77,7 +77,7 @@ import com.jaeksoft.searchlib.util.IOUtils;
 public abstract class BrowserDriver<T extends WebDriver> implements Closeable {
 
 	protected final BrowserDriverEnum type;
-	protected T driver = null;
+	protected T driver;
 
 	protected BrowserDriver(BrowserDriverEnum type) {
 		this.type = type;

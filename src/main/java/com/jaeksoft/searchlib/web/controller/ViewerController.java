@@ -112,7 +112,7 @@ public class ViewerController extends CommonController {
 		hocrPdf = null;
 		downloadThread = null;
 		currentImage = null;
-		Client client = null;
+		Client client;
 		numberOfPages = 0;
 		page = 1;
 		zoom = 100;

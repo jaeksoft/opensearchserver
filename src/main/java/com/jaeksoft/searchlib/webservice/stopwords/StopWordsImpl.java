@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.webservice.CommonResult;
 
 public class StopWordsImpl implements RestStopWords, SoapStopWords {
 
-	private class StopWordsDirectoryImpl extends
+	private static class StopWordsDirectoryImpl extends
 			AbstractDirectoryImpl<String, StopWordsManager> {
 
 		@Override

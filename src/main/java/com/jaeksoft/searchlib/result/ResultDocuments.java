@@ -58,7 +58,7 @@ import java.util.*;
 public class ResultDocuments extends AbstractResult<AbstractRequest>
 		implements ResultDocumentsInterface<AbstractRequest> {
 
-	transient private ReaderInterface reader = null;
+	transient private ReaderInterface reader;
 	final private LinkedHashSet<String> fieldNameSet;
 	final private int[] docArray;
 
@@ -92,7 +92,7 @@ public class ResultDocuments extends AbstractResult<AbstractRequest>
 	}
 
 	private final static int[] toDocArray(ReaderLocal reader, DocumentsRequest request) throws IOException {
-		SchemaField schemaField = null;
+		SchemaField schemaField;
 		Schema schema = request.getConfig().getSchema();
 		String field = request.getField();
 		if (!StringUtils.isEmpty(field)) {

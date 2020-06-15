@@ -71,7 +71,7 @@ public abstract class AbstractScriptRunner implements Closeable {
 			lineCount = 0;
 			CommandEnum[] commandFinder = null;
 			String lastScriptError = null;
-			ScriptLine scriptLine = null;
+			ScriptLine scriptLine;
 			while ((scriptLine = nextScriptLine(context)) != null) {
 				String currentScriptError = null;
 				lineCount++;

@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.spellcheck.SuggestionItem;
 public class RenderSpellCheckJson extends
 		AbstractRenderJson<SpellCheckRequest, ResultSpellCheck> {
 
-	private Boolean indent = null;
+	private Boolean indent;
 
 	public RenderSpellCheckJson(ResultSpellCheck result, Boolean indent) {
 		super(result);

@@ -120,7 +120,7 @@ public class ImageUtils {
 	public static ImageReader findImageReader(String formatName) {
 		Iterator<ImageReader> readers = ImageIO
 				.getImageReadersByFormatName(formatName);
-		ImageReader reader = null;
+		ImageReader reader;
 		while (readers.hasNext()) {
 			reader = (ImageReader) readers.next();
 			if (reader.canReadRaster())

@@ -218,7 +218,7 @@ public class FacetField extends AbstractField<FacetField> {
 	public static FacetField buildFacetField(String value, boolean multivalued,
 			boolean postCollapsing) throws SyntaxError {
 		int minCount = 1;
-		String fieldName = null;
+		String fieldName;
 
 		int i1 = value.indexOf('(');
 		if (i1 != -1) {

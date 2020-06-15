@@ -123,7 +123,7 @@ public class IcePdfParser extends Parser {
 		result.langDetection(10000, ParserFieldEnum.content);
 	}
 
-	private class PdfCrackCallback implements SecurityCallback {
+	private static class PdfCrackCallback implements SecurityCallback {
 
 		private final File pdfFile;
 

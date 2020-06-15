@@ -198,7 +198,7 @@ public class ParserImpl extends CommonServices implements RestParser {
 
 			// Find a parser from the mime type
 			ParserType parserTypeFromMime = null;
-			MagicMatch match = null;
+			MagicMatch match;
 			if (mimeType == null) {
 				match = Magic
 						.getMagicMatch(streamLimiter.getFile(), true, true);

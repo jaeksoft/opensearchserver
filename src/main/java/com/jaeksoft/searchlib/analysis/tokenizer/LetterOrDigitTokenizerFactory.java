@@ -39,7 +39,7 @@ public class LetterOrDigitTokenizerFactory extends TokenizerFactory {
 
 	private char[] charArray = EMTPY_CHAR_ARRAY;
 
-	public class LetterOrDigitTokenizer extends CharTokenizer {
+	public static class LetterOrDigitTokenizer extends CharTokenizer {
 
 		private char[] charArray;
 

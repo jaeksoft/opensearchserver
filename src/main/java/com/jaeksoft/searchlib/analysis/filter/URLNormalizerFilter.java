@@ -38,7 +38,7 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class URLNormalizerFilter extends FilterFactory {
 
-	public class URLNormalizerTokenFilter extends AbstractTermFilter {
+	public static class URLNormalizerTokenFilter extends AbstractTermFilter {
 
 		protected URLNormalizerTokenFilter(TokenStream input) {
 			super(input);

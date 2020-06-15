@@ -42,7 +42,7 @@ import com.jaeksoft.searchlib.util.LinkUtils;
 
 public class RendererResult {
 
-	public class Item {
+	public static class Item {
 
 		final private String url;
 

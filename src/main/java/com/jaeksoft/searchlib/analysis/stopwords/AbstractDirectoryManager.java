@@ -47,7 +47,7 @@ public abstract class AbstractDirectoryManager<T> {
 		this.directory = directory;
 	}
 
-	private class FileOnly implements FileFilter {
+	private static class FileOnly implements FileFilter {
 
 		@Override
 		public boolean accept(File file) {

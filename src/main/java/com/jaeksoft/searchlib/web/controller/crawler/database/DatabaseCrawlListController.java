@@ -106,7 +106,7 @@ public class DatabaseCrawlListController
 	@Command
 	public void onNew() throws SearchLibException {
 		setSelectedCrawl(null);
-		DatabaseCrawlAbstract newCrawl = null;
+		DatabaseCrawlAbstract newCrawl;
 		switch (dbCrawlType) {
 		default:
 		case DB_SQL:

@@ -55,7 +55,7 @@ public class LinkUtils {
 			return null;
 
 		String fragment = null;
-		URI u = null;
+		URI u;
 		try {
 			if (!href.contains("://")) {
 				URI currentURI = null;

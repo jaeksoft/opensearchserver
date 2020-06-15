@@ -39,7 +39,7 @@ public class JsonPathFilter extends FilterFactory {
 
 	public class JsonPathTokenFilter extends AbstractTermFilter {
 
-		private JsonPath jsonPath = null;
+		private JsonPath jsonPath;
 
 		private List<?> tokenList = null;
 

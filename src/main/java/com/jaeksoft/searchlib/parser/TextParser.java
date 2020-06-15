@@ -63,7 +63,7 @@ public class TextParser extends Parser {
 			bis = new BufferedInputStream(streamLimiter.getNewInputStream());
 			detector.setText(bis);
 			CharsetMatch match = detector.detect();
-			String content = null;
+			String content;
 			if (match != null)
 				content = match.getString();
 			else

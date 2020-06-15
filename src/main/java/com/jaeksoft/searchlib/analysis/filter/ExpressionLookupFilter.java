@@ -65,9 +65,9 @@ public class ExpressionLookupFilter extends FilterFactory {
 		return new ExpressionLookupTokenFilter(tokenStream, words);
 	}
 
-	public class ExpressionLookupTokenFilter extends AbstractTermFilter {
+	public static class ExpressionLookupTokenFilter extends AbstractTermFilter {
 
-		private WordArray words = null;
+		private WordArray words;
 
 		public ExpressionLookupTokenFilter(TokenStream input, WordArray words) {
 			super(input);

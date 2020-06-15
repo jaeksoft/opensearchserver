@@ -54,7 +54,7 @@ public class RemoveTokenTypeFilter extends FilterFactory {
 		return new RemoveTokenTypeTokenFilter(tokenStream, type);
 	}
 
-	public class RemoveTokenTypeTokenFilter extends AbstractTermFilter {
+	public static class RemoveTokenTypeTokenFilter extends AbstractTermFilter {
 
 		private final String type;
 

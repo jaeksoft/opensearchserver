@@ -68,7 +68,7 @@ public class SearchServlet extends AbstractServlet {
 			Client client = transaction.getClientApi(getIndexName());
 			AbstractSearchRequest searchRequest = buildOpenSearchRequest(
 					client, transaction);
-			Render render = null;
+			Render render;
 			if (transaction.getParameterString("oe") != null)
 				render = doQueryRequest(client, searchRequest,
 						transaction.getParameterString("oe"));
@@ -118,7 +118,7 @@ public class SearchServlet extends AbstractServlet {
 	}
 
 	private String getIndexName() {
-		String use = null;
+		String use;
 		if (StringUtils.substringBetween(serverURL, "search/", "/") != null)
 			use = StringUtils.substringBetween(serverURL, "search/", "/");
 		else
@@ -129,7 +129,7 @@ public class SearchServlet extends AbstractServlet {
 	public static StringBuilder getOpenSearchApiUrl(StringBuilder sb,
 			String servletPathName, Client client, User user)
 			throws UnsupportedEncodingException {
-		String q = null;
+		String q;
 		sb.append(servletPathName);
 		sb.append("/");
 		sb.append(URLEncoder.encode(client.getIndexName(), "UTF-8"));

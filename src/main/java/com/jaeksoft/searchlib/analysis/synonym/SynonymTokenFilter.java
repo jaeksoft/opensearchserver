@@ -30,7 +30,7 @@ import com.jaeksoft.searchlib.analysis.filter.AbstractTermListFilter;
 
 public class SynonymTokenFilter extends AbstractTermListFilter {
 
-	private SynonymMap synonymMap = null;
+	private SynonymMap synonymMap;
 
 	private final static String TOKEN_TYPE = "synonym";
 

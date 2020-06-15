@@ -33,7 +33,7 @@ import com.jaeksoft.searchlib.analysis.FilterFactory;
 
 public class DecodeHtmlEntitiesFilter extends FilterFactory {
 
-	public class DecodeHtmlEntitiesTokenFilter extends AbstractTermFilter {
+	public static class DecodeHtmlEntitiesTokenFilter extends AbstractTermFilter {
 
 		protected DecodeHtmlEntitiesTokenFilter(TokenStream input) {
 			super(input);

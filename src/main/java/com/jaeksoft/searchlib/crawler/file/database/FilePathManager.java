@@ -49,7 +49,7 @@ public class FilePathManager {
 
 	final private ReadWriteLock rwl = new ReadWriteLock();
 
-	private TreeMap<FilePathItem, FilePathItem> filePathMap = null;
+	private TreeMap<FilePathItem, FilePathItem> filePathMap;
 
 	private final File filePathFile;
 

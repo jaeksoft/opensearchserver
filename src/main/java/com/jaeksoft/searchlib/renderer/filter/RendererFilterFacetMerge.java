@@ -143,7 +143,7 @@ public class RendererFilterFacetMerge extends RendererFilterAbstract {
 					entry.getKey()));
 	}
 
-	private class Item {
+	private static class Item {
 
 		private final List<String> terms;
 		private long count;

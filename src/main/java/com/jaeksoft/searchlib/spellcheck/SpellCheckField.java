@@ -118,7 +118,7 @@ public class SpellCheckField extends AbstractField<SpellCheckField> implements
 			boolean multivalued) throws SyntaxError {
 		float minScore = 0.5F;
 		int suggestionNumber = 5;
-		String fieldName = null;
+		String fieldName;
 
 		int i1 = value.indexOf('(');
 		if (i1 != -1) {

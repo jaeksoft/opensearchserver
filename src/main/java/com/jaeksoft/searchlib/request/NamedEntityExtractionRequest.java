@@ -235,7 +235,7 @@ public class NamedEntityExtractionRequest extends AbstractRequest {
 
 	@Override
 	final public void setFromServletNoLock(final ServletTransaction transaction, final String prefix) {
-		String value = null;
+		String value;
 		if ((value = transaction.getParameterString(StringUtils.fastConcat(prefix, "text"))) != null)
 			text = value;
 		if ((value = transaction.getParameterString(StringUtils.fastConcat(prefix, "searchRequest"))) != null)

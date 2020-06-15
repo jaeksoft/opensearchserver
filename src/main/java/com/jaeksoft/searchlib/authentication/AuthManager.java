@@ -51,7 +51,7 @@ public class AuthManager implements UpdateInterfaces.Before {
 
 	private final ReadWriteLock rwl = new ReadWriteLock();
 
-	private File authFile = null;
+	private File authFile;
 
 	private boolean enabled = false;
 

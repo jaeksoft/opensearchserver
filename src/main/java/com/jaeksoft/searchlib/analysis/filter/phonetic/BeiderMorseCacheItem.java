@@ -55,7 +55,7 @@ public class BeiderMorseCacheItem extends LRUItemAbstract<BeiderMorseCacheItem> 
 	protected void populate(Timer timer) throws Exception {
 		PhoneticEngine encoder = BeiderMorseCache.INSTANCE
 				.getEncoder(encoderKey);
-		String terms = null;
+		String terms;
 		synchronized (encoder) {
 			terms = encoder.encode(term);
 		}

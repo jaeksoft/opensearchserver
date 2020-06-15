@@ -79,8 +79,8 @@ public class RenderOpenSearch implements Render {
 		return StringEscapeUtils.escapeXml(controlMatcher.replaceAll(""));
 	}
 
-	private void renderPrefix() throws ParseException, SyntaxError, SearchLibException, IOException {
-		String encoding = null;
+	private void renderPrefix() {
+		String encoding;
 		if (outputEncoding != null && !outputEncoding.equals(""))
 			encoding = outputEncoding;
 		else

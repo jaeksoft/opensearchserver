@@ -39,7 +39,7 @@ public class CustomCharTokenizerFactory extends TokenizerFactory {
 
 	private char[] charArray = EMTPY_CHAR_ARRAY;
 
-	public class CustomCharTokenizer extends CharTokenizer {
+	public static class CustomCharTokenizer extends CharTokenizer {
 
 		private char[] charArray;
 

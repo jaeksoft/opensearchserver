@@ -1,25 +1,25 @@
-/**   
+/**
  * License Agreement for OpenSearchServer
- *
+ * <p>
  * Copyright (C) 2013 Emmanuel Keller / Jaeksoft
- * 
+ * <p>
  * http://www.open-search-server.com
- * 
+ * <p>
  * This file is part of OpenSearchServer.
- *
+ * <p>
  * OpenSearchServer is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
+ * (at your option) any later version.
+ * <p>
  * OpenSearchServer is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with OpenSearchServer. 
- *  If not, see <http://www.gnu.org/licenses/>.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with OpenSearchServer.
+ * If not, see <http://www.gnu.org/licenses/>.
  **/
 
 package com.jaeksoft.searchlib.web.controller.update;
@@ -57,199 +57,199 @@ import com.jaeksoft.searchlib.web.controller.ScopeAttribute;
 @AfterCompose(superclass = true)
 public abstract class AbstractUploadController extends CommonController {
 
-	public abstract class AbstractUpdateThread extends
-			ThreadAbstract<AbstractUpdateThread> {
+    public static abstract class AbstractUpdateThread extends
+            ThreadAbstract<AbstractUpdateThread> {
 
-		private final String mediaName;
+        private final String mediaName;
 
-		protected final Client client;
+        protected final Client client;
 
-		protected File tempResult;
+        protected File tempResult;
 
-		protected final StreamSource streamSource;
+        protected final StreamSource streamSource;
 
-		protected AbstractUpdateThread(Client client,
-				StreamSource streamSource, String mediaName) {
-			super(client, null, null, null);
-			this.client = client;
-			this.mediaName = mediaName;
-			tempResult = null;
-			this.streamSource = streamSource;
-			setInfo("Starting...");
-		}
+        protected AbstractUpdateThread(Client client,
+                                       StreamSource streamSource, String mediaName) {
+            super(client, null, null, null);
+            this.client = client;
+            this.mediaName = mediaName;
+            tempResult = null;
+            this.streamSource = streamSource;
+            setInfo("Starting...");
+        }
 
-		public String getMediaName() {
-			return mediaName;
-		}
+        public String getMediaName() {
+            return mediaName;
+        }
 
-		protected abstract int doUpdate() throws SearchLibException,
-				IOException;
+        protected abstract int doUpdate() throws SearchLibException,
+                IOException;
 
-		@Override
-		public final void runner() throws Exception {
-			setInfo("Running...");
-			int updatedCount = doUpdate();
-			setInfo("Done: " + updatedCount + " document(s)");
-		}
+        @Override
+        public final void runner() throws Exception {
+            setInfo("Running...");
+            int updatedCount = doUpdate();
+            setInfo("Done: " + updatedCount + " document(s)");
+        }
 
-		@Override
-		public void release() {
-			if (tempResult != null)
-				tempResult.delete();
-		}
+        @Override
+        public void release() {
+            if (tempResult != null)
+                tempResult.delete();
+        }
 
-	}
+    }
 
-	private final ScopeAttribute updateScopeAttribute;
+    private final ScopeAttribute updateScopeAttribute;
 
-	public AbstractUploadController(ScopeAttribute updateScopeAttribute)
-			throws SearchLibException {
-		super();
-		this.updateScopeAttribute = updateScopeAttribute;
-	}
+    public AbstractUploadController(ScopeAttribute updateScopeAttribute)
+            throws SearchLibException {
+        super();
+        this.updateScopeAttribute = updateScopeAttribute;
+    }
 
-	/**
-	 * Return the map of current threads. The map is stored in users session
-	 * 
-	 * @return
-	 */
-	private Map<Client, List<AbstractUpdateThread>> getUpdateMap() {
-		synchronized (this) {
-			synchronized (updateScopeAttribute) {
-				@SuppressWarnings("unchecked")
-				Map<Client, List<AbstractUpdateThread>> map = (Map<Client, List<AbstractUpdateThread>>) getAttribute(updateScopeAttribute);
-				if (map == null) {
-					map = new HashMap<Client, List<AbstractUpdateThread>>();
-					setAttribute(updateScopeAttribute, map);
-				}
-				return map;
-			}
-		}
-	}
+    /**
+     * Return the map of current threads. The map is stored in users session
+     *
+     * @return
+     */
+    private Map<Client, List<AbstractUpdateThread>> getUpdateMap() {
+        synchronized (this) {
+            synchronized (updateScopeAttribute) {
+                @SuppressWarnings("unchecked")
+                Map<Client, List<AbstractUpdateThread>> map = (Map<Client, List<AbstractUpdateThread>>) getAttribute(updateScopeAttribute);
+                if (map == null) {
+                    map = new HashMap<Client, List<AbstractUpdateThread>>();
+                    setAttribute(updateScopeAttribute, map);
+                }
+                return map;
+            }
+        }
+    }
 
-	private List<AbstractUpdateThread> getUpdateList(Client client) {
-		Map<Client, List<AbstractUpdateThread>> map = getUpdateMap();
-		if (map == null)
-			return null;
-		synchronized (map) {
-			List<AbstractUpdateThread> list = map.get(client);
-			if (list == null) {
-				list = new ArrayList<AbstractUpdateThread>(0);
-				map.put(client, list);
-			}
-			return list;
-		}
-	}
+    private List<AbstractUpdateThread> getUpdateList(Client client) {
+        Map<Client, List<AbstractUpdateThread>> map = getUpdateMap();
+        if (map == null)
+            return null;
+        synchronized (map) {
+            List<AbstractUpdateThread> list = map.get(client);
+            if (list == null) {
+                list = new ArrayList<AbstractUpdateThread>(0);
+                map.put(client, list);
+            }
+            return list;
+        }
+    }
 
-	public List<AbstractUpdateThread> getUpdateList() throws SearchLibException {
-		synchronized (this) {
-			Client client = getClient();
-			if (client == null)
-				return null;
-			return getUpdateList(client);
-		}
-	}
+    public List<AbstractUpdateThread> getUpdateList() throws SearchLibException {
+        synchronized (this) {
+            Client client = getClient();
+            if (client == null)
+                return null;
+            return getUpdateList(client);
+        }
+    }
 
-	public boolean isUpdateListNotEmpty() throws SearchLibException {
-		synchronized (this) {
-			List<AbstractUpdateThread> list = getUpdateList();
-			if (list == null)
-				return false;
-			return getUpdateList().size() > 0;
-		}
-	}
+    public boolean isUpdateListNotEmpty() throws SearchLibException {
+        synchronized (this) {
+            List<AbstractUpdateThread> list = getUpdateList();
+            if (list == null)
+                return false;
+            return getUpdateList().size() > 0;
+        }
+    }
 
-	public boolean isRefresh() throws SearchLibException {
-		synchronized (this) {
-			List<AbstractUpdateThread> list = getUpdateList();
-			if (list == null)
-				return false;
-			for (AbstractUpdateThread thread : list)
-				if (thread.isRunning())
-					return true;
-		}
-		return false;
-	}
+    public boolean isRefresh() throws SearchLibException {
+        synchronized (this) {
+            List<AbstractUpdateThread> list = getUpdateList();
+            if (list == null)
+                return false;
+            for (AbstractUpdateThread thread : list)
+                if (thread.isRunning())
+                    return true;
+        }
+        return false;
+    }
 
-	@Command
-	public void onTimerRefresh() throws SearchLibException {
-		reload();
-	}
+    @Command
+    public void onTimerRefresh() throws SearchLibException {
+        reload();
+    }
 
-	@Command
-	public void onPurge() throws SearchLibException {
-		synchronized (this) {
-			List<AbstractUpdateThread> list = getUpdateList();
-			synchronized (list) {
-				Iterator<AbstractUpdateThread> it = list.iterator();
-				while (it.hasNext()) {
-					AbstractUpdateThread thread = it.next();
-					if (!thread.isRunning())
-						it.remove();
-				}
-			}
-			reload();
-		}
-	}
+    @Command
+    public void onPurge() throws SearchLibException {
+        synchronized (this) {
+            List<AbstractUpdateThread> list = getUpdateList();
+            synchronized (list) {
+                Iterator<AbstractUpdateThread> it = list.iterator();
+                while (it.hasNext()) {
+                    AbstractUpdateThread thread = it.next();
+                    if (!thread.isRunning())
+                        it.remove();
+                }
+            }
+            reload();
+        }
+    }
 
-	protected abstract AbstractUpdateThread newUpdateThread(Client client,
-			StreamSource streamSource, String mediaName);
+    protected abstract AbstractUpdateThread newUpdateThread(Client client,
+                                                            StreamSource streamSource, String mediaName);
 
-	private void doMedia(Media media) throws XPathExpressionException,
-			NoSuchAlgorithmException, SAXException, IOException,
-			ParserConfigurationException, URISyntaxException,
-			SearchLibException, InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		synchronized (this) {
-			Client client = getClient();
-			StreamSource streamSource;
-			if (media.inMemory()) {
-				if (media.isBinary()) {
-					// Memory + Binary
-					streamSource = new StreamSource(new ByteArrayInputStream(
-							media.getByteData()));
-				} else {
-					// Memory + Texte
-					streamSource = new StreamSource(media.getReaderData());
-				}
-			} else {
-				if (media.isBinary()) // File + Binary
-					streamSource = new StreamSource(media.getStreamData());
-				else
-					// File + Text
-					streamSource = new StreamSource(media.getReaderData());
-			}
-			AbstractUpdateThread thread = newUpdateThread(client, streamSource,
-					media.getName());
-			List<AbstractUpdateThread> list = getUpdateList(client);
-			synchronized (list) {
-				list.add(thread);
-			}
-			thread.execute(180);
-		}
-	}
+    private void doMedia(Media media) throws XPathExpressionException,
+            NoSuchAlgorithmException, SAXException, IOException,
+            ParserConfigurationException, URISyntaxException,
+            SearchLibException, InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
+        synchronized (this) {
+            Client client = getClient();
+            StreamSource streamSource;
+            if (media.inMemory()) {
+                if (media.isBinary()) {
+                    // Memory + Binary
+                    streamSource = new StreamSource(new ByteArrayInputStream(
+                            media.getByteData()));
+                } else {
+                    // Memory + Texte
+                    streamSource = new StreamSource(media.getReaderData());
+                }
+            } else {
+                if (media.isBinary()) // File + Binary
+                    streamSource = new StreamSource(media.getStreamData());
+                else
+                    // File + Text
+                    streamSource = new StreamSource(media.getReaderData());
+            }
+            AbstractUpdateThread thread = newUpdateThread(client, streamSource,
+                    media.getName());
+            List<AbstractUpdateThread> list = getUpdateList(client);
+            synchronized (list) {
+                list.add(thread);
+            }
+            thread.execute(180);
+        }
+    }
 
-	@Command
-	public void onUpload(@ContextParam(ContextType.BIND_CONTEXT) BindContext ctx)
-			throws InterruptedException, XPathExpressionException,
-			NoSuchAlgorithmException, ParserConfigurationException,
-			SAXException, IOException, URISyntaxException, SearchLibException,
-			InstantiationException, IllegalAccessException,
-			ClassNotFoundException {
-		if (!isUpdateRights())
-			throw new SearchLibException("Not allowed");
-		UploadEvent uploadEvent = (UploadEvent) ctx.getTriggerEvent();
-		Media[] medias = uploadEvent.getMedias();
-		if (medias != null) {
-			for (Media media : medias)
-				doMedia(media);
-		} else {
-			Media media = uploadEvent.getMedia();
-			if (media == null)
-				return;
-			doMedia(media);
-		}
-		reload();
-	}
+    @Command
+    public void onUpload(@ContextParam(ContextType.BIND_CONTEXT) BindContext ctx)
+            throws InterruptedException, XPathExpressionException,
+            NoSuchAlgorithmException, ParserConfigurationException,
+            SAXException, IOException, URISyntaxException, SearchLibException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
+        if (!isUpdateRights())
+            throw new SearchLibException("Not allowed");
+        UploadEvent uploadEvent = (UploadEvent) ctx.getTriggerEvent();
+        Media[] medias = uploadEvent.getMedias();
+        if (medias != null) {
+            for (Media media : medias)
+                doMedia(media);
+        } else {
+            Media media = uploadEvent.getMedia();
+            if (media == null)
+                return;
+            doMedia(media);
+        }
+        reload();
+    }
 
 }

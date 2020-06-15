@@ -126,7 +126,7 @@ public class TaskXmlLoad extends TaskAbstract {
 				credentialItem = new CredentialItem(CredentialType.BASIC_DIGEST, null, login, password, null, null);
 			DownloadItem downloadItem = httpDownloader.get(uri, credentialItem);
 			downloadItem.checkNoErrorList(200);
-			Node xmlDoc = null;
+			Node xmlDoc;
 			if (xsl != null && xsl.length() > 0) {
 				xmlTempResult = File.createTempFile("ossupload", ".xml");
 				DomUtils.xslt(new StreamSource(downloadItem.getContentInputStream()), xsl, xmlTempResult);

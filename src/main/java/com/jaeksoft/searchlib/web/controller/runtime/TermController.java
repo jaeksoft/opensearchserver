@@ -47,11 +47,11 @@ import com.jaeksoft.searchlib.web.controller.CommonController;
 @AfterCompose(superclass = true)
 public class TermController extends CommonController {
 
-	public class TermFreq {
+	public static class TermFreq {
 
-		private Term term;
+		private final Term term;
 
-		private int freq;
+		private final int freq;
 
 		private TermFreq(TermEnum termEnum) {
 			this.term = termEnum.term();

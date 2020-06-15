@@ -83,7 +83,7 @@ public class ProperNounFilter extends FilterFactory {
 		output.add(sb.toString());
 	}
 
-	public class PersonTokenFilter extends AbstractTermCollectFilter {
+	public static class PersonTokenFilter extends AbstractTermCollectFilter {
 
 		protected PersonTokenFilter(TokenStream input) {
 			super(TOKEN_TYPE, input);
@@ -103,7 +103,7 @@ public class ProperNounFilter extends FilterFactory {
 		}
 	}
 
-	public class OrganizationTokenFilter extends AbstractTermCollectFilter {
+	public static class OrganizationTokenFilter extends AbstractTermCollectFilter {
 
 		protected OrganizationTokenFilter(TokenStream input) {
 			super(TOKEN_TYPE, input);

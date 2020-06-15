@@ -51,7 +51,7 @@ public class Facet implements Iterable<Map.Entry<String, FacetCounter>> {
 
 	protected FacetField facetField;
 	private Map<String, FacetCounter> facetMap;
-	protected transient List<Map.Entry<String, FacetCounter>> list = null;
+	protected transient List<Map.Entry<String, FacetCounter>> list;
 
 	public Facet() {
 		list = null;

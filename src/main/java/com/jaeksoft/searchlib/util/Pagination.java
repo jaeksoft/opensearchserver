@@ -34,7 +34,7 @@ public class Pagination {
 
 	private int totalPage = 0;
 
-	private int currentPage = 0;
+	private int currentPage;
 
 	private List<Integer> navPages;
 

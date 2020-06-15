@@ -66,7 +66,7 @@ public class RegularExpressionFilter extends FilterFactory {
 	public static class RegularExpressionTokenFilter extends AbstractTermFilter
 			implements RegExpUtils.MatchGroupListener {
 
-		private List<String> termQueue = null;
+		private List<String> termQueue;
 
 		private int currentPos = 0;
 

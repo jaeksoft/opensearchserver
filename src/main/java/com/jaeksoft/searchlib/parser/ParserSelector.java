@@ -459,7 +459,7 @@ public class ParserSelector implements XmlWriter.Interface {
 					return parser;
 				// Try any declared failover
 				ParserFactory parserFactory = getParserByName(parser.getFailOverParserName());
-				Parser nextParser = null;
+				Parser nextParser ;
 				if (parserFactory != null)
 					nextParser = getParser(parserFactory);
 				else { // Use the default failover if any

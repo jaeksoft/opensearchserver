@@ -46,9 +46,9 @@ public class BoostQuery {
 	private final static String BOOSTQUERY_NODE = "boostQuery";
 	private final static String BOOSTQUERY_ATTR_BOOST = "boost";
 
-	private float boost = 1.0f;
+	private float boost;
 
-	private String query = null;
+	private String query;
 
 	private BoostQuery(Node node) {
 		query = StringEscapeUtils.unescapeXml(DomUtils.getText(node));

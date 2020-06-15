@@ -64,8 +64,8 @@ public class TorrentParser extends Parser {
 	 * @param in
 	 * @return
 	 */
-	private static String geturlhash(byte in[]) {
-		byte ch = 0x00;
+	private static String geturlhash(byte[] in) {
+		byte ch;
 		int i = 0;
 		if (in == null || in.length <= 0)
 			return null;

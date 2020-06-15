@@ -40,7 +40,7 @@ import com.jaeksoft.searchlib.schema.FieldValueItem;
 
 public class HocrPdf {
 
-	public class HocrPage {
+	public static class HocrPage {
 
 		private final long pageNumber;
 		private final List<HocrDocument> imageList;

@@ -189,8 +189,8 @@ public class StandardLearner implements LearnerInterface {
 			throws IOException, SearchLibException {
 		if (CollectionUtils.isEmpty(sources))
 			return;
-		AbstractResultSearch<?> result = null;
-		List<IndexDocument> learnIndexDocuments = new ArrayList<IndexDocument>(
+		AbstractResultSearch<?> result;
+		List<IndexDocument> learnIndexDocuments = new ArrayList<>(
 				sources.size());
 		rwl.r.lock();
 		try {

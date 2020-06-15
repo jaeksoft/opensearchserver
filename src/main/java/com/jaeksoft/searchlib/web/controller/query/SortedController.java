@@ -235,7 +235,7 @@ public class SortedController extends AbstractQueryController {
 	}
 
 	public List<String> getSortFieldList() throws SearchLibException {
-		Client client = null;
+		Client client;
 		if (selectedJoinNumber == 0)
 			client = getClient();
 		else {
@@ -283,7 +283,7 @@ public class SortedController extends AbstractQueryController {
 		return joinLabelConverter;
 	}
 
-	public class NullFirstConverter implements
+	public static class NullFirstConverter implements
 			Converter<Object, Object, Component> {
 
 		@Override

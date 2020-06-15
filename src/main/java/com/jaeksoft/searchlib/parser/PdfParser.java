@@ -332,7 +332,7 @@ public class PdfParser extends Parser {
 	}
     }
 
-    public class PdfOcrContext {
+    public static class PdfOcrContext {
 
 	private PDDocument pdf = null;
 	private OcrManager ocr = null;

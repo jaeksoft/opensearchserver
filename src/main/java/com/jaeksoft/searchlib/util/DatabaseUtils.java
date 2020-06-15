@@ -80,7 +80,7 @@ public class DatabaseUtils {
 			SqlUpdateMode sqlUpdateMode, String sqlUpdate) throws SQLException {
 		if (sqlUpdateMode == SqlUpdateMode.NO_CALL)
 			return;
-		String lastSql = null;
+		String lastSql;
 		error = escapeSqlChar(error);
 		if (sqlUpdateMode == SqlUpdateMode.ONE_CALL_PER_PRIMARY_KEY) {
 			for (String uk : pkList) {

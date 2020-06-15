@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.analysis.TokenTerm;
 
 public class SnippetTermPositionVector implements TermPositionVector {
 
-	private class Info {
+	private static class Info {
 
 		private final List<Integer> positionList = new ArrayList<Integer>();
 		private final List<TermVectorOffsetInfo> offsetList = new ArrayList<TermVectorOffsetInfo>();

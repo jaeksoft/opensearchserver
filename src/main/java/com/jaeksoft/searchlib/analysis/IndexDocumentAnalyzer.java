@@ -56,7 +56,7 @@ public class IndexDocumentAnalyzer extends AbstractAnalyzer {
 		return new IndexDocumentTokenStream(fieldMap.get(fieldName));
 	}
 
-	final public class IndexDocumentTokenStream extends TokenStream {
+	final static public class IndexDocumentTokenStream extends TokenStream {
 
 		private final List<IndexTerm> indexTerms;
 

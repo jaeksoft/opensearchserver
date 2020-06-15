@@ -58,7 +58,7 @@ public class CachedFileStream implements CachedStreamInterface {
 			tempFile = File.createTempFile("CachedFileStream", "cache");
 			output = new FileOutputStream(tempFile);
 			output.write(mme.buf, 0, mme.count);
-			int bufferSize = 0;
+			int bufferSize;
 			byte[] buffer = new byte[65536];
 			while ((bufferSize = inputStream.read(buffer)) != -1) {
 				output.write(buffer, 0, bufferSize);

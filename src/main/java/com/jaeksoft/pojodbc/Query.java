@@ -113,9 +113,9 @@ public class Query {
 		ConnectionManager.close(resultSet, statement, null);
 	}
 
-	private class MethodColumnIndex {
-		private int columnIndex;
-		private Method method;
+	private static class MethodColumnIndex {
+		private final int columnIndex;
+		private final Method method;
 
 		private MethodColumnIndex(int columnIndex, Method method) {
 			this.columnIndex = columnIndex;

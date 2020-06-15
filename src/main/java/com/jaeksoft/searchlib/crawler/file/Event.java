@@ -55,7 +55,7 @@ public class Event implements Runnable {
 
 	private final HashMap<WatchKey, Path> keys;
 
-	private class PathFifoMap {
+	private static class PathFifoMap {
 
 		private final ReadWriteLock rwl;
 		private final LinkedHashMap<Path, Long> hashMap;

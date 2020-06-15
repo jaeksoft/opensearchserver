@@ -194,7 +194,7 @@ public class TaskFtpXmlFeed extends TaskAbstract {
 				}
 				taskLog.setInfo("Working on: " + filePathName);
 				inputStream = ftp.retrieveFileStream(filePathName);
-				Node xmlDoc = null;
+				Node xmlDoc;
 				if (xsl != null && xsl.length() > 0) {
 					xmlTempResult = File.createTempFile("ossftpfeed", ".xml");
 					DomUtils.xslt(new StreamSource(inputStream), xsl, xmlTempResult);

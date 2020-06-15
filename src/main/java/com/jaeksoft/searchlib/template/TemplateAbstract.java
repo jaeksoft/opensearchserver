@@ -70,7 +70,7 @@ public abstract class TemplateAbstract {
 			throw new SearchLibException("directory creation failed ("
 					+ indexDir + ")");
 
-		InputStream is = null;
+		InputStream is;
 		FileWriter target = null;
 		for (String resource : resources) {
 

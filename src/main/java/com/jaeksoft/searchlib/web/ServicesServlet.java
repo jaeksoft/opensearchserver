@@ -37,7 +37,7 @@ import javax.xml.ws.Endpoint;
 
 public class ServicesServlet extends CXFNonSpringJaxrsServlet {
 
-	public class ThreadedLoad implements Runnable {
+	public static class ThreadedLoad implements Runnable {
 
 		public ThreadedLoad() {
 			new Thread(ClientCatalog.getThreadGroup(), this).start();

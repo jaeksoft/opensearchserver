@@ -187,7 +187,7 @@ public class ResultDocumentController extends AbstractQueryController implements
 		}
 	}
 
-	public class FieldTreeModel<T extends FieldValue> extends
+	public static class FieldTreeModel<T extends FieldValue> extends
 			AbstractTreeModel<Object> {
 
 		/**

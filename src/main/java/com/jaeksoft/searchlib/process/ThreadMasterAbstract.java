@@ -204,7 +204,7 @@ public abstract class ThreadMasterAbstract<M extends ThreadMasterAbstract<M, T>,
 			boolean bWaitForCompletion, Variables variables,
 			InfoCallback infoCallback) throws InterruptedException,
 			SearchLibException {
-		T crawlThread = null;
+		T crawlThread;
 		rwl.w.lock();
 		try {
 			if (threadItem != null) {

@@ -264,7 +264,7 @@ public class JoinItem implements Comparable<JoinItem> {
 
 	@Override
 	public int compareTo(JoinItem o) {
-		int c = 0;
+		int c;
 		if ((c = indexName.compareTo(o.indexName)) != 0)
 			return c;
 		if ((c = queryTemplate.compareTo(o.queryTemplate)) != 0)

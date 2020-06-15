@@ -51,7 +51,7 @@ public class ParserResultItem {
 
 	private IndexDocument directDocument;
 
-	private Node xmlForXPath = null;
+	private Node xmlForXPath;
 
 	public ParserResultItem(Parser parser) {
 		this.parser = parser;
@@ -159,8 +159,8 @@ public class ParserResultItem {
 	}
 
 	protected Locale langDetection(int textLength, ParserFieldEnum parserField) {
-		Locale lang = null;
-		String langMethod = null;
+		Locale lang;
+		String langMethod;
 		String text = getMergedBodyText(textLength, " ", parserField);
 		if (StringUtils.isEmpty(text))
 			return null;

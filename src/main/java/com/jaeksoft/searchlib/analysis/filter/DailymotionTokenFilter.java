@@ -37,7 +37,7 @@ import com.jaeksoft.searchlib.util.video.DailymotionItem;
 public class DailymotionTokenFilter extends AbstractTermFilter {
 
 	private int dailymotionData;
-	private HttpDownloader httpDownloader = null;
+	private HttpDownloader httpDownloader;
 	private boolean faultTolerant;
 
 	protected DailymotionTokenFilter(TokenStream input, int dailymotionData,

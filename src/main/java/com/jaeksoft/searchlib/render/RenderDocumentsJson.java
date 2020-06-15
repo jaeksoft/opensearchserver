@@ -31,7 +31,7 @@ import com.jaeksoft.searchlib.result.ResultDocuments;
 
 public class RenderDocumentsJson extends
 		AbstractRenderDocumentsJson<AbstractRequest, ResultDocuments> {
-	Boolean indent = null;
+	Boolean indent;
 
 	public RenderDocumentsJson(ResultDocuments result, Boolean indent) {
 		super(result);

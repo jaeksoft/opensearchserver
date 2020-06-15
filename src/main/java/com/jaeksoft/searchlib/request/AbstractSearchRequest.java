@@ -1000,7 +1000,7 @@ public abstract class AbstractSearchRequest extends AbstractRequest implements
 				"collapse.max"))) != null)
 			setCollapseMax(i);
 
-		if ((p = transaction.getParameterString(StringUtils.fastConcat(prefix,
+		if ((transaction.getParameterString(StringUtils.fastConcat(prefix,
 				"log"))) != null)
 			setLogReport(true);
 

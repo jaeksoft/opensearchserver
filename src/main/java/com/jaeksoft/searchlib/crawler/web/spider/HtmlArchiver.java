@@ -172,7 +172,7 @@ public class HtmlArchiver {
 			String fileName = urlFileMap.get(urlString);
 			if (fileName != null)
 				return getLocalPath(parentUrl, fileName);
-			DownloadItem downloadItem = null;
+			DownloadItem downloadItem;
 			try {
 				downloadItem = downloader.get(objectURL.toURI(), null);
 			} catch (IOException e) {
@@ -396,7 +396,7 @@ public class HtmlArchiver {
 		URL oldBaseUrl = baseUrl;
 		String src = node.getAttributeByName("src");
 		baseUrl = LinkUtils.getLink(parentUrl, src, null, false);
-		String urlFileMapKey = null;
+		String urlFileMapKey;
 		if (baseUrl != null
 				&& !urlFileMap.containsKey(baseUrl.toExternalForm()))
 			urlFileMapKey = baseUrl.toExternalForm();

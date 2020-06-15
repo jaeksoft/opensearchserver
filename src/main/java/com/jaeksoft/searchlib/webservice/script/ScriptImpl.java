@@ -46,7 +46,7 @@ import com.jaeksoft.searchlib.webservice.CommonServices;
 
 public class ScriptImpl extends CommonServices implements RestScript {
 
-	private class ScriptDirectoryImpl extends
+	private static class ScriptDirectoryImpl extends
 			AbstractDirectoryImpl<List<ScriptLine>, ScriptManager> {
 
 		@Override

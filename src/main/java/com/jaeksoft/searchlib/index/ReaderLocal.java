@@ -350,7 +350,7 @@ public class ReaderLocal extends ReaderAbstract implements ReaderInterface, Clos
 		for (Fieldable field : doc.getFields()) {
 			if (!field.isStored())
 				continue;
-			FieldValue fieldValue = null;
+			FieldValue fieldValue;
 			String fieldName = field.name();
 			if (currentFieldName != null && currentFieldName.equals(fieldName))
 				fieldValue = currentFieldValue;

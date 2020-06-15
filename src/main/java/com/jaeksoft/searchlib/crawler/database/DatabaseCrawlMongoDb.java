@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import java.util.Collections;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -204,14 +205,14 @@ public class DatabaseCrawlMongoDb extends DatabaseCrawlAbstract {
 		this.collectionName = collectionName;
 	}
 
-	MongoClient getMongoClient() throws URISyntaxException, UnknownHostException {
+	MongoClient getMongoClient() throws URISyntaxException {
 		String user = getUser();
 		String password = getPassword();
 		URI uri = new URI(getUrl());
-		MongoCredential credential = null;
+		MongoCredential credential;
 		if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
 			credential = MongoCredential.createMongoCRCredential(user, databaseName, password.toCharArray());
-			return new MongoClient(new ServerAddress(uri.getHost(), uri.getPort()), Arrays.asList(credential));
+			return new MongoClient(new ServerAddress(uri.getHost(), uri.getPort()), Collections.singletonList(credential));
 		}
 		return new MongoClient(new ServerAddress(uri.getHost(), uri.getPort()));
 	}

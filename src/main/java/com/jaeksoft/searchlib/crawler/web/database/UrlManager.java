@@ -589,7 +589,7 @@ public class UrlManager extends AbstractManager {
 
 	public File exportURLs(AbstractSearchRequest searchRequest) throws SearchLibException {
 		PrintWriter pw = null;
-		File tempFile = null;
+		File tempFile;
 		try {
 			tempFile = File.createTempFile("OSS_web_crawler_URLs", ".txt");
 			pw = new PrintWriter(tempFile);
@@ -620,7 +620,7 @@ public class UrlManager extends AbstractManager {
 
 	final public File exportCrawlCache(final AbstractSearchRequest searchRequest)
 			throws IOException, SearchLibException {
-		File tempFile = null;
+		File tempFile;
 		ZipArchiveOutputStream zipOutput = null;
 		CrawlCacheManager crawlCacheManager = CrawlCacheManager.getInstance(targetClient);
 		if (crawlCacheManager.isDisabled())
@@ -663,7 +663,7 @@ public class UrlManager extends AbstractManager {
 
 	public File exportSiteMap(AbstractSearchRequest searchRequest) throws SearchLibException {
 		PrintWriter pw = null;
-		File tempFile = null;
+		File tempFile;
 		try {
 			tempFile = File.createTempFile("OSS_web_crawler_URLs", ".xml");
 			pw = new PrintWriter(tempFile);

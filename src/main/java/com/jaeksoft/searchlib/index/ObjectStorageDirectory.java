@@ -192,7 +192,7 @@ public class ObjectStorageDirectory extends Directory {
 		inputCache.clear();
 	}
 
-	public class Input extends IndexInput {
+	public static class Input extends IndexInput {
 
 		private byte[] bytes;
 		private long pos;

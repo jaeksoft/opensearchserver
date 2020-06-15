@@ -36,7 +36,7 @@ public class CollapseBaseCollector extends
 		CollapseDocInterface, CollapseCollectorInterface, DocIdInterface {
 
 	final int[] sourceIds;
-	protected int totalCollapseCount = 0;
+	protected int totalCollapseCount;
 	protected final int[] ids;
 	protected final int[][] collapseDocsArray;
 	protected final int[] collapseCounts;

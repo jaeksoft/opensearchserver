@@ -102,7 +102,7 @@ public class DisallowList extends Parser {
 				if (!st.hasMoreTokens())
 					continue;
 				String key = st.nextToken().trim();
-				String value = null;
+				String value;
 				if (!st.hasMoreTokens())
 					continue;
 				value = st.nextToken().trim();

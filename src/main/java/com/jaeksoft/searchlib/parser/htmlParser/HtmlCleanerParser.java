@@ -102,7 +102,6 @@ public class HtmlCleanerParser extends HtmlDocumentProvider {
 				return charsetCache;
 			} catch (UnsupportedCharsetException e2) {
 				Logging.warn(e2);
-				charsetCache = null;
 				return null;
 			}
 		}

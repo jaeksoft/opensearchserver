@@ -90,7 +90,7 @@ public class AuthRendererTokens {
 		}
 	}
 
-	class AuthToken {
+	static class AuthToken {
 
 		private final long expirationTime;
 
