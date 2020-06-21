@@ -28,13 +28,11 @@ function IndicesTable(props) {
   const [spinning, setSpinning] = useState(false);
   const [indices, setIndices] = useState([]);
   const [indexName, setIndexName] = useState('');
+  const [primaryKey, setPrimaryKey] = useState('id');
 
   useEffect(() => {
     doFetchIndices();
-  }, [props.selectedSchema])
-
-  if (!props.selectedSchema)
-    return null;
+  }, [])
 
   return (
     <div className="border p-0 mt-1 ml-1 bg-light rounded">
@@ -56,30 +54,33 @@ function IndicesTable(props) {
   );
 
   function doCreateIndex(idx) {
-    if (!props.selectedSchema) {
-      endTask(null, 'Please select a schema');
-      return;
-    }
     startTask('Creating index ' + idx);
     fetchJson(
-      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + indexName,
-      {method: 'POST'},
+      props.oss + '/ws/indexes/' + indexName,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+          {
+            "primary_key": primaryKey,
+            "record_field": "$record$"
+          })
+      },
       json => {
         endTask('Index created');
         setIndexName('');
         props.setSelectedIndex(idx);
         doFetchIndices();
       },
-      error => endTask(null, error.message)
+      error => endTask(null, error)
     );
   }
 
   function doDeleteIndex(idx) {
-    if (!props.selectedSchema) {
-      return endTask(null, 'No schema is selected');
-    }
     startTask('Deleting index ' + idx);
-    fetchJson(props.oss + '/ws/indexes/' + props.selectedSchema + '/' + idx, {method: 'DELETE'},
+    fetchJson(props.oss + '/ws/indexes/' + idx, {method: 'DELETE'},
       json => {
         props.setSelectedIndex(null);
         endTask('Index deleted');
@@ -89,17 +90,13 @@ function IndicesTable(props) {
   }
 
   function doFetchIndices() {
-    const schema = props.selectedSchema;
-    if (!schema) {
-      return;
-    }
     startTask();
-    fetchJson(props.oss + '/ws/indexes/' + schema, null,
+    fetchJson(props.oss + '/ws/indexes', null,
       json => {
         endTask();
         setIndices(json);
       },
-      error => endTask(null, error.message));
+      error => endTask(null, error));
   }
 
   function startTask(newTask) {
@@ -111,6 +108,7 @@ function IndicesTable(props) {
   }
 
   function endTask(newTask, newError) {
+    console.log(error);
     setSpinning(false);
     if (newTask)
       setTask(newTask);

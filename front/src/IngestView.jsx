@@ -17,11 +17,11 @@
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect, useContext} from 'react';
 import Status from "./Status";
-import SchemaList from "./SchemasList";
 import IndexList from "./IndexList";
+import JsonEditor from "./JsonEditor";
 import {fetchJson} from "./fetchJson.js"
 
-const IndexView = (props) => {
+const IngestView = (props) => {
 
   const [error, setError] = useState(null);
   const [task, setTask] = useState(null);
@@ -31,7 +31,7 @@ const IndexView = (props) => {
     if (!props.indexJson) {
       doGenerateIndexSample();
     }
-  }, [props.selectedSchema, props.selectedIndex])
+  }, [props.selectedIndex])
 
   return (
     <div className="p-1 h-100">
@@ -42,25 +42,16 @@ const IndexView = (props) => {
         <div className="flex-grow-1 p-1">
           <div className="h-100 d-flex">
             <div className="w-100 h-100">
-              <textarea className="form-control-sm h-100 w-100"
-                        style={{resize: 'none'}}
-                        value={props.indexJson}
-                        onChange={e => props.setIndexJson(e.target.value)}/>
+              <JsonEditor value={props.indexJson}
+                          setValue={props.setIndexJson}
+              />
             </div>
           </div>
         </div>
         <form className="form-inline pr-1 pb-1">
           <div className="pl-1">
-            <SchemaList oss={props.oss}
-                        id="selectSchema"
-                        selectedSchema={props.selectedSchema}
-                        setSelectedSchema={props.setSelectedSchema}
-            />
-          </div>
-          <div className="pl-1">
             <IndexList oss={props.oss}
                        id="selectIndex"
-                       selectedSchema={props.selectedSchema}
                        selectedIndex={props.selectedIndex}
                        setSelectedIndex={props.setSelectedIndex}
             />
@@ -82,11 +73,7 @@ const IndexView = (props) => {
     </div>
   )
 
-  function checkSchemaAndIndex() {
-    if (props.selectedSchema == null || props.selectedSchema === '') {
-      setError('Please select a schema.');
-      return false;
-    }
+  function checkIndex() {
     if (props.selectedIndex == null || props.selectedIndex === '') {
       setError('Please select an index.');
       return false;
@@ -95,13 +82,13 @@ const IndexView = (props) => {
   }
 
   function doGenerateIndexSample() {
-    if (!checkSchemaAndIndex())
+    if (!checkIndex())
       return;
     setError(null);
     setTask('Collecting sample...');
     setSpinning(true);
     fetchJson(
-      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json/samples?count=2',
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/json/samples?count=2',
       {method: 'GET'},
       json => {
         props.setIndexJson(JSON.stringify(json, undefined, 2));
@@ -124,7 +111,7 @@ const IndexView = (props) => {
   }
 
   function doIndex() {
-    if (!checkSchemaAndIndex())
+    if (!checkIndex())
       return;
     setError(null);
     setTask('Parsing...');
@@ -141,7 +128,7 @@ const IndexView = (props) => {
     }
 
     fetchJson(
-      oss.url + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/json',
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/json',
       {
         method: 'POST',
         headers: {
@@ -173,4 +160,4 @@ const IndexView = (props) => {
   }
 }
 
-export default hot(IndexView);
+export default hot(IngestView);

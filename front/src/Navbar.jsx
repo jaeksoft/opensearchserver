@@ -15,48 +15,66 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React from 'react';
+import React, {useEffect} from 'react';
 
 const Navbar = (props) => {
+
+  useEffect(() => {
+  }, [props.selectedIndex])
 
   return (
     <nav className="navbar sticky-top navbar-light navbar-expand bg-light p-0">
       <span className="navbar-brand text-secondary"><small>OpenSearchServer 2.0</small></span>
       <div className="collapse navbar-collapse">
-        <ul className="navbar-nav mr-auto">
+        <div className="navbar-nav mr-auto">
           <MenuItem selectedView={props.selectedView}
                     setSelectedView={props.setSelectedView}
-                    view="Schema"/>
+                    enabled={true}
+                    view="Indices"/>
           <MenuItem selectedView={props.selectedView}
                     setSelectedView={props.setSelectedView}
-                    view="Index"/>
+                    enabled={props.selectedIndex}
+                    view="Fields"/>
           <MenuItem selectedView={props.selectedView}
                     setSelectedView={props.setSelectedView}
+                    enabled={props.selectedIndex}
+                    view="Ingest"/>
+          <MenuItem selectedView={props.selectedView}
+                    setSelectedView={props.setSelectedView}
+                    enabled={props.selectedIndex}
                     view="Query"/>
-        </ul>
+        </div>
+        <SelectedIndex selectedIndex={props.selectedIndex}/>
       </div>
     </nav>
   );
 }
 
-function MenuItem(props) {
+const MenuItem = (props) => {
 
-  if (props.selectedView === props.view) {
+  if (!props.enabled) {
     return (
-      <li className="nav-item active">
-        <a className="nav-link" href="#">{props.view} <span className="sr-only">(current)</span></a>
-      </li>);
+      <a className="nav-item nav-link disabled" href="#">{props.view}</a>
+    );
+  } else if (props.selectedView === props.view) {
+    return (
+      <a className="nav nav-link active" href="#">{props.view} <span className="sr-only">(current)</span></a>
+    );
   } else {
     return (
-      <li className="nav-item">
-        <a className="nav-link"
-           onClick={() => props.setSelectedView(props.view)}
-           href="#">
-          {props.view}
-        </a>
-      </li>
+      <a className="nav-item nav-link" onClick={() => props.setSelectedView(props.view)} href="#">{props.view}</a>
     );
   }
+}
+
+const SelectedIndex = (props) => {
+
+  useEffect(() => {
+  }, [props.selectedIndex])
+
+  if (!props.selectedIndex)
+    return null;
+  return (<span className="navbar-text">{props.selectedIndex}</span>);
 }
 
 export default hot(Navbar);

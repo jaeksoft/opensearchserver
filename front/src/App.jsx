@@ -22,8 +22,7 @@ import View from "./View";
 const App = () => {
 
   const [oss] = useState('http://localhost:9090');
-  const [selectedView, setSelectedView] = useState('Schema');
-  const [selectedSchema, setSelectedSchema] = useState('');
+  const [selectedView, setSelectedView] = useState('Indices');
   const [selectedIndex, setSelectedIndex] = useState('');
   const [selectedField, setSelectedField] = useState('');
   const [indexJson, setIndexJson] = useState('');
@@ -38,14 +37,13 @@ const App = () => {
     <React.Fragment>
       <div className="container-fluid">
         <Navbar oss={oss}
+                selectedIndex={selectedIndex}
                 selectedView={selectedView}
                 setSelectedView={setSelectedView}/>
       </div>
       <div className="container-fluid h-100 overflow-auto p-0 m-0">
         <View oss={oss}
               selectedView={selectedView}
-              selectedSchema={selectedSchema}
-              setSelectedSchema={doSetSelectedSchema}
               selectedIndex={selectedIndex}
               setSelectedIndex={doSetSelectedIndex}
               selectedField={selectedField}
@@ -58,11 +56,6 @@ const App = () => {
       </div>
     </React.Fragment>
   );
-
-  function doSetSelectedSchema(schema) {
-    setSelectedSchema(schema);
-    doSetSelectedIndex('');
-  }
 
   function doSetSelectedIndex(index) {
     setSelectedIndex(index);

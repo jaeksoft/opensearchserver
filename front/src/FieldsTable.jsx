@@ -31,9 +31,9 @@ const FieldsTable = (props) => {
 
   useEffect(() => {
     doFetchFields();
-  }, [props.selectedSchema, props.selectedIndex])
+  }, [props.selectedIndex])
 
-  if (!props.selectedSchema || !props.selectedIndex)
+  if (!props.selectedIndex)
     return null;
 
   return (
@@ -55,13 +55,12 @@ const FieldsTable = (props) => {
   );
 
   function doFetchFields() {
-    const schema = props.selectedSchema;
     const index = props.selectedIndex;
-    if (!index || !schema) {
+    if (!index) {
       return;
     }
     startTask();
-    fetchJson(props.oss + '/ws/indexes/' + schema + '/' + index + '/fields', null,
+    fetchJson(props.oss + '/ws/indexes/' + index + '/fields', null,
       json => {
         endTask();
         setFields(json);
@@ -72,7 +71,7 @@ const FieldsTable = (props) => {
   function doCreateField(field, properties) {
     startTask('Creating field ' + field);
     fetchJson(
-      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/fields/' + field,
       {
         method: 'POST',
         headers: {
@@ -92,7 +91,7 @@ const FieldsTable = (props) => {
   function doDeleteField(field) {
     startTask('Deleting field ' + field);
     fetchJson(
-      props.oss + '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/fields/' + field,
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/fields/' + field,
       {
         method: 'DELETE'
       },

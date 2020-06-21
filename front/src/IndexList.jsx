@@ -29,7 +29,7 @@ const IndexList = (props) => {
 
   useEffect(() => {
     doFetchIndices();
-  }, [props.selectedSchema])
+  }, [])
 
   const items = Object.keys(indices).map((index, i) => (
     <option key={i} value={index}>{index}</option>
@@ -49,12 +49,8 @@ const IndexList = (props) => {
   );
 
   function doFetchIndices() {
-    const schema = props.selectedSchema;
-    if (!schema) {
-      return;
-    }
     setSpinning(true);
-    fetchJson(props.oss + '/ws/indexes/' + schema, null,
+    fetchJson(props.oss + '/ws/indexes', null,
       json => {
         setSpinning(false);
         setIndices(json);

@@ -16,29 +16,18 @@
 
 import {hot} from 'react-hot-loader/root';
 import React from 'react';
-import SchemasTable from './SchemasTable';
 import IndicesTable from "./IndicesTable";
-import FieldsTable from "./FieldsTable";
 
-const SchemaView = (props) => {
+const IndicesView = (props) => {
 
   return (
     <div className="d-flex">
-      <SchemasTable oss={props.oss}
-                    selectedSchema={props.selectedSchema}
-                    setSelectedSchema={props.setSelectedSchema}/>
       <IndicesTable oss={props.oss}
-                    selectedSchema={props.selectedSchema}
                     selectedIndex={props.selectedIndex}
                     setSelectedIndex={props.setSelectedIndex}/>
-      <FieldsTable oss={props.oss}
-                   selectedSchema={props.selectedSchema}
-                   selectedIndex={props.selectedIndex}
-                   selectedField={props.selectedField}
-                   setSelectedField={props.setSelectedField}/>
     </div>
   );
 
 }
 
-export default hot(SchemaView);
+export default hot(IndicesView);

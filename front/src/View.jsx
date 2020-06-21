@@ -16,29 +16,33 @@
 
 import {hot} from 'react-hot-loader/root';
 import React from 'react';
-import SchemaView from "./SchemaView";
-import IndexView from "./IndexView";
 import QueryView from "./QueryView";
+import IndicesView from "./IndicesView";
+import FieldsView from "./FieldsView";
+import IngestView from "./IngestView";
 
 const View = (props) => {
 
   switch (props.selectedView) {
-    case 'Schema':
-      return <SchemaView
+    case 'Indices':
+      return <IndicesView
         oss={props.oss}
-        selectedSchema={props.selectedSchema}
-        setSelectedSchema={props.setSelectedSchema}
         selectedIndex={props.selectedIndex}
         setSelectedIndex={props.setSelectedIndex}
         selectedField={props.selectedField}
         setSelectedField={props.setSelectedField}
       />;
-    case
-    'Index':
-      return <IndexView
+    case 'Fields':
+      return <FieldsView
         oss={props.oss}
-        selectedSchema={props.selectedSchema}
-        setSelectedSchema={props.setSelectedSchema}
+        selectedIndex={props.selectedIndex}
+        setSelectedIndex={props.setSelectedIndex}
+        indexJson={props.indexJson}
+        setIndexJson={props.setIndexJson}
+      />
+    case 'Ingest':
+      return <IngestView
+        oss={props.oss}
         selectedIndex={props.selectedIndex}
         setSelectedIndex={props.setSelectedIndex}
         indexJson={props.indexJson}
@@ -47,8 +51,6 @@ const View = (props) => {
     case 'Query':
       return <QueryView
         oss={props.oss}
-        selectedSchema={props.selectedSchema}
-        setSelectedSchema={props.setSelectedSchema}
         selectedIndex={props.selectedIndex}
         setSelectedIndex={props.setSelectedIndex}
         queryJson={props.queryJson}

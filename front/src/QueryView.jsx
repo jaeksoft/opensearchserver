@@ -15,14 +15,11 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useState} from 'react';
-import {render} from "react-dom";
+import React, {useState, useEffect, useContext} from 'react';
 import Status from './Status';
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-json";
-import "ace-builds/src-noconflict/theme-github";
-import SchemaList from "./SchemasList";
 import IndexList from "./IndexList";
+import JsonEditor from './JsonEditor';
+import {fetchJson} from "./fetchJson.js"
 
 const QueryView = (props) => {
 
@@ -30,6 +27,9 @@ const QueryView = (props) => {
   const [task, setTask] = useState(null);
   const [spinning, setSpinning] = useState(false);
   const [resultJson, setResultJson] = useState('');
+
+  useEffect(() => {
+  }, [props.selectedIndex])
 
   return (
     <div className="p-1 h-100">
@@ -41,49 +41,38 @@ const QueryView = (props) => {
           <div className="h-100 d-flex">
             <div className="w-50 h-100">
               <div className="h-50">
-                <AceEditor
-                  mode="json"
-                  theme="github"
-                  editorProps={{$blockScrolling: false}}
-                  value={props.queryJson}
-                  name="queryjson"
-                  onChange={e => props.setQueryJson(e.target.value)}
+                <JsonEditor value={props.queryJson}
+                            setValue={props.setQueryJson}
                 />
+                <div className="h-50">
+                  <p>Example</p>
+                </div>
               </div>
-              <div className="h-50">
-                <p>Example</p>
-              </div>
-            </div>
-            <div className="w-50 h-100">
+              <div className="w-50 h-100">
               <textarea className="form-control h-100"
                         readOnly={true}
                         style={{resize: 'none'}}
                         value={resultJson}
                         onChange={e => props.setIndexJson(e.target.value)}/>
+              </div>
             </div>
           </div>
+          <form className="form-inline pr-1 pb-1">
+            <div className="pl-1">
+              <IndexList oss={props.oss}
+                         id="selectIndex"
+                         selectedIndex={props.selectedIndex}
+                         setSelectedIndex={props.setSelectedIndex}
+              />
+            </div>
+            <div className="pt-1 pl-1">
+              <button className="btn btn-primary"
+                      onClick={() => doQuery()}>
+                QUERY
+              </button>
+            </div>
+          </form>
         </div>
-        <form className="form-inline pr-1 pb-1">
-          <div className="pl-1">
-            <SchemaList id="selectSchema"
-                        selectedSchema={props.selectedSchema}
-                        setSelectedSchema={props.setSelectedSchema}
-            />
-          </div>
-          <div className="pl-1">
-            <IndexList id="selectIndex"
-                       selectedSchema={props.selectedSchema}
-                       selectedIndex={props.selectedIndex}
-                       setSelectedIndex={props.setSelectedIndex}
-            />
-          </div>
-          <div className="pt-1 pl-1">
-            <button className="btn btn-primary"
-                    onClick={() => doQuery()}>
-              QUERY
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   )
@@ -97,10 +86,6 @@ const QueryView = (props) => {
   }
 
   function doQuery() {
-    if (props.selectedSchema == null || props.selectedSchema === '') {
-      setError('Please select a schema.');
-      return;
-    }
     if (props.selectedIndex == null || props.selectedIndex === '') {
       setError('Please select an index.');
       return;
@@ -121,7 +106,7 @@ const QueryView = (props) => {
 
     setTask('Querying...');
     fetchJson(
-      '/ws/indexes/' + props.selectedSchema + '/' + props.selectedIndex + '/search',
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/search',
       {
         method: 'POST',
         headers: {
