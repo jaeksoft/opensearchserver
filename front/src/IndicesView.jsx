@@ -17,15 +17,17 @@
 import {hot} from 'react-hot-loader/root';
 import React from 'react';
 import IndicesTable from "./IndicesTable";
+import View from "./View";
 
 const IndicesView = (props) => {
 
   return (
-    <div className="d-flex">
-      <IndicesTable oss={props.oss}
-                    selectedIndex={props.selectedIndex}
-                    setSelectedIndex={props.setSelectedIndex}/>
-    </div>
+    <IndicesTable oss={props.oss}
+                  selectedIndex={props.selectedIndex}
+                  setSelectedIndex={props.setSelectedIndex}
+                  selectedIndexStatus={props.selectedIndexStatus}
+                  setSelectedIndexStatus={props.setSelectedIndexStatus}
+    />
   );
 
 }

@@ -19,7 +19,7 @@ import React from 'react';
 
 const DeleteButton = (props) => {
   return (
-    <button className="btn btn-danger shadow-none rounded-0"
+    <button className="btn btn-danger shadow-none btn-block"
             type="button"
             onClick={() => props.doDelete(props.name)}>
       Delete
@@ -30,13 +30,13 @@ const DeleteButton = (props) => {
 const CreateButton = (props) => {
   if (props.name)
     return (
-      <button className="btn btn-primary shadow-none rounded-0"
+      <button className="btn btn-primary shadow-none btn-block"
               type="button"
               onClick={() => props.doCreate(props.name)}>
         Create
       </button>);
   else return (
-    <button className="btn btn-primary shadow-none rounded-0"
+    <button className="btn btn-primary shadow-none btn-block"
             type="button" disabled>
       Create
     </button>

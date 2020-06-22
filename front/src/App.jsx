@@ -24,6 +24,7 @@ const App = () => {
   const [oss] = useState('http://localhost:9090');
   const [selectedView, setSelectedView] = useState('Indices');
   const [selectedIndex, setSelectedIndex] = useState('');
+  const [selectedIndexStatus, setSelectedIndexStatus] = useState({});
   const [selectedField, setSelectedField] = useState('');
   const [indexJson, setIndexJson] = useState('');
   const [queryJson, setQueryJson] = useState(
@@ -34,18 +35,18 @@ const App = () => {
   );
 
   return (
-    <React.Fragment>
-      <div className="container-fluid">
-        <Navbar oss={oss}
-                selectedIndex={selectedIndex}
-                selectedView={selectedView}
-                setSelectedView={setSelectedView}/>
-      </div>
-      <div className="container-fluid h-100 overflow-auto p-0 m-0">
+    <div className="vh-100 m-0 p-0 d-flex flex-column">
+      <Navbar oss={oss}
+              selectedIndex={selectedIndex}
+              selectedView={selectedView}
+              setSelectedView={setSelectedView}/>
+      <div className="container-fluid flex-fill d-flex flex-column pl-0 pr-1">
         <View oss={oss}
               selectedView={selectedView}
               selectedIndex={selectedIndex}
               setSelectedIndex={doSetSelectedIndex}
+              selectedIndexStatus={selectedIndexStatus}
+              setSelectedIndexStatus={setSelectedIndexStatus}
               selectedField={selectedField}
               setSelectedField={setSelectedField}
               indexJson={indexJson}
@@ -54,7 +55,7 @@ const App = () => {
               setQueryJson={setQueryJson}
         />
       </div>
-    </React.Fragment>
+    </div>
   );
 
   function doSetSelectedIndex(index) {

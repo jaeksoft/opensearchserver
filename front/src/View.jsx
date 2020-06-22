@@ -29,6 +29,8 @@ const View = (props) => {
         oss={props.oss}
         selectedIndex={props.selectedIndex}
         setSelectedIndex={props.setSelectedIndex}
+        selectedIndexStatus={props.selectedIndexStatus}
+        setSelectedIndexStatus={props.setSelectedIndexStatus}
         selectedField={props.selectedField}
         setSelectedField={props.setSelectedField}
       />;

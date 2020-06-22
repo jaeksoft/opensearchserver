@@ -15,51 +15,87 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useState, useEffect} from 'react';
-import Status from "./Status";
-import CreateEditDelete from "./CreateEditDelete";
-import List from "./List";
+import React, {useEffect} from 'react';
+import {InfoCircleFill, InfoCircle} from 'react-bootstrap-icons';
 import {fetchJson} from "./fetchJson.js"
+import IndicesTable from "./IndicesTable";
 
+/**
+ *
+ * @param props values, selectedValue, doSelectValue
+ * @returns {*}
+ */
 const IndexList = (props) => {
 
-  const [spinning, setSpinning] = useState(false);
-  const [indices, setIndices] = useState([]);
-  const [error, setError] = useState(null);
+  if (!props.indices)
+    return null;
 
-  useEffect(() => {
-    doFetchIndices();
-  }, [])
-
-  const items = Object.keys(indices).map((index, i) => (
-    <option key={i} value={index}>{index}</option>
+  const values = Array.isArray(props.indices) ? props.indices : Object.keys(props.indices);
+  const listItems = values.map((index, i) => (
+    <IndexListItem key={i}
+                   index={index}
+                   selectedIndex={props.selectedIndex}
+                   setSelectedIndex={props.setSelectedIndex}
+                   selectedIndexStatus={props.selectedIndexStatus}
+                   setSelectedIndexStatus={props.setSelectedIndexStatus}
+    />
   ));
-
   return (
-    <React.Fragment>
-      <label className="sr-only" htmlFor={props.id}>Index :</label>
-      <select id={props.id}
-              className="custom-select"
-              value={props.selectedIndex}
-              onChange={e => props.setSelectedIndex(e.target.value)}>
-        <option value="">Select an index</option>
-        {items}
-      </select>
-    </React.Fragment>
-  );
+    <div className="flex-fill">
+      <table className="table table-hover table-sm table-striped mb-0">
+        <thead>
+        <tr>
+          <th>Index name</th>
+          <th title="Select an index to see the primary key">Primary key</th>
+          <th title="Select an index to see the number of documents">Num docs</th>
+        </tr>
+        </thead>
+        <tbody>
+        {listItems}
+        </tbody>
+      </table>
+    </div>
 
-  function doFetchIndices() {
-    setSpinning(true);
-    fetchJson(props.oss + '/ws/indexes', null,
-      json => {
-        setSpinning(false);
-        setIndices(json);
-      },
-      error => {
-        setSpinning(false);
-        setError(error.message)
-      });
+  );
+}
+
+/**
+ *
+ * @param props value, selectedValue, doSelectValue
+ * @returns {*}
+ */
+const IndexListItem = (props) => {
+  if (props.selectedIndex === props.index) {
+    return (
+      <tr className="table-active" onClick={() => props.setSelectedIndex(props.index)}>
+        <td className="p-1 m-1">{props.index}</td>
+        <td className="p-1 m-1">{getPrimaryKey(props.selectedIndexStatus)}</td>
+        <td className="p-1 m-1">{getNumDocs(props.selectedIndexStatus)}</td>
+      </tr>
+    );
+  } else {
+    return (
+      <tr onClick={() => props.setSelectedIndex(props.index)}>
+        <td className="p-1 m-1">{props.index}</td>
+        <td colSpan="2" title="Select the line to see the primary key and the number of docs" className="p-1 m-1"></td>
+      </tr>
+    );
+  }
+
+  function getPrimaryKey(indexStatus) {
+    if (indexStatus == null)
+      return null;
+    if (indexStatus.settings == null)
+      return null;
+    return indexStatus.settings.primary_key;
+  }
+
+  function getNumDocs(indexStatus) {
+    if (indexStatus == null)
+      return null;
+    return indexStatus.num_docs;
   }
 }
+
 
 export default hot(IndexList);

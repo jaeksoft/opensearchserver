@@ -23,14 +23,17 @@ import "ace-builds/webpack-resolver";
 const JsonEditor = (props) => {
 
   return (
-    <AceEditor
-      mode="json"
-      theme="github"
-      editorProps={{$blockScrolling: false}}
-      value={props.value}
-      name="queryjson"
-      onChange={v => props.setValue(v)}
-    />
+    <div className="flex-shrink-1 flex-grow-1">
+      <AceEditor
+        mode="json"
+        theme="github"
+        editorProps={{$blockScrolling: false}}
+        value={props.value}
+        height="100%"
+        width="100%"
+        onChange={v => props.setValue(v)}
+      />
+    </div>
   );
 };
 

@@ -17,7 +17,6 @@
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect, useContext} from 'react';
 import Status from "./Status";
-import IndexList from "./IndexList";
 import JsonEditor from "./JsonEditor";
 import {fetchJson} from "./fetchJson.js"
 
@@ -34,42 +33,27 @@ const IngestView = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <div className="p-1 h-100">
-      <div className="h-100 d-flex flex-column border bg-light rounded">
-        <div className="bg-light text-secondary p -1">INDEXING&nbsp;
-          <Status task={task} error={error} spinning={spinning}/>
-        </div>
-        <div className="flex-grow-1 p-1">
-          <div className="h-100 d-flex">
-            <div className="w-100 h-100">
-              <JsonEditor value={props.indexJson}
-                          setValue={props.setIndexJson}
-              />
-            </div>
-          </div>
-        </div>
-        <form className="form-inline pr-1 pb-1">
-          <div className="pl-1">
-            <IndexList oss={props.oss}
-                       id="selectIndex"
-                       selectedIndex={props.selectedIndex}
-                       setSelectedIndex={props.setSelectedIndex}
-            />
-          </div>
-          <div className="pt-1 pl-1">
-            <button className="btn btn-outline-primary"
-                    onClick={() => doGenerateIndexSample()}>
-              Generate example
-            </button>
-          </div>
-          <div className="pt-1 pl-1">
-            <button className="btn btn-primary"
-                    onClick={() => doIndex()}>
-              INDEX
-            </button>
-          </div>
-        </form>
+    <div className="border p-0 mt-1 ml-1 bg-light rounded flex-fill d-flex flex-column">
+      <div className="bg-light text-secondary p-1">INGEST&nbsp;
+        <Status task={task} error={error} spinning={spinning}/>
       </div>
+      <JsonEditor value={props.indexJson}
+                  setValue={props.setIndexJson}
+      />
+      <form className="form-inline pr-1 pb-1">
+        <div className="pt-1 pl-1">
+          <button className="btn btn-outline-primary"
+                  onClick={() => doGenerateIndexSample()}>
+            Generate example
+          </button>
+        </div>
+        <div className="pt-1 pl-1">
+          <button className="btn btn-primary"
+                  onClick={() => doIndex()}>
+            INDEX
+          </button>
+        </div>
+      </form>
     </div>
   )
 
@@ -88,7 +72,7 @@ const IngestView = (props) => {
     setTask('Collecting sample...');
     setSpinning(true);
     fetchJson(
-      props.oss + '/ws/indexes/' + props.selectedIndex + '/json/samples?count=2',
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/json/samples?count=1',
       {method: 'GET'},
       json => {
         props.setIndexJson(JSON.stringify(json, undefined, 2));

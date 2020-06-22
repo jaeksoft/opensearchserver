@@ -6,4 +6,4 @@ import './oss.css'
 
 import App from './App';
 
-render(<React.StrictMode><App/></React.StrictMode>, document.getElementById('root'));
+render(<React.StrictMode><App className={"test"}/></React.StrictMode>, document.getElementById('root'));

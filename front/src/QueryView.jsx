@@ -15,9 +15,8 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import Status from './Status';
-import IndexList from "./IndexList";
 import JsonEditor from './JsonEditor';
 import {fetchJson} from "./fetchJson.js"
 
@@ -58,18 +57,8 @@ const QueryView = (props) => {
             </div>
           </div>
           <form className="form-inline pr-1 pb-1">
-            <div className="pl-1">
-              <IndexList oss={props.oss}
-                         id="selectIndex"
-                         selectedIndex={props.selectedIndex}
-                         setSelectedIndex={props.setSelectedIndex}
-              />
-            </div>
             <div className="pt-1 pl-1">
-              <button className="btn btn-primary"
-                      onClick={() => doQuery()}>
-                QUERY
-              </button>
+              <button className="btn btn-primary" onClick={() => doQuery()}>QUERY</button>
             </div>
           </form>
         </div>

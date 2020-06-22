@@ -17,8 +17,8 @@
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
 import Status from "./Status";
-import CreateEditDelete from "./CreateEditDelete";
-import List from "./List";
+import IndexCreateEditDelete from "./IndexCreateEditDelete";
+import IndexList from "./IndexList";
 import {fetchJson} from "./fetchJson.js"
 
 function IndicesTable(props) {
@@ -35,21 +35,25 @@ function IndicesTable(props) {
   }, [])
 
   return (
-    <div className="border p-0 mt-1 ml-1 bg-light rounded">
+    <div className="border p-0 mt-1 ml-1 bg-light rounded d-flex flex-fill flex-column">
       <div className="bg-light text-secondary p-1">INDICES&nbsp;
         <Status task={task} error={error} spinning={spinning}/>
       </div>
-      <CreateEditDelete
-        name={indexName}
-        setName={idx => setIndexName(idx)}
-        selectedName={props.selectedIndex}
+      <IndexCreateEditDelete
+        indexName={indexName}
+        setIndexName={idx => setIndexName(idx)}
+        selectedIndex={props.selectedIndex}
+        setPrimaryKey={key => setPrimaryKey(key)}
+        primaryKey={primaryKey}
         doCreate={idx => doCreateIndex(idx)}
         doDelete={idx => doDeleteIndex(idx)}
       />
-      <List values={indices}
-            selectedValue={props.selectedIndex}
-            doSelectValue={value => props.setSelectedIndex(value)}
-            doGetKey={value => value}/>
+      <IndexList indices={indices}
+                 selectedIndex={props.selectedIndex}
+                 setSelectedIndex={selectIndex}
+                 selectedIndexStatus={props.selectedIndexStatus}
+                 setSelectedIndexStatus={props.setSelectedIndexStatus}
+      />
     </div>
   );
 
@@ -99,6 +103,24 @@ function IndicesTable(props) {
       error => endTask(null, error));
   }
 
+  function doFetchIndex(index) {
+    if (!index)
+      return null;
+    startTask();
+    fetchJson(props.oss + '/ws/indexes/' + index, null,
+      json => {
+        props.setSelectedIndexStatus(json);
+        endTask();
+      },
+      error => endTask(null, error));
+  }
+
+  function selectIndex(index) {
+    props.setSelectedIndexStatus({});
+    doFetchIndex(index);
+    props.setSelectedIndex(index);
+  }
+
   function startTask(newTask) {
     setSpinning(true);
     if (newTask) {
@@ -108,7 +130,6 @@ function IndicesTable(props) {
   }
 
   function endTask(newTask, newError) {
-    console.log(error);
     setSpinning(false);
     if (newTask)
       setTask(newTask);
