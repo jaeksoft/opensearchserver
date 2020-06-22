@@ -22,8 +22,20 @@ import "ace-builds/webpack-resolver";
 
 const JsonEditor = (props) => {
 
-  return (
-    <div className="flex-shrink-1 flex-grow-1">
+  if (props.setValue == null)
+    return (
+      <AceEditor
+        mode="json"
+        theme="github"
+        editorProps={{$blockScrolling: false}}
+        value={props.value}
+        readOnly={true}
+        height="100%"
+        width="100%"
+      />
+    );
+  else
+    return (
       <AceEditor
         mode="json"
         theme="github"
@@ -33,8 +45,7 @@ const JsonEditor = (props) => {
         width="100%"
         onChange={v => props.setValue(v)}
       />
-    </div>
-  );
+    );
 };
 
 export default hot(JsonEditor);

@@ -15,7 +15,7 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import Status from "./Status";
 import JsonEditor from "./JsonEditor";
 import {fetchJson} from "./fetchJson.js"

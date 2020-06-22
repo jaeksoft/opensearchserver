@@ -19,6 +19,7 @@
     "react-ace": "^9.0.0",
     "react-bootstrap-icons": "^1.0.3-alpha4",
     "react-dom": "^16.13.1",
-    "react-hot-loader": "^4.12.21"
+    "react-hot-loader": "^4.12.21",
+    "react-syntax-highlighter": "^12.2.1"
   }
 }

@@ -20,6 +20,12 @@ import Status from './Status';
 import JsonEditor from './JsonEditor';
 import {fetchJson} from "./fetchJson.js"
 
+import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
+import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
+
+SyntaxHighlighter.registerLanguage('json', json);
+
 const QueryView = (props) => {
 
   const [error, setError] = useState(null);
@@ -31,38 +37,25 @@ const QueryView = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <div className="p-1 h-100">
-      <div className="h-100 d-flex flex-column border bg-light rounded">
-        <div className="bg-light text-secondary p-1">QUERYING&nbsp;
-          <Status task={task} error={error} spinning={spinning}/>
+    <div className="border p-0 mt-1 ml-1 bg-light rounded flex-fill d-flex flex-column">
+      <div className="bg-light text-secondary p-1">QUERYING&nbsp;
+        <Status task={task} error={error} spinning={spinning}/>
+      </div>
+      <div className="d-flex flex-fill">
+        <div className="w-50 flex-fill">
+          <JsonEditor value={props.queryJson}
+                      setValue={props.setQueryJson}
+          />
         </div>
-        <div className="flex-grow-1 p-1">
-          <div className="h-100 d-flex">
-            <div className="w-50 h-100">
-              <div className="h-50">
-                <JsonEditor value={props.queryJson}
-                            setValue={props.setQueryJson}
-                />
-                <div className="h-50">
-                  <p>Example</p>
-                </div>
-              </div>
-              <div className="w-50 h-100">
-              <textarea className="form-control h-100"
-                        readOnly={true}
-                        style={{resize: 'none'}}
-                        value={resultJson}
-                        onChange={e => props.setIndexJson(e.target.value)}/>
-              </div>
-            </div>
-          </div>
-          <form className="form-inline pr-1 pb-1">
-            <div className="pt-1 pl-1">
-              <button className="btn btn-primary" onClick={() => doQuery()}>QUERY</button>
-            </div>
-          </form>
+        <div className="w-50 flex-fill">
+          <JsonEditor value={resultJson}/>
         </div>
       </div>
+      <form className="form-inline pr-1 pb-1">
+        <div className="pt-1 pl-1">
+          <button className="btn btn-primary" onClick={() => doQuery()}>QUERY</button>
+        </div>
+      </form>
     </div>
   )
 
