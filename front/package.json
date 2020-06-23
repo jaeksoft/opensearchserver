@@ -1,10 +1,11 @@
 {
+  "license": "Apache-2.0",
   "devDependencies": {
     "@neutrinojs/react": "^9.2.0",
     "@neutrinojs/react-components": "^9.1.0",
     "neutrino": "^9.2.0",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11",
+    "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
@@ -19,7 +20,7 @@
     "react-ace": "^9.0.0",
     "react-bootstrap-icons": "^1.0.3-alpha4",
     "react-dom": "^16.13.1",
-    "react-hot-loader": "^4.12.21",
-    "react-syntax-highlighter": "^12.2.1"
-  }
+    "react-hot-loader": "^4.12.21"
+  },
+  "version": "0.0.0"
 }
