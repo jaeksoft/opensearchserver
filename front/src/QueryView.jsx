@@ -20,12 +20,6 @@ import Status from './Status';
 import JsonEditor from './JsonEditor';
 import {fetchJson} from "./fetchJson.js"
 
-import {Light as SyntaxHighlighter} from 'react-syntax-highlighter';
-import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import docco from 'react-syntax-highlighter/dist/esm/styles/hljs/docco';
-
-SyntaxHighlighter.registerLanguage('json', json);
-
 const QueryView = (props) => {
 
   const [error, setError] = useState(null);

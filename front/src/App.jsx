@@ -30,7 +30,7 @@ const App = () => {
   const [queryJson, setQueryJson] = useState(
     JSON.stringify(
       JSON.parse(
-        '{"query":{"type": "MatchAllDocsQuery"},"returned_fields":["*"]}'), undefined, 2
+        '{"query":{"MatchAllDocs": {}},"returned_fields":["*"]}'), undefined, 2
     )
   );
 

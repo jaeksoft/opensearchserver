@@ -15,10 +15,11 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useEffect} from 'react';
+import React from 'react';
 
 import AceEditor from "react-ace";
-import "ace-builds/webpack-resolver";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-github";
 
 const JsonEditor = (props) => {
 
@@ -32,6 +33,9 @@ const JsonEditor = (props) => {
         readOnly={true}
         height="100%"
         width="100%"
+        setOptions={{
+          useWorker: false
+        }}
       />
     );
   else
@@ -43,6 +47,9 @@ const JsonEditor = (props) => {
         value={props.value}
         height="100%"
         width="100%"
+        setOptions={{
+          useWorker: false
+        }}
         onChange={v => props.setValue(v)}
       />
     );
