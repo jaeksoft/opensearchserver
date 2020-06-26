@@ -18,6 +18,7 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState} from 'react';
 import Navbar from "./Navbar";
 import View from "./View";
+import ReactAce from "react-ace";
 
 const App = () => {
 
@@ -35,12 +36,12 @@ const App = () => {
   );
 
   return (
-    <div className="vh-100 m-0 p-0 d-flex flex-column">
+    <React.Fragment>
       <Navbar oss={oss}
               selectedIndex={selectedIndex}
               selectedView={selectedView}
               setSelectedView={setSelectedView}/>
-      <div className="container-fluid flex-fill d-flex flex-column pl-0 pr-1">
+      <main className="container-fluid main">
         <View oss={oss}
               selectedView={selectedView}
               selectedIndex={selectedIndex}
@@ -54,8 +55,8 @@ const App = () => {
               queryJson={queryJson}
               setQueryJson={setQueryJson}
         />
-      </div>
-    </div>
+      </main>
+    </React.Fragment>
   );
 
   function doSetSelectedIndex(index) {

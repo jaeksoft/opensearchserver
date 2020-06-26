@@ -33,13 +33,15 @@ const IngestView = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <div className="border p-0 mt-1 ml-1 bg-light rounded flex-fill d-flex flex-column">
+    <div className="ingest-view">
       <div className="bg-light text-secondary p-1">INGEST&nbsp;
         <Status task={task} error={error} spinning={spinning}/>
       </div>
-      <JsonEditor value={props.indexJson}
-                  setValue={props.setIndexJson}
-      />
+      <div className="ingest-editor">
+        <JsonEditor value={props.indexJson}
+                    setValue={props.setIndexJson}
+        />
+      </div>
       <form className="form-inline pr-1 pb-1">
         <div className="pt-1 pl-1">
           <button className="btn btn-outline-primary"

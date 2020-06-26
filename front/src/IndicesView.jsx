@@ -22,12 +22,14 @@ import View from "./View";
 const IndicesView = (props) => {
 
   return (
-    <IndicesTable oss={props.oss}
-                  selectedIndex={props.selectedIndex}
-                  setSelectedIndex={props.setSelectedIndex}
-                  selectedIndexStatus={props.selectedIndexStatus}
-                  setSelectedIndexStatus={props.setSelectedIndexStatus}
-    />
+    <div className="index-view">
+      <IndicesTable oss={props.oss}
+                    selectedIndex={props.selectedIndex}
+                    setSelectedIndex={props.setSelectedIndex}
+                    selectedIndexStatus={props.selectedIndexStatus}
+                    setSelectedIndexStatus={props.setSelectedIndexStatus}
+      />
+    </div>
   );
 
 }

@@ -23,7 +23,7 @@ const Navbar = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <nav className="navbar sticky-top navbar-light navbar-expand bg-light">
+    <nav className="navbar navbar-light navbar-expand bg-light">
       <span className="navbar-brand text-secondary"><small>OpenSearchServer 2.0</small></span>
       <div className="collapse navbar-collapse">
         <div className="navbar-nav mr-auto">

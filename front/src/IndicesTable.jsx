@@ -35,7 +35,7 @@ function IndicesTable(props) {
   }, [])
 
   return (
-    <div className="border p-0 mt-1 ml-1 bg-light rounded d-flex flex-fill flex-column">
+    <div className="border bg-light rounded">
       <div className="bg-light text-secondary p-1">INDICES&nbsp;
         <Status task={task} error={error} spinning={spinning}/>
       </div>

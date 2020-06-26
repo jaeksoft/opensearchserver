@@ -19,6 +19,7 @@ import React, {useState, useEffect} from 'react';
 import Status from './Status';
 import JsonEditor from './JsonEditor';
 import {fetchJson} from "./fetchJson.js"
+import QueryHelper from "./QueryHelper";
 
 const QueryView = (props) => {
 
@@ -31,17 +32,24 @@ const QueryView = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <div className="border p-0 mt-1 ml-1 bg-light rounded flex-fill d-flex flex-column">
+    <div className="query-view">
       <div className="bg-light text-secondary p-1">QUERYING&nbsp;
         <Status task={task} error={error} spinning={spinning}/>
       </div>
-      <div className="d-flex flex-fill">
-        <div className="w-50 flex-fill">
-          <JsonEditor value={props.queryJson}
-                      setValue={props.setQueryJson}
-          />
+      <div className="central border bg-light">
+        <div className="query-builder border bg-light">
+          <div className="query-json">
+            <JsonEditor value={props.queryJson}
+                        setValue={props.setQueryJson}
+            />
+          </div>
+          <div className="query-help">
+            <QueryHelper oss={props.oss}
+                         selectedIndex={props.selectedIndex}
+                         queryJson={props.queryJson}/>
+          </div>
         </div>
-        <div className="w-50 flex-fill">
+        <div className="query-result border bg-light">
           <JsonEditor value={resultJson}/>
         </div>
       </div>
