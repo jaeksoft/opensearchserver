@@ -21,10 +21,12 @@ import FieldsTable from "./FieldsTable";
 const FieldsView = (props) => {
 
   return (
-    <FieldsTable oss={props.oss}
-                 selectedIndex={props.selectedIndex}
-                 selectedField={props.selectedField}
-                 setSelectedField={props.setSelectedField}/>
+    <div className="field-view">
+      <FieldsTable oss={props.oss}
+                   selectedIndex={props.selectedIndex}
+                   selectedField={props.selectedField}
+                   setSelectedField={props.setSelectedField}/>
+    </div>
   );
 
 }

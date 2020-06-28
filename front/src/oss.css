@@ -34,6 +34,12 @@ body {
   display: flex;
 }
 
+.field-view {
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+
 .index-view {
   overflow: auto;
   height: 100%;
@@ -84,7 +90,7 @@ body {
 }
 
 .query-help {
-  height: 25%;
+  height: 50%;
   overflow: auto;
 }
 

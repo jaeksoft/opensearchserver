@@ -31,8 +31,6 @@ const View = (props) => {
         setSelectedIndex={props.setSelectedIndex}
         selectedIndexStatus={props.selectedIndexStatus}
         setSelectedIndexStatus={props.setSelectedIndexStatus}
-        selectedField={props.selectedField}
-        setSelectedField={props.setSelectedField}
       />;
     case 'Fields':
       return <FieldsView
@@ -41,6 +39,8 @@ const View = (props) => {
         setSelectedIndex={props.setSelectedIndex}
         indexJson={props.indexJson}
         setIndexJson={props.setIndexJson}
+        selectedField={props.selectedField}
+        setSelectedField={props.setSelectedField}
       />
     case 'Ingest':
       return <IngestView

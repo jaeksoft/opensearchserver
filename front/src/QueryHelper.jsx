@@ -17,53 +17,97 @@
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
 import {fetchJson} from "./fetchJson.js"
+import ReactAce from "react-ace";
+import {QuestionCircleFill} from 'react-bootstrap-icons';
 
 const QueryHelper = (props) => {
 
   const [queryTypes, setQueryTypes] = useState([]);
+  const [lastQueryJsonLookup, setLastQueryJsonLookup] = useState('');
+  const [queryLookup, setQueryLookup] = useState('');
+  const [firstQueryTypeDetail, setFirstQueryTypeDetail] = useState('');
 
   useEffect(() => {
-    doFetchQueryTypes();
   }, [props.selectedIndex, props.queryJson])
 
-  if (!props.selectedIndex || !props.queryJson)
+  if (!props.selectedIndex)
     return null;
 
+  try {
+    const newLookup = Object.keys(JSON.parse(props.queryJson).query)[0] || '';
+    if (newLookup !== lastQueryJsonLookup) {
+      setLastQueryJsonLookup(newLookup);
+      doFetchQueryTypes(newLookup);
+    }
+  } catch (err) {
+  }
+
   const listItems = Object.keys(queryTypes).map((queryType, i) => (
-      <tr>
-        <td className="list-group-item" key={i}>{queryType}</td>
-      </tr>
-    ))
-  ;
+    <li className="list-group-item pl-1 pr-1 pt-1 pb-0"
+        key={i}
+        onClick={e => doFetchQueryTypes(queryType)}>
+      <a href={queryTypes[queryType]}
+         target={"_blank"}
+         className="float-right">
+        <QuestionCircleFill/>
+      </a>
+      <HelpItem pos={i}
+                queryType={queryType}
+                queryTypeDetail={firstQueryTypeDetail}/>
+    </li>
+  ));
 
   return (
-    <table className="table table-sm">
-      {listItems}
-    </table>
+    <React.Fragment>
+      <input className="form-control" value={queryLookup}
+             onChange={e => doFetchQueryTypes(e.target.value)}/>
+      <div className="list-group">
+        {listItems}
+      </div>
+    </React.Fragment>
   );
 
-  function doFetchQueryTypes() {
+  function doFetchQueryTypes(lookup) {
     if (!props.selectedIndex) {
       return;
     }
-    var lookup = '';
-    if (props.queryJson) {
-      try {
-        lookup = Object.keys(JSON.parse(props.queryJson).query)[0] || '';
-      } catch (err) {
-        lookup = '';
-      }
-    }
-
+    setQueryLookup(lookup);
     fetchJson(props.oss + '/ws/indexes/' + props.selectedIndex
-      + '/search/queries/types?lookup=' + lookup,
-      null,
+      + '/search/queries/types?lookup=' + lookup, null,
       json => {
-        setQueryTypes(json);
+        doSetQueryTypes(json);
       });
   }
 
+  function doSetQueryTypes(json) {
+    setQueryTypes(json);
+    const firstType = Object.keys(json)[0] || '';
+    if (firstType) {
+      fetchJson(props.oss + '/ws/indexes/' + props.selectedIndex
+        + '/search/queries/types/' + firstType, null,
+        json => {
+          setFirstQueryTypeDetail(JSON.stringify(json, undefined, 2));
+        });
+    }
+  }
 }
 
-export default hot(QueryHelper);
+const HelpItem = (props) => {
+  if (props.pos == 0) {
+    return (
+      <pre className="small">
+        <code>
+        {props.queryTypeDetail || props.queryType}
+      </code>
+      </pre>
+    )
+  } else {
+    return (
+      <small>{props.queryType}</small>
+    )
+  }
+}
+
+
+export default hot(QueryHelper, HelpItem);
 

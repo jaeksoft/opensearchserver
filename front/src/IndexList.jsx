@@ -41,20 +41,18 @@ const IndexList = (props) => {
     />
   ));
   return (
-    <div className="flex-fill">
-      <table className="table table-hover table-sm table-striped mb-0">
-        <thead>
-        <tr>
-          <th>Index name</th>
-          <th title="Select an index to see the primary key">Primary key</th>
-          <th title="Select an index to see the number of documents">Num docs</th>
-        </tr>
-        </thead>
-        <tbody>
-        {listItems}
-        </tbody>
-      </table>
-    </div>
+    <table className="table table-hover table-sm table-striped table-light">
+      <thead className="thead-light">
+      <tr>
+        <th>Index name</th>
+        <th title="Select an index to see the primary key">Primary key</th>
+        <th title="Select an index to see the number of documents">Num docs</th>
+      </tr>
+      </thead>
+      <tbody>
+      {listItems}
+      </tbody>
+    </table>
 
   );
 }

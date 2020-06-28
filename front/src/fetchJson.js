@@ -23,6 +23,8 @@
  * @returns {Promise<String>}
  */
 export function fetchJson(request, init, doJson, doError) {
+  if (!doError)
+    doError = console.log;
   fetch(request, init)
     .then(response => Promise.all([response.ok, response.json()]))
     .then(
