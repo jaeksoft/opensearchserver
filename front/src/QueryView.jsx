@@ -18,7 +18,7 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
 import Status from './Status';
 import JsonEditor from './JsonEditor';
-import {fetchJson, parseJson} from "./fetchJson.js"
+import {fetchJson, parseJson} from "./fetchUtils.js"
 import QueryHelper from "./QueryHelper";
 
 const QueryView = (props) => {

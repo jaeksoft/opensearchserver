@@ -59,6 +59,8 @@ const View = (props) => {
       return <WebCrawlView oss={props.oss}
                            webCrawlDefinition={props.webCrawlDefinition}
                            setWebCrawlDefinition={props.setWebCrawlDefinition}
+                           selectedWebSession={props.selectedWebSession}
+                           setSelectedWebSession={props.setSelectedWebSession}
       />
     default:
       return null;

@@ -18,7 +18,7 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
 import Status from "./Status";
 import FieldCreateEditDelete from "./FieldCreateEditDelete";
-import {fetchJson} from "./fetchJson";
+import {fetchJson} from "./fetchUtils";
 import Badge from "./Badge";
 
 const FieldsTable = (props) => {

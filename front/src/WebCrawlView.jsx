@@ -18,8 +18,10 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
 import Status from "./Status";
 import JsonEditor from "./JsonEditor";
-import {fetchJson, parseJson} from "./fetchJson.js"
-
+import {fetchJson, parseJson, simpleFetch} from "./fetchUtils.js"
+import WebCrawlSessionList from "./WebCrawlSessionList";
+import View from "./View";
+import CreateOrDeleteButton from "./CreateOrDeleteButton";
 
 const WebCrawlView = (props) => {
 
@@ -30,6 +32,7 @@ const WebCrawlView = (props) => {
   const [spinning, setSpinning] = useState(false);
   const [sessions, setSessions] = useState([]);
   const [sessionEdit, setSessionEdit] = useState('');
+  const [sessionStatus, setSessionStatus] = useState('');
 
   useEffect(() => {
     doFetchWebCrawlSessions();
@@ -49,16 +52,30 @@ const WebCrawlView = (props) => {
           </div>
           <CreateWebCrawlButton sessionEdit={sessionEdit}
                                 setSessionEdit={setSessionEdit}
-                                onClick={() => doStartWebCrawl()}/>
+                                selectedSession={props.selectedWebSession}
+                                doCreateSession={name => doStartWebCrawl(name)}
+                                doDeleteSession={name => doDeleteWebCrawl(name)}/>
           <div className="query-help">
+            <JsonEditor value={sessionStatus}/>
           </div>
         </div>
         <div className="right-column border bg-light">
-
+          <WebCrawlSessionList sessions={sessions}
+                               selectedSession={props.selectedWebSession}
+                               setSelectedSession={name => doSelectWebCrawlSession(name)}/>
         </div>
       </div>
     </div>
   )
+
+  function doSelectWebCrawlSession(sessionName) {
+    if (!sessionName)
+      return;
+    props.setSelectedWebSession(sessionName);
+    doFetchSessionDefinition(sessionName);
+    doFetchSessionStatus(sessionName);
+    doFetchWebCrawlSessions();
+  }
 
   function doFetchWebCrawlSessions() {
     setError(null);
@@ -70,12 +87,39 @@ const WebCrawlView = (props) => {
     );
   }
 
-  function doStartWebCrawl() {
+  function doFetchSessionDefinition(sessionName) {
+    if (!sessionName)
+      return;
+    setError(null);
+    fetchJson(props.oss + '/ws/crawler/web/sessions/' + sessionName + '/definition', null,
+      json => {
+        delete json.crawl_collector_factory;
+        props.setWebCrawlDefinition(JSON.stringify(json, undefined, 2));
+      },
+      error => setError(error)
+    );
+  }
+
+  function doFetchSessionStatus(sessionName) {
+    if (!sessionName)
+      return;
+    setError(null);
+    fetchJson(props.oss + '/ws/crawler/web/sessions/' + sessionName, null,
+      json => {
+        setSessionStatus(JSON.stringify(json, undefined, 2));
+      },
+      error => setError(error)
+    );
+  }
+
+  function doStartWebCrawl(sessionName) {
+    if (!sessionName)
+      return;
     const parsedJson = parseJson(props.webCrawlDefinition);
     parsedJson.crawl_collector_factory = collectorFactory;
     setError(null);
     fetchJson(
-      props.oss + '/ws/crawler/web/sessions/' + sessionEdit,
+      props.oss + '/ws/crawler/web/sessions/' + sessionName,
       {
         method: 'POST',
         headers: {
@@ -90,6 +134,16 @@ const WebCrawlView = (props) => {
     );
   }
 
+  function doDeleteWebCrawl(sessionName) {
+    simpleFetch(props.oss + '/ws/crawler/web/sessions/' + sessionName + '/definition',
+      {method: 'DELETE'},
+      ok => {
+        props.setSelectedWebSession('');
+        setSessionStatus('');
+        doFetchWebCrawlSessions();
+      },
+      error => setError(error));
+  }
 }
 
 const CreateWebCrawlButton = (props) => {
@@ -104,9 +158,12 @@ const CreateWebCrawlButton = (props) => {
              onChange={e => props.setSessionEdit(e.target.value)}
       />
       <div className="input-group-append">
-        <button className="btn btn-primary" type="button" id="button-addon2"
-                onClick={props.onClick}>Start crawl
-        </button>
+        <CreateOrDeleteButton
+          name={props.sessionEdit}
+          selectedName={props.selectedSession}
+          doDelete={name => props.doDeleteSession(name)}
+          doCreate={name => props.doCreateSession(name)}
+        />
       </div>
     </div>
   );

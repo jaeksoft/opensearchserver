@@ -26,6 +26,7 @@ const App = () => {
   const [selectedIndex, setSelectedIndex] = useState('');
   const [selectedIndexStatus, setSelectedIndexStatus] = useState({});
   const [selectedField, setSelectedField] = useState('');
+  const [selectedWebSession, setSelectedWebSession] = useState('');
   const [indexJson, setIndexJson] = useState('');
   const [queryJson, setQueryJson] = useState(
     JSON.stringify(
@@ -63,6 +64,8 @@ const App = () => {
               setQueryJson={setQueryJson}
               webCrawlDefinition={webCrawlDefinition}
               setWebCrawlDefinition={setWebCrawlDefinition}
+              selectedWebSession={selectedWebSession}
+              setSelectedWebSession={setSelectedWebSession}
         />
       </main>
     </React.Fragment>

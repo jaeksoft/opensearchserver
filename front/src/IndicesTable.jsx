@@ -19,7 +19,7 @@ import React, {useState, useEffect} from 'react';
 import Status from "./Status";
 import IndexCreateEditDelete from "./IndexCreateEditDelete";
 import IndexList from "./IndexList";
-import {fetchJson} from "./fetchJson.js"
+import {fetchJson} from "./fetchUtils.js"
 
 function IndicesTable(props) {
 

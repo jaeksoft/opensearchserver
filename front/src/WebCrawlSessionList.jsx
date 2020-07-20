@@ -15,10 +15,7 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useEffect} from 'react';
-import {InfoCircleFill, InfoCircle} from 'react-bootstrap-icons';
-import {fetchJson} from "./fetchJson.js"
-import IndicesTable from "./IndicesTable";
+import React from 'react';
 
 /**
  *
@@ -30,23 +27,23 @@ const WebCrawlSessionList = (props) => {
   if (!props.sessions)
     return null;
 
-  const values = Array.isArray(props.indices) ? props.indices : Object.keys(props.indices);
-  const listItems = values.map((index, i) => (
-    <IndexListItem key={i}
-                   index={index}
-                   selectedIndex={props.selectedIndex}
-                   setSelectedIndex={props.setSelectedIndex}
-                   selectedIndexStatus={props.selectedIndexStatus}
-                   setSelectedIndexStatus={props.setSelectedIndexStatus}
+  const values = Object.keys(props.sessions);
+  const listItems = values.map((sessionName, i) => (
+    <WebCrawlSessionItem key={i}
+                         sessionName={sessionName}
+                         selectedSession={props.selectedSession}
+                         setSelectedSession={props.setSelectedSession}
+                         sessionStatus={props.sessions[sessionName]}
     />
   ));
   return (
     <table className="table table-hover table-sm table-striped table-light">
       <thead className="thead-light">
       <tr>
-        <th>Index name</th>
-        <th title="Select an index to see the primary key">Primary key</th>
-        <th title="Select an index to see the number of documents">Num docs</th>
+        <th>Session name</th>
+        <th>Crawled</th>
+        <th>Start</th>
+        <th>End</th>
       </tr>
       </thead>
       <tbody>
@@ -59,26 +56,21 @@ const WebCrawlSessionList = (props) => {
 
 /**
  *
- * @param props value, selectedValue, doSelectValue
+ * @param props sessionName, selectedSession, setSelectedSession
  * @returns {*}
  */
-const IndexListItem = (props) => {
-  if (props.selectedIndex === props.index) {
-    return (
-      <tr className="table-active" onClick={() => props.setSelectedIndex(props.index)}>
-        <td className="p-1 m-1">{props.index}</td>
-        <td className="p-1 m-1">{getPrimaryKey(props.selectedIndexStatus)}</td>
-        <td className="p-1 m-1">{getNumDocs(props.selectedIndexStatus)}</td>
-      </tr>
-    );
-  } else {
-    return (
-      <tr onClick={() => props.setSelectedIndex(props.index)}>
-        <td className="p-1 m-1">{props.index}</td>
-        <td colSpan="2" title="Select the line to see the primary key and the number of docs" className="p-1 m-1"/>
-      </tr>
-    );
-  }
+const WebCrawlSessionItem = (props) => {
+  const startTime = props.sessionStatus.start_time ? new Date(props.sessionStatus.start_time).toLocaleString() : null;
+  const endTime = props.sessionStatus.end_time ? new Date(props.sessionStatus.end_time).toLocaleString() : null;
+  const trClassName = props.selectedSession === props.sessionName ? "table-active" : null;
+  return (
+    <tr className={trClassName} onClick={() => props.setSelectedSession(props.sessionName)}>
+      <td className="p-1 m-1">{props.sessionName}</td>
+      <td className="p-1 m-1">{props.sessionStatus.crawled}</td>
+      <td className="p-1 m-1">{startTime}</td>
+      <td className="p-1 m-1">{endTime}</td>
+    </tr>
+  );
 }
 
 export default hot(WebCrawlSessionList);

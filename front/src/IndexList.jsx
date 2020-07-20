@@ -15,10 +15,7 @@
  */
 
 import {hot} from 'react-hot-loader/root';
-import React, {useEffect} from 'react';
-import {InfoCircleFill, InfoCircle} from 'react-bootstrap-icons';
-import {fetchJson} from "./fetchJson.js"
-import IndicesTable from "./IndicesTable";
+import React from 'react';
 
 /**
  *

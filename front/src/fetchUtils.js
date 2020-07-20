@@ -44,3 +44,19 @@ export function parseJson(notParsed) {
   }
   return JSON.parse(notParsed);
 }
+
+export function simpleFetch(request, init, doOk, doError) {
+  if (!doError)
+    doError = console.log;
+  fetch(request, init)
+    .then(response => Promise.all([response.ok, response.text()]))
+    .then(
+      ([responseOk, responseText]) => {
+        if (responseOk) {
+          return doOk(responseText);
+        } else {
+          return doError(responseText);
+        }
+      })
+    .catch(error => doError(error.message));
+}

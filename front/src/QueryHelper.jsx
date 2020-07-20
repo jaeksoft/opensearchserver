@@ -16,8 +16,7 @@
 
 import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
-import {fetchJson} from "./fetchJson.js"
-import ReactAce from "react-ace";
+import {fetchJson} from "./fetchUtils.js"
 import {QuestionCircleFill} from 'react-bootstrap-icons';
 
 const QueryHelper = (props) => {
