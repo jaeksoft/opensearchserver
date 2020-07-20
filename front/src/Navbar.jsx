@@ -43,6 +43,10 @@ const Navbar = (props) => {
                     setSelectedView={props.setSelectedView}
                     enabled={props.selectedIndex}
                     view="Query"/>
+          <MenuItem selectedView={props.selectedView}
+                    setSelectedView={props.setSelectedView}
+                    enabled={true}
+                    view="Web Crawl"/>
         </div>
         <SelectedIndex selectedIndex={props.selectedIndex}/>
       </div>

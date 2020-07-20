@@ -31,6 +31,10 @@ import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.SupplierEx;
 import io.undertow.servlet.api.SessionPersistenceManager;
 
+import it.unimi.dsi.fastutil.Stack;
+import java.util.ArrayDeque;
+import java.util.LinkedList;
+import java.util.Queue;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.ws.rs.InternalServerErrorException;
 import java.io.Closeable;
@@ -47,20 +51,21 @@ import java.util.logging.Logger;
 
 public class Components implements Closeable {
 
+    private final static String CRAWLER_DIRECTORY = "crawlers";
+    private final static String WEB_SESSIONS_DIRECTORY = "web-sessions";
+
     private final static Logger LOGGER = LoggerUtils.getLogger(Components.class);
 
     private final Path dataDirectory;
 
     private final List<AtomicProvider<?>> providers = new ArrayList<>();
-    private final List<AtomicProvider<?>> providersWithAutoCloseableValue = new ArrayList<>();
+    private final LinkedList<AtomicProvider<?>> providersWithAutoCloseableValue = new LinkedList<>();
 
     private final AtomicProvider<ExecutorService> executorService = new AtomicProvider<>();
 
     private final AtomicProvider<ConfigService> configService = new AtomicProvider<>();
 
     private final AtomicProvider<FreeMarkerTool> freemarkerTool = new AtomicProvider<>();
-
-    private final AtomicProvider<ScriptManager> scriptManager = new AtomicProvider<>();
 
     private final AtomicProvider<IndexManager> indexManager = new AtomicProvider<>();
     private final AtomicProvider<IndexServiceInterface> indexService = new AtomicProvider<>();
@@ -98,11 +103,10 @@ public class Components implements Closeable {
                 try {
                     value = defaultSupplier.get();
                     if (value instanceof AutoCloseable)
-                        providersWithAutoCloseableValue.add(this);
+                        providersWithAutoCloseableValue.addFirst(this);
                     if (value instanceof AbstractLibrary)
                         ((AbstractLibrary) value).load();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw new InternalServerErrorException("Cannot create the component", e);
                 }
                 return value;
@@ -114,8 +118,7 @@ public class Components implements Closeable {
                 try {
                     if (value != null)
                         consumer.accept(value);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     final String error = "Error while consuming the component: " + value;
                     if (silentlyLogException)
                         LOGGER.log(Level.WARNING, error, e);
@@ -131,8 +134,7 @@ public class Components implements Closeable {
                 if (value != null && value instanceof AutoCloseable) {
                     try {
                         ((AutoCloseable) value).close();
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         LOGGER.log(Level.WARNING, "Error while closing the component: " + value, e);
                     }
                     value = null;
@@ -179,13 +181,9 @@ public class Components implements Closeable {
         });
     }
 
-    private ScriptManager getScriptManager() {
-        return scriptManager.get(() -> new ScriptManager(getExecutorService(), dataDirectory));
-    }
-
     private WebCrawlerManager getWebCrawlerManager() {
         return webCrawlerManager.get(
-            () -> new WebCrawlerManager("localhost", getScriptManager(), getExecutorService()));
+            () -> new WebCrawlerManager(createDataSubDirectoryIfNotExists(CRAWLER_DIRECTORY), "localhost", getExecutorService()));
     }
 
     protected WebCrawlerServiceInterface getWebCrawlerService() {
@@ -199,7 +197,7 @@ public class Components implements Closeable {
 
     public SessionPersistenceManager getSessionPersistenceManager() {
         return sessionPersistenceManager.get(
-            () -> new InFileSessionPersistenceManager(createDataSubDirectoryIfNotExists("web-sessions")));
+            () -> new InFileSessionPersistenceManager(createDataSubDirectoryIfNotExists(WEB_SESSIONS_DIRECTORY)));
     }
 
     @Override
@@ -209,9 +207,8 @@ public class Components implements Closeable {
         executorService.ifPresent(true, ExecutorService::shutdown);
 
         // Then we close components in reverse order
-        int i = providersWithAutoCloseableValue.size();
-        while (i > 0)
-            providersWithAutoCloseableValue.get(--i).close();
+        providersWithAutoCloseableValue.forEach(AtomicProvider::close);
+        providersWithAutoCloseableValue.clear();
 
         // Let's wait 5 minutes for all threads to be done
         executorService.ifPresent(true, executor -> executor.awaitTermination(5, TimeUnit.MINUTES));

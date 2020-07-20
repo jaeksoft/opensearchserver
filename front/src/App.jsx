@@ -18,7 +18,6 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState} from 'react';
 import Navbar from "./Navbar";
 import View from "./View";
-import ReactAce from "react-ace";
 
 const App = () => {
 
@@ -31,7 +30,15 @@ const App = () => {
   const [queryJson, setQueryJson] = useState(
     JSON.stringify(
       JSON.parse(
-        '{"query":{"MatchAllDocs": {}},"returned_fields":["*"]}'), undefined, 2
+        '{"query":{"MatchAllDocs": {}},"returned_fields":["*"]}'),
+      undefined, 2
+    )
+  );
+  const [webCrawlDefinition, setWebCrawlDefinition] = useState(
+    JSON.stringify(
+      JSON.parse(
+        '{"entry_url": "https://www.opensearchserver.com",  "max_depth": 3, "filters": {"https://www.opensearchserver.com": "accept", "https://www.opensearchserver.com/*": "accept"}}'),
+      undefined, 2
     )
   );
 
@@ -54,6 +61,8 @@ const App = () => {
               setIndexJson={setIndexJson}
               queryJson={queryJson}
               setQueryJson={setQueryJson}
+              webCrawlDefinition={webCrawlDefinition}
+              setWebCrawlDefinition={setWebCrawlDefinition}
         />
       </main>
     </React.Fragment>

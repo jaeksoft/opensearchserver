@@ -30,25 +30,32 @@ const IndexCreateEditDelete = (props) => {
     <form>
       <div className="form-row p-1">
         <div className="form-group col-md-6">
-          <input type="text" className="form-control shadow-none"
-                 placeholder="Index name" title="The index name"
-                 aria-label="index name" aria-describedby="Enter the index name"
-                 value={props.indexName} onChange={e => props.setIndexName(e.target.value)}
+          <input type="text"
+                 className="form-control shadow-none"
+                 placeholder="Index name"
+                 title="The index name"
+                 aria-label="index name"
+                 aria-describedby="Enter the index name"
+                 value={props.indexName}
+                 onChange={e => props.setIndexName(e.target.value)}
           />
         </div>
         <div className="form-group col-md-4">
-          <input type="text" className="form-control shadow-none"
-                 placeholder="Primary key" title="The primary key"
-                 aria-label="primary key" aria-describedby="Enter the primary key"
-                 value={props.primaryKey} onChange={e => props.setPrimaryKey(e.target.value)}
+          <input type="text"
+                 className="form-control shadow-none"
+                 placeholder="Primary key"
+                 title="The primary key"
+                 aria-label="primary key"
+                 aria-describedby="Enter the primary key"
+                 value={props.primaryKey}
+                 onChange={e => props.setPrimaryKey(e.target.value)}
           />
         </div>
         <div className="form-group col-md-2">
-          <CreateOrDeleteButton
-            name={props.indexName}
-            selectedName={props.selectedIndex}
-            doDelete={name => props.doDelete(name)}
-            doCreate={name => props.doCreate(name)}
+          <CreateOrDeleteButton name={props.indexName}
+                                selectedName={props.selectedIndex}
+                                doDelete={name => props.doDelete(name)}
+                                doCreate={name => props.doCreate(name)}
           />
         </div>
       </div>

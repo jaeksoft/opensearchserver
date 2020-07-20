@@ -18,7 +18,7 @@ import {hot} from 'react-hot-loader/root';
 import React, {useState, useEffect} from 'react';
 import Status from './Status';
 import JsonEditor from './JsonEditor';
-import {fetchJson} from "./fetchJson.js"
+import {fetchJson, parseJson} from "./fetchJson.js"
 import QueryHelper from "./QueryHelper";
 
 const QueryView = (props) => {
@@ -32,12 +32,12 @@ const QueryView = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <div className="query-view">
+    <div className="tri-view">
       <div className="bg-light text-secondary p-1">QUERYING&nbsp;
         <Status task={task} error={error} spinning={spinning}/>
       </div>
       <div className="central border bg-light">
-        <div className="query-builder border bg-light">
+        <div className="left-column border bg-light">
           <div className="query-json">
             <JsonEditor value={props.queryJson}
                         setValue={props.setQueryJson}
@@ -49,7 +49,7 @@ const QueryView = (props) => {
                          queryJson={props.queryJson}/>
           </div>
         </div>
-        <div className="query-result border bg-light">
+        <div className="right-column border bg-light">
           <JsonEditor value={resultJson}/>
         </div>
       </div>
@@ -61,14 +61,6 @@ const QueryView = (props) => {
     </div>
   )
 
-  function parseJson() {
-    const notParsed = props.queryJson;
-    if (notParsed === null || notParsed === '') {
-      throw 'Nothing to index';
-    }
-    return JSON.parse(notParsed);
-  }
-
   function doQuery() {
     if (props.selectedIndex == null || props.selectedIndex === '') {
       setError('Please select an index.');
@@ -79,7 +71,7 @@ const QueryView = (props) => {
     setSpinning(true);
     var parsedJson = null;
     try {
-      parsedJson = parseJson();
+      parsedJson = parseJson(props.queryJson);
       props.setQueryJson(JSON.stringify(parsedJson, undefined, 2))
     } catch (err) {
       setError(err.message);

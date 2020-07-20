@@ -37,3 +37,10 @@ export function fetchJson(request, init, doJson, doError) {
       })
     .catch(error => doError(error.message));
 }
+
+export function parseJson(notParsed) {
+  if (notParsed === null || notParsed === '') {
+    throw 'Nothing to index';
+  }
+  return JSON.parse(notParsed);
+}

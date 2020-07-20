@@ -59,27 +59,27 @@ body {
   width: 100%;
 }
 
-.query-view {
+.tri-view {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   width: 100%;
 }
 
-.query-view .central {
+.tri-view .central {
   flex-grow: 2;
   overflow: hidden;
   display: flex;
 }
 
-.query-builder {
+.left-column {
   flex-grow: 2;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.query-result {
+.right-column {
   overflow: hidden;
   width: 50%;
 }

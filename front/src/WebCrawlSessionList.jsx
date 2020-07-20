@@ -25,9 +25,9 @@ import IndicesTable from "./IndicesTable";
  * @param props values, selectedValue, doSelectValue
  * @returns {*}
  */
-const IndexList = (props) => {
+const WebCrawlSessionList = (props) => {
 
-  if (!props.indices)
+  if (!props.sessions)
     return null;
 
   const values = Array.isArray(props.indices) ? props.indices : Object.keys(props.indices);
@@ -79,21 +79,6 @@ const IndexListItem = (props) => {
       </tr>
     );
   }
-
-  function getPrimaryKey(indexStatus) {
-    if (indexStatus == null)
-      return null;
-    if (indexStatus.settings == null)
-      return null;
-    return indexStatus.settings.primary_key;
-  }
-
-  function getNumDocs(indexStatus) {
-    if (indexStatus == null)
-      return null;
-    return indexStatus.num_docs;
-  }
 }
 
-
-export default hot(IndexList);
+export default hot(WebCrawlSessionList);

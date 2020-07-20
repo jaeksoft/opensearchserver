@@ -24,7 +24,6 @@ import com.qwazr.server.configuration.ServerConfiguration;
 import com.qwazr.webapps.WebappManager;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.logging.Logger;
 
 import static com.qwazr.webapps.WebappManager.DEFAULT_EXPIRATION_TIME;
@@ -46,7 +45,10 @@ public class Server extends Components {
             .registerStaticResourceServlet("/", "/com/jaeksoft/opensearchserver/front/index.html", DEFAULT_EXPIRATION_TIME)
             .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
-                .singletons(getIndexService(), new CorsFilter()));
+                .singletons(
+                    getIndexService(),
+                    getWebCrawlerService(),
+                    new CorsFilter()));
 
         webAppBuilder.build();
         server = serverBuilder.build();

@@ -20,43 +20,45 @@ import QueryView from "./QueryView";
 import IndicesView from "./IndicesView";
 import FieldsView from "./FieldsView";
 import IngestView from "./IngestView";
+import WebCrawlView from "./WebCrawlView";
 
 const View = (props) => {
 
   switch (props.selectedView) {
     case 'Indices':
-      return <IndicesView
-        oss={props.oss}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        selectedIndexStatus={props.selectedIndexStatus}
-        setSelectedIndexStatus={props.setSelectedIndexStatus}
+      return <IndicesView oss={props.oss}
+                          selectedIndex={props.selectedIndex}
+                          setSelectedIndex={props.setSelectedIndex}
+                          selectedIndexStatus={props.selectedIndexStatus}
+                          setSelectedIndexStatus={props.setSelectedIndexStatus}
       />;
     case 'Fields':
-      return <FieldsView
-        oss={props.oss}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        indexJson={props.indexJson}
-        setIndexJson={props.setIndexJson}
-        selectedField={props.selectedField}
-        setSelectedField={props.setSelectedField}
+      return <FieldsView oss={props.oss}
+                         selectedIndex={props.selectedIndex}
+                         setSelectedIndex={props.setSelectedIndex}
+                         indexJson={props.indexJson}
+                         setIndexJson={props.setIndexJson}
+                         selectedField={props.selectedField}
+                         setSelectedField={props.setSelectedField}
       />
     case 'Ingest':
-      return <IngestView
-        oss={props.oss}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        indexJson={props.indexJson}
-        setIndexJson={props.setIndexJson}
+      return <IngestView oss={props.oss}
+                         selectedIndex={props.selectedIndex}
+                         setSelectedIndex={props.setSelectedIndex}
+                         indexJson={props.indexJson}
+                         setIndexJson={props.setIndexJson}
       />
     case 'Query':
-      return <QueryView
-        oss={props.oss}
-        selectedIndex={props.selectedIndex}
-        setSelectedIndex={props.setSelectedIndex}
-        queryJson={props.queryJson}
-        setQueryJson={props.setQueryJson}
+      return <QueryView oss={props.oss}
+                        selectedIndex={props.selectedIndex}
+                        setSelectedIndex={props.setSelectedIndex}
+                        queryJson={props.queryJson}
+                        setQueryJson={props.setQueryJson}
+      />
+    case 'Web Crawl':
+      return <WebCrawlView oss={props.oss}
+                           webCrawlDefinition={props.webCrawlDefinition}
+                           setWebCrawlDefinition={props.setWebCrawlDefinition}
       />
     default:
       return null;
