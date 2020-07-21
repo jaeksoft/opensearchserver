@@ -154,6 +154,11 @@
     </dependency>
     <dependency>
       <groupId>com.qwazr</groupId>
+      <artifactId>qwazr-extractor</artifactId>
+      <version>${qwazr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.qwazr</groupId>
       <artifactId>qwazr-webapps</artifactId>
       <version>${qwazr.version}</version>
     </dependency>
@@ -396,6 +401,56 @@
           <goals>deploy</goals>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.qwazr</groupId>
+                  <artifactId>qwazr-library-html</artifactId>
+                  <version>${qwazr.version}</version>
+                  <type>jar</type>
+                  <classifier>shaded</classifier>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.qwazr</groupId>
+                  <artifactId>qwazr-library-pdfbox</artifactId>
+                  <version>${qwazr.version}</version>
+                  <type>jar</type>
+                  <classifier>shaded</classifier>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.qwazr</groupId>
+                  <artifactId>qwazr-library-poi</artifactId>
+                  <version>${qwazr.version}</version>
+                  <type>jar</type>
+                  <classifier>shaded</classifier>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.qwazr</groupId>
+                  <artifactId>qwazr-library-odf</artifactId>
+                  <version>${qwazr.version}</version>
+                  <type>jar</type>
+                  <classifier>shaded</classifier>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>parsers</outputDirectory>
+              <excludeTransitive>true</excludeTransitive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 

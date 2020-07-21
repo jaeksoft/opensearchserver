@@ -18,9 +18,10 @@ package com.jaeksoft.opensearchserver;
 import com.qwazr.crawler.web.WebCrawlerManager;
 import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.crawler.web.WebCrawlerSingleClient;
+import com.qwazr.extractor.ExtractorManager;
+import com.qwazr.extractor.ExtractorServiceInterface;
 import com.qwazr.library.AbstractLibrary;
 import com.qwazr.library.freemarker.FreeMarkerTool;
-import com.qwazr.scripts.ScriptManager;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
@@ -30,29 +31,29 @@ import com.qwazr.utils.LoggerUtils;
 import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.SupplierEx;
 import io.undertow.servlet.api.SessionPersistenceManager;
-
-import it.unimi.dsi.fastutil.Stack;
-import java.util.ArrayDeque;
-import java.util.LinkedList;
-import java.util.Queue;
-import javax.annotation.concurrent.ThreadSafe;
-import javax.ws.rs.InternalServerErrorException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.concurrent.ThreadSafe;
+import javax.ws.rs.InternalServerErrorException;
 
 public class Components implements Closeable {
 
+    public final static String INDEX_SERVICE_ATTRIBUTE = "indexService";
+    public final static String EXTRACTOR_SERVICE_ATTRIBUTE = "extractorService";
+
     private final static String CRAWLER_DIRECTORY = "crawlers";
     private final static String WEB_SESSIONS_DIRECTORY = "web-sessions";
+    private final static String PARSERS_DIRECTORY = "parsers";
 
     private final static Logger LOGGER = LoggerUtils.getLogger(Components.class);
 
@@ -72,6 +73,9 @@ public class Components implements Closeable {
 
     private final AtomicProvider<WebCrawlerManager> webCrawlerManager = new AtomicProvider<>();
     private final AtomicProvider<WebCrawlerServiceInterface> webCrawlerService = new AtomicProvider<>();
+
+    private final AtomicProvider<ExtractorManager> extractorManager = new AtomicProvider<>();
+    private final AtomicProvider<ExtractorServiceInterface> extractorService = new AtomicProvider<>();
 
     private final AtomicProvider<SessionPersistenceManager> sessionPersistenceManager = new AtomicProvider<>();
 
@@ -182,8 +186,11 @@ public class Components implements Closeable {
     }
 
     private WebCrawlerManager getWebCrawlerManager() {
-        return webCrawlerManager.get(
+        final WebCrawlerManager crawlerManager = webCrawlerManager.get(
             () -> new WebCrawlerManager(createDataSubDirectoryIfNotExists(CRAWLER_DIRECTORY), "localhost", getExecutorService()));
+        crawlerManager.registerAttribute(EXTRACTOR_SERVICE_ATTRIBUTE, getExtractorService());
+        crawlerManager.registerAttribute(INDEX_SERVICE_ATTRIBUTE, getIndexService());
+        return crawlerManager;
     }
 
     protected WebCrawlerServiceInterface getWebCrawlerService() {
@@ -193,6 +200,21 @@ public class Components implements Closeable {
             else
                 return getWebCrawlerManager().getService();
         });
+    }
+
+    private ExtractorManager getExtractorManager() {
+        return extractorManager.get(() -> {
+            final ExtractorManager extractorManager = new ExtractorManager();
+            Path parsersPath = getConfigService().getParsersDirectoryPath();
+            if (parsersPath == null)
+                parsersPath = createDataSubDirectoryIfNotExists(PARSERS_DIRECTORY);
+            extractorManager.registerShadedJars(parsersPath);
+            return extractorManager;
+        });
+    }
+
+    protected ExtractorServiceInterface getExtractorService() {
+        return extractorService.get(() -> getExtractorManager().getService());
     }
 
     public SessionPersistenceManager getSessionPersistenceManager() {

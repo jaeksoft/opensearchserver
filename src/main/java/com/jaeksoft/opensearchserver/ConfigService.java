@@ -43,17 +43,23 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
         return getCurrent().crawlerServiceUri;
     }
 
+    public Path getParsersDirectoryPath() {
+        return getCurrent().parsersDirectoryPath;
+    }
+
     public static class Config extends PropertiesConfig {
 
         private static final String SERVER_NAME = "serverName";
         private static final String IS_PRODUCTION = "isProduction";
         private static final String INDEX_SERVICE_URI = "indexServiceUri";
         private static final String CRAWLER_SERVICE_URI = "crawlerServiceUri";
+        private static final String PARSERS_DIRECTORY_PATH = "parsersDirectoryPath";
 
         private final String servername;
         private final boolean isProduction;
         private final URI indexServiceUri;
         private final URI crawlerServiceUri;
+        private final Path parsersDirectoryPath;
 
         public Config(Properties properties, Instant creationTime) {
             super(properties, creationTime);
@@ -61,6 +67,7 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
             isProduction = getBooleanProperty(IS_PRODUCTION, () -> Boolean.TRUE);
             indexServiceUri = getUriProperty(INDEX_SERVICE_URI, () -> null);
             crawlerServiceUri = getUriProperty(CRAWLER_SERVICE_URI, () -> null);
+            parsersDirectoryPath = getPathProperty(PARSERS_DIRECTORY_PATH, () -> null);
         }
 
         @Override
@@ -73,13 +80,14 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
             return Objects.equals(servername, o.servername)
                 && isProduction == o.isProduction
                 && Objects.equals(indexServiceUri, o.indexServiceUri)
-                && Objects.equals(crawlerServiceUri, o.crawlerServiceUri);
+                && Objects.equals(crawlerServiceUri, o.crawlerServiceUri)
+                && Objects.equals(parsersDirectoryPath, o.parsersDirectoryPath);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(servername, isProduction,
-                indexServiceUri, crawlerServiceUri);
+                indexServiceUri, crawlerServiceUri, parsersDirectoryPath);
         }
     }
 }

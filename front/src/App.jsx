@@ -38,7 +38,7 @@ const App = () => {
   const [webCrawlDefinition, setWebCrawlDefinition] = useState(
     JSON.stringify(
       JSON.parse(
-        '{"entry_url": "https://www.opensearchserver.com",  "max_depth": 3, "filters": {"https://www.opensearchserver.com": "accept", "https://www.opensearchserver.com/*": "accept"}}'),
+        '{"entry_url": "https://www.opensearchserver.com",  "max_depth": 3, "filters": {"https://www.opensearchserver.com": "accept", "https://www.opensearchserver.com/*": "accept"}, "remove_fragments": true}'),
       undefined, 2
     )
   );

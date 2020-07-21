@@ -18,6 +18,7 @@ package-lock.json
 yarn.lock
 /server
 /web-sessions
+/parsers
 /front/build
 config.oss2.properties
 opensearchserver.iml
