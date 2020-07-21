@@ -3,7 +3,7 @@ FROM adoptopenjdk:11-jre-hotspot
 MAINTAINER OpenSearchServer
 
 ADD target/opensearchserver-*-app.jar /opt/opensearchserver/opensearchserver.jar
-ADD parsers/opensearchserver-*-app.jar /opt/opensearchserver/parsers
+ADD parsers/*-shaded.jar /opt/opensearchserver/parsers
 
 VOLUME /var/lib/opensearchserver
 
