@@ -3,7 +3,7 @@ FROM adoptopenjdk:11-jre-hotspot
 MAINTAINER OpenSearchServer
 
 ADD target/opensearchserver-*-app.jar /opt/opensearchserver/opensearchserver.jar
-ADD parsers/*-shaded.jar /opt/opensearchserver/parsers
+ADD parsers/*-shaded.jar /opt/opensearchserver/parsers/
 ADD src/main/docker/config.properties /opt/opensearchserver/config.properties
 
 VOLUME /var/lib/opensearchserver
