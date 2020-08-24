@@ -27,8 +27,8 @@ const WebCrawlView = (props) => {
 
   const collectorFactory = "com.jaeksoft.opensearchserver.CrawlerCollector$Web";
 
-  const [error, setError] = useState(null);
-  const [task, setTask] = useState(null);
+  const [error, setError] = useState('');
+  const [task, setTask] = useState('');
   const [spinning, setSpinning] = useState(false);
   const [sessions, setSessions] = useState([]);
   const [sessionEdit, setSessionEdit] = useState('');

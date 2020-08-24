@@ -23,8 +23,8 @@ import Badge from "./Badge";
 
 const FieldsTable = (props) => {
 
-  const [task, setTask] = useState(null);
-  const [error, setError] = useState(null);
+  const [task, setTask] = useState('');
+  const [error, setError] = useState('');
   const [spinning, setSpinning] = useState(false);
   const [fields, setFields] = useState({});
   const [editFieldName, setEditFieldName] = useState('');

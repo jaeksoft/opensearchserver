@@ -46,13 +46,6 @@ body {
   width: 100%;
 }
 
-.ingest-view {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%;
-}
-
 .ingest-editor {
   flex-grow: 2;
   height: 100%;

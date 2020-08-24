@@ -21,6 +21,26 @@ import View from "./View";
 
 const App = () => {
 
+  const defaultQuery = {
+    "query": {
+      "MatchAllDocs": {},
+    },
+    "returned_fields": ["*"]
+  };
+
+  const defaultWebCrawl = {
+    "entry_url": "https://www.opensearchserver.com",
+    "max_depth": 3,
+    "filters": {
+      "https://www.opensearchserver.com": "accept",
+      "https://www.opensearchserver.com/*": "accept"
+    },
+    "variables": {
+      "index": "test"
+    },
+    "remove_fragments": true
+  };
+
   const [oss] = useState('http://localhost:9090');
   const [selectedView, setSelectedView] = useState('Indices');
   const [selectedIndex, setSelectedIndex] = useState('');
@@ -29,19 +49,9 @@ const App = () => {
   const [selectedWebSession, setSelectedWebSession] = useState('');
   const [indexJson, setIndexJson] = useState('');
   const [queryJson, setQueryJson] = useState(
-    JSON.stringify(
-      JSON.parse(
-        '{"query":{"MatchAllDocs": {}},"returned_fields":["*"]}'),
-      undefined, 2
-    )
-  );
+    JSON.stringify(defaultQuery, undefined, 2));
   const [webCrawlDefinition, setWebCrawlDefinition] = useState(
-    JSON.stringify(
-      JSON.parse(
-        '{"entry_url": "https://www.opensearchserver.com",  "max_depth": 3, "filters": {"https://www.opensearchserver.com": "accept", "https://www.opensearchserver.com/*": "accept"}, "remove_fragments": true}'),
-      undefined, 2
-    )
-  );
+    JSON.stringify(defaultWebCrawl, undefined, 2));
 
   return (
     <React.Fragment>

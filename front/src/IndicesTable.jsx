@@ -23,8 +23,8 @@ import {fetchJson} from "./fetchUtils.js"
 
 function IndicesTable(props) {
 
-  const [task, setTask] = useState(null);
-  const [error, setError] = useState(null);
+  const [task, setTask] = useState('');
+  const [error, setError] = useState('');
   const [spinning, setSpinning] = useState(false);
   const [indices, setIndices] = useState([]);
   const [indexName, setIndexName] = useState('');

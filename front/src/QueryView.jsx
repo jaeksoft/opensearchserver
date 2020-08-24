@@ -23,8 +23,8 @@ import QueryHelper from "./QueryHelper";
 
 const QueryView = (props) => {
 
-  const [error, setError] = useState(null);
-  const [task, setTask] = useState(null);
+  const [error, setError] = useState('');
+  const [task, setTask] = useState('');
   const [spinning, setSpinning] = useState(false);
   const [resultJson, setResultJson] = useState('');
 

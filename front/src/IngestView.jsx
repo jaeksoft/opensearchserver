@@ -22,9 +22,10 @@ import {fetchJson} from "./fetchUtils.js"
 
 const IngestView = (props) => {
 
-  const [error, setError] = useState(null);
-  const [task, setTask] = useState(null);
+  const [error, setError] = useState('');
+  const [task, setTask] = useState('');
   const [spinning, setSpinning] = useState(false);
+  const [ingestResult, setIngestResult] = useState('');
 
   useEffect(() => {
     if (!props.indexJson) {
@@ -33,14 +34,18 @@ const IngestView = (props) => {
   }, [props.selectedIndex])
 
   return (
-    <div className="ingest-view">
+    <div className="tri-view">
       <div className="bg-light text-secondary p-1">INGEST&nbsp;
         <Status task={task} error={error} spinning={spinning}/>
       </div>
-      <div className="ingest-editor">
-        <JsonEditor value={props.indexJson}
-                    setValue={props.setIndexJson}
-        />
+      <div className="central border bg-light">
+        <div className="left-column border bg-light">
+          <JsonEditor value={props.indexJson}
+                      setValue={props.setIndexJson}/>
+        </div>
+        <div className="right-column border bg-light">
+          <JsonEditor value={ingestResult}/>
+        </div>
       </div>
       <form className="form-inline pr-1 pb-1">
         <div className="pt-1 pl-1">
@@ -71,6 +76,7 @@ const IngestView = (props) => {
     if (!checkIndex())
       return;
     setError(null);
+    setIngestResult(null);
     setTask('Collecting sample...');
     setSpinning(true);
     fetchJson(
@@ -99,6 +105,7 @@ const IngestView = (props) => {
   function doIndex() {
     if (!checkIndex())
       return;
+    setIngestResult(null);
     setError(null);
     setTask('Parsing...');
     setSpinning(true);
@@ -114,7 +121,7 @@ const IngestView = (props) => {
     }
 
     fetchJson(
-      props.oss + '/ws/indexes/' + props.selectedIndex + '/json',
+      props.oss + '/ws/indexes/' + props.selectedIndex + '/json?fieldTypes=true',
       {
         method: 'POST',
         headers: {
@@ -123,8 +130,9 @@ const IngestView = (props) => {
         body: JSON.stringify(parsedJson)
       },
       json => {
+        setIngestResult(JSON.stringify(json, undefined, 2));
         var msg;
-        switch (json) {
+        switch (json.count) {
           case 0:
             msg = 'Nothing has been indexed.';
             break;
@@ -132,7 +140,7 @@ const IngestView = (props) => {
             msg = 'One record has been indexed.';
             break;
           default:
-            msg = json + ' records have been indexed.';
+            msg = json.count + ' records have been indexed.';
             break;
         }
         setTask(msg);

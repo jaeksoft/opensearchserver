@@ -76,7 +76,7 @@ public abstract class CrawlerCollector<ITEM extends CrawlItem<?>> implements Cra
         try {
             final byte[] bytes = ObjectMappers.SMILE.writeValueAsBytes(buffer);
             final JsonNode jsonNode = ObjectMappers.SMILE.readTree(bytes);
-            indexServiceInterface.postJson(indexName, jsonNode);
+            indexServiceInterface.postJson(indexName, false, jsonNode);
             buffer.clear();
         } catch (final IOException e) {
             throw new InternalServerErrorException("Error while converting json: " + e.getMessage(), e);
