@@ -19,6 +19,7 @@ import com.qwazr.server.ApplicationBuilder;
 import com.qwazr.server.CorsFilter;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
+import com.qwazr.server.JsonExceptionMapper;
 import com.qwazr.server.RestApplication;
 import com.qwazr.server.WebappBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
@@ -46,18 +47,30 @@ public class Server extends Components {
             .registerStaticServlet("/static/*", "/com/jaeksoft/opensearchserver/front/static")
             .registerStaticServlet("/", "/com/jaeksoft/opensearchserver/front/index.html")
             .registerStaticServlet("/manifest.json", "/com/jaeksoft/opensearchserver/front/manifest.json")
-            .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
-                .classes(RestApplication.WithAuth.JSON_CLASSES)
-                .singletons(
-                    getIndexService(),
-                    getWebCrawlerService(),
-                    new CorsFilter()));
+            .registerJaxRsResources(
+                ApplicationBuilder.of("/ws/*")
+                    .classes(RestApplication.WithAuth.JSON_CLASSES)
+                    .singletons(
+                        getIndexService(),
+                        getWebCrawlerService(),
+                        new CorsFilter()))
+            .registerJaxRsResources(
+                ApplicationBuilder.of("/graphql/*")
+                    .classes(
+                        JsonExceptionMapper.WebApplication.class,
+                        JsonExceptionMapper.Generic.class)
+                    .singletons(
+                        new GraphQLResource(getGraphQLService()),
+                        new CorsFilter()
+                    ));
 
         final String keycloakFile = System.getenv(KeycloakOIDCFilter.CONFIG_FILE_PARAM);
         if (!StringUtils.isBlank(keycloakFile)) {
-            webappBuilder.registerFilter("/keycloak/* /*",
-                KeycloakOIDCFilter.class,
-                Map.of(KeycloakOIDCFilter.CONFIG_FILE_PARAM, keycloakFile));
+            webappBuilder
+                .registerFilter("/keycloak/* /*",
+                    KeycloakOIDCFilter.class,
+                    Map.of(KeycloakOIDCFilter.CONFIG_FILE_PARAM, keycloakFile))
+                .registerFilter("/*", UserInfoFilter.class);
         }
 
         server = serverBuilder.build();

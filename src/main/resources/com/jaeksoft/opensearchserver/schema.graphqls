@@ -1,0 +1,25 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  indexList(keywords: String!, start: Int, rows: Int): [String]!
+  crawlList(keywords: String!, start: Int, rows: Int): [String]!
+  queryList(keywords: String!, start: Int, rows: Int): [String]!
+  me: User!
+}
+
+type Mutation {
+  createIndex(name: String!): Boolean!
+  deleteIndex(email: String!): Boolean!
+  createCrawl(name: String!): Boolean!
+  deleteCrawl(name: String!): Boolean!
+  createQuery(name: String!): Boolean!
+  deleteQuery(name: String!): Boolean!
+}
+
+type User {
+  name: String!
+  email: String!
+}

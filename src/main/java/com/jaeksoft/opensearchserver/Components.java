@@ -74,6 +74,8 @@ public class Components implements Closeable {
     private final AtomicProvider<ExtractorManager> extractorManager = new AtomicProvider<>();
     private final AtomicProvider<ExtractorServiceInterface> extractorService = new AtomicProvider<>();
 
+    private final AtomicProvider<GraphQLService> graphqlService = new AtomicProvider<>();
+
     private final AtomicProvider<SessionPersistenceManager> sessionPersistenceManager = new AtomicProvider<>();
 
     Components(final Path dataDirectory) {
@@ -204,6 +206,12 @@ public class Components implements Closeable {
 
     protected ExtractorServiceInterface getExtractorService() {
         return extractorService.get(() -> getExtractorManager().getService());
+    }
+
+    public GraphQLService getGraphQLService() {
+        return graphqlService.get(() -> {
+            return new GraphQLService();
+        });
     }
 
     public SessionPersistenceManager getSessionPersistenceManager() {

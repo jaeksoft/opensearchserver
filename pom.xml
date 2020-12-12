@@ -169,7 +169,12 @@
       <artifactId>keycloak-servlet-filter-adapter</artifactId>
       <version>11.0.3</version>
     </dependency>
-    
+    <dependency>
+      <groupId>com.graphql-java</groupId>
+      <artifactId>graphql-java</artifactId>
+      <version>16.1</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
