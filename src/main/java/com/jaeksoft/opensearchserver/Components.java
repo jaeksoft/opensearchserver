@@ -21,7 +21,6 @@ import com.qwazr.crawler.web.WebCrawlerSingleClient;
 import com.qwazr.extractor.ExtractorManager;
 import com.qwazr.extractor.ExtractorServiceInterface;
 import com.qwazr.library.AbstractLibrary;
-import com.qwazr.library.freemarker.FreeMarkerTool;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
@@ -65,8 +64,6 @@ public class Components implements Closeable {
     private final AtomicProvider<ExecutorService> executorService = new AtomicProvider<>();
 
     private final AtomicProvider<ConfigService> configService = new AtomicProvider<>();
-
-    private final AtomicProvider<FreeMarkerTool> freemarkerTool = new AtomicProvider<>();
 
     private final AtomicProvider<IndexManager> indexManager = new AtomicProvider<>();
     private final AtomicProvider<IndexServiceInterface> indexService = new AtomicProvider<>();
@@ -161,14 +158,6 @@ public class Components implements Closeable {
     public ConfigService getConfigService() {
         return configService.get(() -> new ConfigService(
             dataDirectory.resolve(System.getProperty("com.opensearchserver.config", "config.properties"))));
-    }
-
-    public FreeMarkerTool getFreemarkerTool() {
-        return freemarkerTool.get(() -> FreeMarkerTool.of()
-            .defaultContentType("text/html")
-            .defaultEncoding("UTF-8")
-            .templateLoader(FreeMarkerTool.Loader.Type.resource, "com/jaeksoft/opensearchserver/front/templates/")
-            .build());
     }
 
     private IndexManager getIndexManager() {

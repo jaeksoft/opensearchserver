@@ -35,7 +35,7 @@ Assuming it is localhost, you can reach the user interface using the following U
 
 Everything you do on OpenSearchServer (indexes files, data crawling) is stored in a working directory.
 
-The docker image defines the volume `/var/lib/opensearchserver/` to store those data.
+The docker image defines the volume `/var/lib/opensearchserver/` to context those data.
 
 ## DockerFile
 

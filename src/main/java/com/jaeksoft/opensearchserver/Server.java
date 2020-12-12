@@ -21,12 +21,8 @@ import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.RestApplication;
 import com.qwazr.server.configuration.ServerConfiguration;
-import com.qwazr.webapps.WebappManager;
-
 import java.io.IOException;
 import java.util.logging.Logger;
-
-import static com.qwazr.webapps.WebappManager.DEFAULT_EXPIRATION_TIME;
 
 public class Server extends Components {
 
@@ -39,10 +35,11 @@ public class Server extends Components {
             .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
             .sessionPersistenceManager(getSessionPersistenceManager());
 
-        final WebappManager.Builder webAppBuilder = WebappManager.of(serverBuilder, serverBuilder.getWebAppContext())
+        serverBuilder.getWebAppContext().getWebappBuilder()
             .registerCustomFaviconServlet("/com/jaeksoft/opensearchserver/front/favicon.ico")
-            .registerStaticServlet("/assets/*", "com.jaeksoft.opensearchserver.front.assets")
-            .registerStaticResourceServlet("/", "/com/jaeksoft/opensearchserver/front/index.html", DEFAULT_EXPIRATION_TIME)
+            .registerStaticServlet("/static/*", "/com/jaeksoft/opensearchserver/front/static")
+            .registerStaticServlet("/", "/com/jaeksoft/opensearchserver/front/index.html")
+            .registerStaticServlet("/manifest.json", "/com/jaeksoft/opensearchserver/front/manifest.json")
             .registerJaxRsResources(ApplicationBuilder.of("/ws/*")
                 .classes(RestApplication.WithAuth.JSON_CLASSES)
                 .singletons(
@@ -50,7 +47,6 @@ public class Server extends Components {
                     getWebCrawlerService(),
                     new CorsFilter()));
 
-        webAppBuilder.build();
         server = serverBuilder.build();
     }
 
@@ -69,7 +65,12 @@ public class Server extends Components {
     public static synchronized void main(final String... args) throws Exception {
         if (instance != null)
             throw new Exception("The instance has already be started");
-        instance = new Server(new ServerConfiguration(args));
+        final ServerConfiguration serverConfiguration = ServerConfiguration.of()
+            .applyEnvironmentVariables()
+            .applySystemProperties()
+            .applyCommandLineArgs(args)
+            .build();
+        instance = new Server(serverConfiguration);
         instance.server.start(true);
     }
 
