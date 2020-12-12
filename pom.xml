@@ -165,6 +165,12 @@
     <!-- End Qwazr -->
 
     <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-servlet-filter-adapter</artifactId>
+      <version>11.0.3</version>
+    </dependency>
+    
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.1</version>

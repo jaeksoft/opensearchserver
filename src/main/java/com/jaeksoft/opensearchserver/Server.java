@@ -20,9 +20,13 @@ import com.qwazr.server.CorsFilter;
 import com.qwazr.server.GenericServer;
 import com.qwazr.server.GenericServerBuilder;
 import com.qwazr.server.RestApplication;
+import com.qwazr.server.WebappBuilder;
 import com.qwazr.server.configuration.ServerConfiguration;
+import com.qwazr.utils.StringUtils;
 import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Logger;
+import org.keycloak.adapters.servlet.KeycloakOIDCFilter;
 
 public class Server extends Components {
 
@@ -35,7 +39,9 @@ public class Server extends Components {
             .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
             .sessionPersistenceManager(getSessionPersistenceManager());
 
-        serverBuilder.getWebAppContext().getWebappBuilder()
+        final WebappBuilder webappBuilder = serverBuilder.getWebAppContext().getWebappBuilder();
+
+        webappBuilder
             .registerCustomFaviconServlet("/com/jaeksoft/opensearchserver/front/favicon.ico")
             .registerStaticServlet("/static/*", "/com/jaeksoft/opensearchserver/front/static")
             .registerStaticServlet("/", "/com/jaeksoft/opensearchserver/front/index.html")
@@ -46,6 +52,13 @@ public class Server extends Components {
                     getIndexService(),
                     getWebCrawlerService(),
                     new CorsFilter()));
+
+        final String keycloakFile = System.getenv(KeycloakOIDCFilter.CONFIG_FILE_PARAM);
+        if (!StringUtils.isBlank(keycloakFile)) {
+            webappBuilder.registerFilter("/keycloak/* /*",
+                KeycloakOIDCFilter.class,
+                Map.of(KeycloakOIDCFilter.CONFIG_FILE_PARAM, keycloakFile));
+        }
 
         server = serverBuilder.build();
     }
