@@ -53,6 +53,7 @@ public class Server extends Components {
                     .singletons(
                         getIndexService(),
                         getWebCrawlerService(),
+                        getFileCrawlerService(),
                         new CorsFilter()))
             .registerJaxRsResources(
                 ApplicationBuilder.of("/graphql/*")

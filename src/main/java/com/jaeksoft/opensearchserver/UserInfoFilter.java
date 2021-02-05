@@ -36,7 +36,7 @@ class UserInfoFilter extends HttpFilter {
         final Principal principal = req.getUserPrincipal();
         if (principal != null) {
             if (principal instanceof KeycloakPrincipal) {
-                final KeycloakPrincipal keycloakPrincipal = (KeycloakPrincipal) principal;
+                final KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) principal;
                 final AccessToken accessToken = keycloakPrincipal.getKeycloakSecurityContext().getToken();
                 res.addHeader(AUTH_HEADER_USER, accessToken.getPreferredUsername());
                 res.addHeader(AUTH_HEADER_NAME, accessToken.getName());

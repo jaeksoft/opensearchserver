@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -39,12 +39,20 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
         return getCurrent().indexServiceUri;
     }
 
-    public URI getCrawlerServiceUri() {
-        return getCurrent().crawlerServiceUri;
+    public URI getFileCrawlerServiceUri() {
+        return getCurrent().fileCrawlerServiceUri;
+    }
+
+    public URI getWebCrawlerServiceUri() {
+        return getCurrent().webCrawlerServiceUri;
     }
 
     public Path getParsersDirectoryPath() {
         return getCurrent().parsersDirectoryPath;
+    }
+
+    public int getCrawlerThreadPoolSize() {
+        return getCurrent().crawlerThreadPoolSize;
     }
 
     public static class Config extends PropertiesConfig {
@@ -52,22 +60,28 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
         private static final String SERVER_NAME = "serverName";
         private static final String IS_PRODUCTION = "isProduction";
         private static final String INDEX_SERVICE_URI = "indexServiceUri";
-        private static final String CRAWLER_SERVICE_URI = "crawlerServiceUri";
+        private static final String FILE_CRAWLER_SERVICE_URI = "fileCrawlerServiceUri";
+        private static final String WEB_CRAWLER_SERVICE_URI = "webCrawlerServiceUri";
         private static final String PARSERS_DIRECTORY_PATH = "parsersDirectoryPath";
+        private static final String CRAWLER_THREADPOOL_SIZE = "crawlerThreadPoolSize";
 
         private final String servername;
         private final boolean isProduction;
         private final URI indexServiceUri;
-        private final URI crawlerServiceUri;
+        private final URI fileCrawlerServiceUri;
+        private final URI webCrawlerServiceUri;
         private final Path parsersDirectoryPath;
+        private final int crawlerThreadPoolSize;
 
         public Config(Properties properties, Instant creationTime) {
             super(properties, creationTime);
             servername = getStringProperty(SERVER_NAME, () -> "localhost:9090");
             isProduction = getBooleanProperty(IS_PRODUCTION, () -> Boolean.TRUE);
             indexServiceUri = getUriProperty(INDEX_SERVICE_URI, () -> null);
-            crawlerServiceUri = getUriProperty(CRAWLER_SERVICE_URI, () -> null);
+            fileCrawlerServiceUri = getUriProperty(FILE_CRAWLER_SERVICE_URI, () -> null);
+            webCrawlerServiceUri = getUriProperty(WEB_CRAWLER_SERVICE_URI, () -> null);
             parsersDirectoryPath = getPathProperty(PARSERS_DIRECTORY_PATH, () -> null);
+            crawlerThreadPoolSize = getIntegerProperty(CRAWLER_THREADPOOL_SIZE, () -> Runtime.getRuntime().availableProcessors() * 2 + 1);
         }
 
         @Override
@@ -80,14 +94,17 @@ public class ConfigService extends FileConfigService<ConfigService.Config> {
             return Objects.equals(servername, o.servername)
                 && isProduction == o.isProduction
                 && Objects.equals(indexServiceUri, o.indexServiceUri)
-                && Objects.equals(crawlerServiceUri, o.crawlerServiceUri)
-                && Objects.equals(parsersDirectoryPath, o.parsersDirectoryPath);
+                && Objects.equals(fileCrawlerServiceUri, o.fileCrawlerServiceUri)
+                && Objects.equals(webCrawlerServiceUri, o.webCrawlerServiceUri)
+                && Objects.equals(parsersDirectoryPath, o.parsersDirectoryPath)
+                && crawlerThreadPoolSize == o.crawlerThreadPoolSize;
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(servername, isProduction,
-                indexServiceUri, crawlerServiceUri, parsersDirectoryPath);
+                indexServiceUri, fileCrawlerServiceUri, webCrawlerServiceUri,
+                parsersDirectoryPath, crawlerThreadPoolSize);
         }
     }
 }

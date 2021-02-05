@@ -17,7 +17,9 @@ node_modules
 package-lock.json
 yarn.lock
 /server
-/web-sessions
+/sessions
+/web-crawler
+/file-crawler
 /parsers
 /front/build
 config.oss2.properties
