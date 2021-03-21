@@ -13,54 +13,36 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+import AppBar from '@material-ui/core/AppBar';
 import * as React from 'react';
-import {useContext} from 'react';
-import {Views, Context} from "./Context"
-import logo from './media/oss_logo_32.png';
+import {Tab, Tabs, Toolbar} from "@material-ui/core"
+import {useDispatch, useSelector} from "react-redux";
+import {setView, State, Views} from "./store";
+import oss_logo from "./media/oss_logo.png";
 
 const Navbar = () => {
-  const [state] = useContext(Context);
+  const view = useSelector<State>(state => state.view)
+  const [value, setValue] = React.useState(view);
+  const dispatch = useDispatch();
+
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: Views) => {
+    setValue(newValue);
+    dispatch(setView(newValue))
+  };
 
   return (
-    <nav className="navbar navbar-light navbar-expand bg-light">
-      <a className="navbar-brand" href="/">
-        <img src={logo} height="32" alt="" loading="lazy"/>
-      </a>
-      <div className="collapse navbar-collapse">
-        <div className="navbar-nav mr-auto">
-          <MenuItem enabled={true} label="Indices" view={Views.INDICES}/>
-          <MenuItem enabled={true} label="Crawls" view={Views.CRAWLS}/>
-          <MenuItem enabled={true} label="Queries" view={Views.QUERIES}/>
-          <MenuItem enabled={true} label="GraphQL" view={Views.GRAPHQL}/>
-        </div>
-        <span className="navbar-text">TODO</span>
-      </div>
-    </nav>
+    <AppBar position="static" color={"transparent"}>
+      <Toolbar>
+        <img src={oss_logo} alt="OpenSearchServer Logo" style={{maxHeight: "48px", width:"auto"}}/>
+        <Tabs value={value} onChange={handleChange} aria-label="Main tab navigation">
+          <Tab label="Indices" value={Views.INDICES}/>
+          <Tab label="Crawls" value={Views.CRAWLS}/>
+          <Tab label="Queries" value={Views.QUERIES}/>
+          <Tab label="GraphQL" value={Views.GRAPHQL}/>
+        </Tabs>
+      </Toolbar>
+    </AppBar>
   );
-}
-
-interface MenuProps {
-  enabled: boolean,
-  label: string,
-  view: Views
-}
-
-const MenuItem = (props: MenuProps) => {
-  const [state, dispatch] = useContext(Context);
-
-  if (!props.enabled) {
-    return (
-      <a className="nav-item nav-link disabled" href="#">{props.view}</a>
-    );
-  } else if (state.selectedView === props.view) {
-    return (
-      <a className="nav nav-link active" href="#">{props.view} <span className="sr-only">(current)</span></a>
-    );
-  } else {
-    return (
-      <a className="nav-item nav-link" onClick={() => dispatch.selectView(props.view)} href="#">{props.view}</a>
-    );
-  }
 }
 
 

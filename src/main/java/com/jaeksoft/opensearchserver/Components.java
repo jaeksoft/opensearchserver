@@ -252,7 +252,7 @@ public class Components implements Closeable {
     }
 
     public GraphQLService getGraphQLService() {
-        return graphqlService.get(GraphQLService::new);
+        return graphqlService.get(() -> new GraphQLService(new GraphQLFunctions(getIndexService())));
     }
 
     public SessionPersistenceManager getSessionPersistenceManager() {

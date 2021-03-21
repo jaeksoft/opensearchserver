@@ -4,15 +4,15 @@ schema {
 }
 
 type Query {
-  indexList(keywords: String!, start: Int, rows: Int): [String]!
-  crawlList(keywords: String!, start: Int, rows: Int): [String]!
-  queryList(keywords: String!, start: Int, rows: Int): [String]!
+  indexList(keywords: String, start: Int, rows: Int): [Index]!
+  crawlList(keywords: String, start: Int, rows: Int): [String]!
+  queryList(keywords: String, start: Int, rows: Int): [String]!
   me: User!
 }
 
 type Mutation {
   createIndex(name: String!): Boolean!
-  deleteIndex(email: String!): Boolean!
+  deleteIndex(name: String!): Boolean!
   createCrawl(name: String!): Boolean!
   deleteCrawl(name: String!): Boolean!
   createQuery(name: String!): Boolean!
@@ -22,4 +22,9 @@ type Mutation {
 type User {
   name: String!
   email: String!
+}
+
+type Index {
+  name: String!
+  id: String!
 }

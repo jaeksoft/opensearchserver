@@ -16,13 +16,14 @@
 
 import GraphiQL from 'graphiql';
 import 'graphiql/graphiql.min.css';
+import {GRAPHQL_ENDPOINT} from "./constants";
 
 const Gql = () => {
   return (
     <GraphiQL
       fetcher={async graphQLParams => {
         const data = await fetch(
-          'http://localhost:9090/graphql',
+          GRAPHQL_ENDPOINT,
           {
             method: 'POST',
             headers: {
@@ -35,7 +36,7 @@ const Gql = () => {
         );
         return data.json().catch(() => data.text());
       }}
-    />)
+    />);
 }
 
 export default Gql;
