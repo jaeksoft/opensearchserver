@@ -20,6 +20,7 @@ import com.qwazr.utils.IOUtils;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import graphql.scalars.ExtendedScalars;
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.RuntimeWiring;
@@ -40,8 +41,8 @@ public class GraphQLService {
 
         // Read the schema from resources
         final String schema = IOUtils.resourceToString(
-                "/com/jaeksoft/opensearchserver/schema.graphqls",
-                StandardCharsets.UTF_8);
+            "/com/jaeksoft/opensearchserver/schema.graphqls",
+            StandardCharsets.UTF_8);
 
         final SchemaParser schemaParser = new SchemaParser();
         final TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
@@ -50,12 +51,12 @@ public class GraphQLService {
         final Map<String, Map<String, DataFetcher<?>>> dataFetcherMap = new HashMap<>();
         for (DataFetcherProvider dataFetcherProvider : dataFetcherProviders) {
             dataFetcherProvider.getDataFetchers().forEach(
-                    (type, dataFetchers) -> dataFetcherMap.computeIfAbsent(
-                            type, t -> new HashMap<>()).putAll(dataFetchers));
+                (type, dataFetchers) -> dataFetcherMap.computeIfAbsent(
+                    type, t -> new HashMap<>()).putAll(dataFetchers));
         }
 
         // Build the graphql wiring
-        final RuntimeWiring.Builder runtimeWiring = RuntimeWiring.newRuntimeWiring();
+        final RuntimeWiring.Builder runtimeWiring = RuntimeWiring.newRuntimeWiring().scalar(ExtendedScalars.GraphQLLong);
         dataFetcherMap.forEach((type, dataFetchers) -> {
             final TypeRuntimeWiring.Builder typeWiring = TypeRuntimeWiring.newTypeWiring(type);
             dataFetchers.forEach(typeWiring::dataFetcher);
@@ -64,7 +65,7 @@ public class GraphQLService {
 
         final SchemaGenerator schemaGenerator = new SchemaGenerator();
         final GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(
-                typeDefinitionRegistry, runtimeWiring.build());
+            typeDefinitionRegistry, runtimeWiring.build());
         graphQL = GraphQL.newGraphQL(graphQLSchema).build();
     }
 

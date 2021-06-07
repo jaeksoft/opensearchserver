@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,19 +22,17 @@ import oss_logo from "./media/oss_logo.png";
 
 const Navbar = () => {
   const view = useSelector<State>(state => state.view)
-  const [value, setValue] = React.useState(view);
   const dispatch = useDispatch();
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: Views) => {
-    setValue(newValue);
     dispatch(setView(newValue))
   };
 
   return (
     <AppBar position="static" color={"transparent"}>
       <Toolbar>
-        <img src={oss_logo} alt="OpenSearchServer Logo" style={{maxHeight: "48px", width:"auto"}}/>
-        <Tabs value={value} onChange={handleChange} aria-label="Main tab navigation">
+        <img src={oss_logo} alt="OpenSearchServer Logo" style={{maxHeight: "48px", width: "auto"}}/>
+        <Tabs value={view} onChange={handleChange} aria-label="Main tab navigation">
           <Tab label="Indices" value={Views.INDICES}/>
           <Tab label="Crawls" value={Views.CRAWLS}/>
           <Tab label="Queries" value={Views.QUERIES}/>

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd front
-yarn build
+npm run build
 cd ..
 rm src/main/resources/com/jaeksoft/opensearchserver/front/*
 rm src/main/resources/com/jaeksoft/opensearchserver/front/static/media/*

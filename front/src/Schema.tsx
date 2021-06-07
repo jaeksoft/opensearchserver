@@ -24,7 +24,7 @@ const Schema = () => {
   const dispatch = useDispatch();
 
   return (<div>
-    Sex? {selectedIndex}
+    Edit Schema ? {selectedIndex}
     <Button onClick={() => dispatch(setView(Views.INDICES))}>Back</Button>
   </div>)
 }

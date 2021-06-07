@@ -1,3 +1,5 @@
+scalar Long
+
 schema {
   query: Query
   mutation: Mutation
@@ -5,7 +7,8 @@ schema {
 
 type Query {
   indexList(keywords: String, start: Int, rows: Int): [Index]!
-  crawlList(keywords: String, start: Int, rows: Int): [String]!
+  webCrawlList(keywords: String, start: Int, rows: Int): [WebCrawlStatus]!
+  fileCrawlList(keywords: String, start: Int, rows: Int): [FileCrawlStatus]!
   queryList(keywords: String, start: Int, rows: Int): [String]!
   me: User!
 }
@@ -13,8 +16,12 @@ type Query {
 type Mutation {
   createIndex(name: String!): Boolean!
   deleteIndex(name: String!): Boolean!
-  createCrawl(name: String!): Boolean!
-  deleteCrawl(name: String!): Boolean!
+  runWebCrawl(name: String!, settings: WebCrawlSettings!): WebCrawlStatus!
+  stopWebCrawl(name: String!, aborting_reason: String): Boolean!
+  deleteWebCrawl(name: String!): Boolean!
+  runFileCrawl(name: String!, settings: FileCrawlSettings!): FileCrawlStatus!
+  stopFileCrawl(name: String!, aborting_reason: String): Boolean!
+  deleteFileCrawl(name: String!): Boolean!
   createQuery(name: String!): Boolean!
   deleteQuery(name: String!): Boolean!
 }
@@ -27,4 +34,38 @@ type User {
 type Index {
   name: String!
   id: String!
+}
+
+type CrawlerStatus {
+  aborting: Boolean,
+  abortingReason: String,
+  crawled: Int,
+  rejected: Int,
+  redirect: Int,
+  error: Int,
+  lastError: String,
+  currentCrawl: String,
+  currentDepth: Int,
+  startTime: Long,
+  endTime: Long
+}
+
+type FileCrawlStatus {
+  name: String!,
+  status: CrawlerStatus!
+}
+
+type WebCrawlStatus {
+  name: String!,
+  status: CrawlerStatus!
+}
+
+input FileCrawlSettings {
+  entryPath: String!,
+  maxDepth: Int,
+}
+
+input WebCrawlSettings {
+  entryUrl: String!,
+  maxDepth: Int,
 }

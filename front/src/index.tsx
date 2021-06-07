@@ -7,10 +7,9 @@ import Gql from "./Gql";
 import Indices from "./Indices";
 import {ApolloClient, ApolloProvider, InMemoryCache} from "@apollo/client";
 import {GRAPHQL_ENDPOINT} from "./constants";
-import {Box} from "@material-ui/core";
 import Schema from "./Schema";
-import Crawl from "./Crawl";
 import Crawls from "./Crawls";
+import {Box} from "@material-ui/core";
 
 const View = () => {
   const view = useSelector<State>(state => state.view)
@@ -35,10 +34,6 @@ const View = () => {
       return (
         <Schema/>
       );
-    case Views.CRAWL:
-      return (
-        <Crawl/>
-      );
     default:
       return null;
   }
@@ -57,7 +52,7 @@ ReactDOM.render(
           <Box m={0} marginBottom={1}>
             <Navbar/>
           </Box>
-          <Box m={0} height={"100vh"}>
+          <Box m={0} p={0} height={"100vh"}>
             <View/>
           </Box>
         </Box>

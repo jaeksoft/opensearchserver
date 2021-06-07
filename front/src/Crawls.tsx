@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2021 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,116 +14,39 @@
  *  limitations under the License.
  */
 
-import {gql} from "@apollo/client/core";
-import {useState} from "react";
-import {useMutation, useQuery} from "@apollo/client";
-import {
-  Button, CircularProgress,
-  Grid,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField
-} from "@material-ui/core";
-import {useDispatch} from "react-redux";
-import {editSchema} from "./store";
-
-const CRAWL_LIST = gql`
-  query CrawlList($keywords: String, $start: Int, $rows: Int) {
-    crawlList(keywords: $keywords, start: $start, rows: $rows)
-  }
-`;
-
-const CREATE_CRAWL = gql`
-  mutation CreateCrawl($name: String!) {
-    createCrawl(name: $name)
-  }
-`
-const DELETE_CRAWL = gql`
-  mutation DeleteCrawl($name: String!) {
-    deleteCrawl(name: $name)
-  }
-`
-
-interface CrawlData {
-  crawlList: string[];
-}
+import {useDispatch, useSelector} from "react-redux";
+import {CrawlsViews, setCrawlsView, State} from "./store";
+import {AppBar, Box, Tab, Tabs} from "@material-ui/core";
+import * as React from "react";
+import WebCrawls from "./WebCrawls";
+import FileCrawls from "./FileCrawls";
+import WebCrawl from "./WebCrawl";
+import FileCrawl from "./FileCrawl";
 
 const Crawls = () => {
   const dispatch = useDispatch();
-  const [keywords, setKeywords] = useState<String>('');
-  const [start, setStart] = useState<Number>(0);
-  const [rows, setRows] = useState<Number>(20);
-  const {loading, error, data, refetch} = useQuery<CrawlData>(CRAWL_LIST, {
-    variables: {keywords: keywords, start: start, rows: rows},
-    fetchPolicy: "no-cache"
-  });
-  const [gqlCreate, {loading: loadingCreate, error: errorCreate}] = useMutation(CREATE_CRAWL, {
-    variables: {name: keywords}
-  });
-  const [gqlDelete, {loading: loadingDelete, error: errorDelete}] = useMutation(DELETE_CRAWL, {
-    variables: {name: keywords}
-  });
-  if (error) {
-    alert(error.message);
-    console.error("GQL CRAWL_LIST error: ", error);
-  }
+  const crawlsView = useSelector<State>(state => state.crawlsView);
+
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    dispatch(setCrawlsView(newValue))
+  };
+
+  console.log("crawlsview", crawlsView);
+
   return (
-    <>
-      <TableContainer component={Paper}>
-        <Table size={"small"}>
-          <TableHead>
-            <TableRow>
-              <TableCell colSpan={2}>
-                <Grid container spacing={1} alignItems={"flex-end"}>
-                  <Grid item xs>
-                    <TextField label="Crawl name" value={keywords} size={"small"} fullWidth={true}
-                               onChange={(e) => setKeywords(e.target.value)}/>
-                  </Grid>
-                  <Grid item xs={"auto"}>
-                    {loadingCreate || loading && <CircularProgress size={30}/>}
-                    {loadingDelete && <CircularProgress size={30} color={"secondary"}/>}
-                  </Grid>
-                  <Grid item xs={"auto"}>
-                    <Button disabled={!keywords || keywords.length == 0 || !data || data.crawlList.length > 0}
-                            fullWidth={true} size={"small"}
-                            variant="contained" onClick={() => gqlCreate().then(() => refetch())}
-                            color="primary">Create crawl
-                    </Button>
-                  </Grid>
-                  <Grid item xs={"auto"}>
-                    <Button disabled={!data || data.crawlList.length != 1 || data.crawlList[0] != keywords}
-                            fullWidth={true} size={"small"}
-                            variant="contained" onClick={() => gqlDelete().then(() => refetch())}
-                            color="secondary">Delete crawl
-                    </Button>
-                  </Grid>
-                </Grid>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Name</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data?.crawlList.map((name) => (
-              <TableRow key={name} onClick={() => {
-                dispatch(editSchema(name))
-              }}>
-                <TableCell component="th" scope="row">
-                  {name}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
-  );
+    <div>
+      <AppBar position="static">
+        <Tabs value={crawlsView} onChange={handleChange} aria-label="Crawls tabs">
+          <Tab label="Web Crawls" value={CrawlsViews.WEB_CRAWLS}/>
+          <Tab label="File Crawls" value={CrawlsViews.FILE_CRAWLS}/>
+        </Tabs>
+      </AppBar>
+      {crawlsView === CrawlsViews.WEB_CRAWLS && <WebCrawls/>}
+      {crawlsView === CrawlsViews.FILE_CRAWLS && <FileCrawls/>}
+      {crawlsView === CrawlsViews.WEB_CRAWL && <WebCrawl/>}
+      {crawlsView === CrawlsViews.FILE_CRAWL && <FileCrawl/>}
+    </div>
+  )
 }
 
 export default Crawls;
