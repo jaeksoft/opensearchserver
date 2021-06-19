@@ -15,127 +15,136 @@
  */
 
 import {createStore} from "redux";
+import {WebCrawlSettings} from "./types";
 
 export const STATE_KEY = "opensearchserver:state";
 
 export enum Views {
-    INDICES,
-    CRAWLS,
-    QUERIES,
-    GRAPHQL,
-    SCHEMA,
+  INDICES,
+  CRAWLS,
+  QUERIES,
+  GRAPHQL,
+  SCHEMA,
 }
 
 export enum CrawlsViews {
-    WEB_CRAWLS,
-    WEB_CRAWL,
-    FILE_CRAWLS,
-    FILE_CRAWL
+  WEB_CRAWLS,
+  FILE_CRAWLS,
 }
 
 export interface State {
-    view: Views,
-    crawlsView: CrawlsViews,
-    selectedIndex: string | undefined,
-    selectedWebCrawl: string | undefined,
-    selectedFileCrawl: string | undefined,
+  view: Views,
+  crawlsView: CrawlsViews,
+  selectedIndex: string | undefined,
+  editWebCrawl: {
+    crawlName: string,
+    indexName: string | undefined,
+    settings: WebCrawlSettings | undefined
+  } | undefined,
+  selectedFileCrawl: string | undefined,
 }
 
 const defaultState: State = {
-    view: Views.INDICES,
-    crawlsView: CrawlsViews.WEB_CRAWLS,
-    selectedIndex: undefined,
-    selectedWebCrawl: undefined,
-    selectedFileCrawl: undefined
+  view: Views.INDICES,
+  crawlsView: CrawlsViews.WEB_CRAWLS,
+  selectedIndex: undefined,
+  editWebCrawl: undefined,
+  selectedFileCrawl: undefined
 }
 
 enum ActionTypes {
-    SET_VIEW,
-    SET_CRAWLS_VIEW,
-    EDIT_SCHEMA,
-    EDIT_WEB_CRAWL,
-    EDIT_FILE_CRAWL
+  SET_VIEW,
+  SET_CRAWLS_VIEW,
+  EDIT_SCHEMA,
+  EDIT_WEB_CRAWL,
+  EDIT_FILE_CRAWL
 }
 
 interface SetViewAction {
-    type: ActionTypes.SET_VIEW;
-    view: Views;
+  type: ActionTypes.SET_VIEW;
+  view: Views;
 }
 
 interface SetCrawlsViewAction {
-    type: ActionTypes.SET_CRAWLS_VIEW;
-    crawlsView: CrawlsViews;
+  type: ActionTypes.SET_CRAWLS_VIEW;
+  crawlsView: CrawlsViews;
 }
 
 interface EditSchemaAction {
-    type: ActionTypes.EDIT_SCHEMA;
-    selectedIndex: string;
+  type: ActionTypes.EDIT_SCHEMA;
+  selectedIndex: string;
 }
 
 interface EditWebCrawlAction {
-    type: ActionTypes.EDIT_WEB_CRAWL;
-    selectedCrawl: string;
+  type: ActionTypes.EDIT_WEB_CRAWL;
+  crawlName: string;
+  indexName?: string;
+  settings?: WebCrawlSettings;
 }
 
 interface EditFileCrawlAction {
-    type: ActionTypes.EDIT_FILE_CRAWL;
-    selectedCrawl: string;
+  type: ActionTypes.EDIT_FILE_CRAWL;
+  selectedCrawl: string;
 }
 
 type Actions = SetViewAction | SetCrawlsViewAction | EditSchemaAction | EditWebCrawlAction | EditFileCrawlAction;
 
 export const setView = (view: Views): SetViewAction => {
-    return {type: ActionTypes.SET_VIEW, view};
+  return {type: ActionTypes.SET_VIEW, view};
 };
 
 export const setCrawlsView = (crawlsView: CrawlsViews): SetCrawlsViewAction => {
-    return {type: ActionTypes.SET_CRAWLS_VIEW, crawlsView};
+  return {type: ActionTypes.SET_CRAWLS_VIEW, crawlsView};
 };
 
 export const editSchema = (selectedIndex: string): EditSchemaAction => {
-    return {type: ActionTypes.EDIT_SCHEMA, selectedIndex};
+  return {type: ActionTypes.EDIT_SCHEMA, selectedIndex};
 };
 
-export const editWebCrawl = (selectedCrawl: string): EditWebCrawlAction => {
-    return {type: ActionTypes.EDIT_WEB_CRAWL, selectedCrawl};
+export const editWebCrawl = (crawlName: string, indexName?: string, settings?: WebCrawlSettings): EditWebCrawlAction => {
+  return {type: ActionTypes.EDIT_WEB_CRAWL, crawlName, indexName, settings};
 };
 
 export const editFileCrawl = (selectedCrawl: string): EditFileCrawlAction => {
-    return {type: ActionTypes.EDIT_FILE_CRAWL, selectedCrawl};
+  return {type: ActionTypes.EDIT_FILE_CRAWL, selectedCrawl};
 };
 
 const reducer = (state: State = defaultState, action: Actions): State => {
-    switch (action.type) {
-        case ActionTypes.SET_VIEW:
-            state = {...state, view: action.view};
-            break;
-        case ActionTypes.SET_CRAWLS_VIEW:
-            state = {...state, view: Views.CRAWLS, crawlsView: action.crawlsView};
-            break;
-        case ActionTypes.EDIT_SCHEMA:
-            state = {...state, selectedIndex: action.selectedIndex, view: Views.SCHEMA};
-            break;
-        case ActionTypes.EDIT_WEB_CRAWL:
-            state = {
-                ...state,
-                selectedWebCrawl: action.selectedCrawl,
-                view: Views.CRAWLS,
-                crawlsView: CrawlsViews.WEB_CRAWL
-            };
-            break;
-        case ActionTypes.EDIT_FILE_CRAWL:
-            state = {
-                ...state,
-                selectedFileCrawl: action.selectedCrawl,
-                view: Views.CRAWLS,
-                crawlsView: CrawlsViews.FILE_CRAWL
-            };
-            break;
-        default:
-            return state;
-    }
-    window.localStorage.setItem(STATE_KEY, JSON.stringify(state));
-    return state;
+  switch (action.type) {
+    case ActionTypes.SET_VIEW:
+      state = {...state, view: action.view};
+      break;
+    case ActionTypes.SET_CRAWLS_VIEW:
+      state = {...state, view: Views.CRAWLS, crawlsView: action.crawlsView, editWebCrawl: undefined};
+      break;
+    case ActionTypes.EDIT_SCHEMA:
+      state = {
+        ...state,
+        selectedIndex: action.selectedIndex,
+        view: Views.SCHEMA
+      };
+      break;
+    case ActionTypes.EDIT_WEB_CRAWL:
+      state = {
+        ...state,
+        editWebCrawl: {crawlName: action.crawlName, indexName: action.indexName, settings: action.settings},
+        view: Views.CRAWLS,
+        crawlsView: CrawlsViews.WEB_CRAWLS
+      };
+      break;
+    case ActionTypes.EDIT_FILE_CRAWL:
+      state = {
+        ...state,
+        selectedFileCrawl: action.selectedCrawl,
+        view: Views.CRAWLS,
+        crawlsView: CrawlsViews.FILE_CRAWLS
+      };
+      break;
+    default:
+      return state;
+  }
+  window.localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  return state;
 }
 
 // Store creation

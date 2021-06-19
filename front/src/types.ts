@@ -14,13 +14,19 @@
  *  limitations under the License.
  */
 
-export enum CrawlFilterType {
-  accept,
-  reject
+export enum CrawlFilterStatus {
+  accept = 'accept',
+  reject = 'reject'
 }
 
 export interface CrawlFilterItem {
-  index?: number,
   pattern?: string;
-  type: CrawlFilterType
+  status: CrawlFilterStatus
+}
+
+export interface WebCrawlSettings {
+  entryUrl: string
+  maxDepth?: number
+  filters?: CrawlFilterItem[]
+  filterPolicy?: CrawlFilterStatus
 }

@@ -32,14 +32,45 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.core.MediaType;
 
 public abstract class CrawlerCollector<ITEM extends CrawlItem<?>> implements CrawlCollector<ITEM> {
+
+    public static class Variables {
+
+        public final String index;
+        public final Integer buffer;
+
+        public Variables(List<CrawlDefinition.Variable> variables) {
+            String varIndex = null;
+            Integer varBuffer = null;
+            if (variables != null) {
+                for (final CrawlDefinition.Variable variable : variables) {
+                    if (variable.key == null || variable.value == null) {
+                        continue;
+                    }
+                    switch (variable.key) {
+                        case VARIABLE_INDEX:
+                            varIndex = variable.value.toString();
+                            break;
+                        case VARIABLE_BUFFER:
+                            if (!(variable.value instanceof Number))
+                                throw new NotAcceptableException("The \"buffer\" value is not a number: " + variable.value);
+                            varBuffer = ((Number) variable.value).intValue();
+                            break;
+                    }
+                }
+            }
+            this.index = varIndex;
+            this.buffer = varBuffer;
+        }
+    }
+
+    public final static String VARIABLE_INDEX = "index";
+    public final static String VARIABLE_BUFFER = "buffer";
 
     private final static int DEFAULT_BUFFER_SIZE = 100;
 
@@ -52,19 +83,12 @@ public abstract class CrawlerCollector<ITEM extends CrawlItem<?>> implements Cra
     private CrawlerCollector(final Attributes attributes, final CrawlDefinition<?> crawlDefinition) {
         extractorService = attributes.getInstance(Components.EXTRACTOR_SERVICE_ATTRIBUTE, ExtractorServiceInterface.class);
         indexServiceInterface = attributes.getInstance(Components.INDEX_SERVICE_ATTRIBUTE, IndexServiceInterface.class);
-        final Map<String, Object> variables = crawlDefinition.getVariables();
-        if (variables == null)
-            throw new NotAcceptableException("The variables are missing");
-        indexName = Optional.of(variables.get("index")).orElseThrow(
-            () -> new NotAcceptableException("The \"index\" variable is missing")).toString();
-        final Object p = variables.get("buffer");
-        if (p == null) {
-            bufferSize = DEFAULT_BUFFER_SIZE;
-        } else {
-            if (!(p instanceof Number))
-                throw new NotAcceptableException("The \"buffer\" value is not a number: " + p);
-            bufferSize = ((Number) p).intValue();
+        final Variables variables = new Variables(crawlDefinition.getVariables());
+        if (variables.index == null) {
+            throw new NotAcceptableException("The \"index\" variable is missing");
         }
+        indexName = variables.index;
+        bufferSize = variables.buffer == null ? DEFAULT_BUFFER_SIZE : variables.buffer;
         if (bufferSize < 1 || bufferSize > 10000)
             throw new NotAcceptableException("The \"buffer\" value should be between 1 and 10,0000. Actually: " + bufferSize);
         buffer = new ArrayList<>();

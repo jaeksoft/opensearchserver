@@ -16,22 +16,23 @@
 
 import {useDispatch, useSelector} from "react-redux";
 import {CrawlsViews, setCrawlsView, State} from "./store";
-import {AppBar, Box, Tab, Tabs} from "@material-ui/core";
+import {AppBar, Tab, Tabs} from "@material-ui/core";
 import * as React from "react";
 import WebCrawls from "./WebCrawls";
 import FileCrawls from "./FileCrawls";
-import WebCrawl from "./WebCrawl";
+import WebCrawl from "./WebCrawlEdit";
 import FileCrawl from "./FileCrawl";
 
 const Crawls = () => {
   const dispatch = useDispatch();
   const crawlsView = useSelector<State>(state => state.crawlsView);
+  const editWebCrawl= useSelector<State>(state => state.editWebCrawl);
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     dispatch(setCrawlsView(newValue))
   };
 
-  console.log("crawlsview", crawlsView);
+  console.trace("crawlsview", crawlsView);
 
   return (
     <div>
@@ -41,10 +42,10 @@ const Crawls = () => {
           <Tab label="File Crawls" value={CrawlsViews.FILE_CRAWLS}/>
         </Tabs>
       </AppBar>
-      {crawlsView === CrawlsViews.WEB_CRAWLS && <WebCrawls/>}
-      {crawlsView === CrawlsViews.FILE_CRAWLS && <FileCrawls/>}
-      {crawlsView === CrawlsViews.WEB_CRAWL && <WebCrawl/>}
-      {crawlsView === CrawlsViews.FILE_CRAWL && <FileCrawl/>}
+      {(crawlsView === CrawlsViews.WEB_CRAWLS && !editWebCrawl) && <WebCrawls/>}
+      {(crawlsView === CrawlsViews.FILE_CRAWLS && true) && <FileCrawls/>}
+      {(crawlsView === CrawlsViews.WEB_CRAWLS && editWebCrawl) && <WebCrawl/>}
+      {(crawlsView === CrawlsViews.FILE_CRAWLS &&false) && <FileCrawl/>}
     </div>
   )
 }

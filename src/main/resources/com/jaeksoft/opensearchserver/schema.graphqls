@@ -10,17 +10,21 @@ type Query {
   webCrawlList(keywords: String, start: Int, rows: Int): [WebCrawlStatus]!
   fileCrawlList(keywords: String, start: Int, rows: Int): [FileCrawlStatus]!
   queryList(keywords: String, start: Int, rows: Int): [String]!
+  getWebCrawl(name: String!): WebCrawl
+  getFileCrawl(name: String!): FileCrawl
   me: User!
 }
 
 type Mutation {
   createIndex(name: String!): Boolean!
   deleteIndex(name: String!): Boolean!
-  runWebCrawl(name: String!, settings: WebCrawlSettings!): WebCrawlStatus!
-  stopWebCrawl(name: String!, aborting_reason: String): Boolean!
+  upsertWebCrawl(name: String!, settings: WebCrawlSettingsInput!, index:String!): WebCrawlStatus!
+  runWebCrawl(name: String!): WebCrawlStatus!
+  abortWebCrawl(name: String!, aborting_reason: String): Boolean!
   deleteWebCrawl(name: String!): Boolean!
-  runFileCrawl(name: String!, settings: FileCrawlSettings!): FileCrawlStatus!
-  stopFileCrawl(name: String!, aborting_reason: String): Boolean!
+  upsertFileCrawl(name: String!, settings: FileCrawlSettingsInput!, index:String!): FileCrawlStatus!
+  runFileCrawl(name: String!): FileCrawlStatus!
+  abortFileCrawl(name: String!, aborting_reason: String): Boolean!
   deleteFileCrawl(name: String!): Boolean!
   createQuery(name: String!): Boolean!
   deleteQuery(name: String!): Boolean!
@@ -37,6 +41,7 @@ type Index {
 }
 
 type CrawlerStatus {
+  running: Boolean,
   aborting: Boolean,
   abortingReason: String,
   crawled: Int,
@@ -60,12 +65,55 @@ type WebCrawlStatus {
   status: CrawlerStatus!
 }
 
-input FileCrawlSettings {
-  entryPath: String!,
-  maxDepth: Int,
+enum FilterPolicy {
+  accept,
+  reject
 }
 
-input WebCrawlSettings {
+type Filter {
+  pattern: String!,
+  status: FilterPolicy
+}
+
+input FilterInput {
+  pattern: String!,
+  status: FilterPolicy
+}
+
+type FileCrawlSettings {
+  entryPath: String!,
+  maxDepth: Int,
+  filters: [Filter],
+  filterPolicy: FilterPolicy
+}
+
+input FileCrawlSettingsInput {
+  entryPath: String!,
+  maxDepth: Int,
+  filters: [FilterInput],
+  filterPolicy: FilterPolicy
+}
+
+type FileCrawl {
+  settings: FileCrawlSettings!
+  index: String
+}
+
+type WebCrawlSettings {
   entryUrl: String!,
   maxDepth: Int,
+  filters: [Filter],
+  filterPolicy: FilterPolicy
+}
+
+input WebCrawlSettingsInput {
+  entryUrl: String!,
+  maxDepth: Int,
+  filters: [FilterInput],
+  filterPolicy: FilterPolicy
+}
+
+type WebCrawl {
+  settings: WebCrawlSettings!
+  index: String
 }

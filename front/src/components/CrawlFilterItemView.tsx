@@ -14,47 +14,50 @@
  *  limitations under the License.
  */
 
-import {Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@material-ui/core";
+import {Box, Button, TextField} from "@material-ui/core";
 
-import {CrawlFilterItem, CrawlFilterType} from "../types";
+import {CrawlFilterItem, CrawlFilterStatus} from "../types";
 import {useEffect, useState} from "react";
+import CrawlFilterStatusOption from "./CrawlFilterStatus";
 
 interface Props {
   disabled: boolean,
+  index?: number,
   filter?: CrawlFilterItem,
   onAdd?: (item: CrawlFilterItem) => void,
-  onSave?: (item: CrawlFilterItem) => void,
-  onDelete?: (item: CrawlFilterItem) => void
+  onSave?: (item: CrawlFilterItem, index: number) => void,
+  onDelete?: (index: number) => void
 }
 
 const CrawlFilterItemView = (props: Props) => {
 
     const [pattern, setPattern] = useState<string>(props.filter?.pattern || '');
-    const [type, setType] = useState<CrawlFilterType>((props.filter?.type) || CrawlFilterType.accept);
+    const [status, setStatus] = useState<CrawlFilterStatus>((props.filter?.status) || CrawlFilterStatus.accept);
     const [hasChanges, setHashChanges] = useState<boolean>(false);
 
     const onAdd = () => {
       if (props.onAdd) {
-        props.onAdd({pattern: pattern, type: type})
+        props.onAdd({pattern: pattern, status: status})
       }
     }
 
     const onSave = () => {
-      if (props.filter && props.onSave) {
-        props.onSave({pattern: pattern, type: type, index: props.filter.index});
+      console.log("onSave props", props);
+      if (props.onSave && props.index) {
+        props.onSave({pattern: pattern, status: status}, props.index);
       }
     }
 
     const onDelete = () => {
-      if (props.filter && props.onDelete) {
-        props.onDelete(props.filter);
+      if (props.onDelete && props.index) {
+        props.onDelete(props.index);
       }
     }
 
     useEffect(() => {
-      const b = pattern !== props.filter?.pattern || type !== props.filter?.type;
+      const b = pattern !== props.filter?.pattern || status !== props.filter?.status;
       setHashChanges(b);
-    }, [props.filter, pattern, type])
+    }, [props.filter, pattern, status])
 
     return (
       <Box display={"flex"} mb={2}>
@@ -66,15 +69,7 @@ const CrawlFilterItemView = (props: Props) => {
                      placeholder={"https://www.opensearchserver.com/*"}/>
         </Box>
         <Box mr={2}>
-          <FormControl>
-            <InputLabel id="policy-label">Policy</InputLabel>
-            <Select labelId="policy-label" id="policy" value={type}
-                    disabled={props.disabled}
-                    onChange={e => setType(e.target.value as CrawlFilterType)}>
-              <MenuItem value={CrawlFilterType.accept}>Accept</MenuItem>
-              <MenuItem value={CrawlFilterType.reject}>Reject</MenuItem>
-            </Select>
-          </FormControl>
+          <CrawlFilterStatusOption disabled={props.disabled} status={status} setStatus={setStatus} isDefault={false}/>
         </Box>
         <Box mr={2} display={"flex"} alignItems={"flex-end"}>
           {!props.filter &&

@@ -84,18 +84,18 @@ const defaultState: StateType = {
 const initialState = () => {
   let state = defaultState;
   const viewString = localStorage.getItem(Actions.SELECT_VIEW);
-  if (viewString != null) {
+  if (viewString !== null) {
     const typeViewString = viewString as keyof typeof Views;
     state = {...state, selectedView: Views[typeViewString]}
   }
   const index = localStorage.getItem(Actions.SELECT_INDEX);
-  if (index != null)
+  if (index !== null)
     state = {...state, selectedIndex: index};
   const crawl = localStorage.getItem(Actions.SELECT_CRAWL);
-  if (crawl != null)
+  if (crawl !== null)
     state = {...state, selectedCrawl: crawl};
   const query = localStorage.getItem(Actions.SELECT_QUERY);
-  if (query != null)
+  if (query !== null)
     state = {...state, selectedQuery: query};
   return state;
 }

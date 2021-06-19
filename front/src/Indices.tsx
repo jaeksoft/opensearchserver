@@ -21,7 +21,6 @@ import {
   Box,
   Button, CircularProgress,
   Grid,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -65,17 +64,25 @@ interface IndexData {
 const Indices = () => {
   const dispatch = useDispatch();
   const [keywords, setKeywords] = useState<String>('');
-  const [start, setStart] = useState<Number>(0);
-  const [rows, setRows] = useState<Number>(1000);
+  const [start] = useState<Number>(0);
+  const [rows] = useState<Number>(1000);
   const {loading, error, data, refetch} = useQuery<IndexData>(INDEX_LIST, {
     variables: {keywords: keywords, start: start, rows: rows},
     fetchPolicy: "no-cache"
   });
-  const [gqlCreate, {loading: loadingCreate, error: errorCreate}] = useMutation(CREATE_INDEX, {
-    variables: {name: keywords}
+  const [gqlCreate, {loading: loadingCreate}] = useMutation(CREATE_INDEX, {
+    variables: {name: keywords},
+    onError: err => {
+      alert(err);
+      console.error(err);
+    }
   });
-  const [gqlDelete, {loading: loadingDelete, error: errorDelete}] = useMutation(DELETE_INDEX, {
-    variables: {name: keywords}
+  const [gqlDelete, {loading: loadingDelete}] = useMutation(DELETE_INDEX, {
+    variables: {name: keywords},
+    onError: err => {
+      alert(err);
+      console.error(err);
+    }
   });
   if (error) {
     alert(error.message);
@@ -90,18 +97,18 @@ const Indices = () => {
                        onChange={e => setKeywords(e.target.value)}/>
           </Grid>
           <Grid item xs={"auto"}>
-            {loadingCreate || loading && <CircularProgress size={30}/>}
+            {(loadingCreate || loading) && <CircularProgress size={30}/>}
             {loadingDelete && <CircularProgress size={30} color={"secondary"}/>}
           </Grid>
           <Grid item xs={"auto"}>
-            <Button disabled={!keywords || keywords.length == 0 || !data || data.indexList.length > 0}
+            <Button disabled={!keywords || keywords.length === 0 || !data || data.indexList.length > 0}
                     fullWidth={true} size={"small"}
                     variant="contained" onClick={() => gqlCreate().then(() => refetch())}
                     color="primary">Create index
             </Button>
           </Grid>
           <Grid item xs={"auto"}>
-            <Button disabled={!data || data.indexList.length != 1 || data.indexList[0].name != keywords}
+            <Button disabled={!data || data.indexList.length !== 1 || data.indexList[0].name !== keywords}
                     fullWidth={true} size={"small"}
                     variant="contained" onClick={() => gqlDelete().then(() => refetch())}
                     color="secondary">Delete index
