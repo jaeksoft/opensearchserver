@@ -33,31 +33,31 @@ import {gql} from "@apollo/client/core";
 import CrawlFilterStatusOption from "./components/CrawlFilterStatus";
 import CrawFilterListWithKey from "./components/CrawFilterListWithKey";
 
-const UPSERT_WEB_CRAWL = gql`
-  mutation UpsertWebCrawl($name: String!, $settings: WebCrawlSettingsInput!, $index: String!) {
-    upsertWebCrawl(name: $name, settings: $settings, index: $index) {name}
+const UPSERT_FILE_CRAWL = gql`
+  mutation UpsertFileCrawl($name: String!, $settings: FileCrawlSettingsInput!, $index: String!) {
+    upsertFileCrawl(name: $name, settings: $settings, index: $index) {name}
   }
 `
 
-const WebCrawlEdit = () => {
+const FileCrawlEdit = () => {
   const dispatch = useDispatch();
-  const editWebCrawl = useSelector((state: State) => state.editWebCrawl);
-  const [indexName, setIndexName] = useState<string>(editWebCrawl?.indexName || '');
-  const [entryUrl, setEntryUrl] = useState<string>(editWebCrawl?.settings?.entryUrl || '');
-  const [maxDepth, setMaxDepth] = useState<number | undefined>(editWebCrawl?.settings?.maxDepth);
-  const [crawlName, setCrawlName] = useState<string>(editWebCrawl?.crawlName || '');
-  const [crawlFilterPolicy, setCrawlFilterPolicy] = useState<CrawlFilterStatus>((editWebCrawl?.settings?.filterPolicy) || CrawlFilterStatus.reject);
-  const [crawlFilterList, setCrawlFilterList] = useState<CrawlFilterItem[]>(editWebCrawl?.settings?.filters || []);
-  const [crawlFilterListWithKey] = useState<CrawFilterListWithKey>(new CrawFilterListWithKey(editWebCrawl?.settings?.filters));
+  const editFileCrawl = useSelector((state: State) => state.editFileCrawl);
+  const [indexName, setIndexName] = useState<string>(editFileCrawl?.indexName || '');
+  const [entryPath, setEntryPath] = useState<string>(editFileCrawl?.settings?.entryPath || '');
+  const [maxDepth, setMaxDepth] = useState<number | undefined>(editFileCrawl?.settings?.maxDepth);
+  const [crawlName, setCrawlName] = useState<string>(editFileCrawl?.crawlName || '');
+  const [crawlFilterPolicy, setCrawlFilterPolicy] = useState<CrawlFilterStatus>((editFileCrawl?.settings?.filterPolicy) || CrawlFilterStatus.reject);
+  const [crawlFilterList, setCrawlFilterList] = useState<CrawlFilterItem[]>(editFileCrawl?.settings?.filters || []);
+  const [crawlFilterListWithKey] = useState<CrawFilterListWithKey>(new CrawFilterListWithKey(editFileCrawl?.settings?.filters));
 
-  const [gqlUpsertCrawl, {loading}] = useMutation(UPSERT_WEB_CRAWL, {
+  const [gqlUpsertCrawl, {loading}] = useMutation(UPSERT_FILE_CRAWL, {
     variables: {
       name: crawlName,
-      settings: {entryUrl: entryUrl, maxDepth: maxDepth, filters: crawlFilterList, filterPolicy: crawlFilterPolicy},
+      settings: {entryPath: entryPath, maxDepth: maxDepth, filters: crawlFilterList, filterPolicy: crawlFilterPolicy},
       index: indexName
     },
     onCompleted: data => {
-      dispatch(setCrawlsView(CrawlsViews.WEB_CRAWLS));
+      dispatch(setCrawlsView(CrawlsViews.FILE_CRAWLS));
       console.trace(data);
     },
     onError: err => {
@@ -67,7 +67,7 @@ const WebCrawlEdit = () => {
   });
 
   const onCancel = () => {
-    dispatch(setCrawlsView(CrawlsViews.WEB_CRAWLS));
+    dispatch(setCrawlsView(CrawlsViews.FILE_CRAWLS));
   }
 
   const onUpsert = async () => {
@@ -87,8 +87,8 @@ const WebCrawlEdit = () => {
     setCrawlFilterList(crawlFilterListWithKey.delete(key));
   }
 
-  const isEdit = editWebCrawl?.settings !== undefined;
-  const title = isEdit ? "Edit Web Crawl" : "New Web Crawl";
+  const isEdit = editFileCrawl?.settings !== undefined;
+  const title = isEdit ? "Edit File Crawl" : "New File Crawl";
 
   return (
     <Box p={1}>
@@ -118,30 +118,25 @@ const WebCrawlEdit = () => {
                            required id="CrawlName" label="Crawl Name" value={crawlName}
                            disabled={true}
                            onChange={e => setCrawlName(e.target.value)}
-                           placeholder={editWebCrawl?.crawlName || 'Crawl name'}/>
+                           placeholder={editFileCrawl?.crawlName || 'Crawl name'}/>
               </Grid>
               <Grid item xs={6}>
                 <TextField fullWidth required id="IndexName" label="Index Name" value={indexName}
                            disabled={loading}
                            onChange={e => setIndexName(e.target.value)}
-                           placeholder={editWebCrawl?.indexName || 'Index name'}/>
+                           placeholder={editFileCrawl?.indexName || 'Index name'}/>
               </Grid>
-              <Grid item xs={12}>
-                <TextField fullWidth required id="entryUrl" label="Entry URL" value={entryUrl}
+              <Grid item xs={10}>
+                <TextField fullWidth required id="entryUrl" label="Entry Path" value={entryPath}
                            disabled={loading}
-                           onChange={e => setEntryUrl(e.target.value)}
-                           placeholder={"https://www.opensearchserver.com"}/>
+                           onChange={e => setEntryPath(e.target.value)}
+                           placeholder={"/var/lib/share"}/>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={2}>
                 <TextField fullWidth id="max_depth" label="Max depth" type={"number"}
                            disabled={loading}
                            value={maxDepth} onChange={e => setMaxDepth(+e.target.value)}
                            placeholder={"1"}/>
-              </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth id="max_number_url" label="Max number of URL" type={"number"}
-                           disabled={loading}
-                           placeholder={"1000"}/>
               </Grid>
               <Grid item xs={10}>
                 <CrawlFilterItemView onAdd={onAdd} disabled={loading}/>
@@ -161,4 +156,4 @@ const WebCrawlEdit = () => {
   )
 }
 
-export default WebCrawlEdit;
+export default FileCrawlEdit;

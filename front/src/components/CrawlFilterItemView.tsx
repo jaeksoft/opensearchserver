@@ -42,7 +42,7 @@ const CrawlFilterItemView = (props: Props) => {
     }
 
     const onSave = () => {
-      console.log("onSave props", props);
+      console.log("onSave props", props, props.index);
       if (props.onSave && props.index) {
         props.onSave({pattern: pattern, status: status}, props.index);
       }

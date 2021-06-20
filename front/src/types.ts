@@ -30,3 +30,31 @@ export interface WebCrawlSettings {
   filters?: CrawlFilterItem[]
   filterPolicy?: CrawlFilterStatus
 }
+
+export interface FileCrawlSettings {
+  entryPath: string
+  maxDepth?: number
+  filters?: CrawlFilterItem[]
+  filterPolicy?: CrawlFilterStatus
+}
+
+export interface CrawlStatus {
+  startTime?: number
+  endTime?: number
+  crawled?: number
+  rejected?: number
+  error?: number
+  running?: boolean
+  aborting?: boolean
+  abortingReason?: string
+}
+
+export interface CrawlNameStatus {
+  name: string
+  status: CrawlStatus
+}
+
+export interface CrawlRowProps {
+  item: CrawlNameStatus
+  completionCallback: () => void
+}

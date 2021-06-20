@@ -31,7 +31,8 @@ import {
 } from "@material-ui/core";
 import {useDispatch, useSelector} from "react-redux";
 import {editWebCrawl, State} from "./store";
-import WebCrawlRow, {WebCrawlNameStatus} from "./WebCrawlRow";
+import WebCrawlRow from "./WebCrawlRow";
+import {CrawlNameStatus} from "./types";
 
 const WEB_CRAWL_LIST = gql`
   query WebCrawlList($keywords: String, $start: Int, $rows: Int) {
@@ -62,7 +63,7 @@ const DELETE_WEB_CRAWL = gql`
 `
 
 interface WebCrawlData {
-  webCrawlList: WebCrawlNameStatus[];
+  webCrawlList: CrawlNameStatus[];
 }
 
 const WebCrawls = () => {

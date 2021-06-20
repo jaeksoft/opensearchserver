@@ -17,31 +17,31 @@
 import {useDispatch} from "react-redux";
 import {useLazyQuery, useMutation} from "@apollo/client";
 import {useCallback, useState} from "react";
-import {editWebCrawl} from "./store";
+import {editFileCrawl} from "./store";
 import {Box, Button, TableCell, TableRow, TextField} from "@material-ui/core";
 import {gql} from "@apollo/client/core";
-import {CrawlRowProps, WebCrawlSettings} from "./types";
+import {CrawlRowProps, FileCrawlSettings} from "./types";
 import {toDateTime} from "./Utils";
 
-const RUN_WEB_CRAWL = gql`
-  mutation RunWebCrawl($name: String!) {
-    runWebCrawl(name: $name) {
+const RUN_FILE_CRAWL = gql`
+  mutation RunFileCrawl($name: String!) {
+    runFileCrawl(name: $name) {
       name
     }
   }
 `
-const ABORT_WEB_CRAWL = gql`
-  mutation AbortWebCrawl($name: String!, $reason: String) {
-    abortWebCrawl(name: $name, aborting_reason: $reason)
+const ABORT_FILE_CRAWL = gql`
+  mutation AbortFileCrawl($name: String!, $reason: String) {
+    abortFileCrawl(name: $name, aborting_reason: $reason)
   }
 `
 
-const GET_WEB_CRAWL = gql`
-  query GetWebCrawl($name: String!) {
-    getWebCrawl(name: $name) {
+const GET_FILE_CRAWL = gql`
+  query GetFileCrawl($name: String!) {
+    getFileCrawl(name: $name) {
       index
       settings {
-        entryUrl
+        entryPath
         maxDepth
         filters {
           pattern
@@ -53,18 +53,18 @@ const GET_WEB_CRAWL = gql`
   }
 `
 
-interface GetWebCrawl {
+interface GetFileCrawl {
   index?: string,
-  settings: WebCrawlSettings
+  settings: FileCrawlSettings
 }
 
-interface GetWebCrawlData {
-  getWebCrawl?: GetWebCrawl;
+interface GetFileCrawlData {
+  getFileCrawl?: GetFileCrawl;
 }
 
-const WebCrawlRow = ({item, completionCallback}: CrawlRowProps) => {
+const FileCrawlRow = ({item, completionCallback}: CrawlRowProps) => {
   const dispatch = useDispatch();
-  const [gqlRun] = useMutation(RUN_WEB_CRAWL, {
+  const [gqlRun] = useMutation(RUN_FILE_CRAWL, {
     onCompleted: data => {
       completionCallback();
     },
@@ -73,7 +73,7 @@ const WebCrawlRow = ({item, completionCallback}: CrawlRowProps) => {
       console.error(err);
     }
   });
-  const [gqlAbort] = useMutation(ABORT_WEB_CRAWL, {
+  const [gqlAbort] = useMutation(ABORT_FILE_CRAWL, {
     onCompleted: data => {
       completionCallback();
     },
@@ -82,16 +82,16 @@ const WebCrawlRow = ({item, completionCallback}: CrawlRowProps) => {
       console.error(err);
     }
   });
-  const [gqlGetCrawl] = useLazyQuery<GetWebCrawlData>(GET_WEB_CRAWL, {
+  const [gqlGetCrawl] = useLazyQuery<GetFileCrawlData>(GET_FILE_CRAWL, {
     variables: {name: item.name},
     fetchPolicy: 'no-cache',
     onCompleted: data => {
-      if (!data.getWebCrawl) {
+      if (!data.getFileCrawl) {
         const err = "The crawl does not exist: " + item.name;
         alert(err);
         console.error(err);
       } else {
-        dispatch(editWebCrawl(item.name, data.getWebCrawl.index, data.getWebCrawl.settings));
+        dispatch(editFileCrawl(item.name, data.getFileCrawl.index, data.getFileCrawl.settings));
       }
     },
     onError: err => {
@@ -160,4 +160,4 @@ const WebCrawlRow = ({item, completionCallback}: CrawlRowProps) => {
   )
 }
 
-export default WebCrawlRow;
+export default FileCrawlRow;

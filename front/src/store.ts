@@ -15,7 +15,7 @@
  */
 
 import {createStore} from "redux";
-import {WebCrawlSettings} from "./types";
+import {FileCrawlSettings, WebCrawlSettings} from "./types";
 
 export const STATE_KEY = "opensearchserver:state";
 
@@ -41,7 +41,11 @@ export interface State {
     indexName: string | undefined,
     settings: WebCrawlSettings | undefined
   } | undefined,
-  selectedFileCrawl: string | undefined,
+  editFileCrawl: {
+    crawlName: string,
+    indexName: string | undefined,
+    settings: FileCrawlSettings | undefined
+  } | undefined,
 }
 
 const defaultState: State = {
@@ -49,7 +53,7 @@ const defaultState: State = {
   crawlsView: CrawlsViews.WEB_CRAWLS,
   selectedIndex: undefined,
   editWebCrawl: undefined,
-  selectedFileCrawl: undefined
+  editFileCrawl: undefined
 }
 
 enum ActionTypes {
@@ -84,7 +88,9 @@ interface EditWebCrawlAction {
 
 interface EditFileCrawlAction {
   type: ActionTypes.EDIT_FILE_CRAWL;
-  selectedCrawl: string;
+  crawlName: string;
+  indexName?: string;
+  settings?: FileCrawlSettings;
 }
 
 type Actions = SetViewAction | SetCrawlsViewAction | EditSchemaAction | EditWebCrawlAction | EditFileCrawlAction;
@@ -105,8 +111,8 @@ export const editWebCrawl = (crawlName: string, indexName?: string, settings?: W
   return {type: ActionTypes.EDIT_WEB_CRAWL, crawlName, indexName, settings};
 };
 
-export const editFileCrawl = (selectedCrawl: string): EditFileCrawlAction => {
-  return {type: ActionTypes.EDIT_FILE_CRAWL, selectedCrawl};
+export const editFileCrawl = (crawlName: string, indexName?: string, settings?: FileCrawlSettings): EditFileCrawlAction => {
+  return {type: ActionTypes.EDIT_FILE_CRAWL, crawlName, indexName, settings};
 };
 
 const reducer = (state: State = defaultState, action: Actions): State => {
@@ -115,7 +121,13 @@ const reducer = (state: State = defaultState, action: Actions): State => {
       state = {...state, view: action.view};
       break;
     case ActionTypes.SET_CRAWLS_VIEW:
-      state = {...state, view: Views.CRAWLS, crawlsView: action.crawlsView, editWebCrawl: undefined};
+      state = {
+        ...state,
+        view: Views.CRAWLS,
+        crawlsView: action.crawlsView,
+        editWebCrawl: undefined,
+        editFileCrawl: undefined
+      };
       break;
     case ActionTypes.EDIT_SCHEMA:
       state = {
@@ -135,7 +147,7 @@ const reducer = (state: State = defaultState, action: Actions): State => {
     case ActionTypes.EDIT_FILE_CRAWL:
       state = {
         ...state,
-        selectedFileCrawl: action.selectedCrawl,
+        editFileCrawl: {crawlName: action.crawlName, indexName: action.indexName, settings: action.settings},
         view: Views.CRAWLS,
         crawlsView: CrawlsViews.FILE_CRAWLS
       };

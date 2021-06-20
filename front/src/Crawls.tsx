@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 Emmanuel Keller / Jaeksoft
+ * Copyright 2017-2021 Emmanuel Keller / Jaeksoft
  *  <p>
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,12 +21,13 @@ import * as React from "react";
 import WebCrawls from "./WebCrawls";
 import FileCrawls from "./FileCrawls";
 import WebCrawl from "./WebCrawlEdit";
-import FileCrawl from "./FileCrawl";
+import FileCrawlEdit from "./FileCrawlEdit";
 
 const Crawls = () => {
   const dispatch = useDispatch();
   const crawlsView = useSelector<State>(state => state.crawlsView);
-  const editWebCrawl= useSelector<State>(state => state.editWebCrawl);
+  const editWebCrawl = useSelector<State>(state => state.editWebCrawl);
+  const editFileCrawl = useSelector<State>(state => state.editFileCrawl);
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     dispatch(setCrawlsView(newValue))
@@ -43,9 +44,9 @@ const Crawls = () => {
         </Tabs>
       </AppBar>
       {(crawlsView === CrawlsViews.WEB_CRAWLS && !editWebCrawl) && <WebCrawls/>}
-      {(crawlsView === CrawlsViews.FILE_CRAWLS && true) && <FileCrawls/>}
+      {(crawlsView === CrawlsViews.FILE_CRAWLS && !editFileCrawl) && <FileCrawls/>}
       {(crawlsView === CrawlsViews.WEB_CRAWLS && editWebCrawl) && <WebCrawl/>}
-      {(crawlsView === CrawlsViews.FILE_CRAWLS &&false) && <FileCrawl/>}
+      {(crawlsView === CrawlsViews.FILE_CRAWLS && editFileCrawl) && <FileCrawlEdit/>}
     </div>
   )
 }

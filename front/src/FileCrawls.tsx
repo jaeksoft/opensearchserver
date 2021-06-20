@@ -18,7 +18,6 @@ import {gql} from "@apollo/client/core";
 import {useCallback, useState} from "react";
 import {useMutation, useQuery} from "@apollo/client";
 import {
-  Box,
   Button, CircularProgress,
   Grid,
   Paper,
@@ -30,8 +29,10 @@ import {
   TableRow,
   TextField
 } from "@material-ui/core";
-import {useDispatch} from "react-redux";
-import {editFileCrawl, editWebCrawl} from "./store";
+import {useDispatch, useSelector} from "react-redux";
+import {editFileCrawl, State} from "./store";
+import FileCrawlRow from "./FileCrawlRow";
+import {CrawlNameStatus} from "./types";
 
 const FILE_CRAWL_LIST = gql`
   query FileCrawlList($keywords: String, $start: Int, $rows: Int) {
@@ -55,115 +56,28 @@ const FILE_CRAWL_LIST = gql`
   }
 `;
 
-const ABORT_FILE_CRAWL = gql`
-  mutation StopFileCrawl($name: String!, $reason: String) {
-    abortFileCrawl(name: $name, aborting_reason: $reason)
-  }
-`
-
 const DELETE_FILE_CRAWL = gql`
   mutation DeleteFileCrawl($name: String!) {
     deleteFileCrawl(name: $name)
   }
 `
 
-interface FileCrawlStatus {
-  startTime?: number
-  endTime?: number
-  crawled?: number
-  rejected?: number
-  error?: number
-  running?: boolean
-  aborting?: boolean
-  abortingReason?: string
-}
-
-interface FileCrawlNameStatus {
-  name: string
-  status: FileCrawlStatus
-}
-
 interface FileCrawlData {
-  fileCrawlList: FileCrawlNameStatus[];
-}
-
-interface FileCrawlRowProps {
-  item: FileCrawlNameStatus
-  stopCallback: () => void
-}
-
-const FileCrawlRow = ({item, stopCallback}: FileCrawlRowProps) => {
-  const [gqlAbort, {loading: loadingStop}] = useMutation(ABORT_FILE_CRAWL, {
-    onCompleted: data => {
-      stopCallback();
-    },
-    onError: err => {
-      alert(err);
-      console.error(err);
-    }
-  });
-  const [abortingReason, setAbortingReason] = useState<string | undefined>(item.status.abortingReason);
-
-  const abortCrawlAction = useCallback(async () => {
-    await gqlAbort({variables: {name: item.name, reason: abortingReason}});
-  }, [abortingReason]);
-
-  const toDateTime = (timeMs?: number): string | undefined => {
-    if (!timeMs)
-      return undefined;
-    const date = new Date(timeMs);
-    return date.toLocaleString();
-  };
-
-  const disableStop = item.status.endTime ? true : item.status.aborting;
-  const endTime = item.status.endTime ? toDateTime(item.status.endTime) : item.status.aborting ? 'Aborting...' : undefined;
-
-  return (
-    <TableRow key={item.name}>
-      <TableCell>
-        {item.name}
-      </TableCell>
-      <TableCell>
-        {toDateTime(item.status.startTime)}
-      </TableCell>
-      <TableCell>
-        {endTime}
-      </TableCell>
-      <TableCell>
-        {item.status.crawled}
-      </TableCell>
-      <TableCell>
-        {item.status.rejected}
-      </TableCell>
-      <TableCell>
-        {item.status.error}
-      </TableCell>
-      <TableCell>
-        <Box display={"flex"} alignItems={"flex-end"}>
-          <Box mr={1} flexGrow={1}>
-            <TextField label="Aborting reason" value={abortingReason} disabled={disableStop}
-                       onChange={e => setAbortingReason(e.target.value)} size={"small"} fullWidth={true}/>
-          </Box>
-          <Button disabled={disableStop} size={"small"}
-                  variant="contained" onClick={abortCrawlAction} color="secondary">Stop
-          </Button>
-        </Box>
-      </TableCell>
-    </TableRow>
-  )
+  fileCrawlList: CrawlNameStatus[];
 }
 
 const FileCrawls = () => {
   const dispatch = useDispatch();
+  const selectedIndex = useSelector((state: State) => state.selectedIndex);
   const [keywords, setKeywords] = useState<string>('');
-  const [start, setStart] = useState<number>(0);
-  const [rows, setRows] = useState<number>(1000);
+  const [start] = useState<number>(0);
+  const [rows] = useState<number>(1000);
   const {loading, error, data, refetch} = useQuery<FileCrawlData>(FILE_CRAWL_LIST, {
     variables: {keywords: keywords, start: start, rows: rows},
     fetchPolicy: "no-cache",
     pollInterval: 10000
   });
-  const [gqlDelete, {loading: loadingDelete, error: errorDelete}] = useMutation(DELETE_FILE_CRAWL, {
+  const [gqlDelete, {loading: loadingDelete}] = useMutation(DELETE_FILE_CRAWL, {
     variables: {name: keywords},
     onError: err => {
       alert(err);
@@ -175,9 +89,9 @@ const FileCrawls = () => {
     console.error("GQL FILE_CRAWL_LIST error: ", error);
   }
 
-  const startCrawlAction = useCallback(() => {
-    dispatch(editFileCrawl(keywords));
-  }, [keywords]);
+  const editCrawlAction = useCallback(() => {
+    dispatch(editFileCrawl(keywords, selectedIndex, undefined));
+  }, [dispatch, selectedIndex, keywords]);
 
   return (
     <TableContainer component={Paper}>
@@ -197,7 +111,7 @@ const FileCrawls = () => {
                 <Grid item xs={"auto"}>
                   <Button disabled={!keywords || keywords.length === 0 || !data || data.fileCrawlList.length > 0}
                           fullWidth={true} size={"small"}
-                          variant="contained" onClick={startCrawlAction}
+                          variant="contained" onClick={editCrawlAction}
                           color="primary">Create crawl
                   </Button>
                 </Grid>
@@ -223,7 +137,7 @@ const FileCrawls = () => {
         </TableHead>
         <TableBody>
           {data?.fileCrawlList.map((item) =>
-            <FileCrawlRow item={item} stopCallback={() => refetch()}/>
+            <FileCrawlRow key={item.name} item={item} completionCallback={() => refetch()}/>
           )}
         </TableBody>
       </Table>
