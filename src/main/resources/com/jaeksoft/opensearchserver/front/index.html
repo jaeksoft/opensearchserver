@@ -1,1 +1,78 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="OpenSearchServer"/><link rel="manifest" href="/manifest.json"/><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/><title>OpenSearchServer</title><link href="/static/css/2.25258ce8.chunk.css" rel="stylesheet"></head><body style="margin:0;padding:0"><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div><script>!function(e){function r(r){for(var n,l,a=r[0],p=r[1],f=r[2],c=0,s=[];c<a.length;c++)l=a[c],Object.prototype.hasOwnProperty.call(o,l)&&o[l]&&s.push(o[l][0]),o[l]=0;for(n in p)Object.prototype.hasOwnProperty.call(p,n)&&(e[n]=p[n]);for(i&&i(r);s.length;)s.shift()();return u.push.apply(u,f||[]),t()}function t(){for(var e,r=0;r<u.length;r++){for(var t=u[r],n=!0,a=1;a<t.length;a++){var p=t[a];0!==o[p]&&(n=!1)}n&&(u.splice(r--,1),e=l(l.s=t[0]))}return e}var n={},o={1:0},u=[];function l(r){if(n[r])return n[r].exports;var t=n[r]={i:r,l:!1,exports:{}};return e[r].call(t.exports,t,t.exports,l),t.l=!0,t.exports}l.m=e,l.c=n,l.d=function(e,r,t){l.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},l.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},l.t=function(e,r){if(1&r&&(e=l(e)),8&r)return e;if(4&r&&"object"==typeof e&&e&&e.__esModule)return e;var t=Object.create(null);if(l.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:e}),2&r&&"string"!=typeof e)for(var n in e)l.d(t,n,function(r){return e[r]}.bind(null,n));return t},l.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return l.d(r,"a",r),r},l.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},l.p="/";var a=this.webpackJsonpopensearchserver=this.webpackJsonpopensearchserver||[],p=a.push.bind(a);a.push=r,a=a.slice();for(var f=0;f<a.length;f++)r(a[f]);var i=p;t()}([])</script><script src="/static/js/2.0a5d512e.chunk.js"></script><script src="/static/js/main.30607544.chunk.js"></script></body></html>
+<!--
+ *  Copyright (c) 2021 GraphQL Contributors
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the license found in the
+ *  LICENSE file in the root directory of this source tree.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OpenSearchServer console</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      height: 100%;
+      margin: 0;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    #graphiql {
+      height: 100vh;
+    }
+  </style>
+  <!--
+    This GraphiQL example depends on Promise and fetch, which are available in
+    modern browsers, but can be "polyfilled" for older browsers.
+    GraphiQL itself depends on React DOM.
+    If you do not want to rely on a CDN, you can host these files locally or
+    include them directly in your favored resource bunder.
+  -->
+  <script src="/webjars/react/16.14.0/umd/react.production.min.js"></script>
+  <script src="/webjars/react-dom/16.14.0/umd/react-dom.production.min.js"></script>
+
+  <!--
+    These two files can be found in the npm module, however you may wish to
+    copy them directly into your environment, or perhaps include them in your
+    favored resource bundler.
+   -->
+  <link rel="stylesheet" href="/webjars/graphiql/1.4.1/graphiql.css"/>
+</head>
+
+<body>
+<div id="graphiql">Loading...</div>
+<script
+  src="/webjars/graphiql/1.4.1/graphiql.min.js"
+  type="application/javascript"
+></script>
+<script>
+  function graphQLFetcher(graphQLParams) {
+    return fetch(
+      'http://localhost:9090/graphql',
+      {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(graphQLParams),
+        credentials: 'omit',
+      },
+    ).then(function (response) {
+      return response.json().catch(function () {
+        return response.text();
+      });
+    });
+  }
+
+  ReactDOM.render(
+    React.createElement(GraphiQL, {
+      fetcher: graphQLFetcher,
+      defaultVariableEditorOpen: true,
+    }),
+    document.getElementById('graphiql'),
+  );
+</script>
+</body>
+</html>

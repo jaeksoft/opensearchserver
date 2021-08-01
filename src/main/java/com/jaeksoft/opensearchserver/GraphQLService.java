@@ -16,59 +16,24 @@
 
 package com.jaeksoft.opensearchserver;
 
-import com.qwazr.utils.IOUtils;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import graphql.scalars.ExtendedScalars;
-import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.idl.RuntimeWiring;
-import graphql.schema.idl.SchemaGenerator;
-import graphql.schema.idl.SchemaParser;
-import graphql.schema.idl.TypeDefinitionRegistry;
-import graphql.schema.idl.TypeRuntimeWiring;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 
 public class GraphQLService {
 
-    private final GraphQL graphQL;
+    private volatile GraphQL graphQL;
 
-    public GraphQLService(final DataFetcherProvider... dataFetcherProviders) throws IOException {
-
-        // Read the schema from resources
-        final String schema = IOUtils.resourceToString(
-            "/com/jaeksoft/opensearchserver/schema.graphqls",
-            StandardCharsets.UTF_8);
-
-        final SchemaParser schemaParser = new SchemaParser();
-        final TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
-
-        // Group together the fetchers by types
-        final Map<String, Map<String, DataFetcher<?>>> dataFetcherMap = new HashMap<>();
-        for (DataFetcherProvider dataFetcherProvider : dataFetcherProviders) {
-            dataFetcherProvider.getDataFetchers().forEach(
-                (type, dataFetchers) -> dataFetcherMap.computeIfAbsent(
-                    type, t -> new HashMap<>()).putAll(dataFetchers));
-        }
-
-        // Build the graphql wiring
-        final RuntimeWiring.Builder runtimeWiring = RuntimeWiring.newRuntimeWiring().scalar(ExtendedScalars.GraphQLLong);
-        dataFetcherMap.forEach((type, dataFetchers) -> {
-            final TypeRuntimeWiring.Builder typeWiring = TypeRuntimeWiring.newTypeWiring(type);
-            dataFetchers.forEach(typeWiring::dataFetcher);
-            runtimeWiring.type(typeWiring);
-        });
-
-        final SchemaGenerator schemaGenerator = new SchemaGenerator();
-        final GraphQLSchema graphQLSchema = schemaGenerator.makeExecutableSchema(
-            typeDefinitionRegistry, runtimeWiring.build());
-        graphQL = GraphQL.newGraphQL(graphQLSchema).build();
+    public GraphQLService(final GraphQLSchema schema) throws IOException {
+        newSchema(schema);
     }
 
+    public synchronized void newSchema(final GraphQLSchema schema) {
+        graphQL = GraphQL.newGraphQL(schema).build();
+    }
 
     public ExecutionResult query(String operationName, String query, Map<String, Object> variables) {
         final ExecutionInput.Builder builder = ExecutionInput.newExecutionInput(query);
@@ -77,10 +42,6 @@ public class GraphQLService {
         if (variables != null)
             builder.variables(variables);
         return graphQL.execute(builder.build());
-    }
-
-    public interface DataFetcherProvider {
-        Map<String, Map<String, DataFetcher<?>>> getDataFetchers();
     }
 
 }

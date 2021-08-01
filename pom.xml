@@ -154,25 +154,38 @@
     </dependency>
     <dependency>
       <groupId>com.qwazr</groupId>
-      <artifactId>qwazr-crawlers</artifactId>
-      <version>${qwazr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.qwazr</groupId>
-      <artifactId>qwazr-extractor</artifactId>
-      <version>${qwazr.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.qwazr</groupId>
       <artifactId>qwazr-server</artifactId>
       <version>${qwazr.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>jakarta.activation</artifactId>
+          <groupId>com.sun.activation</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- End Qwazr -->
+
+    <!-- Webjars -->
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>react</artifactId>
+      <version>16.14.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>react-dom</artifactId>
+      <version>16.14.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>graphiql</artifactId>
+      <version>1.4.1</version>
+    </dependency>
 
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-servlet-filter-adapter</artifactId>
-      <version>13.0.1</version>
+      <version>14.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.graphql-java</groupId>
@@ -420,57 +433,6 @@
           <releaseProfiles>release</releaseProfiles>
           <goals>deploy</goals>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.2</version>
-        <configuration>
-          <excludeTransitive>true</excludeTransitive>
-        </configuration>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.qwazr</groupId>
-                  <artifactId>qwazr-library-html</artifactId>
-                  <version>${qwazr.version}</version>
-                  <type>jar</type>
-                  <classifier>shaded</classifier>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.qwazr</groupId>
-                  <artifactId>qwazr-library-pdfbox</artifactId>
-                  <version>${qwazr.version}</version>
-                  <type>jar</type>
-                  <classifier>shaded</classifier>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.qwazr</groupId>
-                  <artifactId>qwazr-library-poi</artifactId>
-                  <version>${qwazr.version}</version>
-                  <type>jar</type>
-                  <classifier>shaded</classifier>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>com.qwazr</groupId>
-                  <artifactId>qwazr-library-odf</artifactId>
-                  <version>${qwazr.version}</version>
-                  <type>jar</type>
-                  <classifier>shaded</classifier>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>parsers</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
     </plugins>

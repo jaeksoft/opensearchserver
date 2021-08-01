@@ -37,23 +37,19 @@ public class Server extends Components {
         super(configuration.dataDirectory);
 
         final GenericServerBuilder serverBuilder = GenericServer.of(configuration)
-            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"))
-            .sessionPersistenceManager(getSessionPersistenceManager());
+            .webAppAccessLogger(Logger.getLogger("com.qwazr.AccessLogs"));
 
         final WebappBuilder webappBuilder = serverBuilder.getWebAppContext().getWebappBuilder();
 
         webappBuilder
+            .registerWebjars()
             .registerCustomFaviconServlet("/com/jaeksoft/opensearchserver/front/favicon.ico")
-            .registerStaticServlet("/static/*", "/com/jaeksoft/opensearchserver/front/static")
             .registerStaticServlet("/", "/com/jaeksoft/opensearchserver/front/index.html")
-            .registerStaticServlet("/manifest.json", "/com/jaeksoft/opensearchserver/front/manifest.json")
             .registerJaxRsResources(
                 ApplicationBuilder.of("/ws/*")
                     .classes(RestApplication.WithAuth.JSON_CLASSES)
                     .singletons(
                         getIndexService(),
-                        getWebCrawlerService(),
-                        getFileCrawlerService(),
                         new CorsFilter()))
             .registerJaxRsResources(
                 ApplicationBuilder.of("/graphql/*")

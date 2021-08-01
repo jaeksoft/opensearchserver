@@ -15,25 +15,13 @@
  */
 package com.jaeksoft.opensearchserver;
 
-import com.qwazr.crawler.file.FileCrawlerManager;
-import com.qwazr.crawler.file.FileCrawlerServiceInterface;
-import com.qwazr.crawler.file.FileCrawlerSingleClient;
-import com.qwazr.crawler.web.WebCrawlerManager;
-import com.qwazr.crawler.web.WebCrawlerServiceInterface;
-import com.qwazr.crawler.web.WebCrawlerSingleClient;
-import com.qwazr.extractor.ExtractorManager;
-import com.qwazr.extractor.ExtractorServiceInterface;
-import com.qwazr.library.AbstractLibrary;
 import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.IndexServiceInterface;
 import com.qwazr.search.index.IndexSingleClient;
-import com.qwazr.server.InFileSessionPersistenceManager;
 import com.qwazr.server.RemoteService;
 import com.qwazr.utils.LoggerUtils;
-import com.qwazr.utils.concurrent.BlockingExecutorService;
 import com.qwazr.utils.concurrent.ConsumerEx;
 import com.qwazr.utils.concurrent.SupplierEx;
-import io.undertow.servlet.api.SessionPersistenceManager;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
@@ -52,12 +39,6 @@ import javax.ws.rs.InternalServerErrorException;
 public class Components implements Closeable {
 
     public final static String INDEX_SERVICE_ATTRIBUTE = "indexService";
-    public final static String EXTRACTOR_SERVICE_ATTRIBUTE = "extractorService";
-
-    private final static String WEB_CRAWLER_DIRECTORY = "web-crawler";
-    private final static String FILE_CRAWLER_DIRECTORY = "file-crawler";
-    private final static String SESSIONS_DIRECTORY = "sessions";
-    private final static String PARSERS_DIRECTORY = "parsers";
 
     private final static Logger LOGGER = LoggerUtils.getLogger(Components.class);
 
@@ -68,25 +49,12 @@ public class Components implements Closeable {
 
     private final AtomicProvider<ExecutorService> executorService = new AtomicProvider<>();
 
-    private final AtomicProvider<ExecutorService> crawlerExecutorService = new AtomicProvider<>();
-
     private final AtomicProvider<ConfigService> configService = new AtomicProvider<>();
 
     private final AtomicProvider<IndexManager> indexManager = new AtomicProvider<>();
     private final AtomicProvider<IndexServiceInterface> indexService = new AtomicProvider<>();
 
-    private final AtomicProvider<WebCrawlerManager> webCrawlerManager = new AtomicProvider<>();
-    private final AtomicProvider<WebCrawlerServiceInterface> webCrawlerService = new AtomicProvider<>();
-
-    private final AtomicProvider<FileCrawlerManager> fileCrawlerManager = new AtomicProvider<>();
-    private final AtomicProvider<FileCrawlerServiceInterface> fileCrawlerService = new AtomicProvider<>();
-
-    private final AtomicProvider<ExtractorManager> extractorManager = new AtomicProvider<>();
-    private final AtomicProvider<ExtractorServiceInterface> extractorService = new AtomicProvider<>();
-
     private final AtomicProvider<GraphQLService> graphqlService = new AtomicProvider<>();
-
-    private final AtomicProvider<SessionPersistenceManager> sessionPersistenceManager = new AtomicProvider<>();
 
     Components(final Path dataDirectory) {
         this.dataDirectory = dataDirectory;
@@ -117,8 +85,6 @@ public class Components implements Closeable {
                     value = defaultSupplier.get();
                     if (value instanceof AutoCloseable)
                         providersWithAutoCloseableValue.addFirst(this);
-                    if (value instanceof AbstractLibrary)
-                        ((AbstractLibrary) value).load();
                 } catch (Exception e) {
                     throw new InternalServerErrorException("Cannot create the component", e);
                 }
@@ -167,10 +133,6 @@ public class Components implements Closeable {
         return executorService.get(Executors::newCachedThreadPool);
     }
 
-    private ExecutorService getCrawlerExecutorService() {
-        return crawlerExecutorService.get(() -> new BlockingExecutorService(getConfigService().getCrawlerThreadPoolSize()));
-    }
-
     public ConfigService getConfigService() {
         return configService.get(() -> new ConfigService(
             dataDirectory.resolve(System.getProperty("com.opensearchserver.config", "config.properties"))));
@@ -190,98 +152,21 @@ public class Components implements Closeable {
         });
     }
 
-    private FileCrawlerManager getFileCrawlerManager() {
-        final FileCrawlerManager crawlerManager = fileCrawlerManager.get(
-            () -> new FileCrawlerManager(
-                createDataSubDirectoryIfNotExists(FILE_CRAWLER_DIRECTORY),
-                "localhost",
-                getExecutorService(),
-                getCrawlerExecutorService()));
-        crawlerManager.registerAttribute(EXTRACTOR_SERVICE_ATTRIBUTE, getExtractorService());
-        crawlerManager.registerAttribute(INDEX_SERVICE_ATTRIBUTE, getIndexService());
-        return crawlerManager;
-    }
-
-    protected FileCrawlerServiceInterface getFileCrawlerService() {
-        return fileCrawlerService.get(() -> {
-            if (getConfigService().getFileCrawlerServiceUri() != null)
-                return new FileCrawlerSingleClient(
-                    RemoteService.of(getConfigService().getFileCrawlerServiceUri()).build()
-                );
-            else
-                return getFileCrawlerManager().getService();
-        });
-    }
-
-    private WebCrawlerManager getWebCrawlerManager() {
-        final WebCrawlerManager crawlerManager = webCrawlerManager.get(
-            () -> new WebCrawlerManager(
-                createDataSubDirectoryIfNotExists(WEB_CRAWLER_DIRECTORY),
-                "localhost",
-                getExecutorService(),
-                getCrawlerExecutorService()));
-        crawlerManager.registerAttribute(EXTRACTOR_SERVICE_ATTRIBUTE, getExtractorService());
-        crawlerManager.registerAttribute(INDEX_SERVICE_ATTRIBUTE, getIndexService());
-        return crawlerManager;
-    }
-
-    protected WebCrawlerServiceInterface getWebCrawlerService() {
-        return webCrawlerService.get(() -> {
-            if (getConfigService().getWebCrawlerServiceUri() != null)
-                return new WebCrawlerSingleClient(
-                    RemoteService.of(getConfigService().getWebCrawlerServiceUri()).build()
-                );
-            else
-                return getWebCrawlerManager().getService();
-        });
-    }
-
-    private ExtractorManager getExtractorManager() {
-        return extractorManager.get(() -> {
-            final ExtractorManager extractorManager = new ExtractorManager();
-            Path parsersPath = getConfigService().getParsersDirectoryPath();
-            if (parsersPath == null)
-                parsersPath = createDataSubDirectoryIfNotExists(PARSERS_DIRECTORY);
-            extractorManager.registerShadedJars(parsersPath);
-            return extractorManager;
-        });
-    }
-
-    protected ExtractorServiceInterface getExtractorService() {
-        return extractorService.get(() -> getExtractorManager().getService());
-    }
-
     public GraphQLService getGraphQLService() {
         return graphqlService.get(() -> new GraphQLService(
-            new GraphQLFunctions(getIndexService(), getWebCrawlerService(), getFileCrawlerService())));
-    }
-
-    public SessionPersistenceManager getSessionPersistenceManager() {
-        return sessionPersistenceManager.get(
-            () -> new InFileSessionPersistenceManager(createDataSubDirectoryIfNotExists(SESSIONS_DIRECTORY)));
+            new GraphQLFunctions(getIndexService()).getGraphQLSchema()));
     }
 
     @Override
     public synchronized void close() {
 
-        // First we shutdown the executorService
-        crawlerExecutorService.ifPresent(true, ExecutorService::shutdown);
-        executorService.ifPresent(true, ExecutorService::shutdown);
-
         // Then we close components in reverse order
         providersWithAutoCloseableValue.forEach(AtomicProvider::close);
         providersWithAutoCloseableValue.clear();
 
-        // Let's wait 5 minutes for all threads to be done
-        crawlerExecutorService.ifPresent(true, executor -> executor.awaitTermination(5, TimeUnit.MINUTES));
-        executorService.ifPresent(true, executor -> executor.awaitTermination(5, TimeUnit.MINUTES));
-
-        // Second chance shutdown
-        crawlerExecutorService.ifPresent(true, ExecutorService::shutdownNow);
-        executorService.ifPresent(true, ExecutorService::shutdownNow);
-
         // Closing/resetting every providers
         providers.forEach(AtomicProvider::close);
+        providers.clear();
 
     }
 

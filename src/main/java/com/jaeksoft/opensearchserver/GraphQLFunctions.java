@@ -19,61 +19,113 @@ package com.jaeksoft.opensearchserver;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.qwazr.crawler.file.FileCrawlDefinition;
-import com.qwazr.crawler.file.FileCrawlSessionStatus;
-import com.qwazr.crawler.file.FileCrawlerServiceInterface;
-import com.qwazr.crawler.web.WebCrawlDefinition;
-import com.qwazr.crawler.web.WebCrawlSessionStatus;
-import com.qwazr.crawler.web.WebCrawlerServiceInterface;
 import com.qwazr.search.index.IndexServiceInterface;
-import com.qwazr.utils.ObjectMappers;
-import graphql.schema.DataFetcher;
+import static graphql.Scalars.GraphQLBoolean;
+import static graphql.Scalars.GraphQLString;
 import graphql.schema.DataFetchingEnvironment;
-import java.io.IOException;
+import static graphql.schema.FieldCoordinates.coordinates;
+import static graphql.schema.GraphQLArgument.newArgument;
+import graphql.schema.GraphQLCodeRegistry;
+import static graphql.schema.GraphQLCodeRegistry.newCodeRegistry;
+import graphql.schema.GraphQLFieldDefinition;
+import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
+import graphql.schema.GraphQLList;
+import graphql.schema.GraphQLNonNull;
+import graphql.schema.GraphQLObjectType;
+import static graphql.schema.GraphQLObjectType.newObject;
+import graphql.schema.GraphQLSchema;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.ws.rs.WebApplicationException;
 
-class GraphQLFunctions implements GraphQLService.DataFetcherProvider {
+class GraphQLFunctions {
 
     private final IndexServiceInterface indexService;
-    private final WebCrawlerServiceInterface webCrawlService;
-    private final FileCrawlerServiceInterface fileCrawlService;
 
-    GraphQLFunctions(final IndexServiceInterface indexService,
-                     final WebCrawlerServiceInterface webCrawlService,
-                     final FileCrawlerServiceInterface fileCrawlService) {
+    GraphQLFunctions(final IndexServiceInterface indexService) {
         this.indexService = indexService;
-        this.webCrawlService = webCrawlService;
-        this.fileCrawlService = fileCrawlService;
     }
 
-    @Override
-    public Map<String, Map<String, DataFetcher<?>>> getDataFetchers() {
-        return Map.of(
-            "Query", Map.of(
-                "indexList", this::indexList,
-                "webCrawlList", this::webCrawlList,
-                "fileCrawlList", this::fileCrawlList,
-                "getWebCrawl", this::getWebCrawl,
-                "getFileCrawl", this::getFileCrawl
-            ),
-            "Mutation", Map.of(
-                "createIndex", this::createIndex,
-                "deleteIndex", this::deleteIndex,
-                "upsertWebCrawl", this::upsertWebCrawl,
-                "runWebCrawl", this::runWebCrawl,
-                "abortWebCrawl", this::abortWebCrawl,
-                "deleteWebCrawl", this::deleteWebCrawl,
-                "upsertFileCrawl", this::upsertFileCrawl,
-                "runFileCrawl", this::runFileCrawl,
-                "abortFileCrawl", this::abortFileCrawl,
-                "deleteFileCrawl", this::deleteFileCrawl
-            )
+    public GraphQLSchema getGraphQLSchema() {
+
+        final GraphQLObjectType indexType = newObject()
+            .name("Index")
+            .description("An index")
+            .field(newFieldDefinition()
+                .name("name")
+                .description("The name of the index")
+                .type(GraphQLNonNull.nonNull(GraphQLString)))
+            .field(newFieldDefinition()
+                .name("id")
+                .description("The unique id of the index")
+                .type(GraphQLNonNull.nonNull(GraphQLString)))
+            .build();
+
+        final List<GraphQLFieldDefinition> queries = List.of(
+            newFieldDefinition()
+                .name("indexList")
+                .argument(
+                    newArgument()
+                        .name("keywords")
+                        .description("Filter the index list ")
+                        .type(GraphQLString)
+                        .build())
+                .type(GraphQLList.list(indexType))
+                .build()
         );
+
+
+        final List<GraphQLFieldDefinition> mutations = List.of(
+            newFieldDefinition()
+                .name("createIndex")
+                .argument(
+                    newArgument()
+                        .name("name")
+                        .description("The name of the index to create")
+                        .type(GraphQLNonNull.nonNull(GraphQLString))
+                        .build())
+                .type(GraphQLBoolean)
+                .build(),
+            newFieldDefinition()
+                .name("deleteIndex")
+                .argument(
+                    newArgument()
+                        .name("name")
+                        .description("The name of the index to delete")
+                        .type(GraphQLNonNull.nonNull(GraphQLString))
+                        .build())
+                .type(GraphQLBoolean)
+                .build());
+
+        final GraphQLSchema.Builder builder = GraphQLSchema.newSchema();
+
+        builder.query(newObject()
+            .name("Query")
+            .description("root queries")
+            .fields(queries)
+            .build());
+
+        builder.mutation(newObject()
+            .name("Mutation")
+            .description("root mutations")
+            .fields(mutations)
+            .build());
+
+        final GraphQLCodeRegistry codeRegistry = newCodeRegistry()
+            .dataFetcher(
+                coordinates("Query", "indexList"),
+                this::indexList)
+            .dataFetcher(
+                coordinates("Mutation", "createIndex"),
+                this::createIndex)
+            .dataFetcher(
+                coordinates("Mutation", "deleteIndex"),
+                this::deleteIndex)
+            .build();
+
+        return builder.codeRegistry(codeRegistry).build();
     }
 
     private List<Index> indexList(final DataFetchingEnvironment environment) {
@@ -134,188 +186,4 @@ class GraphQLFunctions implements GraphQLService.DataFetcherProvider {
         }
     }
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonAutoDetect(
-        setterVisibility = JsonAutoDetect.Visibility.NONE,
-        getterVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-        creatorVisibility = JsonAutoDetect.Visibility.NONE,
-        fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
-    public static class FileCrawlStatus {
-
-        @JsonProperty
-        public final String name;
-        @JsonProperty
-        public final FileCrawlSessionStatus status;
-
-        FileCrawlStatus(final String name, final FileCrawlSessionStatus status) {
-            this.name = name;
-            this.status = status;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonAutoDetect(
-        setterVisibility = JsonAutoDetect.Visibility.NONE,
-        getterVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-        creatorVisibility = JsonAutoDetect.Visibility.NONE,
-        fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
-    public static class WebCrawlStatus {
-
-        @JsonProperty
-        public final String name;
-        @JsonProperty
-        public final WebCrawlSessionStatus status;
-
-        WebCrawlStatus(final String name, final WebCrawlSessionStatus status) {
-            this.name = name;
-            this.status = status;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonAutoDetect(
-        setterVisibility = JsonAutoDetect.Visibility.NONE,
-        getterVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-        creatorVisibility = JsonAutoDetect.Visibility.NONE,
-        fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
-    public static class FileCrawl {
-
-        @JsonProperty
-        public final String index;
-        @JsonProperty
-        public final FileCrawlDefinition settings;
-
-        FileCrawl(final String index, final FileCrawlDefinition settings) {
-            this.index = index;
-            this.settings = settings;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @JsonAutoDetect(
-        setterVisibility = JsonAutoDetect.Visibility.NONE,
-        getterVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-        creatorVisibility = JsonAutoDetect.Visibility.NONE,
-        fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
-    public static class WebCrawl {
-
-        @JsonProperty
-        public final String index;
-        @JsonProperty
-        public final WebCrawlDefinition settings;
-
-        WebCrawl(final String index, final WebCrawlDefinition settings) {
-            this.index = index;
-            this.settings = settings;
-        }
-    }
-
-    private List<WebCrawlStatus> webCrawlList(final DataFetchingEnvironment environment) {
-        final String keywords = environment.getArgument("keywords");
-        final Integer startArg = environment.getArgument("start");
-        final Integer rowsArg = environment.getArgument("rows");
-        final List<WebCrawlStatus> result = new ArrayList<>();
-        webCrawlService.getSessions(keywords, startArg, rowsArg, i -> {
-        }).forEach((name, status) -> result.add(new WebCrawlStatus(name, status)));
-        return result;
-    }
-
-    private WebCrawlStatus upsertWebCrawl(final DataFetchingEnvironment environment) throws IOException {
-        final String name = environment.getArgument("name");
-        final Map<String, Object> def = environment.getArgument("settings");
-        final String index = environment.getArgument("index");
-        def.put("crawlCollectorFactory", CrawlerCollector.Web.class.getName());
-        final byte[] bytes = ObjectMappers.JSON.writeValueAsBytes(def);
-        final WebCrawlDefinition webCrawlDefinition = ObjectMappers.JSON.readValue(bytes, WebCrawlDefinition.class);
-        final WebCrawlDefinition webCrawlDefinitionWithVar = WebCrawlDefinition.of(webCrawlDefinition).variable(CrawlerCollector.VARIABLE_INDEX, index).build();
-        return new WebCrawlStatus(name, webCrawlService.upsertSession(name, webCrawlDefinitionWithVar));
-    }
-
-    private WebCrawl getWebCrawl(final DataFetchingEnvironment environment) {
-        final String name = environment.getArgument("name");
-        try {
-            final WebCrawlDefinition webCrawlDefinition = webCrawlService.getSessionDefinition(name);
-            final CrawlerCollector.Variables variables = new CrawlerCollector.Variables(webCrawlDefinition.variables);
-            return new WebCrawl(variables.index, webCrawlDefinition);
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == 404)
-                return null;
-            else
-                throw e;
-        }
-    }
-
-    private WebCrawlStatus runWebCrawl(final DataFetchingEnvironment environment) throws IOException {
-        final String name = environment.getArgument("name");
-        return new WebCrawlStatus(name, webCrawlService.runSession(name));
-    }
-
-    private Boolean abortWebCrawl(final DataFetchingEnvironment environment) {
-        final String name = environment.getArgument("name");
-        final String abortingReason = environment.getArgument("aborting_reason");
-        webCrawlService.stopSession(name, abortingReason);
-        return true;
-    }
-
-    private Boolean deleteWebCrawl(final DataFetchingEnvironment environment) {
-        final String name = environment.getArgument("name");
-        webCrawlService.removeSession(name);
-        return true;
-    }
-
-    private List<FileCrawlStatus> fileCrawlList(final DataFetchingEnvironment environment) {
-        final String keywords = environment.getArgument("keywords");
-        final Integer startArg = environment.getArgument("start");
-        final Integer rowsArg = environment.getArgument("rows");
-        final List<FileCrawlStatus> result = new ArrayList<>();
-        fileCrawlService.getSessions(keywords, startArg, rowsArg, i -> {
-        }).forEach((name, status) -> result.add(new FileCrawlStatus(name, status)));
-        return result;
-    }
-
-    private FileCrawlStatus upsertFileCrawl(final DataFetchingEnvironment environment) throws IOException {
-        final String name = environment.getArgument("name");
-        final Map<String, Object> def = environment.getArgument("settings");
-        final String index = environment.getArgument("index");
-        final byte[] bytes = ObjectMappers.JSON.writeValueAsBytes(def);
-        final FileCrawlDefinition fileCrawlDefinition = ObjectMappers.JSON.readValue(bytes, FileCrawlDefinition.class);
-        final FileCrawlDefinition filerawlDefinitionWithVar = FileCrawlDefinition.of(fileCrawlDefinition).variable(CrawlerCollector.VARIABLE_INDEX, index).build();
-        return new FileCrawlStatus(name, fileCrawlService.upsertSession(name, filerawlDefinitionWithVar));
-    }
-
-    private FileCrawl getFileCrawl(final DataFetchingEnvironment environment) {
-        final String name = environment.getArgument("name");
-        try {
-            final FileCrawlDefinition fileCrawlDefinition = fileCrawlService.getSessionDefinition(name);
-            final CrawlerCollector.Variables variables = new CrawlerCollector.Variables(fileCrawlDefinition.variables);
-            return new FileCrawl(variables.index, fileCrawlDefinition);
-        } catch (WebApplicationException e) {
-            if (e.getResponse().getStatus() == 404)
-                return null;
-            else
-                throw e;
-        }
-    }
-
-    private FileCrawlStatus runFileCrawl(final DataFetchingEnvironment environment) throws IOException {
-        final String name = environment.getArgument("name");
-        return new FileCrawlStatus(name, fileCrawlService.runSession(name));
-    }
-
-    private Boolean abortFileCrawl(final DataFetchingEnvironment environment) {
-        final String name = environment.getArgument("name");
-        final String abortingReason = environment.getArgument("aborting_reason");
-        fileCrawlService.stopSession(name, abortingReason);
-        return true;
-    }
-
-    private Boolean deleteFileCrawl(final DataFetchingEnvironment environment) {
-        final String name = environment.getArgument("name");
-        fileCrawlService.removeSession(name);
-        return true;
-    }
 }
