@@ -16,23 +16,35 @@
 
 package com.jaeksoft.opensearchserver;
 
+import com.qwazr.search.index.IndexServiceInterface;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
-import graphql.schema.GraphQLSchema;
-import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GraphQLService {
 
+    private final IndexServiceInterface indexService;
+
+    private final AtomicInteger renewSchema;
     private volatile GraphQL graphQL;
 
-    public GraphQLService(final GraphQLSchema schema) throws IOException {
-        newSchema(schema);
+    public GraphQLService(final IndexServiceInterface indexService) {
+        this.indexService = indexService;
+        this.renewSchema = new AtomicInteger(0);
+        graphQL = newSchema(indexService, renewSchema);
     }
 
-    public synchronized void newSchema(final GraphQLSchema schema) {
-        graphQL = GraphQL.newGraphQL(schema).build();
+    private static GraphQL newSchema(final IndexServiceInterface indexService, final AtomicInteger renewSchema) {
+        return GraphQL.newGraphQL(new GraphQLFunctions(indexService, renewSchema).getGraphQLSchema()).build();
+    }
+
+    private synchronized void checklRenewSchema() {
+        if (renewSchema.get() == 0)
+            return;
+        graphQL = newSchema(indexService, renewSchema);
+        renewSchema.decrementAndGet();
     }
 
     public ExecutionResult query(String operationName, String query, Map<String, Object> variables) {
@@ -41,7 +53,10 @@ public class GraphQLService {
             builder.operationName(operationName);
         if (variables != null)
             builder.variables(variables);
-        return graphQL.execute(builder.build());
+        final ExecutionInput executionInput = builder.build();
+        final ExecutionResult executionResult = graphQL.execute(executionInput);
+        checklRenewSchema();
+        return executionResult;
     }
 
 }

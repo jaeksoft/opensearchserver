@@ -153,8 +153,7 @@ public class Components implements Closeable {
     }
 
     public GraphQLService getGraphQLService() {
-        return graphqlService.get(() -> new GraphQLService(
-            new GraphQLFunctions(getIndexService()).getGraphQLSchema()));
+        return graphqlService.get(() -> new GraphQLService(getIndexService()));
     }
 
     @Override
