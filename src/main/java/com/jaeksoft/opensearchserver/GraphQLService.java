@@ -21,31 +21,37 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 public class GraphQLService {
 
     private final IndexServiceInterface indexService;
-
-    private final AtomicInteger renewSchema;
+    private final GraphQLFunctions functions;
+    private final Object schemaLock;
     private volatile GraphQL graphQL;
 
     public GraphQLService(final IndexServiceInterface indexService) {
         this.indexService = indexService;
-        this.renewSchema = new AtomicInteger(0);
-        graphQL = newSchema(indexService, renewSchema);
+        this.functions = new GraphQLFunctions(indexService, this);
+        this.schemaLock = new Object();
+        refreshSchema(null);
     }
 
-    private static GraphQL newSchema(final IndexServiceInterface indexService, final AtomicInteger renewSchema) {
-        return GraphQL.newGraphQL(new GraphQLFunctions(indexService, renewSchema).getGraphQLSchema()).build();
+    public boolean refreshSchema(final Supplier<Boolean> supplier) {
+        synchronized (schemaLock) {
+            final Boolean result;
+            if (supplier != null) {
+                result = supplier.get();
+                if (result == null || !result)
+                    return false;
+            } else {
+                result = true;
+            }
+            graphQL = new GraphQLSchemaBuilder(functions).build();
+            return result;
+        }
     }
 
-    private synchronized void checklRenewSchema() {
-        if (renewSchema.get() == 0)
-            return;
-        graphQL = newSchema(indexService, renewSchema);
-        renewSchema.decrementAndGet();
-    }
 
     public ExecutionResult query(String operationName, String query, Map<String, Object> variables) {
         final ExecutionInput.Builder builder = ExecutionInput.newExecutionInput(query);
@@ -55,7 +61,6 @@ public class GraphQLService {
             builder.variables(variables);
         final ExecutionInput executionInput = builder.build();
         final ExecutionResult executionResult = graphQL.execute(executionInput);
-        checklRenewSchema();
         return executionResult;
     }
 
