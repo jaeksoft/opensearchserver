@@ -19,10 +19,25 @@ package com.jaeksoft.opensearchserver;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.qwazr.search.analysis.SmartAnalyzerSet;
+import com.qwazr.search.field.FieldDefinition;
 import com.qwazr.search.field.SmartFieldDefinition;
 import com.qwazr.search.index.IndexServiceInterface;
+import com.qwazr.search.index.IndexSettingsDefinition;
 import com.qwazr.search.index.PostDefinition;
+import com.qwazr.search.index.QueryBuilder;
+import com.qwazr.search.index.QueryDefinition;
+import com.qwazr.search.index.ResultDefinition;
+import com.qwazr.search.index.ResultDocumentMap;
+import com.qwazr.search.query.AbstractClassicQueryParser;
+import com.qwazr.search.query.AbstractQueryParser;
+import com.qwazr.search.query.MultiFieldQueryParser;
+import com.qwazr.search.query.QueryInterface;
+import com.qwazr.search.query.QueryParser;
+import com.qwazr.search.query.QueryParserOperator;
+import com.qwazr.search.query.SimpleQueryParser;
 import static graphql.Scalars.GraphQLFloat;
 import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;
@@ -81,10 +96,16 @@ class GraphQLFunctions {
 
     Boolean createIndex(final DataFetchingEnvironment environment) {
         final String name = getStringArgument(environment, "indexName");
-        if (name == null)
+        if (name == null || name.isEmpty() || name.isBlank())
             return false;
+        final String indexName = name.trim();
+        final IndexSettingsDefinition indexSettings = IndexSettingsDefinition
+            .of()
+            .primaryKey("")
+            .recordField(FieldDefinition.RECORD_FIELD)
+            .build();
         graphQlService.refreshSchema(() -> {
-            indexService.createUpdateIndex(name.trim());
+            indexService.createUpdateIndex(indexName, indexSettings);
             return true;
         });
         return true;
@@ -185,6 +206,89 @@ class GraphQLFunctions {
             return indexService.postMappedDocument(indexName, PostDefinition.Document.of(list.get(0), null));
         else
             return indexService.postMappedDocuments(indexName, PostDefinition.Documents.of(list, null));
+    }
+
+    private QueryResult search(final String indexName, final QueryInterface queryInterface, final DataFetchingEnvironment environment) {
+        final QueryBuilder queryDefinitionBuilder = QueryDefinition.of(queryInterface)
+            .start(environment.getArgument("start"))
+            .rows(environment.getArgument("rows"));
+        final List<String> returnedFields = environment.getArgument("returnedFields");
+        if (returnedFields == null || returnedFields.isEmpty()) {
+            queryDefinitionBuilder.returnedFields("*");
+        } else {
+            queryDefinitionBuilder.returnedFields(returnedFields);
+        }
+        final ResultDefinition.WithMap result = indexService.searchQuery(indexName, queryDefinitionBuilder.build(), false);
+        return new QueryResult(result);
+    }
+
+    private void commonQueryParserParameters(final Map<String, Object> params, final AbstractQueryParser.AbstractBuilder builder) {
+        builder
+            .setEnableGraphQueries((Boolean) params.get("enableGraphQueries"))
+            .setEnablePositionIncrements((Boolean) params.get("enablePositionIncrements"))
+            .setAutoGenerateMultiTermSynonymsPhraseQuery((Boolean) params.get("autoGenerateMultiTermSynonymsPhraseQuery"))
+            .setQueryString((String) params.get("queryString"));
+        ;
+
+    }
+
+    private QueryParserOperator getDefaultOperator(final Map<String, Object> params) {
+        final String defaultOperator = (String) params.get("defaultOperator");
+        return defaultOperator == null ? null : QueryParserOperator.valueOf(defaultOperator);
+    }
+
+    private void commonClassicQueryParserParameters(final Map<String, Object> params, final AbstractClassicQueryParser.AbstractParserBuilder builder) {
+        commonQueryParserParameters(params, builder);
+
+        builder
+            .setAllowLeadingWildcard((Boolean) params.get("allowLeadingWildcard"))
+            .setAutoGeneratePhraseQuery((Boolean) params.get("autoGeneratePhraseQuery"))
+            .setFuzzyMinSim((Float) params.get("fuzzyMinSim"))
+            .setFuzzyPrefixLength((Integer) params.get("fuzzyPrefixLength"))
+            .setSplitOnWhitespace((Boolean) params.get("splitOnWhitespace"))
+            .setMaxDeterminizedStates((Integer) params.get("maxDeterminizedStates"))
+            .setDefaultOperator(getDefaultOperator(params))
+            .setPhraseSlop((Integer) params.get("phraseSlop"));
+    }
+
+    QueryResult searchWithMultiFieldQueryParser(final String indexName, final DataFetchingEnvironment environment) {
+        final MultiFieldQueryParser.Builder builder = MultiFieldQueryParser.of();
+        final Map<String, Object> params = environment.getArgument("params");
+        commonClassicQueryParserParameters(params, builder);
+        final Map<String, Number> fieldBoostMap = environment.getArgument("fieldBoost");
+        if (fieldBoostMap != null) {
+            fieldBoostMap.forEach((field, boost) -> builder.addBoost(field, boost.floatValue()));
+        }
+        return search(indexName, builder.build(), environment);
+    }
+
+    QueryResult searchWithStandardQueryParser(final String indexName, final DataFetchingEnvironment environment) {
+        final QueryParser.Builder builder = QueryParser.of(environment.getArgument("defaultField"));
+        final Map<String, Object> params = environment.getArgument("params");
+        commonQueryParserParameters(params, builder);
+        return search(indexName, builder.build(), environment);
+    }
+
+    QueryResult searchWithSimpleQueryParser(final String indexName, final DataFetchingEnvironment environment) {
+        final SimpleQueryParser.Builder builder = SimpleQueryParser.of();
+        final Map<String, Object> params = environment.getArgument("params");
+        commonQueryParserParameters(params, builder);
+        final List<Map<String, Object>> fieldBoosts = (List<Map<String, Object>>) params.get("fieldBoosts");
+        if (fieldBoosts != null) {
+            for (Map<String, Object> fieldBoost : fieldBoosts) {
+                final String field = (String) fieldBoost.get("field");
+                final Number boost = (Number) fieldBoost.get("boost");
+                builder.addBoost(field, boost.floatValue());
+            }
+        }
+        builder.setDefaultOperator(getDefaultOperator(params));
+        for (SimpleOperator operator : SimpleOperator.values()) {
+            final Boolean enabled = environment.getArgument(operator.name());
+            if (enabled != null && enabled) {
+                builder.addOperator(operator.operator);
+            }
+        }
+        return search(indexName, builder.build(), environment);
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -296,4 +400,54 @@ class GraphQLFunctions {
             return GraphQLFloat;
         }
     }
+
+    public enum SimpleOperator {
+
+        enableAndOperator(SimpleQueryParser.Operator.and),
+        enableEscapeOperator(SimpleQueryParser.Operator.escape),
+        enableFuzzyOperator(SimpleQueryParser.Operator.fuzzy),
+        enableNearOperator(SimpleQueryParser.Operator.near),
+        enableNotOperator(SimpleQueryParser.Operator.not),
+        enableOrOperator(SimpleQueryParser.Operator.or),
+        enablePhraseOperator(SimpleQueryParser.Operator.phrase),
+        enablePrecedenceOperator(SimpleQueryParser.Operator.precedence),
+        enablePrefixOperator(SimpleQueryParser.Operator.prefix),
+        enableWhitespaceOperator(SimpleQueryParser.Operator.whitespace);
+
+        final SimpleQueryParser.Operator operator;
+
+        SimpleOperator(SimpleQueryParser.Operator operator) {
+            this.operator = operator;
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonAutoDetect(
+        setterVisibility = JsonAutoDetect.Visibility.NONE,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE,
+        creatorVisibility = JsonAutoDetect.Visibility.NONE,
+        fieldVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY)
+    public static class QueryResult {
+
+        @JsonProperty
+        public final int totalHits;
+
+        @JsonProperty
+        @JsonSerialize(keyUsing = MapSerializer.class)
+        public final List<Map<String, Object>> documents;
+
+        QueryResult(ResultDefinition.WithMap result) {
+            totalHits = result.totalHits > Integer.MAX_VALUE ? null : (int) result.totalHits;
+            if (result.documents != null) {
+                documents = new ArrayList<>(result.documents.size());
+                for (final ResultDocumentMap resultDocumentMap : result.documents) {
+                    documents.add(resultDocumentMap.fields);
+                }
+            } else
+                documents = List.of();
+        }
+
+    }
+
 }

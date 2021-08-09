@@ -56,30 +56,7 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>central</id>
-      <url>https://jcenter.bintray.com</url>
-    </repository>
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <id>central</id>
-      <url>https://jcenter.bintray.com</url>
-    </pluginRepository>
-  </pluginRepositories>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -101,6 +78,11 @@
         <groupId>com.graphql-java</groupId>
         <artifactId>graphql-java</artifactId>
         <version>16.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>n1ru4l__push-pull-async-iterable-iterator</artifactId>
+        <version>2.1.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -179,7 +161,7 @@
     <dependency>
       <groupId>org.webjars.npm</groupId>
       <artifactId>graphiql</artifactId>
-      <version>1.4.1</version>
+      <version>1.4.2</version>
     </dependency>
 
     <dependency>

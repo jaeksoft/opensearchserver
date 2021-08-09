@@ -17,9 +17,12 @@
 package com.jaeksoft.opensearchserver;
 
 import com.qwazr.search.analysis.SmartAnalyzerSet;
+import com.qwazr.search.query.QueryParserOperator;
 import com.qwazr.utils.StringUtils;
 import graphql.GraphQL;
 import static graphql.Scalars.GraphQLBoolean;
+import static graphql.Scalars.GraphQLFloat;
+import static graphql.Scalars.GraphQLInt;
 import static graphql.Scalars.GraphQLString;
 import graphql.schema.DataFetcher;
 import static graphql.schema.FieldCoordinates.coordinates;
@@ -31,6 +34,7 @@ import graphql.schema.GraphQLEnumType;
 import static graphql.schema.GraphQLEnumType.newEnum;
 import graphql.schema.GraphQLFieldDefinition;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
+import graphql.schema.GraphQLInputObjectField;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import graphql.schema.GraphQLInputObjectType;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
@@ -51,6 +55,9 @@ public class GraphQLSchemaBuilder {
     private final static String indexDocumentPrefix = "Index";
     private final static String indexDocumentSuffix = "Document";
 
+    private final static String queryDocumentPrefix = "Query";
+    private final static String queryDocumentSuffix = "Document";
+
     private final GraphQLFunctions functions;
 
     private final List<GraphQLFieldDefinition> rootQueries;
@@ -59,6 +66,7 @@ public class GraphQLSchemaBuilder {
 
     private final IndexContext indexContext;
     private final FieldContext fieldContext;
+    private final QueryContext queryContext;
 
     private static <T extends Enum<T>> GraphQLEnumType createEnum(String name, String description, T... values) {
         final GraphQLEnumType.Builder builder = newEnum()
@@ -80,12 +88,23 @@ public class GraphQLSchemaBuilder {
 
         indexContext = new IndexContext();
         fieldContext = new FieldContext();
+        queryContext = new QueryContext();
     }
 
     public GraphQL build() {
 
         indexContext.build();
         fieldContext.build();
+        queryContext.build();
+
+        for (GraphQLFunctions.Index index : functions.getIndexList(null, 0, Integer.MAX_VALUE)) {
+            final String sourceIndexName = index.name.trim();
+            final String capitalizedIndexName = StringUtils.capitalize(sourceIndexName);
+            final List<GraphQLFunctions.Field> fields = functions.getFieldList(sourceIndexName);
+            indexContext.buildPerIndex(sourceIndexName, capitalizedIndexName, fields);
+            queryContext.buildPerIndex(sourceIndexName, capitalizedIndexName, fields);
+        }
+
 
         final GraphQLSchema.Builder builder = GraphQLSchema.newSchema();
 
@@ -176,47 +195,41 @@ public class GraphQLSchemaBuilder {
 
         }
 
-        private void createDocumentTypes() {
-
-            for (final GraphQLFunctions.Index index : functions.getIndexList(null, 0, Integer.MAX_VALUE)) {
-
-                final String sourceIndexName = index.name.trim();
-                final String capitalizedIndexName = StringUtils.capitalize(sourceIndexName);
-
-                final GraphQLInputObjectType.Builder indexDocumentBuilder = newInputObject()
-                    .name(indexDocumentPrefix + capitalizedIndexName + indexDocumentSuffix)
-                    .description("A document following the schema of the index \"" + sourceIndexName + "\"");
-
-                for (final GraphQLFunctions.Field field : functions.getFieldList(sourceIndexName)) {
-                    indexDocumentBuilder.field(newInputObjectField()
-                        .name(field.name)
-                        .type(field.getGraphScalarType())
-                        .build());
-                }
-
-                final GraphQLInputObjectType indexDocument = indexDocumentBuilder.build();
-                if (indexDocument.getFields().isEmpty())
-                    continue;
-                final String ingestFunctionName = "ingest" + capitalizedIndexName;
-                final GraphQLFieldDefinition ingestDocuments = newFieldDefinition()
-                    .name(ingestFunctionName)
-                    .description("Ingest a document into \"" + sourceIndexName + "\"")
-                    .argument(newArgument().name("docs").type(GraphQLList.list(indexDocument)))
-                    .type(GraphQLBoolean)
-                    .build();
-
-                rootMutations.add(ingestDocuments);
-
-                codeRegistry.dataFetcher(
-                    coordinates("Mutation", ingestFunctionName),
-                    (DataFetcher<?>) env -> functions.ingestDocuments(sourceIndexName, env));
-            }
-        }
-
         private void build() {
             createIndexFunctions();
-            createDocumentTypes();
         }
+
+        private void buildPerIndex(String sourceIndexName, String capitalizedIndexName, List<GraphQLFunctions.Field> fields) {
+
+            final GraphQLInputObjectType.Builder indexDocumentBuilder = newInputObject()
+                .name(indexDocumentPrefix + capitalizedIndexName + indexDocumentSuffix)
+                .description("A document following the schema of the index \"" + sourceIndexName + "\"");
+
+            for (final GraphQLFunctions.Field field : fields) {
+                indexDocumentBuilder.field(newInputObjectField()
+                    .name(field.name)
+                    .type(field.getGraphScalarType())
+                    .build());
+            }
+
+            final GraphQLInputObjectType indexDocument = indexDocumentBuilder.build();
+            if (indexDocument.getFields().isEmpty())
+                return;
+            final String ingestFunctionName = "ingest" + capitalizedIndexName;
+            final GraphQLFieldDefinition ingestDocuments = newFieldDefinition()
+                .name(ingestFunctionName)
+                .description("Ingest a document into \"" + sourceIndexName + "\"")
+                .argument(newArgument().name("docs").type(GraphQLList.list(indexDocument)))
+                .type(GraphQLBoolean)
+                .build();
+
+            rootMutations.add(ingestDocuments);
+
+            codeRegistry.dataFetcher(
+                coordinates("Mutation", ingestFunctionName),
+                (DataFetcher<?>) env -> functions.ingestDocuments(sourceIndexName, env));
+        }
+
     }
 
     private class FieldContext {
@@ -454,4 +467,186 @@ public class GraphQLSchemaBuilder {
         }
     }
 
+    private class QueryContext {
+
+        private GraphQLInputObjectType standardQueryParserInputType;
+        private GraphQLInputObjectType multiFieldQueryParserInputType;
+        private GraphQLInputObjectType simpleQueryParserInputType;
+        private GraphQLInputObjectType fieldBoost;
+
+        private void build() {
+            fieldBoost = GraphQLInputObjectType.newInputObject()
+                .name("FieldBoost")
+                .field(newInputObjectField().name("field").type(GraphQLString).build())
+                .field(newInputObjectField().name("boost").type(GraphQLFloat).build())
+                .build();
+            final List<GraphQLInputObjectField> commonQueryParserInputFields = buildCommonQueryInputFields();
+            final List<GraphQLInputObjectField> commonClassicQueryParserInputFields = buildCommonClassicQueryInputFields();
+
+            standardQueryParserInputType = GraphQLInputObjectType.newInputObject()
+                .name("StandardQueryParserParameters")
+                .description("StandardQueryParser parameters")
+                .fields(commonQueryParserInputFields)
+                .fields(commonClassicQueryParserInputFields)
+                .build();
+
+            multiFieldQueryParserInputType = GraphQLInputObjectType.newInputObject()
+                .name("MultiFieldQueryParserParameters")
+                .description("StandardQueryParser parameters")
+                .fields(commonQueryParserInputFields)
+                .fields(commonClassicQueryParserInputFields)
+                .field(newInputObjectField().name("fields").type(GraphQLList.list(GraphQLString)))
+                .field(newInputObjectField().name("fieldBoosts").type(GraphQLList.list(fieldBoost)))
+                .build();
+
+            final GraphQLInputObjectType.Builder simpleQueryParserInputTypeBuilder = GraphQLInputObjectType.newInputObject()
+                .name("SimpleQueryParserParameters")
+                .description("SimpleQueryParser parameters")
+                .fields(commonQueryParserInputFields)
+                .field(newInputObjectField().name("fieldBoosts").type(GraphQLList.list(fieldBoost)));
+            for (GraphQLFunctions.SimpleOperator operator : GraphQLFunctions.SimpleOperator.values()) {
+                simpleQueryParserInputTypeBuilder.field(
+                    newInputObjectField()
+                        .name(operator.name())
+                        .type(GraphQLBoolean)
+                        .build());
+            }
+            simpleQueryParserInputType = simpleQueryParserInputTypeBuilder.build();
+
+        }
+
+        private List<GraphQLInputObjectField> buildCommonQueryInputFields() {
+            return List.of(
+                newInputObjectField()
+                    .name("queryString")
+                    .type(GraphQLString)
+                    .build(),
+                newInputObjectField()
+                    .name("enableGraphQueries")
+                    .type(GraphQLBoolean)
+                    .build(),
+                newInputObjectField()
+                    .name("enablePositionIncrements")
+                    .type(GraphQLBoolean)
+                    .build(),
+                newInputObjectField()
+                    .name("autoGenerateMultiTermSynonymsPhraseQuery")
+                    .type(GraphQLBoolean)
+                    .build());
+        }
+
+        private List<GraphQLInputObjectField> buildCommonClassicQueryInputFields() {
+            return List.of(
+                newInputObjectField()
+                    .name("allowLeadingWildcard")
+                    .type(GraphQLBoolean)
+                    .build(),
+                newInputObjectField()
+                    .name("autoGeneratePhraseQuery")
+                    .type(GraphQLBoolean)
+                    .build(),
+                newInputObjectField()
+                    .name("fuzzyMinSim")
+                    .type(GraphQLFloat)
+                    .build(),
+                newInputObjectField()
+                    .name("fuzzyPrefixLength")
+                    .type(GraphQLInt)
+                    .build(),
+                newInputObjectField()
+                    .name("splitOnWhitespace")
+                    .type(GraphQLBoolean)
+                    .build(),
+                newInputObjectField()
+                    .name("maxDeterminizedStates")
+                    .type(GraphQLInt)
+                    .build(),
+                newInputObjectField()
+                    .name("defaultOperator")
+                    .type(createEnum("QueryOperator", "Query operator", QueryParserOperator.values()))
+                    .build(),
+                newInputObjectField()
+                    .name("phraseSlop")
+                    .type(GraphQLInt)
+                    .build());
+        }
+
+        private void createSimpleQuery(String capitalizedIndexName, String sourceIndexName, GraphQLObjectType queryResultType) {
+            final String queryFunctionName = "simpleQuery" + capitalizedIndexName;
+
+            final GraphQLFieldDefinition.Builder builder = newFieldDefinition()
+                .name(queryFunctionName)
+                .description("Simple query from \"" + sourceIndexName + "\"")
+                .argument(newArgument().name("params").type(simpleQueryParserInputType))
+                .type(queryResultType);
+            queryParams(builder);
+            rootQueries.add(builder.build());
+            codeRegistry.dataFetcher(
+                coordinates("Query", queryFunctionName),
+                (DataFetcher<?>) env -> functions.searchWithSimpleQueryParser(sourceIndexName, env));
+        }
+
+        private void createMultiFieldQuery(String capitalizedIndexName, String sourceIndexName, GraphQLObjectType queryResultType) {
+            final String queryFunctionName = "multiFieldQuery" + capitalizedIndexName;
+            final GraphQLFieldDefinition.Builder builder = newFieldDefinition()
+                .name(queryFunctionName)
+                .description("Multi-field query from \"" + sourceIndexName + "\"")
+                .argument(newArgument().name("params").type(multiFieldQueryParserInputType))
+                .type(queryResultType);
+            queryParams(builder);
+            rootQueries.add(builder.build());
+            codeRegistry.dataFetcher(
+                coordinates("Query", queryFunctionName),
+                (DataFetcher<?>) env -> functions.searchWithMultiFieldQueryParser(sourceIndexName, env));
+        }
+
+        private void queryParams(GraphQLFieldDefinition.Builder builder) {
+            builder
+                .argument(newArgument().name("start").type(GraphQLInt).build())
+                .argument(newArgument().name("rows").type(GraphQLInt).build());
+            //  .argument(newArgument().name("returnedFields").type(GraphQLList.list(GraphQLString)).build());
+        }
+
+        private void createStandardQuery(String capitalizedIndexName, String sourceIndexName, GraphQLObjectType queryResultType) {
+            final String queryFunctionName = "standardFieldQuery" + capitalizedIndexName;
+            final GraphQLFieldDefinition.Builder builder = newFieldDefinition()
+                .name(queryFunctionName)
+                .description("Standard query from \"" + sourceIndexName + "\"")
+                .argument(newArgument().name("params").type(standardQueryParserInputType))
+                .type(queryResultType);
+            queryParams(builder);
+            rootQueries.add(builder.build());
+            codeRegistry.dataFetcher(
+                coordinates("Query", queryFunctionName),
+                (DataFetcher<?>) env -> functions.searchWithStandardQueryParser(sourceIndexName, env));
+        }
+
+        private void buildPerIndex(String sourceIndexName, String capitalizedIndexName, List<GraphQLFunctions.Field> fields) {
+            if (fields == null || fields.isEmpty())
+                return;
+
+            final GraphQLObjectType.Builder queryDocumentTypeBuilder = newObject()
+                .name(queryDocumentPrefix + capitalizedIndexName + queryDocumentSuffix)
+                .description("A document following the schema of the index \"" + sourceIndexName + "\"");
+
+            for (final GraphQLFunctions.Field field : fields) {
+                queryDocumentTypeBuilder.field(newFieldDefinition()
+                    .name(field.name)
+                    .type(field.getGraphScalarType())
+                    .build());
+            }
+
+            final GraphQLObjectType queryDocumentType = queryDocumentTypeBuilder.build();
+
+            final GraphQLObjectType queryResultType = newObject()
+                .name("QueryResult" + capitalizedIndexName)
+                .field(newFieldDefinition().name("totalHits").type(GraphQLNonNull.nonNull(GraphQLInt)).build())
+                .field(newFieldDefinition().name("documents").type(GraphQLNonNull.nonNull(GraphQLList.list(queryDocumentType))))
+                .build();
+
+            createSimpleQuery(capitalizedIndexName, sourceIndexName, queryResultType);
+            createMultiFieldQuery(capitalizedIndexName, sourceIndexName, queryResultType);
+            createStandardQuery(capitalizedIndexName, sourceIndexName, queryResultType);
+        }
+    }
 }
