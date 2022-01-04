@@ -62,7 +62,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <qwazr.version>1.5.2-SNAPSHOT</qwazr.version>
-    <log4j.version>2.14.1</log4j.version>
+    <log4j.version>2.17.1</log4j.version>
   </properties>
 
   <dependencyManagement>
