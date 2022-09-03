@@ -45,14 +45,14 @@ The index has not been found.
 
 **Using CURL:**
 
-    curl -XGET http://localhost:8080/services/rest/index/my_index
+    curl -XGET http://localhost:9090/services/rest/index/my_index
 
 **Using jQuery:**
 
     $.ajax({ 
      type: "GET",
      dataType: "json",
-     url: "http://localhost:8080/services/rest/index/my_index"
+     url: "http://localhost:9090/services/rest/index/my_index"
     }).done(function (data) {
      console.log(data);
     });
